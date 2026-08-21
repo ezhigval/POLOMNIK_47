@@ -1,0 +1,113 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.25"
+          cache-dependency-path: backend/go.sum
+      - name: Go test
+        run: go test ./...
+      - name: Go vet
+        run: go vet ./...
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run build
+
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Start API stack
+        run: docker compose up --build -d postgres redis migrate seed api worker
+      - name: Wait for API
+        run: chmod +x scripts/wait-for-api.sh && ./scripts/wait-for-api.sh
+      - name: Ops check
+        run: chmod +x scripts/check-ops.sh && ./scripts/check-ops.sh
+      - name: Smoke test
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run test:smoke
+        env:
+          NEXT_PUBLIC_API_URL: http://localhost:8080/api/v1
+          ADMIN_TOKEN: dev-admin-token
+          INTERNAL_API_SECRET: dev-internal-api-secret
+
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Start full stack
+        run: docker compose up --build -d postgres redis migrate seed api frontend
+      - name: Wait for API
+        run: chmod +x scripts/wait-for-api.sh && ./scripts/wait-for-api.sh
+      - name: Wait for frontend
+        run: chmod +x scripts/wait-for-frontend.sh && ./scripts/wait-for-frontend.sh
+      - name: Install Playwright
+        working-directory: frontend
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+      - name: E2E tests
+        working-directory: frontend
+        run: PLAYWRIGHT_SKIP_WEBSERVER=1 npm run test:e2e
+        env:
+          PLAYWRIGHT_BASE_URL: http://localhost:3000
+
+  integration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Start integration stack
+        run: docker compose -f docker-compose.yml -f docker-compose.integrations.yml up --build -d
+      - name: Wait for API
+        run: chmod +x scripts/wait-for-api.sh && ./scripts/wait-for-api.sh
+      - name: Integration smoke test
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run test:integration
+        env:
+          NEXT_PUBLIC_API_URL: http://localhost:8080/api/v1
+          ADMIN_TOKEN: dev-admin-token
+          BITRIX_INBOUND_TOKEN: dev-bitrix-inbound

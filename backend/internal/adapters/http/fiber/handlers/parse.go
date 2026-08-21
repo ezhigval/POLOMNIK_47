@@ -1,0 +1,121 @@
+package handlers
+
+import (
+	"net/mail"
+	"strconv"
+	"strings"
+	"time"
+
+	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
+
+	"polomnik/internal/ports"
+)
+
+func parsePagination(c *fiber.Ctx) ports.Pagination {
+	page, _ := strconv.Atoi(c.Query("page"))
+	limit, _ := strconv.Atoi(c.Query("limit"))
+	return ports.NormalizePagination(page, limit)
+}
+
+func parseOptionalDate(value string) (*time.Time, error) {
+	value = strings.TrimSpace(value)
+	if value == "" {
+		return nil, nil
+	}
+	parsed, err := time.Parse("2006-01-02", value)
+	if err != nil {
+		return nil, &AppError{
+			Status:  422,
+			Code:    "VALIDATION_ERROR",
+			Message: "Invalid date format, expected YYYY-MM-DD",
+		}
+	}
+	return &parsed, nil
+}
+
+func parseRequiredDate(value string) (time.Time, error) {
+	parsed, err := parseOptionalDate(value)
+	if err != nil {
+		return time.Time{}, err
+	}
+	if parsed == nil {
+		return time.Time{}, &AppError{
+			Status:  422,
+			Code:    "VALIDATION_ERROR",
+			Message: "Date is required",
+		}
+	}
+	return *parsed, nil
+}
+
+func parseUUID(value string) (uuid.UUID, error) {
+	id, err := uuid.Parse(strings.TrimSpace(value))
+	if err != nil {
+		return uuid.Nil, &AppError{
+			Status:  422,
+			Code:    "VALIDATION_ERROR",
+			Message: "Invalid UUID",
+		}
+	}
+	return id, nil
+}
+
+func parseOptionalInt(value string) (*int, error) {
+	value = strings.TrimSpace(value)
+	if value == "" {
+		return nil, nil
+	}
+	parsed, err := strconv.Atoi(value)
+	if err != nil {
+		return nil, &AppError{
+			Status:  422,
+			Code:    "VALIDATION_ERROR",
+			Message: "Invalid integer value",
+		}
+	}
+	return &parsed, nil
+}
+
+func parseOptionalBool(value string) *bool {
+	value = strings.TrimSpace(strings.ToLower(value))
+	if value == "" {
+		return nil
+	}
+	parsed := value == "true" || value == "1"
+	return &parsed
+}
+
+func validateEmail(email string) error {
+	email = strings.TrimSpace(email)
+	if email == "" {
+		return nil
+	}
+	if _, err := mail.ParseAddress(email); err != nil {
+		return &AppError{
+			Status:  422,
+			Code:    "VALIDATION_ERROR",
+			Message: "Invalid email address",
+		}
+	}
+	return nil
+}
+
+func respondError(c *fiber.Ctx, err error, mapper func(error) *AppError) error {
+	if appErr, ok := err.(*AppError); ok {
+		return writeAppError(c, appErr)
+	}
+	if appErr := mapper(err); appErr != nil {
+		return writeAppError(c, appErr)
+	}
+	return err
+}
+
+func writeAppError(c *fiber.Ctx, appErr *AppError) error {
+	return c.Status(appErr.Status).JSON(fiber.Map{
+		"error": fiber.Map{
+			"code":    appErr.Code,
+			"message": appErr.Message,
+		},
+	})
+}

@@ -1,0 +1,65 @@
+# Local Bitrix24 + 1C integration stack (mock servers).
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.integrations.yml up -d --build
+#   make integration-smoke-docker
+
+services:
+  mock-bitrix:
+    build:
+      context: .
+      dockerfile: integrations/Dockerfile
+      args:
+        BINARY: mock-bitrix
+    environment:
+      MOCK_BITRIX_ADDR: :8091
+    ports:
+      - "8091:8091"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8091/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  mock-onec:
+    build:
+      context: .
+      dockerfile: integrations/Dockerfile
+      args:
+        BINARY: mock-onec
+    environment:
+      MOCK_ONEC_ADDR: :8092
+    ports:
+      - "8092:8092"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8092/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    depends_on:
+      mock-bitrix:
+        condition: service_healthy
+      mock-onec:
+        condition: service_healthy
+    environment:
+      CRM_ADAPTER: bitrix
+      ACCOUNTING_ADAPTER: onec
+      BITRIX_WEBHOOK_URL: http://mock-bitrix:8091/rest/1/devtoken
+      BITRIX_INBOUND_TOKEN: dev-bitrix-inbound
+      ONEC_BASE_URL: http://mock-onec:8092/accounting
+      INTEGRATION_HTTP_TIMEOUT: 10s
+
+  worker:
+    depends_on:
+      mock-bitrix:
+        condition: service_healthy
+      mock-onec:
+        condition: service_healthy
+    environment:
+      CRM_ADAPTER: bitrix
+      ACCOUNTING_ADAPTER: onec
+      BITRIX_WEBHOOK_URL: http://mock-bitrix:8091/rest/1/devtoken
+      ONEC_BASE_URL: http://mock-onec:8092/accounting
+      OUTBOX_WORKER_POLL_INTERVAL: 5s
+      INTEGRATION_HTTP_TIMEOUT: 10s

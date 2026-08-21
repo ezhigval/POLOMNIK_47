@@ -1,0 +1,409 @@
+import "server-only";
+
+import { getApiBaseUrl } from "./base-url";
+import { ApiError } from "./client";
+import type { CmsBlock, CmsBlockTemplate, CmsBlockType, CmsPage } from "./cms";
+import type { Tour } from "./tours";
+
+type ListEnvelope<T> = {
+  data: T[];
+  meta: {
+    page: number;
+    limit: number;
+    total: number;
+    has_next: boolean;
+  };
+};
+
+type DataEnvelope<T> = {
+  data: T;
+};
+
+export type ManagementTour = Tour & {
+  is_active: boolean;
+  overbooking_enabled: boolean;
+};
+
+export type ManagementBooking = {
+  id: string;
+  tour_id: string;
+  name: string;
+  phone: string;
+  email: string;
+  people_count: number;
+  status: string;
+  total_price: number;
+  comment: string;
+  overbooked: boolean;
+  source: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type ManagementReview = {
+  id: string;
+  tour_id: string;
+  client_name: string;
+  rating: number;
+  text: string;
+  is_approved: boolean;
+  created_at: string;
+};
+
+export type TourUpsertInput = {
+  slug: string;
+  title: string;
+  description: string;
+  price: number;
+  currency: string;
+  date_start: string;
+  date_end: string;
+  slots_total: number;
+  slots_left: number;
+  location: string;
+  images: string[];
+  is_active: boolean;
+  is_hot: boolean;
+  overbooking_enabled: boolean;
+};
+
+export function isManagementConfigured(): boolean {
+  return Boolean(process.env.ADMIN_TOKEN);
+}
+
+async function managementRequest<T>(path: string, init?: RequestInit): Promise<T> {
+  const adminToken = process.env.ADMIN_TOKEN;
+  if (!adminToken) {
+    throw new ApiError(503, "SERVICE_UNAVAILABLE", "Management API is not configured");
+  }
+
+  const response = await fetch(`${getApiBaseUrl()}/management${path}`, {
+    ...init,
+    cache: "no-store",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Admin-Token": adminToken,
+      ...(init?.headers ?? {}),
+    },
+  });
+
+  if (!response.ok) {
+    try {
+      const body = (await response.json()) as { error: { code: string; message: string } };
+      throw new ApiError(
+        response.status,
+        body.error?.code ?? "UNKNOWN_ERROR",
+        body.error?.message ?? "Request failed",
+      );
+    } catch (error) {
+      if (error instanceof ApiError) {
+        throw error;
+      }
+      throw new ApiError(response.status, "UNKNOWN_ERROR", response.statusText);
+    }
+  }
+
+  if (response.status === 204) {
+    return undefined as T;
+  }
+
+  return (await response.json()) as T;
+}
+
+export async function listManagementTours() {
+  const body = await managementRequest<ListEnvelope<ManagementTour>>("/tours");
+  return body.data;
+}
+
+export async function createManagementTour(input: TourUpsertInput) {
+  const body = await managementRequest<DataEnvelope<ManagementTour>>("/tours", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+  return body.data;
+}
+
+export async function uploadManagementImage(file: File) {
+  const adminToken = process.env.ADMIN_TOKEN;
+  if (!adminToken) {
+    throw new ApiError(503, "SERVICE_UNAVAILABLE", "Management API is not configured");
+  }
+
+  const body = new FormData();
+  body.append("file", file);
+
+  const response = await fetch(`${getApiBaseUrl()}/management/uploads`, {
+    method: "POST",
+    cache: "no-store",
+    headers: {
+      "X-Admin-Token": adminToken,
+    },
+    body,
+  });
+
+  if (!response.ok) {
+    try {
+      const payload = (await response.json()) as { error: { code: string; message: string } };
+      throw new ApiError(
+        response.status,
+        payload.error?.code ?? "UNKNOWN_ERROR",
+        payload.error?.message ?? "Upload failed",
+      );
+    } catch (error) {
+      if (error instanceof ApiError) {
+        throw error;
+      }
+      throw new ApiError(response.status, "UNKNOWN_ERROR", response.statusText);
+    }
+  }
+
+  const payload = (await response.json()) as DataEnvelope<{ url: string; path: string }>;
+  return payload.data;
+}
+
+export async function updateManagementTour(id: string, input: TourUpsertInput) {
+  const body = await managementRequest<DataEnvelope<ManagementTour>>(`/tours/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(input),
+  });
+  return body.data;
+}
+
+export type ManagementSystemInfo = {
+  crm_adapter: string;
+  accounting_adapter: string;
+  notification_adapter: string;
+  telegram_configured: boolean;
+  bitrix_configured: boolean;
+  onec_configured: boolean;
+  outbox: {
+    pending: number;
+    failed: number;
+    processed: number;
+    oldest_pending_at?: string;
+    latest_failed_at?: string;
+    latest_failed_error?: string;
+  };
+};
+
+export async function getManagementSystemInfo() {
+  const body = await managementRequest<DataEnvelope<ManagementSystemInfo>>("/system-info");
+  return body.data;
+}
+
+export async function listManagementIntegrationReferences(params?: {
+  external_system?: string;
+  local_entity_type?: string;
+  sync_status?: string;
+}) {
+  const search = new URLSearchParams();
+  if (params?.external_system) search.set("external_system", params.external_system);
+  if (params?.local_entity_type) search.set("local_entity_type", params.local_entity_type);
+  if (params?.sync_status) search.set("sync_status", params.sync_status);
+
+  const query = search.toString();
+  const body = await managementRequest<ListEnvelope<ManagementIntegrationReference>>(
+    `/integration-references${query ? `?${query}` : ""}`,
+  );
+  return body.data;
+}
+
+export async function listManagementOutboxEvents(params?: {
+  status?: string;
+  entity_type?: string;
+  event_type?: string;
+}) {
+  const search = new URLSearchParams();
+  if (params?.status) search.set("status", params.status);
+  if (params?.entity_type) search.set("entity_type", params.entity_type);
+  if (params?.event_type) search.set("event_type", params.event_type);
+
+  const query = search.toString();
+  const body = await managementRequest<ListEnvelope<ManagementOutboxEvent>>(
+    `/outbox-events${query ? `?${query}` : ""}`,
+  );
+  return body.data;
+}
+
+export type ManagementOutboxEvent = {
+  id: string;
+  event_type: string;
+  entity_type: string;
+  entity_id: string;
+  payload: Record<string, unknown>;
+  status: string;
+  attempts: number;
+  last_error: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type ManagementIntegrationReference = {
+  id: string;
+  local_entity_type: string;
+  local_entity_id: string;
+  external_system: string;
+  external_entity_type: string;
+  external_entity_id: string;
+  sync_status: string;
+  last_sync_at: string | null;
+  last_error: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export async function deleteManagementTour(id: string) {
+  await managementRequest<void>(`/tours/${id}`, { method: "DELETE" });
+}
+
+export async function listManagementBookings() {
+  const body = await managementRequest<ListEnvelope<ManagementBooking>>("/bookings");
+  return body.data;
+}
+
+export async function updateManagementBookingStatus(id: string, status: string) {
+  const body = await managementRequest<DataEnvelope<ManagementBooking>>(
+    `/bookings/${id}/status`,
+    {
+      method: "PATCH",
+      body: JSON.stringify({ status }),
+    },
+  );
+  return body.data;
+}
+
+export type CreateReviewInput = {
+  tour_id: string;
+  client_name: string;
+  rating: number;
+  text: string;
+  is_approved: boolean;
+};
+
+export async function createManagementReview(input: CreateReviewInput) {
+  const body = await managementRequest<DataEnvelope<ManagementReview>>("/reviews", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+  return body.data;
+}
+
+export async function listManagementReviews() {
+  const body = await managementRequest<ListEnvelope<ManagementReview>>("/reviews");
+  return body.data;
+}
+
+export async function approveManagementReview(id: string) {
+  const body = await managementRequest<DataEnvelope<ManagementReview>>(
+    `/reviews/${id}/approve`,
+    { method: "PATCH" },
+  );
+  return body.data;
+}
+
+export async function rejectManagementReview(id: string) {
+  const body = await managementRequest<DataEnvelope<ManagementReview>>(
+    `/reviews/${id}/reject`,
+    { method: "PATCH" },
+  );
+  return body.data;
+}
+
+export async function deleteManagementReview(id: string) {
+  await managementRequest<void>(`/reviews/${id}`, { method: "DELETE" });
+}
+
+export type CmsPageCreateInput = {
+  slug: string;
+  title: string;
+  path: string;
+  is_published: boolean;
+};
+
+export type CmsPageUpdateInput = {
+  title?: string;
+  path?: string;
+  is_published?: boolean;
+};
+
+export type CmsBlockCreateInput = {
+  type: CmsBlockType;
+  content?: Record<string, unknown>;
+  is_visible?: boolean;
+};
+
+export type CmsBlockUpdateInput = {
+  content?: Record<string, unknown>;
+  is_visible?: boolean;
+  sort_order?: number;
+};
+
+export async function listManagementCmsPages() {
+  const body = await managementRequest<ListEnvelope<CmsPage>>("/cms/pages");
+  return body.data;
+}
+
+export async function getManagementCmsPage(id: string) {
+  const body = await managementRequest<DataEnvelope<CmsPage>>(`/cms/pages/${id}`);
+  return body.data;
+}
+
+export async function createManagementCmsPage(input: CmsPageCreateInput) {
+  const body = await managementRequest<DataEnvelope<CmsPage>>("/cms/pages", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+  return body.data;
+}
+
+export async function bootstrapManagementHomePage() {
+  const body = await managementRequest<DataEnvelope<CmsPage>>("/cms/pages/bootstrap-home", {
+    method: "POST",
+  });
+  return body.data;
+}
+
+export async function updateManagementCmsPage(id: string, input: CmsPageUpdateInput) {
+  const body = await managementRequest<DataEnvelope<CmsPage>>(`/cms/pages/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(input),
+  });
+  return body.data;
+}
+
+export async function deleteManagementCmsPage(id: string) {
+  await managementRequest<void>(`/cms/pages/${id}`, { method: "DELETE" });
+}
+
+export async function listManagementCmsTemplates() {
+  const body = await managementRequest<DataEnvelope<CmsBlockTemplate[]>>("/cms/templates");
+  return body.data;
+}
+
+export async function createManagementCmsBlock(pageId: string, input: CmsBlockCreateInput) {
+  const body = await managementRequest<DataEnvelope<CmsBlock>>(`/cms/pages/${pageId}/blocks`, {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+  return body.data;
+}
+
+export async function updateManagementCmsBlock(id: string, input: CmsBlockUpdateInput) {
+  const body = await managementRequest<DataEnvelope<CmsBlock>>(`/cms/blocks/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(input),
+  });
+  return body.data;
+}
+
+export async function deleteManagementCmsBlock(id: string) {
+  await managementRequest<void>(`/cms/blocks/${id}`, { method: "DELETE" });
+}
+
+export async function reorderManagementCmsBlocks(pageId: string, blockIds: string[]) {
+  const body = await managementRequest<DataEnvelope<CmsPage>>(`/cms/pages/${pageId}/blocks/reorder`, {
+    method: "POST",
+    body: JSON.stringify({ block_ids: blockIds }),
+  });
+  return body.data;
+}

@@ -1,0 +1,301 @@
+package handlers
+
+import (
+	"github.com/gofiber/fiber/v2"
+
+	"polomnik/internal/adapters/http/fiber/dto"
+	"polomnik/internal/application"
+	"polomnik/internal/domain"
+	"polomnik/internal/ports"
+)
+
+func (h *Handler) ManagementListTours(c *fiber.Ctx) error {
+	list, err := h.tours.ListTours(c.Context(), ports.TourFilters{}, parsePagination(c))
+	if err != nil {
+		return respondError(c, err, MapError)
+	}
+
+	items := make([]dto.ManagementTourResponse, 0, len(list.Items))
+	for _, tour := range list.Items {
+		items = append(items, dto.ToManagementTourResponse(tour))
+	}
+
+	return c.JSON(dto.ListEnvelope[dto.ManagementTourResponse]{
+		Data: items,
+		Meta: list.Meta,
+	})
+}
+
+func (h *Handler) ManagementGetTour(c *fiber.Ctx) error {
+	id, err := parseUUID(c.Params("id"))
+	if err != nil {
+		return writeAppError(c, err.(*AppError))
+	}
+
+	tour, err := h.tours.GetTour(c.Context(), id)
+	if err != nil {
+		return respondError(c, err, MapError)
+	}
+
+	return c.JSON(dto.DataEnvelope[dto.ManagementTourResponse]{
+		Data: dto.ToManagementTourResponse(tour),
+	})
+}
+
+func (h *Handler) ManagementCreateTour(c *fiber.Ctx) error {
+	var req dto.TourUpsertRequest
+	if err := c.BodyParser(&req); err != nil {
+		return writeAppError(c, &AppError{
+			Status:  422,
+			Code:    "VALIDATION_ERROR",
+			Message: "Invalid request body",
+		})
+	}
+
+	dateStart, err := parseRequiredDate(req.DateStart)
+	if err != nil {
+		return writeAppError(c, err.(*AppError))
+	}
+	dateEnd, err := parseRequiredDate(req.DateEnd)
+	if err != nil {
+		return writeAppError(c, err.(*AppError))
+	}
+
+	tour, err := h.tours.CreateTour(c.Context(), application.CreateTourInput{
+		Slug:               req.Slug,
+		Title:              req.Title,
+		Description:        req.Description,
+		Price:              req.Price,
+		Currency:           req.Currency,
+		DateStart:          dateStart,
+		DateEnd:            dateEnd,
+		SlotsTotal:         req.SlotsTotal,
+		SlotsLeft:          req.SlotsLeft,
+		Location:           req.Location,
+		Images:             req.Images,
+		IsActive:           req.IsActive,
+		IsHot:              req.IsHot,
+		OverbookingEnabled: req.OverbookingEnabled,
+	})
+	if err != nil {
+		return respondError(c, err, MapError)
+	}
+
+	return c.Status(fiber.StatusCreated).JSON(dto.DataEnvelope[dto.ManagementTourResponse]{
+		Data: dto.ToManagementTourResponse(tour),
+	})
+}
+
+func (h *Handler) ManagementUpdateTour(c *fiber.Ctx) error {
+	id, err := parseUUID(c.Params("id"))
+	if err != nil {
+		return writeAppError(c, err.(*AppError))
+	}
+
+	var req dto.TourUpsertRequest
+	if err := c.BodyParser(&req); err != nil {
+		return writeAppError(c, &AppError{
+			Status:  422,
+			Code:    "VALIDATION_ERROR",
+			Message: "Invalid request body",
+		})
+	}
+
+	dateStart, err := parseRequiredDate(req.DateStart)
+	if err != nil {
+		return writeAppError(c, err.(*AppError))
+	}
+	dateEnd, err := parseRequiredDate(req.DateEnd)
+	if err != nil {
+		return writeAppError(c, err.(*AppError))
+	}
+
+	tour, err := h.tours.UpdateTour(c.Context(), id, application.UpdateTourInput{
+		Slug:               req.Slug,
+		Title:              req.Title,
+		Description:        req.Description,
+		Price:              req.Price,
+		Currency:           req.Currency,
+		DateStart:          dateStart,
+		DateEnd:            dateEnd,
+		SlotsTotal:         req.SlotsTotal,
+		SlotsLeft:          req.SlotsLeft,
+		Location:           req.Location,
+		Images:             req.Images,
+		IsActive:           req.IsActive,
+		IsHot:              req.IsHot,
+		OverbookingEnabled: req.OverbookingEnabled,
+	})
+	if err != nil {
+		return respondError(c, err, MapError)
+	}
+
+	return c.JSON(dto.DataEnvelope[dto.ManagementTourResponse]{
+		Data: dto.ToManagementTourResponse(tour),
+	})
+}
+
+func (h *Handler) ManagementDeleteTour(c *fiber.Ctx) error {
+	id, err := parseUUID(c.Params("id"))
+	if err != nil {
+		return writeAppError(c, err.(*AppError))
+	}
+
+	if err := h.tours.DeleteTour(c.Context(), id); err != nil {
+		return respondError(c, err, MapError)
+	}
+
+	return c.SendStatus(fiber.StatusNoContent)
+}
+
+func (h *Handler) ManagementListBookings(c *fiber.Ctx) error {
+	list, err := h.bookings.ListBookings(c.Context(), ports.BookingFilters{}, parsePagination(c))
+	if err != nil {
+		return respondError(c, err, MapError)
+	}
+
+	items := make([]dto.ManagementBookingResponse, 0, len(list.Items))
+	for _, booking := range list.Items {
+		items = append(items, dto.ToManagementBookingResponse(booking))
+	}
+
+	return c.JSON(dto.ListEnvelope[dto.ManagementBookingResponse]{
+		Data: items,
+		Meta: list.Meta,
+	})
+}
+
+func (h *Handler) ManagementGetBooking(c *fiber.Ctx) error {
+	id, err := parseUUID(c.Params("id"))
+	if err != nil {
+		return writeAppError(c, err.(*AppError))
+	}
+
+	booking, err := h.bookings.GetBooking(c.Context(), id)
+	if err != nil {
+		return respondError(c, err, MapError)
+	}
+
+	return c.JSON(dto.DataEnvelope[dto.ManagementBookingResponse]{
+		Data: dto.ToManagementBookingResponse(booking),
+	})
+}
+
+func (h *Handler) ManagementUpdateBookingStatus(c *fiber.Ctx) error {
+	id, err := parseUUID(c.Params("id"))
+	if err != nil {
+		return writeAppError(c, err.(*AppError))
+	}
+
+	var req dto.UpdateBookingStatusRequest
+	if err := c.BodyParser(&req); err != nil {
+		return writeAppError(c, &AppError{
+			Status:  422,
+			Code:    "VALIDATION_ERROR",
+			Message: "Invalid request body",
+		})
+	}
+
+	status := domain.BookingStatus(req.Status)
+	booking, err := h.bookings.UpdateBookingStatus(c.Context(), id, status)
+	if err != nil {
+		return respondError(c, err, MapError)
+	}
+
+	return c.JSON(dto.DataEnvelope[dto.ManagementBookingResponse]{
+		Data: dto.ToManagementBookingResponse(booking),
+	})
+}
+
+func (h *Handler) ManagementListReviews(c *fiber.Ctx) error {
+	list, err := h.reviews.ListReviews(c.Context(), ports.ReviewFilters{}, parsePagination(c))
+	if err != nil {
+		return respondError(c, err, MapError)
+	}
+
+	items := make([]dto.ManagementReviewResponse, 0, len(list.Items))
+	for _, review := range list.Items {
+		items = append(items, dto.ToManagementReviewResponse(review))
+	}
+
+	return c.JSON(dto.ListEnvelope[dto.ManagementReviewResponse]{
+		Data: items,
+		Meta: list.Meta,
+	})
+}
+
+func (h *Handler) ManagementCreateReview(c *fiber.Ctx) error {
+	var req dto.CreateReviewRequest
+	if err := c.BodyParser(&req); err != nil {
+		return writeAppError(c, &AppError{
+			Status:  422,
+			Code:    "VALIDATION_ERROR",
+			Message: "Invalid request body",
+		})
+	}
+
+	tourID, err := parseUUID(req.TourID)
+	if err != nil {
+		return writeAppError(c, err.(*AppError))
+	}
+
+	review, err := h.reviews.CreateReview(c.Context(), application.CreateReviewInput{
+		TourID:     tourID,
+		ClientName: req.ClientName,
+		Rating:     req.Rating,
+		Text:       req.Text,
+		IsApproved: req.IsApproved,
+	})
+	if err != nil {
+		return respondError(c, err, MapError)
+	}
+
+	return c.Status(fiber.StatusCreated).JSON(dto.DataEnvelope[dto.ManagementReviewResponse]{
+		Data: dto.ToManagementReviewResponse(review),
+	})
+}
+
+func (h *Handler) ManagementApproveReview(c *fiber.Ctx) error {
+	id, err := parseUUID(c.Params("id"))
+	if err != nil {
+		return writeAppError(c, err.(*AppError))
+	}
+
+	review, err := h.reviews.ApproveReview(c.Context(), id)
+	if err != nil {
+		return respondError(c, err, MapError)
+	}
+
+	return c.JSON(dto.DataEnvelope[dto.ManagementReviewResponse]{
+		Data: dto.ToManagementReviewResponse(review),
+	})
+}
+
+func (h *Handler) ManagementRejectReview(c *fiber.Ctx) error {
+	id, err := parseUUID(c.Params("id"))
+	if err != nil {
+		return writeAppError(c, err.(*AppError))
+	}
+
+	review, err := h.reviews.RejectReview(c.Context(), id)
+	if err != nil {
+		return respondError(c, err, MapError)
+	}
+
+	return c.JSON(dto.DataEnvelope[dto.ManagementReviewResponse]{
+		Data: dto.ToManagementReviewResponse(review),
+	})
+}
+
+func (h *Handler) ManagementDeleteReview(c *fiber.Ctx) error {
+	id, err := parseUUID(c.Params("id"))
+	if err != nil {
+		return writeAppError(c, err.(*AppError))
+	}
+
+	if err := h.reviews.DeleteReview(c.Context(), id); err != nil {
+		return respondError(c, err, MapError)
+	}
+
+	return c.SendStatus(fiber.StatusNoContent)
+}

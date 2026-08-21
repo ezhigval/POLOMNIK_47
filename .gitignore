@@ -1,0 +1,30 @@
+# env / secrets
+.env
+.env.local
+.env.production
+.env.*.local
+
+# OS / IDE
+.DS_Store
+.idea/
+*.swp
+*.swo
+
+# Node / Next.js
+node_modules/
+.next/
+out/
+frontend/playwright-report/
+frontend/test-results/
+frontend/coverage/
+
+# Go
+backend/bin/
+*.exe
+*.test
+
+# Runtime data
+backups/
+*.sql.gz
+data/uploads/
+backend/data/uploads/
