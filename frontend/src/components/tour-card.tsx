@@ -82,7 +82,7 @@ export function TourCard({ tour, featured = false }: TourCardProps) {
           className={`btn-primary w-full text-center ${soldOut ? "pointer-events-none opacity-50" : ""}`}
           aria-disabled={soldOut}
         >
-          {soldOut ? "Мест нет" : "Подробнее и заявка"}
+          {soldOut ? "Мест нет" : "Смотреть и записаться"}
         </Link>
       </div>
     </article>

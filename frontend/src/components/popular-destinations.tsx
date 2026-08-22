@@ -11,7 +11,7 @@ export function PopularDestinations() {
             Популярные направления
           </h2>
           <p className="mt-2 text-sm text-stone-600 sm:text-base">
-            Классические маршруты, которые выбирают чаще всего
+            Классические маршруты, которые выбирают чаще всего.
           </p>
         </div>
         <Link href="/search" className="btn-secondary text-sm">

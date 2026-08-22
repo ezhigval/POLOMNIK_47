@@ -9,7 +9,7 @@ const defaultSteps = [
   },
   {
     title: "Оставьте заявку",
-    description: "Укажите имя, телефон и количество участников — без регистрации и оплаты на сайте.",
+    description: "Укажите имя, телефон и количество участников — без оплаты на сайте.",
   },
   {
     title: "Подтверждение",
@@ -26,7 +26,7 @@ export function HowItWorksSection({ content }: HowItWorksSectionProps = {}) {
   const title = content?.title ?? "Как записаться";
   const description =
     content?.description ??
-    "Три шага — и вы в списке участников. Никаких личных кабинетов и сложных форм.";
+    "Три шага — и вы в списке участников. Заявку можно оставить без регистрации.";
   const steps = content?.steps?.length ? content.steps : defaultSteps;
   const ctaLabel = content?.ctaLabel ?? "Записаться";
   const ctaHref = content?.ctaHref ?? "/search";

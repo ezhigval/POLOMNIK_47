@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { departureCities, popularDestinations } from "@/lib/destinations";
+import { pluralRu } from "@/lib/format";
 import { siteConfig } from "@/lib/site-config";
 import { toSearchParams, type TripSearchValues } from "@/lib/tour-filters";
 
@@ -120,7 +121,5 @@ export function TripSearchConstructor({
 }
 
 function peopleLabel(count: number): string {
-  if (count === 1) return "человек";
-  if (count >= 2 && count <= 4) return "человека";
-  return "человек";
+  return pluralRu(count, "человек", "человека", "человек");
 }

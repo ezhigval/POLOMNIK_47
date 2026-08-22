@@ -28,13 +28,13 @@ export default function OpenGraphImage() {
             marginBottom: 16,
           }}
         >
-          Паломнические туры
+          Паломническая служба
         </div>
         <div style={{ fontSize: 72, fontWeight: 600, lineHeight: 1.05, maxWidth: 900 }}>
           {siteConfig.name}
         </div>
         <div style={{ fontSize: 32, marginTop: 24, opacity: 0.92, maxWidth: 800 }}>
-          Путь к святыням — с заботой и сопровождением
+          {siteConfig.tagline}
         </div>
       </div>
     ),

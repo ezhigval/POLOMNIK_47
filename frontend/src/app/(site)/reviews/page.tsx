@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PageIntro } from "@/components/page-intro";
 import { TestimonialCard } from "@/components/testimonial-card";
+import { siteConfig } from "@/lib/site-config";
 import { loadTestimonials } from "@/lib/testimonials";
 
 export const metadata: Metadata = {
   title: "Отзывы",
-  description: "Отзывы паломников о поездках с POLOMNIK 47.",
+  description: `Отзывы паломников о поездках «${siteConfig.name}».`,
+  alternates: { canonical: "/reviews" },
 };
 
 export default async function ReviewsPage() {

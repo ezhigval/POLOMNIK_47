@@ -8,6 +8,7 @@ import { safeReturnUrl } from "@/lib/site-nav";
 
 export const metadata: Metadata = {
   title: "Регистрация",
+  robots: { index: false, follow: false },
 };
 
 type RegisterPageProps = {

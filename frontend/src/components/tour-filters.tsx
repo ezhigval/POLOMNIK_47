@@ -13,7 +13,7 @@ type TourFiltersProps = {
 const filterFields = [
   { key: "date_from" as const, label: "Дата с", type: "date" },
   { key: "date_to" as const, label: "Дата по", type: "date" },
-  { key: "location" as const, label: "Локация", type: "text", placeholder: "Москва" },
+  { key: "location" as const, label: "Направление", type: "text", placeholder: "Дивеево" },
   { key: "price_min" as const, label: "Цена от", type: "number" },
   { key: "price_max" as const, label: "Цена до", type: "number" },
 ];

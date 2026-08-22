@@ -1,4 +1,4 @@
-import { ApiError, apiGet, apiGetList } from "./client";
+import { ApiError, apiGet, apiGetList, requestJson, type DataEnvelope } from "./client";
 
 export type Tour = {
   id: string;
@@ -22,6 +22,8 @@ export type Review = {
   client_name: string;
   rating: number;
   text: string;
+  company_reply?: string;
+  company_replied_at?: string | null;
   created_at: string;
 };
 
@@ -66,28 +68,12 @@ export function getReviews(page = 1, limit = 20) {
 }
 
 export async function createBooking(input: CreateBookingInput) {
-  const response = await fetch("/api/bookings", {
+  const body = await requestJson<DataEnvelope<CreateBookingResult>>("/api/bookings", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),
   });
-
-  const text = await response.text();
-  let body: { data?: CreateBookingResult; error?: { message?: string } } | null = null;
-  try {
-    body = text ? JSON.parse(text) : null;
-  } catch {
-    body = null;
-  }
-
-  if (!response.ok) {
-    const code = body?.error && "code" in body.error ? String((body.error as { code?: string }).code) : "UNKNOWN_ERROR";
-    throw new ApiError(response.status, code, body?.error?.message ?? "Booking failed");
-  }
-
   if (!body?.data) {
-    throw new ApiError(500, "INVALID_RESPONSE", "Invalid booking response");
+    throw new ApiError(500, "INVALID_RESPONSE", "Некорректный ответ сервера");
   }
-
   return body.data;
 }

@@ -16,7 +16,7 @@ export function SectionHeading({
   const alignClass = align === "center" ? "text-center mx-auto" : "";
 
   return (
-    <div className={`max-w-2xl ${alignClass} ${className}`}>
+  	<div className={`max-w-3xl ${alignClass} ${className}`}>
       {eyebrow ? (
         <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-brand-700">{eyebrow}</p>
       ) : null}

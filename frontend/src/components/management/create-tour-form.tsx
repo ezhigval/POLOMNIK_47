@@ -4,6 +4,7 @@ import { FormEvent, useState } from "react";
 import { createTourAction } from "@/app/management/actions";
 import { TourImagesField } from "@/components/management/tour-images-field";
 import { parseImageUrls } from "@/lib/parse-image-urls";
+import { FormError } from "@/components/form-error";
 
 export function CreateTourForm() {
   const [error, setError] = useState<string | null>(null);
@@ -107,7 +108,7 @@ export function CreateTourForm() {
         </label>
       </div>
 
-      {error ? <p className="text-sm text-red-700">{error}</p> : null}
+      <FormError>{error}</FormError>
 
       <button type="submit" disabled={loading} className="btn-primary">
         {loading ? "Сохраняем..." : "Создать тур"}

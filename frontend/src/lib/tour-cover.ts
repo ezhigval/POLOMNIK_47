@@ -14,8 +14,12 @@ const locationKeywords: { match: RegExp; url: string }[] = [
   { match: /валда|тихвин/i, url: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1200&q=80" },
 ];
 
-export const heroBackgroundImage =
-  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=1920&q=80";
+export const heroBackgroundImages = [
+  "/images/hero/tikhvin-monastery.webp",
+  "/images/hero/tikhvin-sunset.webp",
+  "/images/hero/wooden-chapel.webp",
+  "/images/hero/monastery-path.webp",
+] as const;
 
 export function getTourCoverUrl(tour: Pick<Tour, "slug" | "location" | "title" | "images">): string | null {
   if (tour.images?.[0]) {

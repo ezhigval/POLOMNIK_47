@@ -1,4 +1,5 @@
 import { SectionHeading } from "@/components/section-heading";
+import { DioceseAffiliation } from "@/components/diocese-affiliation";
 import { contactPhoneDisplay, contactEmail } from "@/lib/contact";
 import { siteConfig } from "@/lib/site-config";
 import type { AboutBlockContent } from "@/lib/api/cms";
@@ -11,9 +12,9 @@ const defaultHighlights = [
 ];
 
 const defaultParagraphs = [
-  `${siteConfig.name} организует паломнические туры по России: от классических направлений — Оптина, Дивеево, Валаам — до сезонных поездок в монастыри и святые места Северо-Запада.`,
-  "Наша задача — создать спокойное пространство для паломничества: комфортный транспорт, проверенное размещение, понятная программа и человек на связи, если возникнут вопросы.",
-  "Запись через сайт простая: вы оставляете заявку, менеджер перезванивает, уточняет детали и подтверждает участие. Без личного кабинета и онлайн-оплаты на первом этапе — всё через живой контакт.",
+  "«Тихвинский путь» организует паломнические поездки по России: от классических направлений — Оптина пустынь, Дивеево, Валаам — до сезонных поездок в монастыри и святые места Северо-Запада.",
+  "Наша задача — создать все условия для того, чтобы вы могли прикоснуться к православным святыням.",
+  "Записаться просто: оставьте заявку на сайте, менеджер перезвонит, уточнит детали и подтвердит участие. Оплату на сайте вносить не нужно.",
 ];
 
 type AboutSectionProps = {
@@ -22,8 +23,7 @@ type AboutSectionProps = {
 
 export function AboutSection({ content }: AboutSectionProps = {}) {
   const eyebrow = content?.eyebrow ?? "О службе";
-  const title =
-    content?.title ?? `${siteConfig.name} — паломничество без лишней суеты`;
+  const title = content?.title ?? siteConfig.fullName;
   const paragraphs = content?.paragraphs?.filter(Boolean).length
     ? content.paragraphs.filter(Boolean)
     : defaultParagraphs;
@@ -66,6 +66,11 @@ export function AboutSection({ content }: AboutSectionProps = {}) {
               <p className="font-medium text-stone-900">Связаться с нами</p>
               <p className="mt-1">{contactPhoneDisplay}</p>
               <p>{contactEmail}</p>
+              <DioceseAffiliation
+                className="mt-4"
+                textClassName="font-medium text-stone-900"
+                linkClassName="mt-1 inline-flex items-center text-brand-800 underline decoration-brand-200 underline-offset-2 hover:decoration-brand-800"
+              />
             </div>
           ) : null}
         </div>

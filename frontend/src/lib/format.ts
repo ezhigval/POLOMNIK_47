@@ -34,9 +34,7 @@ export function formatTourDuration(start: string, end: string): string {
   }
   const days = Math.round((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
   if (days <= 0) return "";
-  if (days === 1) return "1 день";
-  if (days >= 2 && days <= 4) return `${days} дня`;
-  return `${days} дней`;
+  return `${days} ${pluralRu(days, "день", "дня", "дней")}`;
 }
 
 export function formatDateTime(value: string): string {
@@ -54,7 +52,7 @@ export function formatDateTime(value: string): string {
 export function formatBookingStatus(status: string): string {
   const labels: Record<string, string> = {
     NEW: "Принята",
-    CONTACTED: "Менеджер свяжется с вами",
+    CONTACTED: "Ожидает звонка",
     CONFIRMED: "Подтверждена",
     COMPLETED: "Завершена",
     CANCELLED: "Отменена",
@@ -96,7 +94,19 @@ export function getSlotsAvailability(slotsLeft: number): SlotsAvailability {
 
 export function slotsLabel(slotsLeft: number): string {
   if (slotsLeft <= 0) return "Мест нет";
-  if (slotsLeft === 1) return "Осталось 1 место";
-  if (slotsLeft <= 4) return `Осталось ${slotsLeft} места`;
-  return `Осталось ${slotsLeft} мест`;
+  return `Осталось ${slotsLeft} ${pluralRu(slotsLeft, "место", "места", "мест")}`;
+}
+
+/** Russian plural: 1 / 2–4 / 5–20, 21 / 22–24 / … */
+export function pluralRu(n: number, one: string, few: string, many: string): string {
+  const abs = Math.abs(n) % 100;
+  const last = abs % 10;
+  if (abs > 10 && abs < 20) return many;
+  if (last === 1) return one;
+  if (last >= 2 && last <= 4) return few;
+  return many;
+}
+
+export function formatReviewCount(n: number): string {
+  return `${n} ${pluralRu(n, "отзыв", "отзыва", "отзывов")}`;
 }

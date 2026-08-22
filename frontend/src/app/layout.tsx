@@ -1,18 +1,24 @@
 import type { Metadata } from "next";
 import { Analytics } from "@/components/analytics";
+import { LiveRefresh } from "@/components/live-refresh";
 import { displaySerif, geistMono, geistSans } from "@/lib/fonts";
 import { siteConfig } from "@/lib/site-config";
 import "./globals.css";
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+};
+
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
   title: {
-    default: `${siteConfig.name} — Паломнические туры по России`,
+    default: `${siteConfig.name} — ${siteConfig.tagline}`,
     template: `%s | ${siteConfig.name}`,
   },
   description: siteConfig.description,
   openGraph: {
-    title: `${siteConfig.name} — Паломнические туры`,
+    title: `${siteConfig.name} — ${siteConfig.tagline}`,
     description: siteConfig.description,
     locale: "ru_RU",
     type: "website",
@@ -20,7 +26,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: siteConfig.name,
+    title: `${siteConfig.name} — ${siteConfig.tagline}`,
     description: siteConfig.description,
   },
 };
@@ -37,6 +43,7 @@ export default function RootLayout({
     >
       <body className="flex min-h-full flex-col bg-stone-50 text-stone-900 antialiased">
         {children}
+        {process.env.NEXT_PUBLIC_LIVE_REFRESH === "1" ? <LiveRefresh /> : null}
         <Analytics />
       </body>
     </html>

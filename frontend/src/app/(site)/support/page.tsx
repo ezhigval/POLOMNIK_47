@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { DioceseAffiliation } from "@/components/diocese-affiliation";
 import { FaqSection } from "@/components/faq-section";
 import { SectionHeading } from "@/components/section-heading";
 import { contactEmail, contactPhone, contactPhoneDisplay } from "@/lib/contact";
@@ -7,6 +8,7 @@ import { contactEmail, contactPhone, contactPhoneDisplay } from "@/lib/contact";
 export const metadata: Metadata = {
   title: "Поддержка",
   description: "Помощь по бронированию, оплате, документам и поездке.",
+  alternates: { canonical: "/support" },
 };
 
 const topics = [
@@ -51,8 +53,7 @@ export default function SupportPage() {
         <p className="text-sm font-medium uppercase tracking-widest text-brand-100">Поддержка</p>
         <h1 className="mt-3 font-display text-4xl font-semibold sm:text-5xl">Чем можем помочь?</h1>
         <p className="mt-4 max-w-2xl text-brand-50/90">
-          Ответы на частые вопросы, контакты менеджера и помощь с подбором тура — как в службе
-          поддержки Aviasales, только про паломничество.
+          Ответы на частые вопросы, контакты менеджера и помощь с подбором поездки.
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
           <a href={`tel:${contactPhone}`} className="btn-primary bg-white text-brand-900 hover:bg-brand-50">
@@ -68,6 +69,11 @@ export default function SupportPage() {
             Открыть чат
           </Link>
         </div>
+        <DioceseAffiliation
+          className="mt-6"
+          textClassName="text-sm text-brand-100/90"
+          linkClassName="mt-2 inline-flex items-center text-sm text-white underline decoration-white/40 underline-offset-2 hover:decoration-white"
+        />
       </section>
 
       <section>

@@ -8,15 +8,18 @@ import { ApiError } from "@/lib/api/client";
 import {
   formatDateRange,
   formatPrice,
+  formatReviewCount,
   formatTourDuration,
   getSlotsAvailability,
 } from "@/lib/format";
 import { includedInTour } from "@/lib/site-content";
 import { TourViewTracker } from "@/components/tour-view-tracker";
 import { getCachedTour, getCachedTourReviews } from "@/lib/api/tour-page";
+import { TourStructuredData } from "@/components/structured-data";
 import { getSessionUser } from "@/lib/auth/session";
 import { toBookingProfile } from "@/lib/auth/user-features";
 import { FavoriteButton } from "@/components/favorite-button";
+import { CompanyReply } from "@/components/testimonial-card";
 
 type TourPageProps = {
   params: Promise<{ id: string }>;
@@ -43,10 +46,14 @@ export async function generateMetadata({ params }: TourPageProps) {
     return {
       title: tour.title,
       description,
+      alternates: {
+        canonical: `/tours/${tour.id}`,
+      },
       openGraph: {
         title: tour.title,
         description,
         type: "website",
+        url: `/tours/${tour.id}`,
       },
       twitter: {
         card: "summary_large_image",
@@ -85,6 +92,7 @@ export default async function TourPage({ params }: TourPageProps) {
 
   return (
     <>
+      <TourStructuredData tour={tour} />
       <TourViewTracker tourId={tour.id} title={tour.title} />
       <div className="mx-auto max-w-6xl px-4 py-8 pb-28 sm:py-10 lg:pb-10">
         <nav className="mb-6 text-sm text-stone-500" aria-label="Хлебные крошки">
@@ -120,7 +128,7 @@ export default async function TourPage({ params }: TourPageProps) {
                       <p className="mt-2 flex items-center gap-2 text-sm text-stone-600">
                         <StarRating rating={Math.round(avgRating)} />
                         <span>
-                          {avgRating.toFixed(1)} · {reviews.meta.total} отзывов
+                          {avgRating.toFixed(1)} · {formatReviewCount(reviews.meta.total)}
                         </span>
                       </p>
                     ) : null}
@@ -193,7 +201,7 @@ export default async function TourPage({ params }: TourPageProps) {
               <div className="mb-5 flex items-center justify-between gap-3">
                 <h2 className="text-xl font-semibold">Отзывы паломников</h2>
                 {reviews.data.length > 0 ? (
-                  <span className="text-sm text-stone-500">{reviews.meta.total} отзывов</span>
+                  <span className="text-sm text-stone-500">{formatReviewCount(reviews.meta.total)}</span>
                 ) : null}
               </div>
 
@@ -213,6 +221,7 @@ export default async function TourPage({ params }: TourPageProps) {
                         <StarRating rating={review.rating} />
                       </div>
                       <p className="text-sm leading-6 text-stone-600">{review.text}</p>
+                      <CompanyReply text={review.company_reply} />
                     </article>
                   ))}
                 </div>

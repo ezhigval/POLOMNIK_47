@@ -15,6 +15,13 @@ export const departureCities = [
 
 export const popularDestinations: Destination[] = [
   {
+    id: "tikhvin",
+    label: "Тихвинский путь",
+    region: "Ленинградская область",
+    search: "Тихвин",
+    image: "https://images.unsplash.com/photo-1548013146-724f68d1ddac?auto=format&fit=crop&w=800&q=80",
+  },
+  {
     id: "optina",
     label: "Оптина пустынь",
     region: "Калужская область",

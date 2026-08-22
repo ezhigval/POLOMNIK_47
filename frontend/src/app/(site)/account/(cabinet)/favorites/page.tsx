@@ -40,7 +40,7 @@ export default async function FavoritesPage() {
       <div>
         <h1 className="font-display text-3xl font-semibold text-stone-900">Избранное</h1>
         <p className="mt-2 text-sm text-stone-600">
-          Туры, которые вы сохранили для сравнения и бронирования
+          Туры, которые вы сохранили для сравнения и бронирования.
         </p>
       </div>
 
@@ -54,7 +54,7 @@ export default async function FavoritesPage() {
           secondaryLabel="Мои поездки"
         />
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {tours.map((tour) => (tour ? <TourCard key={tour.id} tour={tour} /> : null))}
         </div>
       )}

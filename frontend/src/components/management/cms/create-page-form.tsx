@@ -3,6 +3,7 @@
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createCmsPageAction } from "@/app/management/actions";
+import { FormError } from "@/components/form-error";
 
 export function CreatePageForm() {
   const router = useRouter();
@@ -55,7 +56,7 @@ export function CreatePageForm() {
         </label>
       </div>
 
-      {error ? <p className="text-sm text-red-700">{error}</p> : null}
+      <FormError>{error}</FormError>
 
       <button type="submit" disabled={loading} className="btn-primary">
         {loading ? "Создаём..." : "Создать страницу"}

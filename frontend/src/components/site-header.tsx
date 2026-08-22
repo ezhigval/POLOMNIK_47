@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BrandMark } from "@/components/brand-mark";
 import { MobileNav } from "@/components/mobile-nav";
 import { UserMenu } from "@/components/user-menu";
 import { contactPhone, contactPhoneDisplay } from "@/lib/contact";
@@ -12,17 +13,15 @@ type SiteHeaderProps = {
 
 export function SiteHeader({ user }: SiteHeaderProps) {
   return (
-    <header className="sticky top-0 z-40 border-b border-stone-200/80 bg-white/90 backdrop-blur-md">
+    <header className="sticky top-0 z-50 border-b border-stone-200/80 bg-white/90 backdrop-blur-md">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:py-4">
-        <Link href="/" className="group flex items-center gap-3">
-          <span className="flex size-9 items-center justify-center rounded-full bg-brand-800 font-display text-sm font-bold text-white">
-            47
-          </span>
-          <span className="flex flex-col">
-            <span className="text-base font-semibold tracking-tight text-stone-900 group-hover:text-brand-800 sm:text-lg">
-              {siteConfig.name.replace(/ 47$/, "")}
+        <Link href="/" className="group flex items-center gap-3" aria-label={siteConfig.fullName}>
+          <BrandMark />
+          <span className="flex min-w-0 flex-col">
+            <span className="text-base font-semibold leading-tight tracking-tight text-stone-900 group-hover:text-brand-800 sm:text-lg">
+              {siteConfig.name}
             </span>
-            <span className="hidden text-xs text-stone-500 sm:block">{siteConfig.tagline}</span>
+            <span className="text-[11px] leading-tight text-stone-500 sm:text-xs">{siteConfig.tagline}</span>
           </span>
         </Link>
 

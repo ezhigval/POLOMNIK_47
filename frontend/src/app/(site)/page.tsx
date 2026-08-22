@@ -3,12 +3,18 @@ import { AboutSection } from "@/components/about-section";
 import { CmsPageRenderer } from "@/components/cms/cms-page-renderer";
 import { CtaSection } from "@/components/cta-section";
 import { FaqSection } from "@/components/faq-section";
+import { FeaturedRouteSection } from "@/components/featured-route-section";
 import { HeroSection } from "@/components/hero-section";
 import { HowItWorksSection } from "@/components/how-it-works";
 import { PopularDestinations } from "@/components/popular-destinations";
 import { TestimonialsSection } from "@/components/testimonials-section";
 import { WhyUsSection } from "@/components/why-us-section";
 import { getPublishedPage } from "@/lib/api/cms";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+};
 
 export default async function HomePage() {
   const cmsPage = await getPublishedPage("home").catch(() => null);
@@ -24,6 +30,7 @@ export default async function HomePage() {
       </div>
 
       <div className="mx-auto max-w-6xl space-y-20 px-4 py-8 sm:space-y-24 sm:py-12">
+        <FeaturedRouteSection />
         <PopularDestinations />
         <AboutSection />
         <WhyUsSection />

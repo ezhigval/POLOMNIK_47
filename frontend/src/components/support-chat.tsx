@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { FormEvent, useEffect, useRef, useState } from "react";
 import type { SupportMessage, SupportThread } from "@/lib/auth/user-features";
+import { FormError } from "@/components/form-error";
 
 type SupportChatProps = {
   initialThread: SupportThread | null;
@@ -49,7 +50,7 @@ export function SupportChat({ initialThread, isAuthenticated }: SupportChatProps
   if (!isAuthenticated) {
     return (
       <div className="rounded-2xl border border-stone-200 bg-white p-8 text-center shadow-sm">
-        <p className="text-stone-600">Чат поддержки доступен после входа в аккаунт</p>
+        <p className="text-stone-600">Чат поддержки доступен после входа в аккаунт.</p>
         <div className="mt-4 flex flex-wrap justify-center gap-3">
           <Link
             href={`/account/login?returnUrl=${encodeURIComponent("/support/chat")}`}
@@ -69,7 +70,7 @@ export function SupportChat({ initialThread, isAuthenticated }: SupportChatProps
     <div className="flex h-[min(70vh,640px)] flex-col overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm">
       <div className="border-b border-stone-100 px-5 py-4">
         <h2 className="font-semibold text-stone-900">Чат с поддержкой</h2>
-        <p className="text-sm text-stone-500">Менеджер ответит в рабочее время</p>
+        <p className="text-sm text-stone-500">Менеджер ответит в рабочее время.</p>
       </div>
 
       <div className="flex-1 space-y-3 overflow-y-auto px-4 py-4">
@@ -86,15 +87,15 @@ export function SupportChat({ initialThread, isAuthenticated }: SupportChatProps
           <input
             value={message}
             onChange={(event) => setMessage(event.target.value)}
-            placeholder="Опишите вопрос..."
+            placeholder="Опишите вопрос…"
             className="input-field flex-1"
             disabled={loading}
           />
           <button type="submit" disabled={loading || !message.trim()} className="btn-primary px-5">
-            {loading ? "..." : "Отправить"}
+            {loading ? "…" : "Отправить"}
           </button>
         </div>
-        {error ? <p className="mt-2 text-sm text-red-700">{error}</p> : null}
+        <FormError className="mt-2">{error}</FormError>
       </form>
     </div>
   );

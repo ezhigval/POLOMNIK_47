@@ -14,15 +14,20 @@ import {
   deleteManagementTour,
   rejectManagementReview,
   reorderManagementCmsBlocks,
+  setManagementReviewReply,
   updateManagementBookingStatus,
   updateManagementCmsBlock,
   updateManagementCmsPage,
   updateManagementTour,
   uploadManagementImage,
+  createManagementNews,
+  updateManagementNews,
+  deleteManagementNews,
   type CmsBlockCreateInput,
   type CmsBlockUpdateInput,
   type CmsPageCreateInput,
   type CmsPageUpdateInput,
+  type NewsUpsertInput,
   type TourUpsertInput,
 } from "@/lib/api/management";
 import { ApiError } from "@/lib/api/client";
@@ -52,8 +57,7 @@ export async function createReviewAction(input: CreateReviewInput) {
     text: input.text,
     is_approved: input.is_approved,
   });
-  revalidatePath("/management/reviews");
-  revalidatePath("/");
+  revalidateReviewPages();
 }
 
 export async function createTourAction(input: TourUpsertInput) {
@@ -99,22 +103,31 @@ export async function updateBookingStatusAction(id: string, status: string) {
 export async function approveReviewAction(formData: FormData) {
   const id = String(formData.get("id") ?? "");
   await approveManagementReview(id);
-  revalidatePath("/management/reviews");
-  revalidatePath("/");
+  revalidateReviewPages();
 }
 
 export async function rejectReviewAction(formData: FormData) {
   const id = String(formData.get("id") ?? "");
   await rejectManagementReview(id);
-  revalidatePath("/management/reviews");
-  revalidatePath("/");
+  revalidateReviewPages();
 }
 
 export async function deleteReviewAction(formData: FormData) {
   const id = String(formData.get("id") ?? "");
   await deleteManagementReview(id);
+  revalidateReviewPages();
+}
+
+export async function replyReviewAction(id: string, company_reply: string) {
+  await setManagementReviewReply(id, company_reply);
+  revalidateReviewPages();
+}
+
+function revalidateReviewPages() {
   revalidatePath("/management/reviews");
   revalidatePath("/");
+  revalidatePath("/reviews");
+  revalidatePath("/tours", "layout");
 }
 
 export async function createCmsPageAction(input: CmsPageCreateInput) {
@@ -183,4 +196,25 @@ export async function reorderCmsBlocksAction(pageId: string, blockIds: string[],
   revalidateCmsPaths(slug ?? page.slug);
   revalidatePath(`/management/content/${pageId}`);
   return page;
+}
+
+function revalidateNewsPaths() {
+  revalidatePath("/news");
+  revalidatePath("/management/news");
+}
+
+export async function createNewsAction(input: NewsUpsertInput) {
+  await createManagementNews(input);
+  revalidateNewsPaths();
+}
+
+export async function updateNewsAction(id: string, input: NewsUpsertInput) {
+  await updateManagementNews(id, input);
+  revalidateNewsPaths();
+}
+
+export async function deleteNewsAction(formData: FormData) {
+  const id = String(formData.get("id") ?? "");
+  await deleteManagementNews(id);
+  revalidateNewsPaths();
 }

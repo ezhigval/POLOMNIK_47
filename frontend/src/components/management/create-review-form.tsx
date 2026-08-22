@@ -3,6 +3,7 @@
 import { FormEvent, useState } from "react";
 import { createReviewAction } from "@/app/management/actions";
 import type { ManagementTour } from "@/lib/api/management";
+import { FormError } from "@/components/form-error";
 
 type CreateReviewFormProps = {
   tours: ManagementTour[];
@@ -84,7 +85,7 @@ export function CreateReviewForm({ tours }: CreateReviewFormProps) {
         Одобрен сразу
       </label>
 
-      {error ? <p className="text-sm text-red-700">{error}</p> : null}
+      <FormError>{error}</FormError>
 
       <button type="submit" disabled={loading || tours.length === 0} className="btn-primary">
         {loading ? "Сохраняем..." : "Создать отзыв"}

@@ -92,7 +92,7 @@ export function UserMenu({ user }: UserMenuProps) {
               disabled={loading}
               className="block w-full px-4 py-2.5 text-left text-sm text-red-700 hover:bg-red-50 disabled:opacity-60"
             >
-              {loading ? "Выход..." : "Выйти"}
+              {loading ? "Выход…" : "Выйти"}
             </button>
           </div>
         </>

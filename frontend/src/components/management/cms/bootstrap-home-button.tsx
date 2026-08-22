@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { bootstrapHomePageAction } from "@/app/management/actions";
+import { FormError } from "@/components/form-error";
 
 export function BootstrapHomeButton() {
   const router = useRouter();
@@ -27,17 +28,17 @@ export function BootstrapHomeButton() {
     <div className="rounded-2xl border border-brand-200 bg-brand-50/60 p-5">
       <h3 className="font-semibold text-stone-900">Главная страница</h3>
       <p className="mt-1 text-sm text-stone-600">
-        Создайте главную с готовыми блоками: Hero, направления, о службе, FAQ и другие секции. Отзывы
+        Создайте главную с готовыми блоками: шапка, направления, о службе, вопросы и другие секции. Отзывы
         и туры подтягиваются автоматически из своих разделов.
       </p>
-      {error ? <p className="mt-2 text-sm text-red-700">{error}</p> : null}
+      <FormError className="mt-2">{error}</FormError>
       <button
         type="button"
         onClick={onClick}
         disabled={loading}
         className="btn-primary mt-4"
       >
-        {loading ? "Создаём..." : "Создать главную из шаблона"}
+        {loading ? "Создаём…" : "Создать главную из шаблона"}
       </button>
     </div>
   );

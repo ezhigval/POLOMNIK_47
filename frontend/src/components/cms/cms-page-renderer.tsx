@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { AboutSection } from "@/components/about-section";
 import { CtaSection } from "@/components/cta-section";
 import { FaqSection } from "@/components/faq-section";
+import { FeaturedRouteSection } from "@/components/featured-route-section";
 import { HeroSection } from "@/components/hero-section";
 import { HowItWorksSection } from "@/components/how-it-works";
 import { PopularDestinations } from "@/components/popular-destinations";
@@ -13,6 +14,7 @@ import type {
   CmsBlock,
   CtaBlockContent,
   FaqBlockContent,
+  FeaturedRouteBlockContent,
   HeroBlockContent,
   HowItWorksBlockContent,
   RichTextBlockContent,
@@ -31,6 +33,7 @@ export function CmsPageRenderer({ blocks }: CmsPageRendererProps) {
   const ordered = [...blocks].sort((a, b) => a.sort_order - b.sort_order);
   const heroBlocks = ordered.filter((block) => block.type === "hero");
   const bodyBlocks = ordered.filter((block) => block.type !== "hero");
+  const hasFeaturedRoute = ordered.some((block) => block.type === "featured_route" && block.is_visible);
 
   return (
     <>
@@ -39,6 +42,12 @@ export function CmsPageRenderer({ blocks }: CmsPageRendererProps) {
           <HeroSection content={asContent<HeroBlockContent>(block.content)} />
         </div>
       ))}
+
+      {!hasFeaturedRoute ? (
+        <div className="mx-auto max-w-6xl px-4 pb-8 sm:pb-12">
+          <FeaturedRouteSection />
+        </div>
+      ) : null}
 
       {bodyBlocks.length > 0 ? (
         <div className="mx-auto max-w-6xl space-y-20 px-4 py-8 sm:space-y-24 sm:py-12">
@@ -79,6 +88,8 @@ function CmsBlockView({ block }: { block: CmsBlock }) {
         </section>
       );
     }
+    case "featured_route":
+      return <FeaturedRouteSection content={asContent<FeaturedRouteBlockContent>(block.content)} />;
     case "popular_destinations":
       return <PopularDestinations />;
     case "testimonials":

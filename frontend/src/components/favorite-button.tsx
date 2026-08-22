@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -93,19 +92,5 @@ export function FavoriteButton({ tourId, compact = false }: FavoriteButtonProps)
     >
       {saved ? "♥" : "♡"}
     </button>
-  );
-}
-
-export function FavoriteLoginHint() {
-  const pathname = usePathname();
-  const loginHref = `/account/login?returnUrl=${encodeURIComponent(pathname)}`;
-
-  return (
-    <p className="text-xs text-stone-500">
-      <Link href={loginHref} className="font-medium text-brand-800 hover:underline">
-        Войдите
-      </Link>
-      , чтобы сохранять туры в избранное
-    </p>
   );
 }

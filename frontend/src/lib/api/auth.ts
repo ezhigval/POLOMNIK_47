@@ -1,4 +1,4 @@
-import { getApiBaseUrl } from "@/lib/api/base-url";
+import { ApiError, apiUrl, requestJson } from "@/lib/api/client";
 
 export type User = {
   id: string;
@@ -26,33 +26,15 @@ export type MyBooking = {
   created_at: string;
 };
 
-function apiUrl(path: string): string {
-  return `${getApiBaseUrl()}${path}`;
-}
-
 async function authRequest<T>(path: string, init: RequestInit = {}): Promise<T> {
-  const response = await fetch(apiUrl(path), {
-    ...init,
-    headers: {
-      "Content-Type": "application/json",
-      ...(init.headers ?? {}),
-    },
+  const body = await requestJson<{ data?: T }>(apiUrl(path), {
     cache: "no-store",
+    ...init,
   });
-
-  const text = await response.text();
-  let body: { data?: T; error?: { message?: string } } | null = null;
-  try {
-    body = text ? JSON.parse(text) : null;
-  } catch {
-    body = null;
+  if (body?.data === undefined) {
+    throw new ApiError(500, "INVALID_RESPONSE", "Некорректный ответ сервера");
   }
-
-  if (!response.ok) {
-    throw new Error(body?.error?.message ?? "Request failed");
-  }
-
-  return body?.data as T;
+  return body.data;
 }
 
 export async function registerUser(input: {
@@ -84,13 +66,7 @@ export async function fetchCurrentUser(token: string): Promise<User> {
 }
 
 export async function fetchMyBookings(token: string): Promise<MyBooking[]> {
-  const response = await fetch(apiUrl("/me/bookings"), {
+  return authRequest<MyBooking[]>("/me/bookings", {
     headers: { Authorization: `Bearer ${token}` },
-    cache: "no-store",
   });
-  const body = await response.json();
-  if (!response.ok) {
-    throw new Error(body?.error?.message ?? "Failed to load bookings");
-  }
-  return body.data as MyBooking[];
 }

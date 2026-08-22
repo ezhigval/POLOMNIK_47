@@ -2,6 +2,7 @@
 
 import { ChangeEvent, useId, useState } from "react";
 import { uploadTourImageAction } from "@/app/management/actions";
+import { FormError } from "@/components/form-error";
 
 type TourImagesFieldProps = {
   name?: string;
@@ -75,7 +76,7 @@ export function TourImagesField({
         {uploading ? <span className="text-stone-500">Загрузка…</span> : null}
       </label>
 
-      {error ? <p className="text-sm text-red-700">{error}</p> : null}
+      <FormError>{error}</FormError>
     </div>
   );
 }

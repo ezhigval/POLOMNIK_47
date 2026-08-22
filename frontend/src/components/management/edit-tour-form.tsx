@@ -5,6 +5,7 @@ import { updateTourAction } from "@/app/management/actions";
 import { TourImagesField } from "@/components/management/tour-images-field";
 import { parseImageUrls } from "@/lib/parse-image-urls";
 import type { ManagementTour } from "@/lib/api/management";
+import { FormError } from "@/components/form-error";
 
 type EditTourFormProps = {
   tour: ManagementTour;
@@ -120,7 +121,7 @@ export function EditTourForm({ tour }: EditTourFormProps) {
         </label>
       </div>
 
-      {error ? <p className="text-sm text-red-700">{error}</p> : null}
+      <FormError>{error}</FormError>
 
       <div className="flex gap-2">
         <button type="submit" disabled={loading} className="btn-primary px-4 py-1.5 text-sm">

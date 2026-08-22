@@ -18,11 +18,11 @@ type ErrorEnvelope = {
   };
 };
 
-type DataEnvelope<T> = {
+export type DataEnvelope<T> = {
   data: T;
 };
 
-type ListEnvelope<T> = {
+export type ListEnvelope<T> = {
   data: T[];
   meta: {
     page: number;
@@ -32,60 +32,70 @@ type ListEnvelope<T> = {
   };
 };
 
-async function parseError(response: Response): Promise<ApiError> {
-  try {
-    const body = (await response.json()) as ErrorEnvelope;
-    return new ApiError(
-      response.status,
-      body.error?.code ?? "UNKNOWN_ERROR",
-      body.error?.message ?? "Request failed",
-    );
-  } catch {
-    return new ApiError(response.status, "UNKNOWN_ERROR", response.statusText);
+const defaultCache: RequestInit =
+  process.env.NODE_ENV === "development" || process.env.NEXT_PUBLIC_LIVE_REFRESH === "1"
+    ? { cache: "no-store" }
+    : { next: { revalidate: 60 } };
+
+function isFormDataBody(body: BodyInit | null | undefined): boolean {
+  return typeof FormData !== "undefined" && body instanceof FormData;
+}
+
+export async function requestJson<T>(url: string, init: RequestInit = {}): Promise<T> {
+  const headers = new Headers(init.headers);
+  if (init.body != null && !isFormDataBody(init.body) && !headers.has("Content-Type")) {
+    headers.set("Content-Type", "application/json");
   }
+
+  const response = await fetch(url, {
+    ...defaultCache,
+    ...init,
+    headers,
+  });
+
+  if (response.status === 204) {
+    return undefined as T;
+  }
+
+  const text = await response.text();
+  let payload: unknown = null;
+  if (text) {
+    try {
+      payload = JSON.parse(text);
+    } catch {
+      payload = null;
+    }
+  }
+
+  if (!response.ok) {
+    const errorBody = payload as ErrorEnvelope | null;
+    throw new ApiError(
+      response.status,
+      errorBody?.error?.code ?? "UNKNOWN_ERROR",
+      errorBody?.error?.message ?? "Не удалось выполнить запрос",
+    );
+  }
+
+  return payload as T;
+}
+
+export function apiUrl(path: string): string {
+  return `${getApiBaseUrl()}${path}`;
 }
 
 export async function apiGet<T>(path: string): Promise<T> {
-  const response = await fetch(`${getApiBaseUrl()}${path}`, {
-    next: { revalidate: 60 },
-  });
-
-  if (!response.ok) {
-    throw await parseError(response);
-  }
-
-  const body = (await response.json()) as DataEnvelope<T>;
+  const body = await requestJson<DataEnvelope<T>>(apiUrl(path));
   return body.data;
 }
 
 export async function apiGetList<T>(path: string): Promise<ListEnvelope<T>> {
-  const response = await fetch(`${getApiBaseUrl()}${path}`, {
-    next: { revalidate: 60 },
-  });
-
-  if (!response.ok) {
-    throw await parseError(response);
-  }
-
-  return (await response.json()) as ListEnvelope<T>;
+  return requestJson<ListEnvelope<T>>(apiUrl(path));
 }
 
-export async function apiPost<TResponse, TBody>(
-  path: string,
-  body: TBody,
-): Promise<TResponse> {
-  const response = await fetch(`${getApiBaseUrl()}${path}`, {
+export async function apiPost<TResponse, TBody>(path: string, body: TBody): Promise<TResponse> {
+  const payload = await requestJson<DataEnvelope<TResponse>>(apiUrl(path), {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
     body: JSON.stringify(body),
   });
-
-  if (!response.ok) {
-    throw await parseError(response);
-  }
-
-  const payload = (await response.json()) as DataEnvelope<TResponse>;
   return payload.data;
 }

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { safeReturnUrl } from "@/lib/site-nav";
+import { FormError } from "@/components/form-error";
 
 type RegisterFormProps = {
   returnUrl?: string;
@@ -51,7 +52,7 @@ export function RegisterForm({ returnUrl = "/account/trips" }: RegisterFormProps
     <form onSubmit={onSubmit} className="space-y-4 rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
       <div>
         <h2 className="font-display text-xl font-semibold text-stone-900">Данные аккаунта</h2>
-        <p className="mt-1 text-sm text-stone-600">После регистрации откроется личный кабинет</p>
+        <p className="mt-1 text-sm text-stone-600">После регистрации откроется личный кабинет.</p>
       </div>
 
       <label className="block text-sm">
@@ -74,10 +75,10 @@ export function RegisterForm({ returnUrl = "/account/trips" }: RegisterFormProps
         <input required type="password" name="password" className="input-field" minLength={8} />
       </label>
 
-      {error ? <p className="text-sm text-red-700">{error}</p> : null}
+      <FormError>{error}</FormError>
 
       <button type="submit" disabled={loading} className="btn-primary w-full">
-        {loading ? "Создаём..." : "Создать аккаунт"}
+        {loading ? "Создаём…" : "Создать аккаунт"}
       </button>
 
       <p className="text-center text-sm text-stone-600">

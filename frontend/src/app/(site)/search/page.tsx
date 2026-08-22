@@ -9,6 +9,7 @@ import { parseTourFilters } from "@/lib/tour-filters";
 export const metadata: Metadata = {
   title: "Поиск туров",
   description: "Найдите паломнический тур по направлению, датам и количеству участников.",
+  alternates: { canonical: "/search" },
 };
 
 type SearchPageProps = {

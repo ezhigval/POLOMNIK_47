@@ -34,8 +34,8 @@ export function WhyUsSection({ content }: WhyUsSectionProps = {}) {
   const eyebrow = content?.eyebrow ?? "Почему мы";
   const title = content?.title ?? "Паломничество без лишних забот";
   const description =
-    content?.description ??
-    "Мы не просто везём вас в монастырь — мы создаём пространство для тишины, молитвы и встречи со святынями.";
+    content?.description?.trim() ||
+    "Мы не просто везём вас в монастырь — мы создаём возможность для тишины, молитвы и встречи с Богом.";
   const items = content?.items?.length ? content.items : whyUsItems;
 
   return (

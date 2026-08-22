@@ -69,11 +69,11 @@ body {
   }
 
   .search-constructor-grid {
-    @apply grid gap-3 md:grid-cols-2 xl:grid-cols-6;
+    @apply grid gap-3 sm:grid-cols-2 lg:grid-cols-6;
   }
 
   .search-constructor-compact .search-constructor-grid {
-    @apply xl:grid-cols-3;
+    @apply lg:grid-cols-3;
   }
 
   .search-field {

@@ -1,5 +1,6 @@
 import { CreateReviewForm } from "@/components/management/create-review-form";
 import { ManagementPanel } from "@/components/management/management-panel";
+import { ReplyReviewForm } from "@/components/management/reply-review-form";
 import { StatusBadge } from "@/components/management/status-badge";
 import {
   approveReviewAction,
@@ -61,6 +62,7 @@ export default async function ManagementReviewsPage() {
                   </button>
                 </form>
               </div>
+              <ReplyReviewForm reviewId={review.id} initialReply={review.company_reply ?? ""} />
             </article>
           ))
         )}

@@ -12,7 +12,7 @@ function encodeOAuthState(returnUrl: string): string {
 
 export async function GET(request: Request) {
   if (!googleEnabled()) {
-    return NextResponse.json({ error: "Google OAuth is not configured" }, { status: 503 });
+    return NextResponse.json({ error: "Вход через Google пока не настроен" }, { status: 503 });
   }
 
   const requestUrl = new URL(request.url);

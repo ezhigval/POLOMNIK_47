@@ -19,6 +19,7 @@ export async function loadTestimonials(limit: number): Promise<Testimonial[]> {
       text: review.text,
       rating: review.rating,
       tour_title: tourTitles.get(review.tour_id) ?? "Паломнический тур",
+      company_reply: review.company_reply,
     }));
   } catch {
     return fallbackTestimonials.slice(0, limit);

@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { SectionHeading } from "@/components/section-heading";
+import { siteConfig } from "@/lib/site-config";
 
 export const metadata = {
   title: "Политика конфиденциальности",
+  alternates: { canonical: "/privacy" },
 };
 
 export default function PrivacyPage() {
@@ -27,7 +29,7 @@ export default function PrivacyPage() {
 
       <div className="prose prose-stone mt-8 max-w-none text-sm leading-7 text-stone-700">
         <p>
-          Оставляя заявку на сайте POLOMNIK 47, вы передаёте имя, телефон и, при желании, email и
+          Оставляя заявку на сайте {siteConfig.fullName}, вы передаёте имя, телефон и, при желании, email и
           комментарий. Эти данные нужны только для связи по вашей поездке и организации участия.
         </p>
         <p>

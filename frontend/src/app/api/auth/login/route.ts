@@ -21,7 +21,7 @@ export async function POST(request: Request) {
     return response;
   } catch (error) {
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Login failed" },
+      { error: error instanceof Error ? error.message : "Не удалось войти" },
       { status: 401 },
     );
   }

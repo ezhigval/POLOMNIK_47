@@ -4,6 +4,7 @@ import { ManagementNav } from "@/components/management/management-nav";
 import { AdminLogoutButton } from "@/components/management/admin-logout-button";
 import { isManagementConfigured } from "@/lib/api/management";
 import { isAdminAuthenticated } from "@/lib/auth/admin-session";
+import { siteConfig } from "@/lib/site-config";
 
 export const dynamic = "force-dynamic";
 
@@ -21,7 +22,7 @@ export default async function ProtectedManagementLayout({ children }: { children
       <header className="border-b border-stone-200 bg-white">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
           <Link href="/management" className="text-sm font-semibold text-stone-900 hover:text-brand-800">
-            POLOMNIK · Admin
+            {siteConfig.name} · Админка
           </Link>
           <div className="flex items-center gap-3">
             <ManagementNav />

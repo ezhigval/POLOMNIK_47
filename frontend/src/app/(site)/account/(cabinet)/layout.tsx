@@ -1,4 +1,9 @@
+import type { Metadata } from "next";
 import { AccountNav } from "@/components/account-nav";
+
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+};
 
 export default function AccountCabinetLayout({ children }: { children: React.ReactNode }) {
   return (

@@ -3,6 +3,7 @@ import {
   listManagementBookings,
   listManagementCmsPages,
   listManagementIntegrationReferences,
+  listManagementNews,
   listManagementOutboxEvents,
   listManagementReviews,
   listManagementTours,
@@ -34,13 +35,14 @@ function StatCard({ title, value, hint, href, accent }: StatCardProps) {
 }
 
 export default async function ManagementDashboardPage() {
-  const [tours, bookings, reviews, integrationRefs, outboxEvents, cmsPages] = await Promise.all([
+  const [tours, bookings, reviews, integrationRefs, outboxEvents, cmsPages, news] = await Promise.all([
     listManagementTours(),
     listManagementBookings(),
     listManagementReviews(),
     listManagementIntegrationReferences(),
     listManagementOutboxEvents({ status: "pending" }),
     listManagementCmsPages(),
+    listManagementNews(),
   ]);
 
   const newBookings = bookings.filter((booking) => booking.status === "NEW").length;
@@ -55,6 +57,12 @@ export default async function ManagementDashboardPage() {
       hint: cmsPages.some((page) => page.slug === "home") ? "главная настроена" : "главная не создана",
       href: "/management/content",
       accent: !cmsPages.some((page) => page.slug === "home"),
+    },
+    {
+      title: "Новости",
+      value: news.length,
+      hint: `${news.filter((item) => item.is_published).length} опубликовано`,
+      href: "/management/news",
     },
     {
       title: "Туры",
@@ -77,13 +85,13 @@ export default async function ManagementDashboardPage() {
       accent: pendingReviews > 0,
     },
     {
-      title: "Sync записи",
+      title: "Синхронизация",
       value: integrationRefs.length,
       hint:
         failedSync > 0
           ? `${failedSync} с ошибкой`
           : pendingOutbox > 0
-            ? `${pendingOutbox} в outbox`
+            ? `${pendingOutbox} в очереди`
             : "Bitrix / 1С",
       href: "/management/integrations",
       accent: failedSync > 0 || pendingOutbox > 0,
@@ -103,6 +111,9 @@ export default async function ManagementDashboardPage() {
         <div className="flex flex-wrap gap-3">
           <Link href="/management/content" className="btn-primary">
             Редактировать контент
+          </Link>
+          <Link href="/management/news" className="btn-secondary">
+            Новости
           </Link>
           <Link href="/management/tours" className="btn-secondary">
             Создать тур

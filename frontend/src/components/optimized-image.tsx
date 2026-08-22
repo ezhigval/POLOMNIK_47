@@ -1,6 +1,6 @@
 import Image, { type ImageProps } from "next/image";
 
-const OPTIMIZED_HOSTS = new Set(["images.unsplash.com"]);
+const OPTIMIZED_HOSTS = new Set(["images.unsplash.com", "api.tikhvin-palomnik.ru"]);
 
 export function isOptimizableImageUrl(url: string): boolean {
   try {

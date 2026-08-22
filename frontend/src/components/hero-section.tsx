@@ -1,7 +1,6 @@
 import Link from "next/link";
-import { OptimizedImage } from "@/components/optimized-image";
+import { HeroBackground } from "@/components/hero-background";
 import { TripSearchConstructor } from "@/components/trip-search-constructor";
-import { heroBackgroundImage } from "@/lib/tour-cover";
 import { heroContent, trustStats } from "@/lib/site-content";
 import type { HeroBlockContent } from "@/lib/api/cms";
 
@@ -21,18 +20,7 @@ export function HeroSection({ content }: HeroSectionProps = {}) {
 
   return (
     <section className="relative overflow-hidden rounded-3xl">
-      <div className="absolute inset-0">
-        <OptimizedImage
-          src={heroBackgroundImage}
-          alt=""
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-br from-brand-950/92 via-brand-900/85 to-brand-800/75" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(251,191,36,0.15),_transparent_50%)]" />
-      </div>
+      <HeroBackground />
 
       <div className="relative px-4 py-10 sm:px-8 sm:py-14 lg:py-16">
         <div className="max-w-3xl">

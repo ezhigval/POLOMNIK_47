@@ -10,6 +10,7 @@ import {
 } from "@/app/management/actions";
 import { BlockEditor } from "@/components/management/cms/block-editor";
 import type { CmsBlockTemplate, CmsPage } from "@/lib/api/cms";
+import { FormError } from "@/components/form-error";
 
 type PageEditorProps = {
   page: CmsPage;
@@ -125,7 +126,7 @@ export function PageEditor({ page, templates }: PageEditorProps) {
           Опубликована
         </label>
 
-        {error ? <p className="text-sm text-red-700">{error}</p> : null}
+        <FormError>{error}</FormError>
 
         <button type="submit" disabled={loading} className="btn-primary">
           {loading ? "Сохраняем..." : "Сохранить страницу"}

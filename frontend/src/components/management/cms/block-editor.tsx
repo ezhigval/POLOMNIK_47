@@ -1,9 +1,11 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { updateCmsBlockAction } from "@/app/management/actions";
 import type { CmsBlock, CmsBlockType } from "@/lib/api/cms";
+import { featuredRoute } from "@/lib/featured-route";
+import { FormError } from "@/components/form-error";
 
 type BlockEditorProps = {
   block: CmsBlock;
@@ -110,7 +112,7 @@ export function BlockEditor({ block, pageId, slug }: BlockEditorProps) {
           {isVisible ? "Скрыть" : "Показать"}
         </button>
         <span className="text-xs text-stone-400">{label}</span>
-        {error ? <p className="w-full text-sm text-red-700">{error}</p> : null}
+        <FormError className="w-full">{error}</FormError>
       </div>
     );
   }
@@ -146,8 +148,7 @@ export function BlockEditor({ block, pageId, slug }: BlockEditorProps) {
   );
 }
 
-type BlockContentFormProps = {
-  type: CmsBlockType;
+type BlockFormFields = {
   content: Record<string, unknown>;
   loading: boolean;
   error: string | null;
@@ -155,12 +156,16 @@ type BlockContentFormProps = {
   onSave: (content: Record<string, unknown>) => void;
 };
 
+type BlockContentFormProps = BlockFormFields & {
+  type: CmsBlockType;
+};
+
 function BlockContentForm({ type, content, loading, error, onCancel, onSave }: BlockContentFormProps) {
   if (type === "popular_destinations" || type === "testimonials") {
     return (
       <div className="space-y-3">
         <p className="text-sm text-stone-600">Виджет без настроек контента.</p>
-        {error ? <p className="text-sm text-red-700">{error}</p> : null}
+        <FormError>{error}</FormError>
         <div className="flex gap-2">
           <button type="button" disabled={loading} onClick={() => onSave({})} className="btn-primary">
             {loading ? "Сохраняем..." : "Сохранить"}
@@ -170,6 +175,12 @@ function BlockContentForm({ type, content, loading, error, onCancel, onSave }: B
           </button>
         </div>
       </div>
+    );
+  }
+
+  if (type === "featured_route") {
+    return (
+      <FeaturedRouteForm content={content} loading={loading} error={error} onCancel={onCancel} onSave={onSave} />
     );
   }
 
@@ -255,7 +266,7 @@ function FormActions({
 }) {
   return (
     <>
-      {error ? <p className="text-sm text-red-700">{error}</p> : null}
+      <FormError>{error}</FormError>
       <div className="flex flex-wrap gap-2">
         <button type="submit" disabled={loading} className="btn-primary">
           {loading ? "Сохраняем..." : "Сохранить"}
@@ -369,7 +380,7 @@ function ObjectListEditor({
   );
 }
 
-function HeroForm({ content, loading, error, onCancel, onSave }: BlockContentFormProps) {
+function HeroForm({ content, loading, error, onCancel, onSave }: BlockFormFields) {
   const [eyebrow, setEyebrow] = useState(stringValue(content, "eyebrow"));
   const [title, setTitle] = useState(stringValue(content, "title"));
   const [subtitle, setSubtitle] = useState(stringValue(content, "subtitle"));
@@ -396,13 +407,13 @@ function HeroForm({ content, loading, error, onCancel, onSave }: BlockContentFor
         });
       }}
     >
-      <Field label="Eyebrow" value={eyebrow} onChange={setEyebrow} />
+      <Field label="Надзаголовок" value={eyebrow} onChange={setEyebrow} />
       <Field label="Заголовок" value={title} onChange={setTitle} />
       <Field label="Подзаголовок" value={subtitle} onChange={setSubtitle} multiline />
-      <Field label="Primary CTA" value={primaryCta} onChange={setPrimaryCta} />
-      <Field label="Primary href" value={primaryHref} onChange={setPrimaryHref} />
-      <Field label="Secondary CTA" value={secondaryCta} onChange={setSecondaryCta} />
-      <Field label="Secondary href" value={secondaryHref} onChange={setSecondaryHref} />
+      <Field label="Основная кнопка" value={primaryCta} onChange={setPrimaryCta} />
+      <Field label="Ссылка основной кнопки" value={primaryHref} onChange={setPrimaryHref} />
+      <Field label="Вторая кнопка" value={secondaryCta} onChange={setSecondaryCta} />
+      <Field label="Ссылка второй кнопки" value={secondaryHref} onChange={setSecondaryHref} />
       <ObjectListEditor
         label="Статистика"
         rows={stats}
@@ -417,7 +428,87 @@ function HeroForm({ content, loading, error, onCancel, onSave }: BlockContentFor
   );
 }
 
-function AboutForm({ content, loading, error, onCancel, onSave }: BlockContentFormProps) {
+function FeaturedRouteForm({ content, loading, error, onCancel, onSave }: BlockFormFields) {
+  const [eyebrow, setEyebrow] = useState(stringValue(content, "eyebrow") || featuredRoute.eyebrow);
+  const [title, setTitle] = useState(stringValue(content, "title") || featuredRoute.title);
+  const [parentRoute, setParentRoute] = useState(stringValue(content, "parentRoute") || featuredRoute.parentRoute);
+  const [duration, setDuration] = useState(stringValue(content, "duration") || featuredRoute.duration);
+  const [region, setRegion] = useState(stringValue(content, "region") || featuredRoute.region);
+  const [lead, setLead] = useState(stringValue(content, "lead") || featuredRoute.lead);
+  const [body, setBody] = useState(stringValue(content, "body") || featuredRoute.body);
+  const [ctaLabel, setCtaLabel] = useState(stringValue(content, "ctaLabel") || featuredRoute.ctaLabel);
+  const [ctaHref, setCtaHref] = useState(stringValue(content, "ctaHref") || featuredRoute.ctaHref);
+  const [secondaryCta, setSecondaryCta] = useState(stringValue(content, "secondaryCta") || featuredRoute.secondaryCta);
+  const [secondaryHref, setSecondaryHref] = useState(stringValue(content, "secondaryHref") || featuredRoute.secondaryHref);
+  const [days, setDays] = useState(featuredDaysForEditor(content));
+
+  return (
+    <form
+      className="space-y-3"
+      onSubmit={(event) => {
+        event.preventDefault();
+        onSave({
+          eyebrow,
+          title,
+          parentRoute,
+          duration,
+          region,
+          lead,
+          body,
+          ctaLabel,
+          ctaHref,
+          secondaryCta,
+          secondaryHref,
+          days: days.map((day) => ({
+            title: day.title,
+            points: day.points
+              .split("\n")
+              .map((point) => point.trim())
+              .filter(Boolean),
+          })),
+        });
+      }}
+    >
+      <Field label="Надзаголовок" value={eyebrow} onChange={setEyebrow} />
+      <Field label="Заголовок" value={title} onChange={setTitle} />
+      <Field label="Родительский маршрут" value={parentRoute} onChange={setParentRoute} />
+      <Field label="Длительность" value={duration} onChange={setDuration} />
+      <Field label="Регион" value={region} onChange={setRegion} />
+      <Field label="Лид" value={lead} onChange={setLead} multiline />
+      <Field label="Текст" value={body} onChange={setBody} multiline />
+      <ObjectListEditor
+        label="Программа (пункты дня — с новой строки)"
+        rows={days}
+        fields={[
+          { key: "title", value: "День" },
+          { key: "points", value: "Пункты" },
+        ]}
+        onChange={(rows) => setDays(rows as { title: string; points: string }[])}
+      />
+      <Field label="Основная кнопка" value={ctaLabel} onChange={setCtaLabel} />
+      <Field label="Ссылка основной кнопки" value={ctaHref} onChange={setCtaHref} />
+      <Field label="Вторая кнопка" value={secondaryCta} onChange={setSecondaryCta} />
+      <Field label="Ссылка второй кнопки" value={secondaryHref} onChange={setSecondaryHref} />
+      <FormActions loading={loading} error={error} onCancel={onCancel} />
+    </form>
+  );
+}
+
+function featuredDaysForEditor(content: Record<string, unknown>): { title: string; points: string }[] {
+  const value = content.days;
+  if (!Array.isArray(value) || value.length === 0) {
+    return featuredRoute.days.map((day) => ({ title: day.title, points: day.points.join("\n") }));
+  }
+  return value.map((item) => {
+    const source = item && typeof item === "object" ? (item as Record<string, unknown>) : {};
+    const points = Array.isArray(source.points)
+      ? source.points.map((point) => String(point ?? "")).join("\n")
+      : String(source.points ?? "");
+    return { title: String(source.title ?? ""), points };
+  });
+}
+
+function AboutForm({ content, loading, error, onCancel, onSave }: BlockFormFields) {
   const [eyebrow, setEyebrow] = useState(stringValue(content, "eyebrow"));
   const [title, setTitle] = useState(stringValue(content, "title"));
   const [paragraphs, setParagraphs] = useState(stringArray(content, "paragraphs"));
@@ -432,10 +523,10 @@ function AboutForm({ content, loading, error, onCancel, onSave }: BlockContentFo
         onSave({ eyebrow, title, paragraphs, highlights, showContacts });
       }}
     >
-      <Field label="Eyebrow" value={eyebrow} onChange={setEyebrow} />
+      <Field label="Надзаголовок" value={eyebrow} onChange={setEyebrow} />
       <Field label="Заголовок" value={title} onChange={setTitle} />
       <StringListEditor label="Абзацы" values={paragraphs} onChange={setParagraphs} />
-      <StringListEditor label="Highlights" values={highlights} onChange={setHighlights} />
+      <StringListEditor label="Акценты" values={highlights} onChange={setHighlights} />
       <label className="flex items-center gap-2 text-sm">
         <input
           type="checkbox"
@@ -450,7 +541,7 @@ function AboutForm({ content, loading, error, onCancel, onSave }: BlockContentFo
   );
 }
 
-function WhyUsForm({ content, loading, error, onCancel, onSave }: BlockContentFormProps) {
+function WhyUsForm({ content, loading, error, onCancel, onSave }: BlockFormFields) {
   const [eyebrow, setEyebrow] = useState(stringValue(content, "eyebrow"));
   const [title, setTitle] = useState(stringValue(content, "title"));
   const [description, setDescription] = useState(stringValue(content, "description"));
@@ -470,7 +561,7 @@ function WhyUsForm({ content, loading, error, onCancel, onSave }: BlockContentFo
         onSave({ eyebrow, title, description, items });
       }}
     >
-      <Field label="Eyebrow" value={eyebrow} onChange={setEyebrow} />
+      <Field label="Надзаголовок" value={eyebrow} onChange={setEyebrow} />
       <Field label="Заголовок" value={title} onChange={setTitle} />
       <Field label="Описание" value={description} onChange={setDescription} multiline />
       <ObjectListEditor
@@ -488,7 +579,7 @@ function WhyUsForm({ content, loading, error, onCancel, onSave }: BlockContentFo
   );
 }
 
-function HowItWorksForm({ content, loading, error, onCancel, onSave }: BlockContentFormProps) {
+function HowItWorksForm({ content, loading, error, onCancel, onSave }: BlockFormFields) {
   const [eyebrow, setEyebrow] = useState(stringValue(content, "eyebrow"));
   const [title, setTitle] = useState(stringValue(content, "title"));
   const [description, setDescription] = useState(stringValue(content, "description"));
@@ -506,7 +597,7 @@ function HowItWorksForm({ content, loading, error, onCancel, onSave }: BlockCont
         onSave({ eyebrow, title, description, steps, ctaLabel, ctaHref });
       }}
     >
-      <Field label="Eyebrow" value={eyebrow} onChange={setEyebrow} />
+      <Field label="Надзаголовок" value={eyebrow} onChange={setEyebrow} />
       <Field label="Заголовок" value={title} onChange={setTitle} />
       <Field label="Описание" value={description} onChange={setDescription} multiline />
       <ObjectListEditor
@@ -518,14 +609,14 @@ function HowItWorksForm({ content, loading, error, onCancel, onSave }: BlockCont
         ]}
         onChange={(rows) => setSteps(rows as { title: string; description: string }[])}
       />
-      <Field label="CTA" value={ctaLabel} onChange={setCtaLabel} />
-      <Field label="CTA href" value={ctaHref} onChange={setCtaHref} />
+      <Field label="Текст кнопки" value={ctaLabel} onChange={setCtaLabel} />
+      <Field label="Ссылка кнопки" value={ctaHref} onChange={setCtaHref} />
       <FormActions loading={loading} error={error} onCancel={onCancel} />
     </form>
   );
 }
 
-function FaqForm({ content, loading, error, onCancel, onSave }: BlockContentFormProps) {
+function FaqForm({ content, loading, error, onCancel, onSave }: BlockFormFields) {
   const [eyebrow, setEyebrow] = useState(stringValue(content, "eyebrow"));
   const [title, setTitle] = useState(stringValue(content, "title"));
   const [description, setDescription] = useState(stringValue(content, "description"));
@@ -541,7 +632,7 @@ function FaqForm({ content, loading, error, onCancel, onSave }: BlockContentForm
         onSave({ eyebrow, title, description, items });
       }}
     >
-      <Field label="Eyebrow" value={eyebrow} onChange={setEyebrow} />
+      <Field label="Надзаголовок" value={eyebrow} onChange={setEyebrow} />
       <Field label="Заголовок" value={title} onChange={setTitle} />
       <Field label="Описание" value={description} onChange={setDescription} multiline />
       <ObjectListEditor
@@ -558,7 +649,7 @@ function FaqForm({ content, loading, error, onCancel, onSave }: BlockContentForm
   );
 }
 
-function CtaForm({ content, loading, error, onCancel, onSave }: BlockContentFormProps) {
+function CtaForm({ content, loading, error, onCancel, onSave }: BlockFormFields) {
   const [title, setTitle] = useState(stringValue(content, "title"));
   const [subtitle, setSubtitle] = useState(stringValue(content, "subtitle"));
   const [button, setButton] = useState(stringValue(content, "button"));
@@ -575,13 +666,13 @@ function CtaForm({ content, loading, error, onCancel, onSave }: BlockContentForm
       <Field label="Заголовок" value={title} onChange={setTitle} />
       <Field label="Подзаголовок" value={subtitle} onChange={setSubtitle} multiline />
       <Field label="Кнопка" value={button} onChange={setButton} />
-      <Field label="Href" value={href} onChange={setHref} />
+      <Field label="Ссылка" value={href} onChange={setHref} />
       <FormActions loading={loading} error={error} onCancel={onCancel} />
     </form>
   );
 }
 
-function RichTextForm({ content, loading, error, onCancel, onSave }: BlockContentFormProps) {
+function RichTextForm({ content, loading, error, onCancel, onSave }: BlockFormFields) {
   const [eyebrow, setEyebrow] = useState(stringValue(content, "eyebrow"));
   const [title, setTitle] = useState(stringValue(content, "title"));
   const [body, setBody] = useState(stringValue(content, "body"));
@@ -594,7 +685,7 @@ function RichTextForm({ content, loading, error, onCancel, onSave }: BlockConten
         onSave({ eyebrow, title, body });
       }}
     >
-      <Field label="Eyebrow" value={eyebrow} onChange={setEyebrow} />
+      <Field label="Надзаголовок" value={eyebrow} onChange={setEyebrow} />
       <Field label="Заголовок" value={title} onChange={setTitle} />
       <Field label="Текст" value={body} onChange={setBody} multiline />
       <FormActions loading={loading} error={error} onCancel={onCancel} />
@@ -605,7 +696,7 @@ function RichTextForm({ content, loading, error, onCancel, onSave }: BlockConten
 function blockTypeLabel(type: CmsBlockType) {
   switch (type) {
     case "hero":
-      return "Hero";
+      return "Шапка";
     case "about":
       return "О службе";
     case "why_us":
@@ -613,15 +704,17 @@ function blockTypeLabel(type: CmsBlockType) {
     case "how_it_works":
       return "Как записаться";
     case "faq":
-      return "FAQ";
+      return "Вопросы";
     case "cta":
-      return "CTA";
+      return "Баннер";
     case "rich_text":
       return "Текст";
     case "popular_destinations":
       return "Направления";
     case "testimonials":
       return "Отзывы";
+    case "featured_route":
+      return "Тихвинский путь";
     default:
       return type;
   }

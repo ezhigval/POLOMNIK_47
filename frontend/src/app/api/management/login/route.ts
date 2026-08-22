@@ -8,7 +8,7 @@ import {
 export async function POST(request: Request) {
   const adminToken = process.env.ADMIN_TOKEN;
   if (!adminToken) {
-    return NextResponse.json({ error: "Management is not configured" }, { status: 503 });
+    return NextResponse.json({ error: "Управление не настроено" }, { status: 503 });
   }
 
   const body = await request.json().catch(() => null);

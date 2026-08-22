@@ -9,7 +9,7 @@ async function proxy(method: string, tourId: string) {
   const cookieStore = await cookies();
   const token = cookieStore.get(AUTH_COOKIE)?.value;
   if (!token) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "Нужно войти в аккаунт" }, { status: 401 });
   }
 
   const response = await fetch(`${getApiBaseUrl()}/me/favorites/${tourId}`, {

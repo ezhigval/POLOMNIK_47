@@ -8,7 +8,7 @@ import { isAdminAuthenticated } from "@/lib/auth/admin-session";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Admin login",
+  title: "Вход в админку",
   robots: { index: false, follow: false },
 };
 

@@ -1,31 +1,24 @@
 import type { User } from "@/lib/api/auth";
-import { getApiBaseUrl } from "@/lib/api/base-url";
+import { apiUrl, requestJson } from "@/lib/api/client";
 import { AUTH_COOKIE } from "@/lib/auth/session";
 import { cookies } from "next/headers";
 
-async function authedFetch(path: string, init: RequestInit = {}) {
+async function authedFetch<T>(path: string, init: RequestInit = {}): Promise<T> {
   const cookieStore = await cookies();
   const token = cookieStore.get(AUTH_COOKIE)?.value;
   if (!token) {
-    throw new Error("Authentication required");
+    throw new Error("Нужно войти в аккаунт");
   }
 
-  const response = await fetch(`${getApiBaseUrl()}${path}`, {
+  const body = await requestJson<{ data?: T }>(apiUrl(path), {
+    cache: "no-store",
     ...init,
     headers: {
-      "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
       ...(init.headers ?? {}),
     },
-    cache: "no-store",
   });
-
-  const text = await response.text();
-  const body = text ? JSON.parse(text) : null;
-  if (!response.ok) {
-    throw new Error(body?.error?.message ?? "Request failed");
-  }
-  return body?.data;
+  return body.data as T;
 }
 
 export async function fetchFavoriteTourIds(): Promise<string[]> {

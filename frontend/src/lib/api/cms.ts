@@ -9,7 +9,8 @@ export type CmsBlockType =
   | "cta"
   | "rich_text"
   | "popular_destinations"
-  | "testimonials";
+  | "testimonials"
+  | "featured_route";
 
 export type HeroBlockContent = {
   eyebrow?: string;
@@ -66,6 +67,21 @@ export type RichTextBlockContent = {
   body?: string;
 };
 
+export type FeaturedRouteBlockContent = {
+  eyebrow?: string;
+  title?: string;
+  parentRoute?: string;
+  duration?: string;
+  region?: string;
+  lead?: string;
+  body?: string;
+  ctaLabel?: string;
+  ctaHref?: string;
+  secondaryCta?: string;
+  secondaryHref?: string;
+  days?: { title: string; points: string[] }[];
+};
+
 export type CmsBlockContent =
   | HeroBlockContent
   | AboutBlockContent
@@ -74,6 +90,7 @@ export type CmsBlockContent =
   | FaqBlockContent
   | CtaBlockContent
   | RichTextBlockContent
+  | FeaturedRouteBlockContent
   | Record<string, never>;
 
 export type CmsBlock = {

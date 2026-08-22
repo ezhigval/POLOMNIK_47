@@ -39,7 +39,7 @@ async function loadToursData(filters: TourFilterValues, showPopularBlock: boolea
       error:
         err instanceof ApiError
           ? err.message
-          : "Не удалось загрузить туры. Проверьте, что backend запущен.",
+          : "Не удалось загрузить туры. Попробуйте обновить страницу.",
       toursResponse: null,
       popular: [],
       showPopular,
@@ -75,7 +75,7 @@ async function ToursContent({
       {showPopular && popular.length > 0 ? (
         <section className="mb-10">
           <h2 className="mb-4 text-xl font-semibold">Популярные туры</h2>
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {popular.map((tour) => (
               <TourCard key={tour.id} tour={tour} featured />
             ))}
@@ -99,7 +99,7 @@ async function ToursContent({
           </div>
         ) : (
           <>
-            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {toursResponse.data.map((tour) => (
                 <TourCard key={tour.id} tour={tour} />
               ))}

@@ -1,23 +1,8 @@
 import "server-only";
 
-import { getApiBaseUrl } from "./base-url";
-import { ApiError } from "./client";
+import { apiUrl, requestJson, ApiError, type DataEnvelope, type ListEnvelope } from "./client";
 import type { CmsBlock, CmsBlockTemplate, CmsBlockType, CmsPage } from "./cms";
 import type { Tour } from "./tours";
-
-type ListEnvelope<T> = {
-  data: T[];
-  meta: {
-    page: number;
-    limit: number;
-    total: number;
-    has_next: boolean;
-  };
-};
-
-type DataEnvelope<T> = {
-  data: T;
-};
 
 export type ManagementTour = Tour & {
   is_active: boolean;
@@ -46,6 +31,8 @@ export type ManagementReview = {
   client_name: string;
   rating: number;
   text: string;
+  company_reply: string;
+  company_replied_at?: string | null;
   is_approved: boolean;
   created_at: string;
 };
@@ -77,37 +64,14 @@ async function managementRequest<T>(path: string, init?: RequestInit): Promise<T
     throw new ApiError(503, "SERVICE_UNAVAILABLE", "Management API is not configured");
   }
 
-  const response = await fetch(`${getApiBaseUrl()}/management${path}`, {
-    ...init,
+  return requestJson<T>(apiUrl(`/management${path}`), {
     cache: "no-store",
+    ...init,
     headers: {
-      "Content-Type": "application/json",
       "X-Admin-Token": adminToken,
       ...(init?.headers ?? {}),
     },
   });
-
-  if (!response.ok) {
-    try {
-      const body = (await response.json()) as { error: { code: string; message: string } };
-      throw new ApiError(
-        response.status,
-        body.error?.code ?? "UNKNOWN_ERROR",
-        body.error?.message ?? "Request failed",
-      );
-    } catch (error) {
-      if (error instanceof ApiError) {
-        throw error;
-      }
-      throw new ApiError(response.status, "UNKNOWN_ERROR", response.statusText);
-    }
-  }
-
-  if (response.status === 204) {
-    return undefined as T;
-  }
-
-  return (await response.json()) as T;
 }
 
 export async function listManagementTours() {
@@ -132,7 +96,7 @@ export async function uploadManagementImage(file: File) {
   const body = new FormData();
   body.append("file", file);
 
-  const response = await fetch(`${getApiBaseUrl()}/management/uploads`, {
+  const payload = await requestJson<DataEnvelope<{ url: string; path: string }>>(apiUrl("/management/uploads"), {
     method: "POST",
     cache: "no-store",
     headers: {
@@ -140,24 +104,6 @@ export async function uploadManagementImage(file: File) {
     },
     body,
   });
-
-  if (!response.ok) {
-    try {
-      const payload = (await response.json()) as { error: { code: string; message: string } };
-      throw new ApiError(
-        response.status,
-        payload.error?.code ?? "UNKNOWN_ERROR",
-        payload.error?.message ?? "Upload failed",
-      );
-    } catch (error) {
-      if (error instanceof ApiError) {
-        throw error;
-      }
-      throw new ApiError(response.status, "UNKNOWN_ERROR", response.statusText);
-    }
-  }
-
-  const payload = (await response.json()) as DataEnvelope<{ url: string; path: string }>;
   return payload.data;
 }
 
@@ -309,6 +255,17 @@ export async function rejectManagementReview(id: string) {
   return body.data;
 }
 
+export async function setManagementReviewReply(id: string, company_reply: string) {
+  const body = await managementRequest<DataEnvelope<ManagementReview>>(
+    `/reviews/${id}/reply`,
+    {
+      method: "PATCH",
+      body: JSON.stringify({ company_reply }),
+    },
+  );
+  return body.data;
+}
+
 export async function deleteManagementReview(id: string) {
   await managementRequest<void>(`/reviews/${id}`, { method: "DELETE" });
 }
@@ -406,4 +363,52 @@ export async function reorderManagementCmsBlocks(pageId: string, blockIds: strin
     body: JSON.stringify({ block_ids: blockIds }),
   });
   return body.data;
+}
+
+export type ManagementNewsArticle = {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt: string;
+  body: string;
+  image_url: string;
+  published_at: string;
+  is_published: boolean;
+  sort_order: number;
+};
+
+export type NewsUpsertInput = {
+  slug: string;
+  title: string;
+  excerpt: string;
+  body: string;
+  image_url: string;
+  published_at: string;
+  is_published: boolean;
+  sort_order: number;
+};
+
+export async function listManagementNews() {
+  const body = await managementRequest<ListEnvelope<ManagementNewsArticle>>("/news?limit=100");
+  return body.data;
+}
+
+export async function createManagementNews(input: NewsUpsertInput) {
+  const body = await managementRequest<DataEnvelope<ManagementNewsArticle>>("/news", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+  return body.data;
+}
+
+export async function updateManagementNews(id: string, input: NewsUpsertInput) {
+  const body = await managementRequest<DataEnvelope<ManagementNewsArticle>>(`/news/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(input),
+  });
+  return body.data;
+}
+
+export async function deleteManagementNews(id: string) {
+  await managementRequest<void>(`/news/${id}`, { method: "DELETE" });
 }

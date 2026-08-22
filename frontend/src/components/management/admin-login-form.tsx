@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
+import { FormError } from "@/components/form-error";
 
 export function AdminLoginForm() {
   const router = useRouter();
@@ -35,11 +36,11 @@ export function AdminLoginForm() {
     <form onSubmit={onSubmit} className="mx-auto max-w-sm space-y-4 rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
       <div>
         <h1 className="text-xl font-semibold text-stone-900">Вход в админку</h1>
-        <p className="mt-1 text-sm text-stone-600">Введите admin-токен для доступа к управлению</p>
+        <p className="mt-1 text-sm text-stone-600">Введите токен администратора для доступа к управлению.</p>
       </div>
 
       <label className="block text-sm">
-        <span className="form-label">Admin token</span>
+        <span className="form-label">Токен администратора</span>
         <input
           required
           type="password"
@@ -49,10 +50,10 @@ export function AdminLoginForm() {
         />
       </label>
 
-      {error ? <p className="text-sm text-red-700">{error}</p> : null}
+      <FormError>{error}</FormError>
 
       <button type="submit" disabled={loading} className="btn-primary w-full">
-        {loading ? "Проверяем..." : "Войти"}
+        {loading ? "Проверяем…" : "Войти"}
       </button>
     </form>
   );

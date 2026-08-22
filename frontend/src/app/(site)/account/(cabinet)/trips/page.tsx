@@ -38,7 +38,7 @@ export default async function MyTripsPage() {
     <div className="space-y-8">
       <div>
         <h1 className="font-display text-3xl font-semibold text-stone-900">Мои поездки</h1>
-        <p className="mt-2 text-sm text-stone-600">Заявки, оформленные под вашим аккаунтом</p>
+        <p className="mt-2 text-sm text-stone-600">Заявки, оформленные под вашим аккаунтом.</p>
       </div>
 
       {bookings.length === 0 ? (

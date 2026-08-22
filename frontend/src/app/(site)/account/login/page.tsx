@@ -9,6 +9,7 @@ import { oauthErrorMessages, safeReturnUrl } from "@/lib/site-nav";
 
 export const metadata: Metadata = {
   title: "Вход",
+  robots: { index: false, follow: false },
 };
 
 type LoginPageProps = {
