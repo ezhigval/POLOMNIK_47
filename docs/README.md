@@ -4,6 +4,9 @@
 
 ## Документы
 
+- [CONVENTIONS.md](CONVENTIONS.md) - единый кодстайл Go и TypeScript.
+- [RELEASE.md](RELEASE.md) - конвейер релиза и домены.
+- [DEPLOY.md](DEPLOY.md) - инфраструктура и деплой.
 - [DECISIONS.md](DECISIONS.md) - зафиксированные решения владельца проекта.
 - [PROJECT_SPEC.md](PROJECT_SPEC.md) - цель продукта, MVP scope, будущие фазы.
 - [ARCHITECTURE.md](ARCHITECTURE.md) - гексагональная архитектура backend.

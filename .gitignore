@@ -2,7 +2,14 @@
 .env
 .env.local
 .env.production
+.env.preview
+.env.staging
+.env.integrations
 .env.*.local
+.env.*.bak
+*.pem
+id_rsa
+id_ed25519
 
 # OS / IDE
 .DS_Store

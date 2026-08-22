@@ -1,6 +1,6 @@
 # Backend
 
-Go backend for POLOMNIK_47.
+Go backend for PALOMNIK 47.
 
 ## Run locally
 

@@ -1,93 +1,98 @@
-# POLOMNIK_47
+# Тихвинский путь (POLOMNIK_47)
 
-Платформа паломнической службы: backend API, frontend-сайт и будущие интеграции с Bitrix24 и 1C.
+Сайт и API паломнической службы Тихвинской епархии: каталог поездок, заявки, кабинет менеджера. Backend — источник правды; Bitrix24 и 1С подключаются адаптерами (сейчас `noop`).
 
-## Быстрый старт (Docker)
+Репозиторий: [github.com/ezhigval/POLOMNIK_47](https://github.com/ezhigval/POLOMNIK_47)
+
+Публичный сайт: **https://tikhvin-palomnik.ru**  
+API: **https://api.tikhvin-palomnik.ru**
+
+Старый адрес `tikhvin-polomnik.ru` (через «о») отдаёт 301 на palomnik. Отдельного preview-стенда нет.
+
+## Правила (для людей и агентов)
+
+Полный канон: **[AGENTS.md](AGENTS.md)**. Кратко:
+
+1. Правки сначала **локально**, затем **GitHub**, затем деплой на palomnik — только если владелец попросил.
+2. Не выдумывать бизнес-логику. Неясное поведение — вопрос владельцу.
+3. Backend — гексагональная архитектура. Логика не в HTTP-handlers и не во frontend.
+4. Секреты (`.env.production`, ключи, токены) не коммитить и не светить в чат.
+5. Commit / push / force-push — только по просьбе владельца. В `main` не force-push.
+6. Юридические тексты, контент туров и Telegram — отдельный этап, не трогать без просьбы.
+
+## Быстрый старт (локально)
 
 ```bash
 docker compose up --build -d
 ```
 
-Сервисы:
+| URL | Что |
+|-----|-----|
+| http://localhost:3000 | Сайт |
+| http://localhost:8080 | API |
+| http://localhost:8080/api/v1/tours | Публичный список туров |
+| http://localhost:3000/management | Админка (токен `dev-admin-token`) |
 
-| URL | Описание |
-|-----|----------|
-| http://localhost:3000 | Frontend |
-| http://localhost:8080 | Backend API |
-| http://localhost:8080/api/v1/tours | Публичный API |
-| http://localhost:3000/management | Management UI (дашборд) |
+Остановка: `docker compose down`.
 
-Outbox worker (`worker` service) автоматически поднимается в compose и ретраит pending-события интеграций.
-
-Management UI доступен только при `ADMIN_TOKEN` в env frontend-контейнера (по умолчанию `dev-admin-token`).
-
-Остановка:
+Без Docker:
 
 ```bash
-docker compose down
+# backend
+cd backend && ADMIN_TOKEN=dev-admin-token go run ./cmd/api
+
+# frontend
+cd frontend && cp .env.example .env.local && npm install && npm run dev
 ```
 
 ## Структура
 
 ```text
-POLOMNIK_47/
-  docs/       — документация
-  backend/    — Go API (hexagonal architecture)
-  frontend/   — Next.js
+.
+  AGENTS.md                 правила для всех агентов
+  docs/                     спецификация, API, деплой, релиз
+  backend/                  Go API (module polomnik)
+  frontend/                 Next.js
+  deploy/                   Caddy + скрипты Yandex Cloud
+  .cursor/rules/            правила Cursor
 ```
-
-## Локальная разработка без Docker
-
-Backend:
-
-```bash
-cd backend
-ADMIN_TOKEN=dev-admin-token go run ./cmd/api
-```
-
-Outbox worker (отдельный процесс):
-
-```bash
-cd backend
-DATABASE_URL=postgres://... go run ./cmd/worker
-```
-
-Frontend:
-
-```bash
-cd frontend
-cp .env.example .env.local
-npm install
-npm run dev
-```
-
-## Документация
-
-- [docs/PROJECT_SPEC.md](docs/PROJECT_SPEC.md)
-- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
-- [docs/API.md](docs/API.md)
-- [docs/ROADMAP.md](docs/ROADMAP.md)
-- [docs/INTEGRATION_DISCOVERY.md](docs/INTEGRATION_DISCOVERY.md) — решения по интеграциям
-- [docs/BITRIX_SETUP.md](docs/BITRIX_SETUP.md) — Bitrix24 за 10 минут
-- [docs/ONEC_INTEGRATOR_TZ.md](docs/ONEC_INTEGRATOR_TZ.md) — ТЗ для 1С-специалиста
-
-## Текущий статус
-
-- **Stage A (Backend MVP)** — завершён
-- **Stage B (Frontend MVP + marketing UX)** — ~95%
-- **Stage C (Bitrix24 / 1C code)** — адаптеры готовы; live подключение — Stage E
-- **Stage D (Production readiness)** — ~65%: SEO, about, CI smoke; нужны реальный контент и деплой
-- **Stage E (Live integrations)** — отложено: Telegram → Bitrix → 1C
 
 ## Проверки
 
 ```bash
 cd backend && go test ./... && go vet ./...
-cd frontend && npm run build && npm run lint && npm run test:smoke
-make smoke-docker   # полный smoke через Docker
-make e2e-docker     # Playwright E2E (guest booking + auth)
-make check-ops      # API ready + worker heartbeat + outbox summary
-make integration-smoke-docker  # Bitrix + 1C mocks end-to-end
-make docker-prod    # prod stack (нужен .env.production)
-make backup-db      # pg_dump → backups/
+cd frontend && npm run lint && npm run build
+make smoke-docker            # API smoke через Docker
+make e2e-docker              # Playwright
+make check-ops               # ready + worker + outbox
 ```
+
+## Релиз и деплой
+
+```text
+локально → GitHub (если попросили commit/push) → make deploy
+```
+
+```bash
+make deploy
+```
+
+ВМ: Ubuntu 24.04, пользователь `smailikin70`, IP `93.77.165.81`, каталог `/opt/polomnik`. SSH: `ssh polomnik-yc`. Compose: `docker-compose.yml` + `docker-compose.prod.yml`, env `.env.production` (не в git).
+
+DNS на REG.RU для зоны **tikhvin-palomnik.ru**: `@` / `www` / `api` → A `93.77.165.81`. Старый `tikhvin-polomnik.ru` можно оставить с теми же A-записями ради 301. Подробности: [docs/DEPLOY.md](docs/DEPLOY.md), [docs/RELEASE.md](docs/RELEASE.md).
+
+## Документация
+
+- [docs/RELEASE.md](docs/RELEASE.md) — конвейер релиза
+- [docs/DEPLOY.md](docs/DEPLOY.md) — сервер, env, HTTPS, бэкапы
+- [docs/PROJECT_SPEC.md](docs/PROJECT_SPEC.md)
+- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
+- [docs/API.md](docs/API.md)
+- [docs/ROADMAP.md](docs/ROADMAP.md)
+- [docs/BITRIX_SETUP.md](docs/BITRIX_SETUP.md)
+- [docs/ONEC_INTEGRATOR_TZ.md](docs/ONEC_INTEGRATOR_TZ.md)
+
+## Статус
+
+- Backend MVP и сайт — в проде на https://tikhvin-palomnik.ru
+- Интеграции Bitrix24 / 1С / Telegram — код адаптеров есть, live — позже

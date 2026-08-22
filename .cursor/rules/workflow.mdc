@@ -1,0 +1,12 @@
+---
+description: Конвейер local → GitHub → tikhvin-palomnik.ru. Всегда действует.
+alwaysApply: true
+---
+
+# Релиз
+
+Публичный домен один: **https://tikhvin-palomnik.ru**. `tikhvin-polomnik.ru` — только 301 на palomnik, не стенд.
+
+Порядок: локально → тесты → GitHub (commit/push только по просьбе) → `make deploy`.
+
+Не деплой на сервер сам, пока владелец не попросил. Не печатай `.env.production`. Не force-push `main`. Подробности: `AGENTS.md`, `docs/RELEASE.md`.

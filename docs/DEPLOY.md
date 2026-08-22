@@ -1,12 +1,40 @@
 # Deploy
 
-Прод-запуск **без Bitrix/1C** — backend остаётся source of truth, интеграции `noop`.
+Прод-запуск **без live Bitrix/1C** — backend остаётся source of truth, интеграции `noop`.
+
+Конвейер: **[RELEASE.md](RELEASE.md)**, правила агентов: **[AGENTS.md](../AGENTS.md)**.
+
+```bash
+make deploy
+```
+
+Публичный сайт: `https://tikhvin-palomnik.ru`. API: `https://api.tikhvin-palomnik.ru`. `tikhvin-polomnik.ru` — только 301 на palomnik.
 
 ## 1. Сервер
 
-- VPS (2 vCPU, 4 GB RAM) или managed container.
+Рекомендуемый прод: **Yandex Cloud Compute** (Ubuntu 24.04, 2 vCPU / ≥2 GB RAM + swap) + Docker Compose + Caddy.
+
+Скрипты:
+
+```bash
+export PATH="$HOME/yandex-cloud/bin:$PATH"
+yc init   # один раз, логин в браузере
+./deploy/yandex/provision.sh          # VPC + VM + IP
+./deploy/yandex/deploy.sh             # rsync + docker compose prod
+```
+
+DNS на REG.RU (A-записи → публичный IP VM) для зоны **tikhvin-palomnik.ru**:
+
+| Имя | Тип | Значение |
+|-----|-----|----------|
+| `@` | A | IP сервера |
+| `www` | A | IP сервера |
+| `api` | A | IP сервера |
+
+Старый `tikhvin-polomnik.ru` может указывать на тот же IP — Caddy отдаст 301.
+
 - Docker + Docker Compose v2.
-- DNS A-записи: `SITE_DOMAIN` и `API_DOMAIN` → IP сервера.
+- Порты 22 / 80 / 443 открыты в security group.
 
 ## 2. Переменные окружения
 
@@ -18,25 +46,25 @@ cp .env.production.example .env.production
 
 | Переменная | Назначение |
 |------------|------------|
-| `SITE_DOMAIN` | Публичный домен сайта (`polomnik47.ru`) |
-| `API_DOMAIN` | Домен API (`api.polomnik47.ru`) |
+| `SITE_DOMAIN` | `tikhvin-palomnik.ru` |
+| `API_DOMAIN` | `api.tikhvin-palomnik.ru` |
 | `ACME_EMAIL` | Email для Let's Encrypt (Caddy) |
 | `POSTGRES_PASSWORD` | Сильный пароль БД (не `polomnik`) |
 | `ADMIN_TOKEN` | Пароль для `/management/login` и management API |
 | `JWT_SECRET` | ≥32 символов, для пользовательских сессий |
 | `INTERNAL_API_SECRET` | ≥16 символов, для Google OAuth → API |
-| `CORS_ALLOW_ORIGINS` | `https://ваш-домен.ru` |
-| `NEXT_PUBLIC_SITE_URL` | `https://ваш-домен.ru` |
-| `NEXT_PUBLIC_API_URL` | `https://api.ваш-домен.ru/api/v1` |
-| `UPLOAD_PUBLIC_BASE_URL` | Публичный origin API (`https://api.ваш-домен.ru`) для URL загруженных фото |
+| `CORS_ALLOW_ORIGINS` | `https://tikhvin-palomnik.ru` |
+| `NEXT_PUBLIC_SITE_URL` | `https://tikhvin-palomnik.ru` |
+| `NEXT_PUBLIC_API_URL` | `/api/v1` (same-origin через Next rewrite) |
+| `UPLOAD_PUBLIC_BASE_URL` | `https://api.tikhvin-palomnik.ru` |
 | `NEXT_PUBLIC_CONTACT_*` | Телефон и email на сайте |
 | `NEXT_PUBLIC_YM_ID` | Яндекс.Метрика (опционально) |
 | `NEXT_PUBLIC_GA_ID` | Google Analytics (опционально) |
 | `NOTIFICATION_ADAPTER` | `telegram` при настройке бота |
-| `TELEGRAM_BOT_TOKEN` / `TELEGRAM_CHAT_ID` | Stage E |
-| `MANAGEMENT_BASE_URL` | `https://домен.ru/management/bookings` |
+| `TELEGRAM_BOT_TOKEN` / `TELEGRAM_CHAT_ID` | следующий этап |
+| `MANAGEMENT_BASE_URL` | `https://tikhvin-palomnik.ru/management/bookings` |
 
-Интеграции (Stage E):
+Интеграции (позже):
 
 - `CRM_ADAPTER=bitrix`, `BITRIX_WEBHOOK_URL=...`, `BITRIX_INBOUND_TOKEN=...`
 - `ACCOUNTING_ADAPTER=onec`, `ONEC_BASE_URL=...`
@@ -61,12 +89,18 @@ docker compose --env-file .env.production \
 
 Проверка:
 
-- `https://api.домен/health/ready` → `status: ok`
-- Сайт открывается, туры грузятся
+- `https://tikhvin-palomnik.ru` — HTTPS 200
+- `https://www.tikhvin-palomnik.ru` → 301 на apex
+- `https://api.tikhvin-palomnik.ru/health/ready` → `status: ok` (нужна A-запись `api`)
 - `/management/login` → admin token
-- Тестовая заявка → management
 
-## 4. Локальный dev (как раньше)
+На ВМ API с хоста не слушает `:8080`. Проверка изнутри:
+
+```bash
+API_VIA_DOCKER=1 ./scripts/check-ops.sh
+```
+
+## 4. Локальный dev
 
 ```bash
 docker compose up --build -d
@@ -77,11 +111,11 @@ docker compose up --build -d
 
 ```bash
 make backup-db
-# или
+# или на ВМ:
 ./scripts/backup-postgres.sh
 ```
 
-Дампы в `backups/`, хранятся 7 дней. Для cron:
+Дампы в `backups/`, хранятся 7 дней. Cron:
 
 ```cron
 0 3 * * * cd /opt/polomnik && ./scripts/backup-postgres.sh
@@ -91,26 +125,24 @@ make backup-db
 
 ```bash
 gunzip -c backups/polomnik-YYYYMMDD-HHMMSS.sql.gz | \
-  docker exec -i polomnik_47-postgres-1 psql -U polomnik -d polomnik
+  docker exec -i polomnik-postgres-1 psql -U polomnik -d polomnik
 ```
 
 ## 5.1 Мониторинг
 
-Uptime (внешний мониторинг → алерт при падении):
-
-- `https://api.домен/health/ready`
-- `make check-ops` локально / на сервере: readiness + `system-info` outbox.failed + worker healthy
+- Снаружи: `https://tikhvin-palomnik.ru` и (если есть DNS) `https://api.tikhvin-palomnik.ru/health/ready`
+- На ВМ: `API_VIA_DOCKER=1 ./scripts/check-ops.sh` — readiness + outbox.failed + worker healthy
 
 Worker:
 
 - Compose `healthcheck` по heartbeat-файлу
 - Management → Integrations: блок «Outbox здоровье»
 
-Cron ops check (пример каждый 5 мин):
-
 ```cron
-*/5 * * * * cd /opt/polomnik && CHECK_WORKER=1 ADMIN_TOKEN=... ./scripts/check-ops.sh
+*/10 * * * * cd /opt/polomnik && API_VIA_DOCKER=1 ./scripts/check-ops.sh
 ```
+
+`ADMIN_TOKEN` скрипт читает из `.env.production`, в crontab его писать не нужно.
 
 ## 6. CI / тесты перед деплоем
 
@@ -120,9 +152,9 @@ make e2e-docker     # Playwright E2E
 make check-ops      # API ready + worker healthy + outbox failed=0
 ```
 
-## 7. Telegram (Stage E)
+## 7. Telegram
 
-Код готов. Подключать после контента и smoke. См. `docs/TELEGRAM_SETUP.md`.
+Код готов. Подключать отдельно. См. `docs/TELEGRAM_SETUP.md`.
 
 ## 8. Чеклист перед открытием
 

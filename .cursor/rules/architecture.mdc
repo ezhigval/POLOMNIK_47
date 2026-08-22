@@ -1,0 +1,12 @@
+---
+description: Архитектура и границы кода POLOMNIK_47. Всегда действует.
+alwaysApply: true
+---
+
+# Архитектура
+
+- Backend: Go module `polomnik`, гексагон. Зависимости только `adapters → application → domain`.
+- Бизнес-логика не живёт в Fiber handlers, репозиториях и frontend. Frontend вызывает API и делает UX-валидацию.
+- Не выдумывай статусы заявок, цены, роли и тексты юридички. Спроси владельца.
+- Live Bitrix24 / 1C / Telegram не подключай, пока владелец не попросил Stage E. Адаптеры `noop` — норма для текущего прода.
+- Не коммить `.env.production`, ключи SSH, дампы БД, `node_modules`, `.next`.
