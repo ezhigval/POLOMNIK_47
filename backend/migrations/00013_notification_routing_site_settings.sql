@@ -30,6 +30,7 @@ CREATE TABLE IF NOT EXISTS site_settings (
 );
 
 -- Rename historical columns to the canonical names used by the API.
+-- +goose StatementBegin
 DO $$
 BEGIN
     IF EXISTS (
@@ -62,6 +63,7 @@ BEGIN
         ALTER TABLE site_settings RENAME COLUMN site_description TO description;
     END IF;
 END $$;
+-- +goose StatementEnd
 
 ALTER TABLE site_settings ADD COLUMN IF NOT EXISTS site_name TEXT NOT NULL DEFAULT '';
 ALTER TABLE site_settings ADD COLUMN IF NOT EXISTS full_name TEXT NOT NULL DEFAULT '';
