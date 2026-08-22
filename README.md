@@ -18,7 +18,7 @@ API: **https://api.tikhvin-palomnik.ru**
 3. Backend — гексагональная архитектура. Логика не в HTTP-handlers и не во frontend.
 4. Секреты (`.env.production`, ключи, токены) не коммитить и не светить в чат.
 5. Commit / push / force-push — только по просьбе владельца. В `main` не force-push.
-6. Юридические тексты, контент туров и Telegram — отдельный этап, не трогать без просьбы.
+6. Юридические тексты и контент туров не выдумывать. Секреты OAuth/SMTP/Метрики — владелец по [docs/V2_OWNER_SETUP.md](docs/V2_OWNER_SETUP.md).
 
 ## Быстрый старт (локально)
 
@@ -83,15 +83,19 @@ DNS на REG.RU для зоны **tikhvin-palomnik.ru**: `@` / `www` / `api` →
 
 ## Документация
 
+- [docs/STATUS.md](docs/STATUS.md) — что на проде сейчас (v2)
+- [docs/V2_OWNER_SETUP.md](docs/V2_OWNER_SETUP.md) — чеклист секретов и кабинетов
 - [docs/RELEASE.md](docs/RELEASE.md) — конвейер релиза
 - [docs/DEPLOY.md](docs/DEPLOY.md) — сервер, env, HTTPS, бэкапы
-- [docs/PROJECT_SPEC.md](docs/PROJECT_SPEC.md)
+- [docs/ROADMAP.md](docs/ROADMAP.md) — бэклог после v2
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 - [docs/API.md](docs/API.md)
-- [docs/ROADMAP.md](docs/ROADMAP.md)
+- [docs/OAUTH_SETUP.md](docs/OAUTH_SETUP.md)
+- [docs/SEO_ADS.md](docs/SEO_ADS.md)
+- [docs/TELEGRAM_SETUP.md](docs/TELEGRAM_SETUP.md)
 - [docs/BITRIX_SETUP.md](docs/BITRIX_SETUP.md)
 - [docs/ONEC_INTEGRATOR_TZ.md](docs/ONEC_INTEGRATOR_TZ.md)
 
 ## Статус
 
-v1.0: сайт на https://tikhvin-palomnik.ru. Telegram (заявки и поддержка) — через настройки админки. Bitrix24 и 1С — адаптеры в коде, live выключен. Очередь: [docs/ROADMAP.md](docs/ROADMAP.md).
+**v2.0** на https://tikhvin-palomnik.ru (тег `v2.0.x`). Код интеграций и OAuth готов; live Bitrix/1С выключен. Секреты и кабинеты — [docs/V2_OWNER_SETUP.md](docs/V2_OWNER_SETUP.md). Бэклог: [docs/ROADMAP.md](docs/ROADMAP.md).

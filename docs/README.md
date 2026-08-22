@@ -1,21 +1,22 @@
 # Документация
 
-Актуальные файлы — здесь. Если текст здесь расходится с историческим промптом или комментарием в коде, верны эти документы и [AGENTS.md](../AGENTS.md).
+Актуальные файлы — здесь. При противоречии побеждают эти документы и [AGENTS.md](../AGENTS.md).
 
 | Файл | Зачем |
 |------|--------|
+| [STATUS.md](STATUS.md) | Что на проде и в git **сейчас** (v2.0) |
+| [V2_OWNER_SETUP.md](V2_OWNER_SETUP.md) | Чеклист владельца: OAuth, почта, sms.ru, Метрика |
 | [../AGENTS.md](../AGENTS.md) | Правила агентов и прод |
-| [ROADMAP.md](ROADMAP.md) | v1.0 и очереди v2 (I фиксы → II запуск → III новое) |
+| [ROADMAP.md](ROADMAP.md) | Зафиксированный v2 и бэклог после |
 | [DECISIONS.md](DECISIONS.md) | Решения владельца |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | Гексагон backend |
 | [CONVENTIONS.md](CONVENTIONS.md) | Кодстайл |
 | [API.md](API.md) | HTTP API |
 | [DATA_MODEL.md](DATA_MODEL.md) | Модель данных |
-| [RELEASE.md](RELEASE.md) | Релиз |
+| [RELEASE.md](RELEASE.md) | Релиз и теги |
 | [DEPLOY.md](DEPLOY.md) | Сервер и HTTPS |
 | [TELEGRAM_SETUP.md](TELEGRAM_SETUP.md) | Бот и получатели |
-| [OAUTH_SETUP.md](OAUTH_SETUP.md) | Соцвход: Яндекс, VK, Telegram, Max |
-| [SEO_ADS.md](SEO_ADS.md) | Метрика/GA, sitemap, Директ/VK, UTM |
+| [OAUTH_SETUP.md](OAUTH_SETUP.md) | Соцвход пошагово |
+| [SEO_ADS.md](SEO_ADS.md) | Метрика, sitemap, реклама |
 | [INTEGRATIONS.md](INTEGRATIONS.md) | Bitrix24 и 1С как адаптеры |
-| [PROJECT_SPEC.md](PROJECT_SPEC.md) | Цель продукта |
-- [V2_OWNER_SETUP.md](./V2_OWNER_SETUP.md) — чеклист владельца к v2 (OAuth, почта, sms.ru, Метрика)
+| [PROJECT_SPEC.md](PROJECT_SPEC.md) | Цель продукта (исторический набросок + ссылка на STATUS) |

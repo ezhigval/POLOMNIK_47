@@ -1,6 +1,6 @@
 # Project Specification
 
-Актуальное состояние продукта: [DECISIONS.md](DECISIONS.md) §10 и [ROADMAP.md](ROADMAP.md). Ниже — исходный набросок мая 2026. Кабинет пользователя и Telegram уже есть; Bitrix24 и 1С по-прежнему не live.
+Актуальное состояние: [STATUS.md](STATUS.md) и [DECISIONS.md](DECISIONS.md) §11. Ниже — исходный набросок мая 2026 (история). Кабинет, Telegram, OAuth-код и RBAC уже есть; Bitrix24 и 1С по-прежнему не live.
 
 ## 1. Цель продукта
 

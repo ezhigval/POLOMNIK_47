@@ -8,5 +8,5 @@ alwaysApply: true
 - Backend: Go module `polomnik`, гексагон. Зависимости только `adapters → application → domain`.
 - Бизнес-логика не живёт в Fiber handlers, репозиториях и frontend. Frontend вызывает API и делает UX-валидацию.
 - Не выдумывай статусы заявок, цены, роли и тексты юридички. Спроси владельца.
-- Live Bitrix24 / 1C не подключай без просьбы. Telegram на проде уже живой (один бот, списки `@username` в «Настройках»). Bitrix/1С в `noop` — норма.
+- Live Bitrix24 / 1C не подключай без просьбы. Telegram на проде уже живой (один бот; получатели в «Настройках» как канал+адрес). Bitrix/1С в `noop` — норма.
 - Не коммить `.env.production`, ключи SSH, дампы БД, `node_modules`, `.next`.

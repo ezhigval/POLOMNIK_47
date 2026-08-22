@@ -1,0 +1,38 @@
+# Статус продукта
+
+Дата сверки: **2026-08-23**.  
+Репозиторий: [github.com/ezhigval/POLOMNIK_47](https://github.com/ezhigval/POLOMNIK_47) · ветка `main`.  
+Прод: **https://tikhvin-palomnik.ru** · API: **https://api.tikhvin-palomnik.ru**
+
+## Версии
+
+| Тег | Смысл |
+|-----|--------|
+| `v1.0.0` | Первый публичный запуск |
+| `v1.2.x` | Настройки, RBAC, callcheck, SEO, синяя палитра |
+| `v1.3.0` / `v2.0.0` | Mailer, OAuth-кнопки, чеклист владельца |
+| `v2.0.1` | Актуальный `main` (hotfix compose + актуальная документация) |
+
+Откат: `git checkout <тег>` / деплой с известного тега. Не `compose down -v` — данные Postgres сохранять.
+
+## Что в коде на проде
+
+- Сайт: туры, заявки, отзывы, новости, CMS главной, кабинет `/account`, поддержка (чат в БД)
+- Админка: Главная, новости, туры, заявки, отзывы, синхронизация, **Настройки** (сайт, получатели `канал:адрес`, роли)
+- Полный админ = `ADMIN_TOKEN` в env; пароли ролей — хеш в БД; UUID пользователя в кабинете
+- Telegram: один бот, webhook, исходящие через Cloudflare Worker
+- Телефон: sms.ru **callcheck** (без ключа — «пока недоступно»)
+- Соцвход: Яндекс / VK / Max / Telegram (без env — кнопки недоступны); Google скрыт
+- Mailer SMTP/noop; SEO/Метрика/GA — код готов
+- Bitrix24 / 1С — адаптеры есть, live **выключен** (`noop`)
+
+## Что делает владелец (не код)
+
+Единый чеклист: **[V2_OWNER_SETUP.md](V2_OWNER_SETUP.md)**  
+OAuth подробно: [OAUTH_SETUP.md](OAUTH_SETUP.md) · реклама: [SEO_ADS.md](SEO_ADS.md) · Telegram: [TELEGRAM_SETUP.md](TELEGRAM_SETUP.md)
+
+## Бэклог после v2
+
+См. [ROADMAP.md](ROADMAP.md) — очередь III и пункты II, которые ждут секретов/DNS владельца (MX Яндекса, `/start` боту, ID Метрики и т.д.).
+
+Намеренно не в v2: экран поддержки в админке, live Bitrix/1С, онлайн-оплата.
