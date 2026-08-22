@@ -1,22 +1,18 @@
-# Documentation Index
+# Документация
 
-Этот каталог является единственным актуальным источником документации проекта.
+Актуальные файлы — здесь. Если текст здесь расходится с историческим промптом или комментарием в коде, верны эти документы и [AGENTS.md](../AGENTS.md).
 
-## Документы
-
-- [CONVENTIONS.md](CONVENTIONS.md) - единый кодстайл Go и TypeScript.
-- [RELEASE.md](RELEASE.md) - конвейер релиза и домены.
-- [DEPLOY.md](DEPLOY.md) - инфраструктура и деплой.
-- [DECISIONS.md](DECISIONS.md) - зафиксированные решения владельца проекта.
-- [PROJECT_SPEC.md](PROJECT_SPEC.md) - цель продукта, MVP scope, будущие фазы.
-- [ARCHITECTURE.md](ARCHITECTURE.md) - гексагональная архитектура backend.
-- [API.md](API.md) - HTTP API MVP.
-- [DATA_MODEL.md](DATA_MODEL.md) - доменные сущности и база данных.
-- [ROADMAP.md](ROADMAP.md) - дорожная карта из трех глобальных этапов.
-- [INTEGRATIONS.md](INTEGRATIONS.md) - Bitrix24 и 1C как будущие адаптеры.
-- [AGENT_PROMPT.md](AGENT_PROMPT.md) - промпт для агента разработки.
-
-## Статус старой документации
-
-Старая документация из корня проекта была переработана и заменена этими документами. Если находится противоречие между старым файлом и документами в `docs/`, верными считаются документы из `docs/`.
-
+| Файл | Зачем |
+|------|--------|
+| [../AGENTS.md](../AGENTS.md) | Правила агентов и прод |
+| [ROADMAP.md](ROADMAP.md) | v1.0 и очереди v2 (I фиксы → II запуск → III новое) |
+| [DECISIONS.md](DECISIONS.md) | Решения владельца |
+| [ARCHITECTURE.md](ARCHITECTURE.md) | Гексагон backend |
+| [CONVENTIONS.md](CONVENTIONS.md) | Кодстайл |
+| [API.md](API.md) | HTTP API |
+| [DATA_MODEL.md](DATA_MODEL.md) | Модель данных |
+| [RELEASE.md](RELEASE.md) | Релиз |
+| [DEPLOY.md](DEPLOY.md) | Сервер и HTTPS |
+| [TELEGRAM_SETUP.md](TELEGRAM_SETUP.md) | Бот и получатели |
+| [INTEGRATIONS.md](INTEGRATIONS.md) | Bitrix24 и 1С как адаптеры |
+| [PROJECT_SPEC.md](PROJECT_SPEC.md) | Цель продукта |

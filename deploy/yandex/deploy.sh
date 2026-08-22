@@ -43,17 +43,15 @@ rsync -az --delete \
   --exclude .next \
   --exclude backups \
   --exclude frontend/.env.local \
-  --exclude .env.admins \
   --exclude "data/uploads" \
   --exclude "backend/data/uploads" \
   "$ROOT_DIR/" "${REMOTE}:/opt/polomnik/"
 
 # Never `compose down -v` — the named Postgres volume must survive.
-# Migrations are bind-mounted; rebuild app images only (not postgres).
-echo "Applying migrations, then rebuilding frontend/api/worker..."
+# Disk is tight: rebuild frontend only; recreate api/worker from existing images + updated env.
+echo "Rebuilding frontend, then recreating stack (no postgres wipe)..."
 ssh "${SSH_OPTS[@]}" "$REMOTE" "cd /opt/polomnik && \
-  $COMPOSE run --rm migrate && \
-  $COMPOSE up -d --no-deps --build frontend api worker && \
+  $COMPOSE up -d --no-deps --build frontend && \
   $COMPOSE up -d --no-build && \
   $COMPOSE ps"
 

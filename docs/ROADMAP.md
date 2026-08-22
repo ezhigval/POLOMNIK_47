@@ -1,619 +1,174 @@
-# Roadmap
-
-Дорожная карта разделена на три глобальных этапа:
-
-1. Backend Logic.
-2. Frontend Logic.
-3. Integrations: Bitrix24 and 1C.
-
-Главное архитектурное правило: backend строится по гексагональной архитектуре. Business logic должна работать через порты, чтобы PostgreSQL, Bitrix24 и 1C были заменяемыми adapters.
-
-## Stage A - Backend Logic
+# Roadmap v2
 
-Цель:
+Канон: [AGENTS.md](../AGENTS.md). Решения: [DECISIONS.md](DECISIONS.md).  
+Прод v1.0: https://tikhvin-palomnik.ru · тег `v1.0.0`.
 
-Создать самостоятельный backend MVP без активных Bitrix24 и 1C, но с архитектурными заготовками под будущие интеграции.
+Правило: не выдумывать тексты, цены, статусы и юридичку. Bitrix24 / 1С live — только по просьбе владельца.
 
-### A0. Repository restructuring
-
-Todo:
-
-- [x] Создать структуру `docs/`, `backend/`, `frontend/`.
-- [x] Перенести актуальную документацию в `docs/`.
-- [x] Удалить устаревшие root-документы или заменить их ссылкой на `docs/`.
-- [x] Перенести/заменить старые `go.mod` и `main.go` в `backend/`.
-- [x] Создать `backend/go.mod` с module `polomnik`.
-- [x] Убедиться, что в корне нет старого рабочего Go-кода, который сбивает агента.
+Порядок очередей жёсткий: **сначала I, потом II, потом III**. Внутри очереди — сверху вниз.
 
-Acceptance criteria:
+---
 
-- Документация находится в `docs/`.
-- Backend-код находится в `backend/`.
-- Frontend-код будет находиться в `frontend/`.
-- Старый GoLand demo-код удален или заменен.
+## v1.0 (зафиксировано)
 
-### A1. Backend skeleton
+Сайт, заявки, туры, новости, отзывы, CMS главной, чат поддержки в БД, админка, Telegram (один бот, webhook, `/health`, списки `@username`), кабинет `/account` (пароль), бэкапы Postgres.
 
-Todo:
-
-- [x] Создать `backend/cmd/api/main.go`.
-- [x] Подключить Fiber.
-- [x] Добавить config loader.
-- [x] Добавить structured logger.
-- [x] Добавить request id middleware.
-- [x] Добавить recover middleware.
-- [x] Добавить graceful shutdown.
-- [x] Добавить `GET /health`.
-- [x] Добавить `GET /api/v1/health`.
-- [x] Настроить `go test ./...`.
-- [x] Настроить `go vet ./...`.
+Bitrix24 и 1С в проде `noop`. Почта домена, SMS, роли админки, соцвход Яндекс/VK/Max — не продукт v1.0.
 
-Acceptance criteria:
+---
 
-- Backend запускается локально.
-- Health endpoints отвечают.
-- `go test ./...` проходит.
-- `go vet ./...` проходит.
+## Очередь I — фиксы
 
-### A2. Hexagonal structure
-
-Todo:
-
-- [x] Создать `internal/domain`.
-- [x] Создать `internal/application`.
-- [x] Создать `internal/ports`.
-- [x] Создать `internal/adapters`.
-- [x] Создать HTTP adapter `internal/adapters/http/fiber`.
-- [x] Создать repository adapters:
-  - [x] `postgres`;
-  - [x] `memory`.
-- [x] Создать cache adapters:
-  - [x] `redis`;
-  - [x] `noop`.
-- [x] Создать integration adapters:
-  - [x] `bitrix/noop`;
-  - [x] `onec/noop`.
-- [x] Запретить imports из domain в adapters.
+То, что уже ломает UX, врёт в UI/доках или расходится с решением владельца.
 
-Acceptance criteria:
-
-- Domain не зависит от внешних технологий.
-- Application работает через ports.
-- Fiber используется только в HTTP adapter.
-
-### A3. Domain model
-
-Todo:
-
-- [x] Реализовать `Tour`.
-- [x] Реализовать `Booking`.
-- [x] Реализовать `Review`.
-- [x] Реализовать booking statuses:
-  - [x] `NEW`;
-  - [x] `CONTACTED`;
-  - [x] `CONFIRMED`;
-  - [x] `COMPLETED`;
-  - [x] `CANCELLED`.
-- [x] Реализовать validation для tour dates.
-- [x] Реализовать validation для slots.
-- [x] Реализовать validation для rating.
-- [x] Реализовать calculation `total_price = tour.price * people_count`.
-- [x] Реализовать status transition rules.
-- [x] Реализовать domain errors.
+### I.1 Админка и главная (после ревью)
 
-Acceptance criteria:
+- [ ] Выкатить на прод патч навигации: пункт **«Настройки»**, **«Главная»** вместо «Контент», без фабрики страниц в UI (локально уже есть поверх `v1.0.0`).
+- [ ] В API запретить или не экспонировать create/delete CMS-страниц из management (UI уже без них; backend всё ещё умеет).
+- [ ] Path у `home` зафиксирован `/` (в редакторе не редактируется).
+- [ ] SEO-поля главной (`meta_title` / `meta_description`) видны и сохраняются в редакторе, если колонки есть.
 
-- Domain tests работают без БД и HTTP.
-- Invalid domain state невозможно создать без ошибки.
+### I.2 Telegram доставка
 
-### A4. Ports
+- [ ] Владелец: в **Настройки** вписать `@ezhigval` (и кого нужно) в заявки и в поддержку.
+- [ ] Каждый из списка один раз пишет боту `/start`.
+- [ ] Smoke: новая заявка → сообщение в Telegram; сообщение «в поддержку» → сообщение в Telegram.
+- [ ] Убедиться, что `TELEGRAM_API_BASE` (Cloudflare Worker) есть у **api и worker**.
 
-Todo:
+### I.3 Документация и канон агентов
 
-- [x] Описать `TourRepository`.
-- [x] Описать `BookingRepository`.
-- [x] Описать `ReviewRepository`.
-- [x] Описать `CachePort`.
-- [x] Описать `CRMPort` для future Bitrix24.
-- [x] Описать `AccountingPort` для future 1C.
-- [x] Описать transaction boundary port, если понадобится.
-- [x] Реализовать fake ports для tests.
+- [x] `ROADMAP` / `AGENT_PROMPT` / `.cursor` / README: Telegram живой, кабинет есть (частично сделано в ревью).
+- [ ] `PROJECT_SPEC` / `API.md` / `DATA_MODEL`: убрать устаревшие «MVP без JWT / без кабинета», где они ещё врут.
+- [ ] `docs/README`: все актуальные доки в индексе (`TELEGRAM_SETUP` уже; MAIL — когда появится файл).
+- [ ] Правило: на ВМ один агент деплоит за раз (не два `compose build`).
 
-Acceptance criteria:
+### I.4 Публичный сайт — правдивость
 
-- Application layer не знает про PostgreSQL, Redis, Bitrix24, 1C.
-- Future ports есть, но реальные integrations не вызываются.
+- [ ] Виджет «популярные направления»: не зашитый `lib/destinations`, а данные из туров **или** явная подпись в админке «это не каталог».
+- [ ] Запасные отзывы: не показывать хардкод, если политика — только БД; иначе показывать только при пустом API с пометкой в ROADMAP.
+- [ ] Каталог: в UI и доках одно имя URL (`/search` vs «туры»).
 
-### A5. PostgreSQL adapter
+### I.5 Аккаунт — убрать лишнее
 
-Todo:
+- [ ] Убрать или спрятать **Google** из `/account/login|register`, пока владелец его не просил (оставить код адаптера выключенным или удалить маршруты).
 
-- [x] Выбрать migration tool.
-- [x] Создать migrations.
-- [x] Создать таблицу `tours`.
-- [x] Создать таблицу `bookings`.
-- [x] Создать таблицу `reviews`.
-- [x] Создать таблицу `integration_references`.
-- [x] Создать таблицу `outbox_events` (миграция + enqueue при pending/failed).
-- [x] Реализовать PostgreSQL repositories.
-- [x] Добавить repository tests.
-- [x] Добавить seed/dev data mechanism.
+### I.6 Инфра
 
-Acceptance criteria:
+- [ ] A-запись `api.tikhvin-palomnik.ru` на REG.RU, если нужен прямой API снаружи (сайт через rewrite уже работает).
+- [ ] Сертификат/шум Caddy по старому `tikhvin-polomnik.ru` / лишним хостам — привести к канону palomnik.
 
-- Миграции применяются на пустую БД.
-- Repository tests проходят.
-- Backend может работать с PostgreSQL adapter.
+---
 
-### A6. Application services
+## Очередь II — уже почти готово, запустить
 
-Todo:
+Код или заготовки есть; не хватает env, DNS, UI-дожима или одного деплоя. Без изобретения новых продуктов.
 
-- [x] Реализовать `TourService`.
-- [x] Реализовать `BookingService`.
-- [x] Реализовать `ReviewService`.
-- [x] Реализовать `ManagementService` или отдельные use cases.
-- [x] Реализовать list tours with filters.
-- [x] Реализовать get tour.
-- [x] Реализовать popular tours.
-- [x] Реализовать create booking.
-- [x] Реализовать slot reservation/release.
-- [x] Реализовать booking status changes.
-- [x] Реализовать reviews approval flow.
-- [x] Подключить noop CRM and accounting ports.
+### II.1 Каналы и ops
 
-Acceptance criteria:
+- [ ] Telegram: после I.2 считать «live E0» закрытым в статусе/доках.
+- [ ] `/health` в боте: пинги, статистика сайта, заявки (общий `HealthService`, канал — адаптер) — довести и не дублировать логику в handler.
+- [ ] Настройки Telegram в админке: статусы «ждёт /start» / «подключён» понятны менеджеру.
 
-- Все use cases покрыты tests с fake repositories.
-- Booking logic не зависит от HTTP и PostgreSQL.
+### II.2 Почта домена
 
-### A7. Public HTTP API
+- [ ] Порт `Mailer` + SMTP-адаптер + `noop` (гексагон).
+- [ ] Владелец: Яндекс 360 для `tikhvin-palomnik.ru`, MX/SPF/DKIM в reg.ru, ящик `info@`.
+- [ ] Пересылка входящих на список из настроек (сейчас тест: `smailikin70@yandex.ru`); env `MAIL_FORWARD_TO` как запас.
+- [ ] Исходящие: письма подтверждения регистрации с `info@`, когда `MAIL_ADAPTER=smtp`.
+- [ ] Без SMTP — регистрация жива, текст «почта пока недоступна…».
 
-Todo:
+### II.3 Регистрация и соцвход
 
-- [x] Реализовать `GET /api/v1/tours`.
-- [x] Реализовать `GET /api/v1/tours/{id}`.
-- [x] Реализовать `GET /api/v1/tours/popular`.
-- [x] Реализовать `GET /api/v1/tours/{id}/reviews`.
-- [x] Реализовать `GET /api/v1/reviews`.
-- [x] Реализовать `POST /api/v1/bookings`.
-- [x] Реализовать DTO mapping.
-- [x] Реализовать error format.
-- [x] Реализовать request validation.
-- [x] Добавить handler tests.
+- [ ] Имя + пароль + email и/или телефон (уже база).
+- [ ] Соцвход адаптерами: **Яндекс, Telegram Login, VK, Max** — кнопки; без env → «Пока что недоступно, используйте другой вариант.»
+- [ ] Один бот: login widget на том же `TELEGRAM_BOT_TOKEN` / domain в BotFather.
+- [ ] `GET /auth/methods` (или аналог) для UI.
+- [ ] Секреты только в gitignored env; compose прокидывает в api.
 
-Acceptance criteria:
+### II.4 SMS
 
-- Public MVP API соответствует `docs/API.md`.
-- Невалидные requests возвращают понятные ошибки.
+- [ ] Порт `PhoneVerifier` + адаптер sms.ru (`SMS_ADAPTER`, `SMSRU_API_ID`).
+- [ ] В форме телефон есть; без ключа — «пока что недоступно, используйте другой вариант» (не фейковый OTP).
 
-### A8. Management HTTP API
+### II.5 Админка: роли и настройки сайта
 
-Todo:
+- [ ] Роли: **полный** / **менеджер** / **статистика** (пароли в `.env.admins`, не в UI). `ADMIN_TOKEN` — запас для ops.
+- [ ] Менеджер: контент, туры, заявки, новости, отзывы, настройки сайта. Без сырых интеграций, если так решено.
+- [ ] Статистика: только цифры, без ФИО/телефонов. Визиты не выдумывать (Метрика снаружи).
+- [ ] Site-settings: имя, телефон, email, слоган, (опц.) ID Метрики — runtime на сайте, секреты не в админке.
 
-- [x] Реализовать management routes group.
-- [x] Добавить `X-Admin-Token` middleware или ограничить локальным доступом.
-- [x] Реализовать tours CRUD.
-- [x] Реализовать bookings list/detail.
-- [x] Реализовать booking status update.
-- [x] Реализовать reviews list/create/approve/reject/delete.
-- [x] Добавить handler tests.
+### II.6 Аналитика (включение)
 
-Acceptance criteria:
+- [ ] Прописать `NEXT_PUBLIC_YM_ID` / `NEXT_PUBLIC_GA_ID` в prod env, когда будут кабинеты.
+- [ ] Проверить события `tour_view` / `booking_submit` в кабинете счётчика.
 
-- Данные MVP можно создавать без Bitrix24.
-- Management API не доступен публично без защиты.
+### II.7 Контент в проде (операционка, не код)
 
-### A9. Cache
+- [ ] Наполнить туры, новости, одобренные отзывы — иначе сайт пустой/с fallback.
+- [ ] Реальные фото (upload уже есть).
 
-Todo:
+---
 
-- [x] Реализовать cache port.
-- [x] Реализовать Redis adapter.
-- [x] Реализовать noop cache adapter.
-- [x] Подключить cache-aside для tours list.
-- [x] Подключить cache-aside для tour detail.
-- [x] Подключить cache-aside для popular tours.
-- [x] Добавить cache invalidation после management mutations.
-- [x] Добавить tests на cache hit/miss.
+## Очередь III — новые дыры и функционал
 
-Acceptance criteria:
+То, чего нет или что осознанно отложено. Делать только после I и нужных пунктов II. Не начинать Bitrix/1С/оплату без отдельной просьбы.
 
-- Redis можно отключить без поломки backend.
-- Cache не меняет бизнес-логику.
+### III.1 Продукт для менеджеров
 
-### A10. Integration stubs
+- [ ] Экран **поддержки** в админке (сейчас тред в БД + пуш в Telegram).
+- [ ] Уведомления в Telegram: ссылка/id треда, чтобы открыть в админке.
+- [ ] Фильтры/поиск заявок, экспорт (если попросят).
+- [ ] Ответ менеджера в чат поддержки из админки.
 
-Todo:
+### III.2 Продукт для паломника
 
-- [x] Реализовать noop `CRMPort`.
-- [x] Реализовать noop `AccountingPort`.
-- [x] Добавить config flags:
-  - [x] `CRM_ADAPTER=noop`;
-  - [x] `ACCOUNTING_ADAPTER=noop`.
-- [x] При создании booking вызывать порт только если adapter включен.
-- [x] В MVP noop adapter возвращает `not_configured`.
-- [x] Добавить tests, что отсутствие Bitrix24/1C не ломает booking.
+- [ ] Подтверждение email/телефона end-to-end (зависит от II.2–II.4).
+- [ ] «Мои поездки» / избранное — довести UX, если дыры после соцвхода.
+- [ ] Восстановление пароля (через Mailer).
+- [ ] Согласие на ПД — ссылка на канонический текст юриста (не выдумывать).
 
-Acceptance criteria:
+### III.3 Главная и CMS
 
-- Backend явно готов к будущим integrations.
-- MVP не требует Bitrix24/1C credentials.
+- [ ] Полноценный редактор SEO + картинки hero без обходных полей.
+- [ ] Блок «направления» = популярные/активные туры.
+- [ ] Другие CMS-страницы (`/pages/{slug}`) — только если владелец снова захочет фабрику; по умолчанию **не** расширять.
 
-### A11. Docker and local infrastructure
+### III.4 Каналы уведомлений
 
-Todo:
+- [ ] WhatsApp и **Max** как адаптеры того же `NotificationPort` / messaging port (рядом с Telegram или вместо).
+- [ ] Несколько каналов сразу (fan-out) по настройкам.
 
-- [x] Создать backend Dockerfile.
-- [x] Создать docker-compose.
-- [x] Добавить PostgreSQL.
-- [x] Добавить Redis, если cache включен.
-- [x] Добавить `.env.example`.
-- [x] Добавить migrations command.
-- [x] Добавить seed command.
-- [x] Обновить README.
+### III.5 Интеграции (по просьбе)
 
-Acceptance criteria:
+- [ ] Live Bitrix24 (код адаптера есть).
+- [ ] Live 1С (код есть; ТЗ интегратора в `ONEC_INTEGRATOR_TZ.md`).
+- [ ] Сверка discovery с реальными полями портала — без догадок.
 
-- `docker-compose up` поднимает backend dependencies.
-- Новый разработчик может запустить backend по инструкции.
+### III.6 Коммерция и масштаб
 
-### A12. Backend DoD
+- [ ] Онлайн-оплата — только после отдельного решения владельца.
+- [ ] Юридические тексты (оферта / ПД) с юристом.
+- [ ] Preview/staging — сейчас нет; если понадобится — отдельное решение (не второй «боевой» домен-опечатка).
 
-Backend stage считается завершенным, если:
+### III.7 Качество и безопасность
 
-- backend находится в `backend/`;
-- API соответствует `docs/API.md`;
-- domain/application покрыты tests;
-- `go test ./...` проходит;
-- `go vet ./...` проходит;
-- локальный запуск описан;
-- Bitrix24 и 1C не нужны для MVP;
-- порты под Bitrix24 и 1C существуют.
+- [ ] Rate limits / CSP / секреты — аудит после ролей и OAuth.
+- [ ] E2E: заявка → Telegram; регистрация → письмо (когда SMTP есть).
+- [ ] Чистка мёртвого Google OAuth / неиспользуемых маршрутов.
+- [ ] Наблюдаемость: алерты при failed outbox / worker down (скрипт ops уже есть — довести до привычки).
 
-## Stage B - Frontend Logic
+---
 
-Цель:
+## Definition of Done для пункта v2
 
-Создать Next.js frontend, который использует только backend API.
+- Соответствует решению владельца (не догадка).
+- Логика в domain/application, канал — адаптер.
+- Тесты на изменённое поведение.
+- Доки обновлены, ROADMAP отмечен.
+- На прод — только по просьбе; Postgres не сбрасывать.
 
-### B0. Frontend skeleton
+## Как идём дальше
 
-Todo:
-
-- [x] Создать `frontend/`.
-- [x] Создать Next.js app.
-- [x] Подключить TypeScript.
-- [x] Подключить TailwindCSS.
-- [x] Настроить lint/test/build scripts.
-- [x] Настроить API base URL через env.
-- [x] Создать API client.
-
-Acceptance criteria:
-
-- Frontend запускается локально.
-- Frontend build проходит.
-
-### B1. Public pages
-
-Todo:
-
-- [x] Реализовать список туров.
-- [x] Реализовать фильтры:
-  - [x] даты;
-  - [x] цена;
-  - [x] location;
-  - [x] hot/popular.
-- [x] Реализовать карточку тура.
-- [x] Реализовать страницу тура.
-- [x] Реализовать блок отзывов.
-- [x] Реализовать форму заявки.
-- [x] Реализовать success state после заявки.
-- [x] Реализовать error states.
-- [x] Реализовать empty states.
-- [x] Реализовать loading states.
-
-Acceptance criteria:
-
-- Пользователь может найти тур и отправить заявку.
-- Frontend не обращается к Bitrix24/1C.
-- Frontend не содержит business rules, кроме UX validation.
-
-### B2. Management UI, optional for MVP
-
-Todo:
-
-- [x] Решить, нужен ли management UI в первом frontend.
-- [x] Если нужен, реализовать внутренние страницы:
-  - [x] tours management;
-  - [x] bookings management;
-  - [x] reviews moderation.
-- [x] Защитить доступ через согласованный MVP механизм.
-
-Acceptance criteria:
-
-- Management UI не доступен публично без защиты.
-- Если UI не нужен, management остается только API.
-
-### B3. UX and quality
-
-Todo:
-
-- [x] Responsive layout.
-- [x] Accessible forms.
-- [x] Clear validation messages.
-- [x] SEO metadata for tours.
-- [x] Sitemap, robots.txt, JSON-LD, OG image.
-- [x] Global 404 page.
-- [x] API loading indicators.
-- [x] Smoke/e2e test for main flow (Playwright: guest booking + auth).
-
-Acceptance criteria:
-
-- Main user flow работает на desktop and mobile.
-- Форма заявки надежно обрабатывает успех и ошибки.
-
-### B5. Marketing UX polish (post-MVP UI)
-
-Todo:
-
-- [x] Hero с фото, trust stats, продающий контент.
-- [x] Секции: почему мы, отзывы, FAQ, CTA.
-- [x] Типографика (display serif), mobile nav, тёмный footer.
-- [x] Карточки туров с cover fallback, длительность, hover.
-- [x] Страница тура: программа, «что включено», breadcrumbs.
-- [x] Контакты через env (`NEXT_PUBLIC_CONTACT_*`).
-- [x] Политика конфиденциальности (`/privacy`).
-- [x] Favicon / app icon.
-- [x] Загрузка URL фото туров в management UI.
-- [x] Секция «О службе» (#about), site-config через env.
-- [ ] Реальные фото и тексты от владельца продукта.
-- [x] OG-image для шаринга в мессенджерах.
-- [ ] Яндекс.Метрика / GA.
-
-Acceptance criteria:
-
-- Сайт выглядит как готовый продающий лендинг на демо-контенте.
-- Юридический текст согласован перед публичным запуском.
-
-### B4. Frontend DoD
-
-Frontend stage завершен, если:
-
-- Next.js app находится в `frontend/`;
-- публичный пользовательский сценарий работает;
-- frontend вызывает только backend API;
-- build/lint проходят;
-- базовые smoke tests проходят.
-
-## Stage C - Integrations: Bitrix24 and 1C
-
-Цель:
-
-Подключить внешние системы через adapters, не переписывая domain/application.
-
-### C0. Integration discovery
-
-Todo:
-
-- [x] Уточнить роль Bitrix24 (дефолт в discovery, *подтвердить*).
-- [x] Уточнить роль 1C (дефолт в discovery, *подтвердить*).
-- [x] Выбрать source of truth strategy (backend).
-- [x] Получить Bitrix24 entity model (deals/contacts, без туров).
-- [x] Получить 1C exchange format (HTTP JSON contract).
-- [x] Утвердить sync direction (push).
-- [x] Утвердить conflict resolution (backend wins).
-- [x] Утвердить retry policy (outbox worker).
-- [x] Заполнить `docs/INTEGRATION_DISCOVERY.md`.
-
-Acceptance criteria:
-
-- [x] Есть integration spec (assumption-based).
-- [ ] Нет догадок по Bitrix24/1C fields — **требует подтверждения владельца перед продом**.
-
-### C1. Bitrix24 adapter
-
-Todo:
-
-- [x] Реализовать real Bitrix24 adapter for `CRMPort`.
-- [x] Настроить auth/credentials (incoming webhook).
-- [x] Реализовать mapping tours (crm.product catalog).
-- [x] Реализовать mapping bookings/deals (+ product rows).
-- [x] Реализовать mapping contacts.
-- [x] Реализовать mapping reviews (timeline comment on approve).
-- [x] Реализовать sync jobs (outbox worker).
-- [x] Реализовать webhooks (inbound deal stage → booking status).
-- [x] Реализовать integration reference storage.
-- [x] Реализовать outbox worker skeleton (retry через порты).
-- [x] Добавить contract tests with fixtures (httptest mock servers).
-
-Acceptance criteria:
-
-- Bitrix24 adapter можно включить config-ом.
-- Domain/application не меняются при включении adapter.
-
-### C2. 1C adapter
-
-Todo:
-
-- [x] Реализовать real 1C adapter for `AccountingPort` (HTTP JSON + OData).
-- [x] Настроить auth/credentials (basic / API key).
-- [x] Реализовать export bookings.
-- [ ] Реализовать payment/accounting sync, если payments уже есть.
-- [x] Реализовать counterparty sync.
-- [x] Реализовать retry and idempotency (outbox + booking_id).
-- [x] Добавить contract tests with fixtures.
-
-Acceptance criteria:
-
-- 1C adapter можно включить config-ом.
-- Ошибки 1C не ломают публичный API.
-
-### C3. Source of truth switch
-
-Todo:
-
-- [x] Решить, остается ли PostgreSQL source of truth. **Да (реализован push).**
-- [x] Если backend остается source of truth, реализовать push strategy.
-- [ ] Если hybrid, реализовать conflict rules (не требуется для текущей стратегии).
-- [x] Обновить API behavior documentation (`INTEGRATION_DISCOVERY.md`).
-
-Acceptance criteria:
-
-- [x] Источник правды явно описан.
-- [x] Sync failures observable (management integrations + outbox).
-- [ ] Нет расхождений между docs и behavior — **финальная сверка после live Bitrix/1C.**
-
-### C4. Integration DoD
-
-Integration stage **в коде завершён (~95%)**. Prod DoD:
-
-- [x] Локальный e2e с mock Bitrix + mock 1C (`make integration-smoke-docker`).
-- [ ] Bitrix24 подключен на живом портале и проверен end-to-end.
-- [ ] 1C подключена интегратором и проверен export.
-- [x] source of truth определен (PostgreSQL);
-- [x] sync failures логируются и retry-ятся (outbox worker);
-- [x] tests покрывают mappings and failure scenarios;
-- [x] domain/application не переписаны под внешние системы.
-
-## Stage D - Production readiness
-
-Цель:
-
-Запуск в прод без Bitrix/1C (автономный режим) + операционка для менеджеров.
-
-### D0. Уведомления (код)
-
-Todo:
-
-- [x] `NotificationPort` + noop adapter.
-- [x] Telegram adapter (`NOTIFICATION_ADAPTER=telegram`).
-- [x] Уведомления: новая заявка + смена статуса.
-- [x] Recording + outbox retry (как CRM).
-- [x] `GET /management/system-info`.
-- [x] `docs/TELEGRAM_SETUP.md`.
-- [ ] **Live подключение Telegram** — Stage E.
-
-Acceptance criteria:
-
-- [x] Код готов, по умолчанию `noop`.
-- [ ] Бот подключён и проверен end-to-end — финальный этап.
-
-### D1. Контент и юридическое
-
-Todo:
-
-- [x] Базовая политика ПДн на сайте.
-- [x] Ссылка на политику в форме заявки.
-- [x] Seed с расширенными описаниями туров (dev).
-- [ ] Реальные контакты, фото, тексты.
-- [ ] Финальная политика / оферта с юристом.
-
-### D2. Management UX
-
-Todo:
-
-- [x] Поле URL фото в формах тура.
-- [x] Загрузка файлов (локальное хранилище) вместо URL-only.
-- [ ] Полноценная авторизация (login/роли) вместо одного токена — **частично:** `/management/login` + session cookie.
-
-### D3. Deploy and ops
-
-Todo:
-
-- [x] Docker Compose для локального стека.
-- [x] CI: backend tests + frontend build.
-- [x] CI: smoke с поднятым API (docker compose).
-- [x] `docs/DEPLOY.md` — prod-запуск с Caddy, `.env.production.example`, backup script.
-- [ ] Прод-сервер, домен, SSL, бэкапы БД — **инфра на стороне владельца;** скрипты и compose готовы.
-- [x] CI: frontend lint + smoke + e2e с поднятым стеком.
-- [x] Security hardening: OAuth lockdown, rate limits, prod secret validation, CSP.
-- [x] Мониторинг / алерты (API `/health/ready`, worker heartbeat, `system-info` outbox summary, `scripts/check-ops.sh`).
-
-### D4. Analytics
-
-Todo:
-
-- [x] Яндекс.Метрика / GA — env-gated (`NEXT_PUBLIC_YM_ID`, `NEXT_PUBLIC_GA_ID`).
-- [x] События: `tour_view`, `booking_submit`.
-- [ ] Подключить счётчики на prod и проверить в кабинете.
-
-### D5. Production DoD (без внешних сервисов)
-
-Автономный прод считается готовым, если:
-
-- [ ] реальный контент и контакты на сайте;
-- [x] политика ПДн опубликована (базовая версия);
-- [ ] деплой на домен с HTTPS;
-- [ ] бэкапы PostgreSQL;
-- [x] код уведомлений и интеграций готов (adapters noop).
-
-**Внешние подключения — Stage E, не блокируют автономный запуск.**
-
-## Stage E - External connections (финальный этап)
-
-Цель:
-
-Подключить и отладить все внешние сервисы **после** наполнения контентом и внутренних тестов.
-
-### E0. Telegram
-
-Todo:
-
-- [x] Adapter, outbox, worker, docs.
-- [ ] Создать бота, задать env, smoke на реальной заявке.
-- [ ] Проверить уведомление при смене статуса.
-
-### E1. Bitrix24
-
-Todo:
-
-- [x] Adapter code (см. Stage C1).
-- [ ] Живой портал, webhook, подгонка стадий/полей.
-
-### E2. 1C
-
-Todo:
-
-- [x] Adapter code (см. Stage C2).
-- [ ] HTTP-сервис у интегратора, smoke export.
-
-### E3. Analytics (опционально)
-
-Todo:
-
-- [ ] Яндекс.Метрика / GA.
-- [ ] События конверсии.
-
-### E4. External connections DoD
-
-- [ ] Telegram доставляет заявки менеджеру.
-- [ ] Bitrix24 sync проверен (если нужен).
-- [ ] 1C export проверен (если нужен).
-- [ ] Документация совпадает с prod-поведением.
-
-## Текущий статус (сводка)
-
-| Область | Готовность |
-|---------|------------|
-| Backend MVP (Stage A) | **100%** |
-| Frontend + marketing UX (B, B5) | **~95%** |
-| Integrations **code** (C) | **~95%** |
-| Content + legal + deploy prep (D) | **~75%** |
-| **Live external services (E)** | **0%** (намеренно отложено) |
-
-**Сейчас:** пишем контент, тестируем автономно.  
-**Потом:** подключаем Telegram → Bitrix → 1C → аналитику и отлаживаем.
-
-## Global Definition of Done
-
-Любая задача считается выполненной, если:
-
-- она соответствует документации;
-- unclear requirements вынесены в вопросы;
-- код находится в правильной зоне repo;
-- tests добавлены для измененной логики;
-- checks проходят;
-- документация обновлена при изменении поведения;
-- external integrations не добавлены в MVP без решения;
-- business logic не находится во frontend or adapters.
+1. Закрыть **I** (патч админки + Telegram smoke + доки).  
+2. Включить **II** по мере секретов владельца (MX, OAuth, SMS, Метрика).  
+3. **III** — бэклог; брать по одной теме после стабильного II.

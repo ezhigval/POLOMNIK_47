@@ -67,13 +67,13 @@ export default async function ManagementDashboardPage() {
 
   const cards: StatCardProps[] = [
     {
-      title: "Страницы CMS",
-      value: cmsPages.length,
+      title: "Главная",
+      value: cmsPages.filter((page) => page.slug === "home").length,
       hint: cms.unavailable
         ? "недоступно"
         : cmsPages.some((page) => page.slug === "home")
-          ? "главная настроена"
-          : "главная не создана",
+          ? "блоки и SEO"
+          : "ещё не создана",
       href: "/management/content",
       accent: cms.unavailable || !cmsPages.some((page) => page.slug === "home"),
     },
@@ -129,7 +129,7 @@ export default async function ManagementDashboardPage() {
         <h2 className="mb-4 text-lg font-semibold">Быстрые действия</h2>
         <div className="flex flex-wrap gap-3">
           <Link href="/management/content" className="btn-primary">
-            Редактировать контент
+            Редактировать главную
           </Link>
           <Link href="/management/news" className="btn-secondary">
             Новости

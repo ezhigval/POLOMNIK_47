@@ -61,9 +61,7 @@ cp .env.production.example .env.production
 | `NEXT_PUBLIC_YM_ID` | Яндекс.Метрика (опционально) |
 | `NEXT_PUBLIC_GA_ID` | Google Analytics (опционально) |
 | `NOTIFICATION_ADAPTER` | `telegram` при настройке бота |
-| `TELEGRAM_BOT_TOKEN` | один токен бота (уведомления, webhook, позже login) |
-| `TELEGRAM_API_BASE` | Worker URL, не api.telegram.org; нужен api **и** worker |
-| `TELEGRAM_CHAT_ID` | необязательный запас, если списки в настройках пустые |
+| `TELEGRAM_BOT_TOKEN` / `TELEGRAM_CHAT_ID` | следующий этап |
 | `MANAGEMENT_BASE_URL` | `https://tikhvin-palomnik.ru/management/bookings` |
 
 Интеграции (позже):
