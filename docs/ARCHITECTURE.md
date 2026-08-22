@@ -1,5 +1,7 @@
 # Backend Architecture
 
+Слои не менялись. Telegram на проде — адаптер уведомлений + webhook, не ядро домена. Bitrix24 и 1С в проде `noop`. Очередь: [ROADMAP.md](ROADMAP.md).
+
 ## 1. Обязательный стиль
 
 Backend строится по гексагональной архитектуре.

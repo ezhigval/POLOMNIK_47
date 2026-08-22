@@ -29,21 +29,11 @@ function asContent<T>(content: Record<string, unknown>): T {
   return content as T;
 }
 
-function firstHeroStats(blocks: CmsBlock[]) {
-  for (const block of blocks) {
-    if (block.type !== "hero") continue;
-    const stats = asContent<HeroBlockContent>(block.content).stats;
-    if (stats?.length) return stats;
-  }
-  return undefined;
-}
-
 export function CmsPageRenderer({ blocks }: CmsPageRendererProps) {
   const ordered = [...blocks].sort((a, b) => a.sort_order - b.sort_order);
   const heroBlocks = ordered.filter((block) => block.type === "hero");
   const bodyBlocks = ordered.filter((block) => block.type !== "hero");
   const hasFeaturedRoute = ordered.some((block) => block.type === "featured_route" && block.is_visible);
-  const heroStats = firstHeroStats(heroBlocks);
 
   return (
     <>
@@ -62,7 +52,7 @@ export function CmsPageRenderer({ blocks }: CmsPageRendererProps) {
       {bodyBlocks.length > 0 ? (
         <div className="mx-auto max-w-6xl space-y-20 px-4 py-8 sm:space-y-24 sm:py-12">
           {bodyBlocks.map((block) => (
-            <CmsBlockView key={block.id} block={block} heroStats={heroStats} />
+            <CmsBlockView key={block.id} block={block} />
           ))}
         </div>
       ) : null}
@@ -70,20 +60,12 @@ export function CmsPageRenderer({ blocks }: CmsPageRendererProps) {
   );
 }
 
-function CmsBlockView({
-  block,
-  heroStats,
-}: {
-  block: CmsBlock;
-  heroStats?: HeroBlockContent["stats"];
-}) {
+function CmsBlockView({ block }: { block: CmsBlock }) {
   switch (block.type) {
     case "about":
       return <AboutSection content={asContent<AboutBlockContent>(block.content)} />;
     case "why_us":
-      return (
-        <WhyUsSection content={asContent<WhyUsBlockContent>(block.content)} fallbackStats={heroStats} />
-      );
+      return <WhyUsSection content={asContent<WhyUsBlockContent>(block.content)} />;
     case "how_it_works":
       return <HowItWorksSection content={asContent<HowItWorksBlockContent>(block.content)} />;
     case "faq":

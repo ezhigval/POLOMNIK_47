@@ -94,5 +94,4 @@ DNS на REG.RU для зоны **tikhvin-palomnik.ru**: `@` / `www` / `api` →
 
 ## Статус
 
-- Backend MVP и сайт — в проде на https://tikhvin-palomnik.ru
-- Интеграции Bitrix24 / 1С / Telegram — код адаптеров есть, live — позже
+v1.0: сайт на https://tikhvin-palomnik.ru. Telegram (заявки и поддержка) — через настройки админки. Bitrix24 и 1С — адаптеры в коде, live выключен. Очередь: [docs/ROADMAP.md](docs/ROADMAP.md).

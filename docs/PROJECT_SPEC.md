@@ -1,5 +1,7 @@
 # Project Specification
 
+Актуальное состояние продукта: [DECISIONS.md](DECISIONS.md) §10 и [ROADMAP.md](ROADMAP.md). Ниже — исходный набросок мая 2026. Кабинет пользователя и Telegram уже есть; Bitrix24 и 1С по-прежнему не live.
+
 ## 1. Цель продукта
 
 PALOMNIK 47 — платформа паломнической службы для туроператора.

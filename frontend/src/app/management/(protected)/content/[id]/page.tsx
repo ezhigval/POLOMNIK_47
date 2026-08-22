@@ -30,8 +30,8 @@ export default async function ManagementContentEditorPage({ params }: PageProps)
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="text-sm text-stone-500">
-            <Link href="/management/content" className="hover:text-stone-800">
-              ← Контент
+            <Link href="/management" className="hover:text-stone-800">
+              ← Обзор
             </Link>
           </p>
           <h1 className="mt-1 text-2xl font-semibold text-stone-900">{page.title}</h1>

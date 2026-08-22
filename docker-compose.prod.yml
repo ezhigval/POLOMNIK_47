@@ -54,7 +54,7 @@ services:
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
       TELEGRAM_BOT_USERNAME: ${TELEGRAM_BOT_USERNAME:-}
       TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID:-}
-      TELEGRAM_API_BASE: ${TELEGRAM_API_BASE:-}
+      TELEGRAM_API_BASE: ${TELEGRAM_API_BASE:-https://polomnik-telegram-api.chemical-red.workers.dev}
       TELEGRAM_WEBHOOK_URL: ${TELEGRAM_WEBHOOK_URL:-https://api.tikhvin-palomnik.ru/api/v1/webhooks/telegram}
       TELEGRAM_LOGIN_BOT_TOKEN: ${TELEGRAM_LOGIN_BOT_TOKEN:-}
       TELEGRAM_LOGIN_BOT_USERNAME: ${TELEGRAM_LOGIN_BOT_USERNAME:-}
@@ -108,7 +108,7 @@ services:
       NOTIFICATION_ADAPTER: ${NOTIFICATION_ADAPTER:-noop}
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
       TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID:-}
-      TELEGRAM_API_BASE: ${TELEGRAM_API_BASE:-}
+      TELEGRAM_API_BASE: ${TELEGRAM_API_BASE:-https://polomnik-telegram-api.chemical-red.workers.dev}
       MANAGEMENT_BASE_URL: ${MANAGEMENT_BASE_URL:-https://tikhvin-palomnik.ru/management/bookings}
     restart: unless-stopped
 
