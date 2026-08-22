@@ -18,7 +18,7 @@ export default function PrivacyPage() {
           Поддержка
         </Link>
         <Link href="/search" className="text-stone-500 transition hover:text-brand-800">
-          Поиск туров
+          Туры
         </Link>
       </div>
 

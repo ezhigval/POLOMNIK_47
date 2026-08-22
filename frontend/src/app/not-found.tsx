@@ -13,7 +13,7 @@ export default function NotFound() {
           На главную
         </Link>
         <Link href="/search" className="btn-secondary">
-          Поиск туров
+          Туры
         </Link>
         <Link href="/support" className="btn-secondary">
           Поддержка

@@ -7,7 +7,7 @@ export default function TourNotFound() {
       <p className="mb-6 text-stone-600">Возможно, тур уже недоступен или ссылка устарела.</p>
       <div className="flex flex-wrap justify-center gap-3">
         <Link href="/search" className="btn-primary">
-          Поиск туров
+          Туры
         </Link>
         <Link href="/" className="btn-secondary">
           На главную

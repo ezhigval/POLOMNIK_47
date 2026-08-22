@@ -23,6 +23,6 @@ test("guest can browse search and submit a booking", async ({ page }) => {
 test("404 tour page offers search navigation", async ({ page }) => {
   await page.goto("/tours/00000000-0000-0000-0000-000000000000");
   await expect(page.getByRole("heading", { name: "Тур не найден" })).toBeVisible();
-  await page.getByRole("main").getByRole("link", { name: "Поиск туров" }).click();
+  await page.getByRole("main").getByRole("link", { name: "Туры" }).click();
   await expect(page).toHaveURL(/\/search/);
 });

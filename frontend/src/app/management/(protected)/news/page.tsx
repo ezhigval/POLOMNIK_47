@@ -17,7 +17,7 @@ export default async function ManagementNewsPage() {
 
   return (
     <div className="grid gap-8 lg:grid-cols-[1.2fr_1fr]">
-      <ManagementPanel title="Новостная лента" description={`${articles.length} статей`}>
+      <ManagementPanel title="Новости" description={`${articles.length} статей`}>
         <ManagementTable>
           <ManagementTableHead>
             <ManagementTh>Статья</ManagementTh>

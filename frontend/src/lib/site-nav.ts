@@ -6,16 +6,16 @@ export type NavLink = {
 /** Основное меню — один источник для header, footer, mobile */
 export const mainNavLinks: NavLink[] = [
   { href: "/", label: "Главная" },
-  { href: "/search", label: "Поиск туров" },
-  { href: "/news", label: "Новостная лента" },
+  { href: "/search", label: "Туры" },
+  { href: "/news", label: "Новости" },
   { href: "/reviews", label: "Отзывы" },
   { href: "/support", label: "Поддержка" },
 ];
 
 export const footerNavLinks: NavLink[] = [
   { href: "/", label: "Главная" },
-  { href: "/search", label: "Поиск туров" },
-  { href: "/news", label: "Новостная лента" },
+  { href: "/search", label: "Туры" },
+  { href: "/news", label: "Новости" },
   { href: "/#about", label: "О службе" },
   { href: "/#why-us", label: "Почему мы" },
   { href: "/#how-it-works", label: "Как записаться" },

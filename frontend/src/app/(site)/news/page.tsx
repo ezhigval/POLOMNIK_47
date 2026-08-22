@@ -7,7 +7,7 @@ import { newsArticles, toFeedArticle } from "@/lib/news";
 import { siteConfig } from "@/lib/site-config";
 
 export const metadata: Metadata = {
-  title: "Новостная лента",
+  title: "Новости",
   description: `Новости и статьи паломнической службы «${siteConfig.name}».`,
   alternates: { canonical: "/news" },
 };
@@ -24,7 +24,7 @@ export default async function NewsPage() {
   return (
     <div className="mx-auto max-w-6xl space-y-8 px-4 py-8 sm:py-10">
       <PageIntro
-        title="Новостная лента"
+        title="Новости"
         description="События службы, маршруты и святыни — откройте карточку, чтобы прочитать статью."
       />
 
