@@ -25,14 +25,16 @@ const (
 )
 
 type Page struct {
-	ID          uuid.UUID
-	Slug        string
-	Title       string
-	Path        string
-	IsPublished bool
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
-	Blocks      []Block
+	ID              uuid.UUID
+	Slug            string
+	Title           string
+	Path            string
+	MetaTitle       string
+	MetaDescription string
+	IsPublished     bool
+	CreatedAt       time.Time
+	UpdatedAt       time.Time
+	Blocks          []Block
 }
 
 type Block struct {

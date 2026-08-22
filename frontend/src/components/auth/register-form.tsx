@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FormEvent, useState } from "react";
-import { safeReturnUrl } from "@/lib/site-nav";
+import { FormEvent, useCallback, useState } from "react";
+import { PhoneCallVerify } from "@/components/auth/phone-call-verify";
 import { FormError } from "@/components/form-error";
+import { safeReturnUrl } from "@/lib/site-nav";
 
 type RegisterFormProps = {
   returnUrl?: string;
@@ -14,16 +15,37 @@ export function RegisterForm({ returnUrl = "/account/trips" }: RegisterFormProps
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [phone, setPhone] = useState("");
+  const [phoneCheckId, setPhoneCheckId] = useState<string | null>(null);
+  const [phoneCallAvailable, setPhoneCallAvailable] = useState(false);
   const destination = safeReturnUrl(returnUrl);
   const loginHref =
     destination === "/account/trips"
       ? "/account/login"
       : `/account/login?returnUrl=${encodeURIComponent(destination)}`;
 
+  const onPhoneUnavailable = useCallback(() => {
+    setPhoneCallAvailable(false);
+  }, []);
+
+  const onPhoneAvailable = useCallback(() => {
+    setPhoneCallAvailable(true);
+  }, []);
+
+  const onPhoneConfirmed = useCallback((checkId: string) => {
+    setPhoneCheckId(checkId);
+  }, []);
+
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setLoading(true);
     setError(null);
+
+    if (phoneCallAvailable && !phoneCheckId) {
+      setLoading(false);
+      setError("Сначала подтвердите телефон звонком с вашего номера");
+      return;
+    }
 
     const formData = new FormData(event.currentTarget);
     const response = await fetch("/api/auth/register", {
@@ -34,6 +56,7 @@ export function RegisterForm({ returnUrl = "/account/trips" }: RegisterFormProps
         email: formData.get("email"),
         phone: formData.get("phone"),
         password: formData.get("password"),
+        phone_check_id: phoneCheckId,
       }),
     });
 
@@ -62,8 +85,26 @@ export function RegisterForm({ returnUrl = "/account/trips" }: RegisterFormProps
 
       <label className="block text-sm">
         <span className="form-label">Телефон</span>
-        <input required name="phone" type="tel" className="input-field" autoComplete="tel" />
+        <input
+          required
+          name="phone"
+          type="tel"
+          className="input-field"
+          autoComplete="tel"
+          value={phone}
+          onChange={(event) => {
+            setPhone(event.target.value);
+            setPhoneCheckId(null);
+          }}
+        />
       </label>
+
+      <PhoneCallVerify
+        phone={phone}
+        onConfirmed={onPhoneConfirmed}
+        onAvailable={onPhoneAvailable}
+        onUnavailable={onPhoneUnavailable}
+      />
 
       <label className="block text-sm">
         <span className="form-label">Email</span>
@@ -77,7 +118,11 @@ export function RegisterForm({ returnUrl = "/account/trips" }: RegisterFormProps
 
       <FormError>{error}</FormError>
 
-      <button type="submit" disabled={loading} className="btn-primary w-full">
+      <button
+        type="submit"
+        disabled={loading || (phoneCallAvailable && !phoneCheckId)}
+        className="btn-primary w-full"
+      >
         {loading ? "Создаём…" : "Создать аккаунт"}
       </button>
 

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -14,35 +15,65 @@ import (
 	"polomnik/internal/ports"
 )
 
+const phoneChallengeTTL = 5 * time.Minute
+
+const unavailableMessage = "Пока что недоступно, используйте другой вариант."
+
 type AuthService struct {
 	users     ports.UserRepository
 	bookings  ports.BookingRepository
+	phones    ports.PhoneVerifier
 	jwtSecret []byte
 	tokenTTL  time.Duration
+
+	mu         sync.Mutex
+	challenges map[string]phoneChallengeRecord
+}
+
+type phoneChallengeRecord struct {
+	Phone     string
+	ExpiresAt time.Time
 }
 
 func NewAuthService(
 	users ports.UserRepository,
 	bookings ports.BookingRepository,
+	phones ports.PhoneVerifier,
 	jwtSecret string,
 	tokenTTL time.Duration,
 ) *AuthService {
 	if tokenTTL <= 0 {
 		tokenTTL = 7 * 24 * time.Hour
 	}
+	if phones == nil {
+		phones = unavailablePhoneVerifier{}
+	}
 	return &AuthService{
-		users:     users,
-		bookings:  bookings,
-		jwtSecret: []byte(jwtSecret),
-		tokenTTL:  tokenTTL,
+		users:      users,
+		bookings:   bookings,
+		phones:     phones,
+		jwtSecret:  []byte(jwtSecret),
+		tokenTTL:   tokenTTL,
+		challenges: make(map[string]phoneChallengeRecord),
 	}
 }
 
+type unavailablePhoneVerifier struct{}
+
+func (unavailablePhoneVerifier) Available() bool { return false }
+func (unavailablePhoneVerifier) Start(context.Context, string) (ports.PhoneChallenge, error) {
+	return ports.PhoneChallenge{}, ports.ErrPhoneVerifierNotConfigured
+}
+func (unavailablePhoneVerifier) Status(context.Context, string) (ports.PhoneCheckStatus, error) {
+	return "", ports.ErrPhoneVerifierNotConfigured
+}
+
 type RegisterInput struct {
-	Email    string
-	Phone    string
-	Name     string
-	Password string
+	Email         string
+	Phone         string
+	Name          string
+	Password      string
+	PhoneCheckID  string
 }
 
 type LoginInput struct {
@@ -58,6 +89,120 @@ type AuthResult struct {
 type AuthClaims struct {
 	UserID uuid.UUID `json:"uid"`
 	jwt.RegisteredClaims
+}
+
+type AuthMethods struct {
+	Password  bool
+	PhoneCall AuthMethodStatus
+}
+
+type AuthMethodStatus struct {
+	Available bool
+	Message   string
+}
+
+type PhoneStartResult struct {
+	CheckID         string
+	CallPhone       string
+	CallPhonePretty string
+	ExpiresIn       int
+}
+
+type PhoneStatusResult struct {
+	Status string
+}
+
+func (s *AuthService) AuthMethods() AuthMethods {
+	phone := AuthMethodStatus{Available: false, Message: unavailableMessage}
+	if s.phones.Available() {
+		phone = AuthMethodStatus{Available: true}
+	}
+	return AuthMethods{
+		Password:  true,
+		PhoneCall: phone,
+	}
+}
+
+func (s *AuthService) StartPhoneVerification(ctx context.Context, phone string) (PhoneStartResult, error) {
+	if !s.phones.Available() {
+		return PhoneStartResult{}, ErrPhoneVerificationUnavailable
+	}
+	normalized := domain.NormalizePhone(phone)
+	if normalized == "" {
+		return PhoneStartResult{}, domain.ErrInvalidPhone
+	}
+
+	challenge, err := s.phones.Start(ctx, normalized)
+	if err != nil {
+		if errors.Is(err, ports.ErrPhoneVerifierNotConfigured) {
+			return PhoneStartResult{}, ErrPhoneVerificationUnavailable
+		}
+		return PhoneStartResult{}, err
+	}
+
+	expiresIn := challenge.ExpiresIn
+	if expiresIn <= 0 {
+		expiresIn = int(phoneChallengeTTL.Seconds())
+	}
+
+	s.mu.Lock()
+	s.pruneChallengesLocked(time.Now().UTC())
+	s.challenges[challenge.CheckID] = phoneChallengeRecord{
+		Phone:     normalized,
+		ExpiresAt: time.Now().UTC().Add(time.Duration(expiresIn) * time.Second),
+	}
+	s.mu.Unlock()
+
+	return PhoneStartResult{
+		CheckID:         challenge.CheckID,
+		CallPhone:       challenge.CallPhone,
+		CallPhonePretty: challenge.CallPhonePretty,
+		ExpiresIn:       expiresIn,
+	}, nil
+}
+
+func (s *AuthService) PhoneVerificationStatus(ctx context.Context, checkID string) (PhoneStatusResult, error) {
+	if !s.phones.Available() {
+		return PhoneStatusResult{}, ErrPhoneVerificationUnavailable
+	}
+	checkID = strings.TrimSpace(checkID)
+	if checkID == "" {
+		return PhoneStatusResult{}, domain.ErrInvalidID
+	}
+
+	if _, ok := s.lookupChallenge(checkID); !ok {
+		return PhoneStatusResult{Status: string(ports.PhoneCheckExpired)}, nil
+	}
+
+	status, err := s.phones.Status(ctx, checkID)
+	if err != nil {
+		if errors.Is(err, ports.ErrPhoneVerifierNotConfigured) {
+			return PhoneStatusResult{}, ErrPhoneVerificationUnavailable
+		}
+		return PhoneStatusResult{}, err
+	}
+	return PhoneStatusResult{Status: string(status)}, nil
+}
+
+func (s *AuthService) CompletePhoneLogin(ctx context.Context, checkID string) (AuthResult, error) {
+	phone, err := s.requireConfirmedPhone(ctx, checkID)
+	if err != nil {
+		return AuthResult{}, err
+	}
+
+	user, err := s.users.GetUserByPhone(ctx, phone)
+	if err != nil {
+		if errors.Is(err, domain.ErrNotFound) {
+			return AuthResult{}, ErrPhoneUserNotFound
+		}
+		return AuthResult{}, err
+	}
+
+	token, err := s.issueToken(user.ID)
+	if err != nil {
+		return AuthResult{}, err
+	}
+	return AuthResult{Token: token, User: sanitizeUser(user)}, nil
 }
 
 func (s *AuthService) Register(ctx context.Context, input RegisterInput) (AuthResult, error) {
@@ -79,6 +224,16 @@ func (s *AuthService) Register(ctx context.Context, input RegisterInput) (AuthRe
 	})
 	if err != nil {
 		return AuthResult{}, err
+	}
+
+	if s.phones.Available() {
+		confirmedPhone, err := s.requireConfirmedPhone(ctx, input.PhoneCheckID)
+		if err != nil {
+			return AuthResult{}, err
+		}
+		if confirmedPhone != user.Phone {
+			return AuthResult{}, ErrPhoneVerificationNotConfirmed
+		}
 	}
 
 	if user.Email != "" {
@@ -208,6 +363,63 @@ func (s *AuthService) OAuthLogin(ctx context.Context, input OAuthLoginInput) (Au
 		return AuthResult{}, err
 	}
 	return AuthResult{Token: token, User: sanitizeUser(user)}, nil
+}
+
+func (s *AuthService) requireConfirmedPhone(ctx context.Context, checkID string) (string, error) {
+	if !s.phones.Available() {
+		return "", ErrPhoneVerificationUnavailable
+	}
+	checkID = strings.TrimSpace(checkID)
+	if checkID == "" {
+		return "", ErrPhoneVerificationRequired
+	}
+
+	record, ok := s.lookupChallenge(checkID)
+	if !ok {
+		return "", ErrPhoneVerificationNotConfirmed
+	}
+
+	status, err := s.phones.Status(ctx, checkID)
+	if err != nil {
+		if errors.Is(err, ports.ErrPhoneVerifierNotConfigured) {
+			return "", ErrPhoneVerificationUnavailable
+		}
+		return "", err
+	}
+	switch status {
+	case ports.PhoneCheckConfirmed:
+		s.forgetChallenge(checkID)
+		return record.Phone, nil
+	case ports.PhoneCheckPending:
+		return "", ErrPhoneVerificationNotConfirmed
+	case ports.PhoneCheckExpired:
+		s.forgetChallenge(checkID)
+		return "", ErrPhoneVerificationNotConfirmed
+	default:
+		return "", ErrPhoneVerificationNotConfirmed
+	}
+}
+
+func (s *AuthService) lookupChallenge(checkID string) (phoneChallengeRecord, bool) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.pruneChallengesLocked(time.Now().UTC())
+	record, ok := s.challenges[checkID]
+	return record, ok
+}
+
+func (s *AuthService) forgetChallenge(checkID string) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	delete(s.challenges, checkID)
+}
+
+func (s *AuthService) pruneChallengesLocked(now time.Time) {
+	for id, record := range s.challenges {
+		if now.After(record.ExpiresAt) {
+			delete(s.challenges, id)
+		}
+	}
 }
 
 func (s *AuthService) issueToken(userID uuid.UUID) (string, error) {

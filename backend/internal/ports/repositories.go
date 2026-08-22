@@ -128,3 +128,25 @@ type TelegramChatMapRepository interface {
 	UpsertTelegramChatBinding(ctx context.Context, binding domain.TelegramChatBinding) error
 	ListTelegramChatBindings(ctx context.Context, usernames []string) (map[string]string, error)
 }
+
+type NotificationRoutingRepository interface {
+	GetNotificationRouting(ctx context.Context) (domain.NotificationRouting, error)
+	UpsertNotificationRouting(ctx context.Context, routing domain.NotificationRouting) (domain.NotificationRouting, error)
+}
+
+type SiteSettingsRepository interface {
+	GetSiteSettings(ctx context.Context) (domain.SiteSettings, error)
+	UpsertSiteSettings(ctx context.Context, settings domain.SiteSettings) (domain.SiteSettings, error)
+}
+
+type AdminRoleRepository interface {
+	ListAdminRoles(ctx context.Context) ([]domain.AdminRole, error)
+	GetAdminRole(ctx context.Context, id uuid.UUID) (domain.AdminRole, error)
+	GetAdminRoleByName(ctx context.Context, name string) (domain.AdminRole, error)
+	CreateAdminRole(ctx context.Context, role domain.AdminRole) (domain.AdminRole, error)
+	UpdateAdminRole(ctx context.Context, role domain.AdminRole) (domain.AdminRole, error)
+	DeleteAdminRole(ctx context.Context, id uuid.UUID) error
+	AssignUserToRole(ctx context.Context, assignment domain.AdminRoleAssignment) error
+	UnassignUserFromRole(ctx context.Context, roleID, userID uuid.UUID) error
+	ListRoleAssignments(ctx context.Context, roleID uuid.UUID) ([]domain.AdminRoleAssignment, error)
+}

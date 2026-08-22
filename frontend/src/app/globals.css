@@ -3,12 +3,13 @@
 :root {
   --background: #fafaf9;
   --foreground: #1c1917;
-  --brand-50: #f0fdfa;
-  --brand-100: #ccfbf1;
-  --brand-700: #0f766e;
-  --brand-800: #115e59;
-  --brand-900: #134e4a;
-  --brand-950: #042f2e;
+  --brand-50: #f1f6fb;
+  --brand-100: #dde9f4;
+  --brand-200: #b8d0e6;
+  --brand-700: #3a6e91;
+  --brand-800: #2a5673;
+  --brand-900: #21475f;
+  --brand-950: #132c3e;
 }
 
 @theme inline {
@@ -16,6 +17,7 @@
   --color-foreground: var(--foreground);
   --color-brand-50: var(--brand-50);
   --color-brand-100: var(--brand-100);
+  --color-brand-200: var(--brand-200);
   --color-brand-700: var(--brand-700);
   --color-brand-800: var(--brand-800);
   --color-brand-900: var(--brand-900);
@@ -45,7 +47,7 @@ body {
   }
 
   .input-field {
-    @apply w-full rounded-xl border border-stone-300 bg-white px-3 py-2.5 text-stone-900 transition placeholder:text-stone-400 focus:border-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-100;
+    @apply w-full rounded-xl border border-stone-300/90 bg-white px-3 py-2.5 text-stone-900 transition placeholder:text-stone-400 focus:border-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-100;
   }
 
   .btn-primary {
@@ -53,7 +55,7 @@ body {
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center rounded-full border border-stone-300 bg-white px-5 py-2.5 text-sm font-medium text-stone-700 transition hover:bg-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400 focus-visible:ring-offset-2;
+    @apply inline-flex items-center justify-center rounded-full border border-stone-300/90 bg-white px-5 py-2.5 text-sm font-medium text-stone-700 transition hover:bg-stone-50 hover:border-stone-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400 focus-visible:ring-offset-2;
   }
 
   .btn-danger {
@@ -85,7 +87,7 @@ body {
   }
 
   .search-field-input {
-    @apply w-full rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-sm text-stone-900 transition placeholder:text-stone-400 focus:border-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-100;
+    @apply w-full rounded-xl border border-stone-200/90 bg-white px-3 py-2.5 text-sm text-stone-900 transition placeholder:text-stone-400 focus:border-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-100;
   }
 
   .search-field-action {

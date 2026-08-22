@@ -1,10 +1,17 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { SectionHeading } from "@/components/section-heading";
 import { siteConfig } from "@/lib/site-config";
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "Политика конфиденциальности",
+  description: `Как ${siteConfig.name} обрабатывает персональные данные из заявок на сайте.`,
   alternates: { canonical: "/privacy" },
+  openGraph: {
+    title: "Политика конфиденциальности",
+    description: `Как ${siteConfig.name} обрабатывает персональные данные из заявок на сайте.`,
+    url: "/privacy",
+  },
 };
 
 export default function PrivacyPage() {

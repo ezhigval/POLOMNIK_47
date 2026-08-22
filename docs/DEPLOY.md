@@ -60,6 +60,7 @@ cp .env.production.example .env.production
 | `NEXT_PUBLIC_CONTACT_*` | Телефон и email на сайте |
 | `NEXT_PUBLIC_YM_ID` | Яндекс.Метрика (опционально) |
 | `NEXT_PUBLIC_GA_ID` | Google Analytics (опционально) |
+| `NEXT_PUBLIC_YM_WEBVISOR` | `1` — вебвизор Метрики (опц., см. `SEO_ADS.md`) |
 | `NOTIFICATION_ADAPTER` | `telegram` при настройке бота |
 | `TELEGRAM_BOT_TOKEN` / `TELEGRAM_CHAT_ID` | следующий этап |
 | `MANAGEMENT_BASE_URL` | `https://tikhvin-palomnik.ru/management/bookings` |

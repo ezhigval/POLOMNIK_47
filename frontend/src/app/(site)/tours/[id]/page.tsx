@@ -43,6 +43,7 @@ export async function generateMetadata({ params }: TourPageProps) {
   try {
     const tour = await getCachedTour(id);
     const description = tour.description?.split("\n")[0] || `Паломнический тур — ${tour.location}`;
+    const images = tour.images?.filter(Boolean).slice(0, 3) ?? [];
     return {
       title: tour.title,
       description,
@@ -54,11 +55,13 @@ export async function generateMetadata({ params }: TourPageProps) {
         description,
         type: "website",
         url: `/tours/${tour.id}`,
+        ...(images.length > 0 ? { images: images.map((url) => ({ url })) } : {}),
       },
       twitter: {
         card: "summary_large_image",
         title: tour.title,
         description,
+        ...(images[0] ? { images: [images[0]] } : {}),
       },
     };
   } catch {
@@ -111,7 +114,12 @@ export default async function TourPage({ params }: TourPageProps) {
           <section className="space-y-6">
             <div className="overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm">
               <div className="relative">
-                <TourImage tour={tour} priority className="aspect-[21/9] w-full sm:aspect-[2/1]" />
+                <TourImage
+                  tour={tour}
+                  priority
+                  className="aspect-[21/9] w-full sm:aspect-[2/1]"
+                  sizes="(max-width: 1024px) 100vw, 60vw"
+                />
                 <div className="absolute right-4 top-4 z-10">
                   <FavoriteButton tourId={tour.id} />
                 </div>

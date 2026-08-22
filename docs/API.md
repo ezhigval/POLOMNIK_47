@@ -422,11 +422,15 @@ Bitrix24 outbound webhook sends deal stage changes. Backend resolves `ORIGIN_ID`
 
 ## 9. Future APIs
 
-Not in MVP 1:
+Not in MVP 1 (частично уже есть в коде; этот список устарел — см. ROADMAP):
 
 ```text
 POST /auth/register
 POST /auth/login
+GET  /auth/methods
+POST /auth/phone/start      # sms.ru callcheck
+GET  /auth/phone/status
+POST /auth/phone/complete
 POST /auth/refresh
 GET  /users/me
 GET  /users/bookings
@@ -434,6 +438,8 @@ POST /payments
 POST /webhooks/bitrix
 POST /webhooks/onec
 ```
+
+Подтверждение телефона — **звонок** (callcheck), не SMS. Без `PHONE_ADAPTER=smsru` + `SMSRU_API_ID` методы телефона отвечают «недоступно».
 
 These endpoints require separate specification before implementation.
 

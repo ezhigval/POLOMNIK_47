@@ -25,8 +25,12 @@ type Store struct {
 	cmsPages           map[uuid.UUID]domain.Page
 	cmsBlocks          map[uuid.UUID]domain.Block
 	news               map[uuid.UUID]domain.NewsArticle
-	telegramRecipients *domain.TelegramRecipients
-	telegramChats      map[string]domain.TelegramChatBinding
+	telegramRecipients   *domain.TelegramRecipients
+	telegramChats        map[string]domain.TelegramChatBinding
+	notificationRouting  *domain.NotificationRouting
+	siteSettings         *domain.SiteSettings
+	adminRoles           map[uuid.UUID]domain.AdminRole
+	adminAssignments     []domain.AdminRoleAssignment
 }
 
 func (s *Store) WithinTransaction(ctx context.Context, fn func(context.Context) error) error {
@@ -47,7 +51,9 @@ func NewStore() *Store {
 		cmsPages:        make(map[uuid.UUID]domain.Page),
 		cmsBlocks:       make(map[uuid.UUID]domain.Block),
 		news:            make(map[uuid.UUID]domain.NewsArticle),
-		telegramChats:   make(map[string]domain.TelegramChatBinding),
+		telegramChats:    make(map[string]domain.TelegramChatBinding),
+		adminRoles:       make(map[uuid.UUID]domain.AdminRole),
+		adminAssignments: nil,
 	}
 }
 

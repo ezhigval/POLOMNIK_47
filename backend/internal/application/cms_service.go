@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -28,9 +29,11 @@ type CreatePageInput struct {
 }
 
 type UpdatePageInput struct {
-	Title       *string
-	Path        *string
-	IsPublished *bool
+	Title           *string
+	Path            *string
+	MetaTitle       *string
+	MetaDescription *string
+	IsPublished     *bool
 }
 
 type CreateBlockInput struct {
@@ -132,6 +135,12 @@ func (s *CMSService) UpdatePage(ctx context.Context, id uuid.UUID, input UpdateP
 	}
 	if input.IsPublished != nil {
 		page.IsPublished = *input.IsPublished
+	}
+	if input.MetaTitle != nil {
+		page.MetaTitle = strings.TrimSpace(*input.MetaTitle)
+	}
+	if input.MetaDescription != nil {
+		page.MetaDescription = strings.TrimSpace(*input.MetaDescription)
 	}
 	page.UpdatedAt = time.Now().UTC()
 	updated, err := s.cms.UpdatePage(ctx, page)

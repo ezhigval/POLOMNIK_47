@@ -119,6 +119,29 @@ export default async function ManagementDashboardPage() {
 
   return (
     <div className="space-y-8">
+      <section className="rounded-2xl border border-stone-200 bg-white p-5">
+        <h2 className="text-lg font-semibold text-stone-900">Визиты сайта</h2>
+        {process.env.NEXT_PUBLIC_YM_ID?.trim() ? (
+          <p className="mt-2 text-sm leading-6 text-stone-600">
+            Счётчик Яндекс.Метрики подключён (ID в env). Отчёты по визитам — в{" "}
+            <a
+              href="https://metrika.yandex.ru/"
+              target="_blank"
+              rel="noreferrer"
+              className="font-medium text-brand-800 underline-offset-2 hover:underline"
+            >
+              кабинете Метрики
+            </a>
+            . Цифры визитов на этой странице не дублируются.
+          </p>
+        ) : (
+          <p className="mt-2 text-sm leading-6 text-stone-600">
+            Подключите Метрику: задайте <code className="rounded bg-stone-100 px-1">NEXT_PUBLIC_YM_ID</code>{" "}
+            в prod env и пересоберите фронт. Визиты здесь не выдумываются.
+          </p>
+        )}
+      </section>
+
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {cards.map((card) => (
           <StatCard key={card.href} {...card} />

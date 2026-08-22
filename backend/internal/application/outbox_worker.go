@@ -5,8 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/google/uuid"
-
 	"polomnik/internal/domain"
 	"polomnik/internal/ports"
 )
@@ -83,9 +81,7 @@ func (w *OutboxWorker) ProcessOne(ctx context.Context, event domain.OutboxEvent)
 
 func isNotificationEvent(eventType string) bool {
 	switch eventType {
-	case domain.OutboxEventNotificationBookingCreated,
-		domain.OutboxEventNotificationBookingStatus,
-		domain.OutboxEventNotificationSupport:
+	case domain.OutboxEventNotificationBookingCreated, domain.OutboxEventNotificationBookingStatus:
 		return true
 	default:
 		return false
@@ -93,10 +89,6 @@ func isNotificationEvent(eventType string) bool {
 }
 
 func (w *OutboxWorker) dispatchNotification(ctx context.Context, event domain.OutboxEvent) error {
-	if event.EventType == domain.OutboxEventNotificationSupport {
-		return w.dispatchSupportNotification(ctx, event)
-	}
-
 	booking, err := w.bookings.GetBooking(ctx, event.EntityID)
 	if err != nil {
 		return err
@@ -124,38 +116,6 @@ func (w *OutboxWorker) dispatchNotification(ctx context.Context, event domain.Ou
 	default:
 		return fmt.Errorf("unsupported notification event type: %s", event.EventType)
 	}
-}
-
-func (w *OutboxWorker) dispatchSupportNotification(ctx context.Context, event domain.OutboxEvent) error {
-	note := domain.SupportNotification{MessageID: event.EntityID}
-	if len(event.Payload) > 0 {
-		var payload struct {
-			ThreadID  string `json:"thread_id"`
-			MessageID string `json:"message_id"`
-			UserID    string `json:"user_id"`
-			Body      string `json:"body"`
-		}
-		if json.Unmarshal(event.Payload, &payload) == nil {
-			note.Body = payload.Body
-			if id, err := parseOptionalUUID(payload.ThreadID); err == nil {
-				note.ThreadID = id
-			}
-			if id, err := parseOptionalUUID(payload.MessageID); err == nil && id != uuid.Nil {
-				note.MessageID = id
-			}
-			if id, err := parseOptionalUUID(payload.UserID); err == nil {
-				note.UserID = id
-			}
-		}
-	}
-	return w.notifications.NotifySupportMessage(ctx, note)
-}
-
-func parseOptionalUUID(raw string) (uuid.UUID, error) {
-	if raw == "" {
-		return uuid.Nil, nil
-	}
-	return uuid.Parse(raw)
 }
 
 func (w *OutboxWorker) dispatch(ctx context.Context, event domain.OutboxEvent) (ports.IntegrationResult, error) {

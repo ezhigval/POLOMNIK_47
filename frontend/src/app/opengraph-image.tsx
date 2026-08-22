@@ -1,6 +1,8 @@
 import { ImageResponse } from "next/og";
 import { siteConfig } from "@/lib/site-config";
 
+export const runtime = "edge";
+export const alt = `${siteConfig.name} — ${siteConfig.tagline}`;
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -13,28 +15,50 @@ export default function OpenGraphImage() {
           height: "100%",
           display: "flex",
           flexDirection: "column",
-          justifyContent: "flex-end",
-          padding: 64,
-          background: "linear-gradient(135deg, #042f2e 0%, #115e59 45%, #0f766e 100%)",
-          color: "white",
+          justifyContent: "space-between",
+          padding: "64px",
+          background: "linear-gradient(135deg, #132c3e 0%, #21475f 48%, #2a5673 100%)",
+          color: "#f8fafc",
+          fontFamily: "Georgia, 'Times New Roman', serif",
         }}
       >
         <div
           style={{
+            display: "flex",
             fontSize: 28,
-            letterSpacing: 4,
+            letterSpacing: "0.18em",
             textTransform: "uppercase",
-            opacity: 0.85,
-            marginBottom: 16,
+            color: "#b8d0e6",
           }}
         >
-          Паломническая служба
-        </div>
-        <div style={{ fontSize: 72, fontWeight: 600, lineHeight: 1.05, maxWidth: 900 }}>
-          {siteConfig.name}
-        </div>
-        <div style={{ fontSize: 32, marginTop: 24, opacity: 0.92, maxWidth: 800 }}>
           {siteConfig.tagline}
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+          <div style={{ display: "flex", fontSize: 72, fontWeight: 700, lineHeight: 1.05 }}>
+            {siteConfig.name}
+          </div>
+          <div
+            style={{
+              display: "flex",
+              maxWidth: 880,
+              fontSize: 28,
+              lineHeight: 1.35,
+              color: "#dde9f4",
+              fontFamily: "system-ui, sans-serif",
+            }}
+          >
+            {siteConfig.description}
+          </div>
+        </div>
+        <div
+          style={{
+            display: "flex",
+            fontSize: 24,
+            color: "#b8d0e6",
+            fontFamily: "system-ui, sans-serif",
+          }}
+        >
+          tikhvin-palomnik.ru
         </div>
       </div>
     ),

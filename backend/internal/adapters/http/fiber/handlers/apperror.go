@@ -5,6 +5,7 @@ import (
 
 	"polomnik/internal/application"
 	"polomnik/internal/domain"
+	"polomnik/internal/ports"
 )
 
 type AppError struct {
@@ -37,6 +38,16 @@ func MapError(err error) *AppError {
 		return &AppError{Status: 422, Code: "VALIDATION_ERROR", Message: "Некорректный статус заявки"}
 	case errors.Is(err, domain.ErrInvalidCredentials):
 		return &AppError{Status: 401, Code: "UNAUTHORIZED", Message: "Неверный логин или пароль"}
+	case errors.Is(err, application.ErrPhoneVerificationUnavailable):
+		return &AppError{Status: 503, Code: "PHONE_UNAVAILABLE", Message: "Пока что недоступно, используйте другой вариант."}
+	case errors.Is(err, application.ErrPhoneVerificationRequired):
+		return &AppError{Status: 422, Code: "PHONE_VERIFICATION_REQUIRED", Message: "Подтвердите телефон звонком с вашего номера"}
+	case errors.Is(err, application.ErrPhoneVerificationNotConfirmed):
+		return &AppError{Status: 422, Code: "PHONE_NOT_CONFIRMED", Message: "Звонок ещё не подтверждён или время истекло"}
+	case errors.Is(err, application.ErrPhoneUserNotFound):
+		return &AppError{Status: 404, Code: "PHONE_USER_NOT_FOUND", Message: "Аккаунт с этим телефоном не найден. Зарегистрируйтесь."}
+	case errors.Is(err, ports.ErrPhoneChallengeFailed):
+		return &AppError{Status: 502, Code: "PHONE_PROVIDER_ERROR", Message: "Не удалось начать проверку телефона. Попробуйте позже."}
 	case errors.Is(err, domain.ErrDuplicateEmail):
 		return &AppError{Status: 409, Code: "DUPLICATE_EMAIL", Message: "Этот email уже зарегистрирован"}
 	case errors.Is(err, domain.ErrDuplicatePhone):
@@ -89,6 +100,20 @@ func mapValidationError(err error) *AppError {
 		return &AppError{Status: 422, Code: "VALIDATION_ERROR", Message: "Введите текст сообщения"}
 	case errors.Is(err, domain.ErrInvalidTelegramUsername):
 		return &AppError{Status: 422, Code: "VALIDATION_ERROR", Message: "Укажите корректный Telegram username (латиница, 5–32 символа)"}
+	case errors.Is(err, domain.ErrInvalidNotificationChannel):
+		return &AppError{Status: 422, Code: "VALIDATION_ERROR", Message: "Неизвестный канал уведомлений"}
+	case errors.Is(err, domain.ErrInvalidNotificationAddress):
+		return &AppError{Status: 422, Code: "VALIDATION_ERROR", Message: "Некорректный адрес получателя"}
+	case errors.Is(err, domain.ErrInvalidNotificationEvent):
+		return &AppError{Status: 422, Code: "VALIDATION_ERROR", Message: "Некорректный тип события уведомления"}
+	case errors.Is(err, domain.ErrInvalidAdminRoleName):
+		return &AppError{Status: 422, Code: "VALIDATION_ERROR", Message: "Имя роли: латиница, цифры, _ или -, 2–64 символа"}
+	case errors.Is(err, domain.ErrInvalidPermission):
+		return &AppError{Status: 422, Code: "VALIDATION_ERROR", Message: "Неизвестное право доступа"}
+	case errors.Is(err, domain.ErrDuplicateAdminRoleName):
+		return &AppError{Status: 409, Code: "DUPLICATE_ROLE", Message: "Роль с таким именем уже есть"}
+	case errors.Is(err, domain.ErrForbidden):
+		return &AppError{Status: 403, Code: "FORBIDDEN", Message: "Недостаточно прав"}
 	case errors.Is(err, domain.ErrInvalidSupportSender):
 		return &AppError{Status: 422, Code: "VALIDATION_ERROR", Message: "Некорректный отправитель сообщения"}
 	case errors.Is(err, domain.ErrInvalidBlockType):

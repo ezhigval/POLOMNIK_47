@@ -9,6 +9,11 @@ export const metadata: Metadata = {
   title: "Отзывы",
   description: `Отзывы паломников о поездках «${siteConfig.name}».`,
   alternates: { canonical: "/reviews" },
+  openGraph: {
+    title: "Отзывы",
+    description: `Отзывы паломников о поездках «${siteConfig.name}».`,
+    url: "/reviews",
+  },
 };
 
 export default async function ReviewsPage() {

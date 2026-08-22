@@ -40,7 +40,7 @@ export default async function TourOpenGraphImage({ params }: OgImageProps) {
           flexDirection: "column",
           justifyContent: "flex-end",
           padding: 64,
-          background: "linear-gradient(135deg, #042f2e 0%, #115e59 45%, #0f766e 100%)",
+          background: "linear-gradient(135deg, #132c3e 0%, #2a5673 45%, #3a6e91 100%)",
           color: "white",
         }}
       >

@@ -10,6 +10,7 @@ export async function POST(request: Request) {
       email: body.email,
       phone: body.phone,
       password: body.password,
+      phone_check_id: body.phone_check_id,
     });
 
     const response = NextResponse.json({ user: result.user });

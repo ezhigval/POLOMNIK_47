@@ -63,7 +63,7 @@ export function NewsFeed({ articles }: NewsFeedProps) {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={article.image}
-                  alt=""
+                  alt={article.title}
                   className="size-full object-cover transition duration-500 group-hover:scale-[1.03]"
                 />
               </span>
@@ -98,7 +98,7 @@ export function NewsFeed({ articles }: NewsFeedProps) {
           >
             <div className="relative aspect-[16/8] shrink-0 bg-stone-100">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={openArticle.image} alt="" className="size-full object-cover" />
+              <img src={openArticle.image} alt={openArticle.title} className="size-full object-cover" />
               <button
                 type="button"
                 onClick={closeArticlePopup}

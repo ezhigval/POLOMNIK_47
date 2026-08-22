@@ -8,14 +8,16 @@ import (
 )
 
 type CMSPageResponse struct {
-	ID          string             `json:"id"`
-	Slug        string             `json:"slug"`
-	Title       string             `json:"title"`
-	Path        string             `json:"path"`
-	IsPublished bool               `json:"is_published"`
-	CreatedAt   time.Time          `json:"created_at"`
-	UpdatedAt   time.Time          `json:"updated_at"`
-	Blocks      []CMSBlockResponse `json:"blocks,omitempty"`
+	ID              string             `json:"id"`
+	Slug            string             `json:"slug"`
+	Title           string             `json:"title"`
+	Path            string             `json:"path"`
+	MetaTitle       string             `json:"meta_title"`
+	MetaDescription string             `json:"meta_description"`
+	IsPublished     bool               `json:"is_published"`
+	CreatedAt       time.Time          `json:"created_at"`
+	UpdatedAt       time.Time          `json:"updated_at"`
+	Blocks          []CMSBlockResponse `json:"blocks,omitempty"`
 }
 
 type CMSBlockResponse struct {
@@ -37,9 +39,11 @@ type CMSPageCreateRequest struct {
 }
 
 type CMSPageUpdateRequest struct {
-	Title       *string `json:"title"`
-	Path        *string `json:"path"`
-	IsPublished *bool   `json:"is_published"`
+	Title           *string `json:"title"`
+	Path            *string `json:"path"`
+	MetaTitle       *string `json:"meta_title"`
+	MetaDescription *string `json:"meta_description"`
+	IsPublished     *bool   `json:"is_published"`
 }
 
 type CMSBlockCreateRequest struct {
@@ -70,14 +74,16 @@ func ToCMSPageResponse(page domain.Page) CMSPageResponse {
 		blocks = append(blocks, ToCMSBlockResponse(block))
 	}
 	return CMSPageResponse{
-		ID:          page.ID.String(),
-		Slug:        page.Slug,
-		Title:       page.Title,
-		Path:        page.Path,
-		IsPublished: page.IsPublished,
-		CreatedAt:   page.CreatedAt,
-		UpdatedAt:   page.UpdatedAt,
-		Blocks:      blocks,
+		ID:              page.ID.String(),
+		Slug:            page.Slug,
+		Title:           page.Title,
+		Path:            page.Path,
+		MetaTitle:       page.MetaTitle,
+		MetaDescription: page.MetaDescription,
+		IsPublished:     page.IsPublished,
+		CreatedAt:       page.CreatedAt,
+		UpdatedAt:       page.UpdatedAt,
+		Blocks:          blocks,
 	}
 }
 

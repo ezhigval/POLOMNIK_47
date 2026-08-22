@@ -10,6 +10,11 @@ export const metadata: Metadata = {
   title: "Новости",
   description: `Новости и статьи паломнической службы «${siteConfig.name}».`,
   alternates: { canonical: "/news" },
+  openGraph: {
+    title: "Новости",
+    description: `Новости и статьи паломнической службы «${siteConfig.name}».`,
+    url: "/news",
+  },
 };
 
 export default async function NewsPage() {
