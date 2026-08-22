@@ -29,7 +29,7 @@ func RequireUserAuth(auth *application.AuthService) fiber.Handler {
 			return c.Status(fiber.StatusUnauthorized).JSON(dto.ErrorEnvelope{
 				Error: dto.ErrorBody{
 					Code:    "UNAUTHORIZED",
-					Message: "Authentication required",
+					Message: "Нужно войти в аккаунт",
 				},
 			})
 		}

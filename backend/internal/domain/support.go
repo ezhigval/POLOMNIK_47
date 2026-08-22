@@ -38,10 +38,10 @@ func NewSupportMessage(input SupportMessage) (SupportMessage, error) {
 		return SupportMessage{}, ErrInvalidID
 	}
 	if body == "" || utf8.RuneCountInString(body) > 4000 {
-		return SupportMessage{}, ErrInvalidReviewText
+		return SupportMessage{}, ErrInvalidSupportMessage
 	}
 	if input.SenderType != SupportSenderUser && input.SenderType != SupportSenderStaff {
-		return SupportMessage{}, ErrInvalidBookingStatus
+		return SupportMessage{}, ErrInvalidSupportSender
 	}
 
 	now := input.CreatedAt

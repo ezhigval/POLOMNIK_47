@@ -14,6 +14,7 @@ type Handler struct {
 	favorites    *application.FavoriteService
 	support      *application.SupportService
 	cms          *application.CMSService
+	news         *application.NewsService
 }
 
 func New(
@@ -26,6 +27,7 @@ func New(
 	favorites *application.FavoriteService,
 	support *application.SupportService,
 	cms *application.CMSService,
+	news *application.NewsService,
 ) *Handler {
 	return &Handler{
 		tours:        tours,
@@ -37,5 +39,6 @@ func New(
 		favorites:    favorites,
 		support:      support,
 		cms:          cms,
+		news:         news,
 	}
 }

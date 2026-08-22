@@ -14,15 +14,15 @@ const (
 )
 
 type User struct {
-	ID           uuid.UUID
-	Email        string
-	Phone        string
-	Name         string
-	PasswordHash string
+	ID            uuid.UUID
+	Email         string
+	Phone         string
+	Name          string
+	PasswordHash  string
 	OAuthProvider string
 	OAuthSubject  string
-	CreatedAt    time.Time
-	UpdatedAt    time.Time
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
 }
 
 type RegisterUserInput struct {

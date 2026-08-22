@@ -13,14 +13,14 @@ func (h *Handler) ListReviews(c *fiber.Ctx) error {
 	if value := c.Query("tour_id"); value != "" {
 		parsed, err := parseUUID(value)
 		if err != nil {
-			return writeAppError(c, err.(*AppError))
+			return writeAppError(c, err)
 		}
 		tourID = &parsed
 	}
 
 	rating, err := parseOptionalInt(c.Query("rating"))
 	if err != nil {
-		return writeAppError(c, err.(*AppError))
+		return writeAppError(c, err)
 	}
 
 	list, err := h.reviews.ListPublicReviews(c.Context(), ports.ReviewFilters{

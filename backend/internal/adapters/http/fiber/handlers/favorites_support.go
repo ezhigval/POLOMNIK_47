@@ -11,7 +11,7 @@ import (
 func (h *Handler) OAuthLogin(c *fiber.Ctx) error {
 	var req dto.OAuthLoginRequest
 	if err := c.BodyParser(&req); err != nil {
-		return writeAppError(c, &AppError{Status: 422, Code: "VALIDATION_ERROR", Message: "Invalid request body"})
+		return writeAppError(c, &AppError{Status: 422, Code: "VALIDATION_ERROR", Message: "Некорректные данные запроса"})
 	}
 
 	result, err := h.auth.OAuthLogin(c.Context(), application.OAuthLoginInput{
@@ -21,7 +21,7 @@ func (h *Handler) OAuthLogin(c *fiber.Ctx) error {
 		Name:     req.Name,
 	})
 	if err != nil {
-		return respondError(c, err, MapAuthError)
+		return respondError(c, err, MapError)
 	}
 
 	return c.JSON(dto.DataEnvelope[dto.AuthResponse]{
@@ -32,7 +32,7 @@ func (h *Handler) OAuthLogin(c *fiber.Ctx) error {
 func (h *Handler) ListFavoriteIDs(c *fiber.Ctx) error {
 	userID, ok := appmiddleware.UserIDFromContext(c)
 	if !ok {
-		return writeAppError(c, &AppError{Status: 401, Code: "UNAUTHORIZED", Message: "Authentication required"})
+		return writeAppError(c, &AppError{Status: 401, Code: "UNAUTHORIZED", Message: "Нужно войти в аккаунт"})
 	}
 
 	ids, err := h.favorites.ListFavoriteTourIDs(c.Context(), userID)
@@ -50,11 +50,11 @@ func (h *Handler) ListFavoriteIDs(c *fiber.Ctx) error {
 func (h *Handler) AddFavorite(c *fiber.Ctx) error {
 	userID, ok := appmiddleware.UserIDFromContext(c)
 	if !ok {
-		return writeAppError(c, &AppError{Status: 401, Code: "UNAUTHORIZED", Message: "Authentication required"})
+		return writeAppError(c, &AppError{Status: 401, Code: "UNAUTHORIZED", Message: "Нужно войти в аккаунт"})
 	}
 	tourID, err := parseUUID(c.Params("tourId"))
 	if err != nil {
-		return writeAppError(c, err.(*AppError))
+		return writeAppError(c, err)
 	}
 
 	if err := h.favorites.AddFavorite(c.Context(), userID, tourID); err != nil {
@@ -66,11 +66,11 @@ func (h *Handler) AddFavorite(c *fiber.Ctx) error {
 func (h *Handler) RemoveFavorite(c *fiber.Ctx) error {
 	userID, ok := appmiddleware.UserIDFromContext(c)
 	if !ok {
-		return writeAppError(c, &AppError{Status: 401, Code: "UNAUTHORIZED", Message: "Authentication required"})
+		return writeAppError(c, &AppError{Status: 401, Code: "UNAUTHORIZED", Message: "Нужно войти в аккаунт"})
 	}
 	tourID, err := parseUUID(c.Params("tourId"))
 	if err != nil {
-		return writeAppError(c, err.(*AppError))
+		return writeAppError(c, err)
 	}
 
 	if err := h.favorites.RemoveFavorite(c.Context(), userID, tourID); err != nil {
@@ -82,7 +82,7 @@ func (h *Handler) RemoveFavorite(c *fiber.Ctx) error {
 func (h *Handler) GetSupportThread(c *fiber.Ctx) error {
 	userID, ok := appmiddleware.UserIDFromContext(c)
 	if !ok {
-		return writeAppError(c, &AppError{Status: 401, Code: "UNAUTHORIZED", Message: "Authentication required"})
+		return writeAppError(c, &AppError{Status: 401, Code: "UNAUTHORIZED", Message: "Нужно войти в аккаунт"})
 	}
 
 	thread, messages, err := h.support.GetThread(c.Context(), userID)
@@ -98,12 +98,12 @@ func (h *Handler) GetSupportThread(c *fiber.Ctx) error {
 func (h *Handler) SendSupportMessage(c *fiber.Ctx) error {
 	userID, ok := appmiddleware.UserIDFromContext(c)
 	if !ok {
-		return writeAppError(c, &AppError{Status: 401, Code: "UNAUTHORIZED", Message: "Authentication required"})
+		return writeAppError(c, &AppError{Status: 401, Code: "UNAUTHORIZED", Message: "Нужно войти в аккаунт"})
 	}
 
 	var req dto.SendSupportMessageRequest
 	if err := c.BodyParser(&req); err != nil {
-		return writeAppError(c, &AppError{Status: 422, Code: "VALIDATION_ERROR", Message: "Invalid request body"})
+		return writeAppError(c, &AppError{Status: 422, Code: "VALIDATION_ERROR", Message: "Некорректные данные запроса"})
 	}
 
 	messages, err := h.support.SendUserMessage(c.Context(), userID, req.Body)

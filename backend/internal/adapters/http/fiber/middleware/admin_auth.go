@@ -12,7 +12,7 @@ func AdminAuth(adminToken string) fiber.Handler {
 			return c.Status(fiber.StatusServiceUnavailable).JSON(dto.ErrorEnvelope{
 				Error: dto.ErrorBody{
 					Code:    "SERVICE_UNAVAILABLE",
-					Message: "Management API is not configured",
+					Message: "Management API не настроен",
 				},
 			})
 		}
@@ -21,7 +21,7 @@ func AdminAuth(adminToken string) fiber.Handler {
 			return c.Status(fiber.StatusUnauthorized).JSON(dto.ErrorEnvelope{
 				Error: dto.ErrorBody{
 					Code:    "UNAUTHORIZED",
-					Message: "Invalid admin token",
+					Message: "Неверный токен администратора",
 				},
 			})
 		}

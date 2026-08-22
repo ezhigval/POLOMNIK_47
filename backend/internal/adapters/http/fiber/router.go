@@ -51,7 +51,7 @@ func NewRouter(cfg config.Config, log *slog.Logger, services Services, health He
 		}
 	}
 
-	h := handlers.New(services.Tours, services.Bookings, services.Reviews, services.Integrations, services.Webhooks, services.Auth, services.Favorites, services.Support, services.CMS)
+	h := handlers.New(services.Tours, services.Bookings, services.Reviews, services.Integrations, services.Webhooks, services.Auth, services.Favorites, services.Support, services.CMS, services.News)
 
 	ready := handlers.NewReadinessChecker(health.PingDB, health.PingCache, health.CacheRequired)
 
@@ -73,6 +73,7 @@ func NewRouter(cfg config.Config, log *slog.Logger, services Services, health He
 	v1.Get("/tours", h.ListTours)
 
 	v1.Get("/reviews", h.ListReviews)
+	v1.Get("/news", h.ListPublicNews)
 	v1.Get("/pages", h.ListPublicCMSPages)
 	v1.Get("/pages/:slug", h.GetPublicCMSPage)
 	v1.Post("/bookings", appmiddleware.RateLimit(30, time.Minute), appmiddleware.OptionalUserAuth(services.Auth), h.CreateBooking)
@@ -103,7 +104,14 @@ func NewRouter(cfg config.Config, log *slog.Logger, services Services, health He
 	management.Post("/reviews", h.ManagementCreateReview)
 	management.Patch("/reviews/:id/approve", h.ManagementApproveReview)
 	management.Patch("/reviews/:id/reject", h.ManagementRejectReview)
+	management.Patch("/reviews/:id/reply", h.ManagementSetReviewReply)
 	management.Delete("/reviews/:id", h.ManagementDeleteReview)
+
+	management.Get("/news", h.ManagementListNews)
+	management.Post("/news", h.ManagementCreateNews)
+	management.Get("/news/:id", h.ManagementGetNews)
+	management.Patch("/news/:id", h.ManagementUpdateNews)
+	management.Delete("/news/:id", h.ManagementDeleteNews)
 
 	management.Get("/integration-references", h.ManagementListIntegrationReferences)
 	management.Get("/outbox-events", h.ManagementListOutboxEvents)
@@ -147,7 +155,7 @@ func errorHandler(log *slog.Logger) fiber.ErrorHandler {
 
 		status := fiber.StatusInternalServerError
 		code := "INTERNAL_ERROR"
-		message := "Internal server error"
+		message := "Внутренняя ошибка сервера"
 
 		if fiberErr, ok := err.(*fiber.Error); ok {
 			status = fiberErr.Code

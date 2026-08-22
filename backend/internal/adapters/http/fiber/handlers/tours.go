@@ -12,23 +12,23 @@ import (
 func (h *Handler) ListTours(c *fiber.Ctx) error {
 	dateFrom, err := parseOptionalDate(c.Query("date_from"))
 	if err != nil {
-		return writeAppError(c, err.(*AppError))
+		return writeAppError(c, err)
 	}
 	dateTo, err := parseOptionalDate(c.Query("date_to"))
 	if err != nil {
-		return writeAppError(c, err.(*AppError))
+		return writeAppError(c, err)
 	}
 	priceMin, err := parseOptionalInt(c.Query("price_min"))
 	if err != nil {
-		return writeAppError(c, err.(*AppError))
+		return writeAppError(c, err)
 	}
 	priceMax, err := parseOptionalInt(c.Query("price_max"))
 	if err != nil {
-		return writeAppError(c, err.(*AppError))
+		return writeAppError(c, err)
 	}
 	minSlots, err := parseOptionalInt(c.Query("min_slots"))
 	if err != nil {
-		return writeAppError(c, err.(*AppError))
+		return writeAppError(c, err)
 	}
 
 	list, err := h.tours.ListPublicToursCached(c.Context(), ports.TourFilters{
@@ -59,7 +59,7 @@ func (h *Handler) ListTours(c *fiber.Ctx) error {
 func (h *Handler) GetTour(c *fiber.Ctx) error {
 	id, err := parseUUID(c.Params("id"))
 	if err != nil {
-		return writeAppError(c, err.(*AppError))
+		return writeAppError(c, err)
 	}
 
 	tour, err := h.tours.GetPublicTourCached(c.Context(), id)
@@ -96,7 +96,7 @@ func (h *Handler) ListPopularTours(c *fiber.Ctx) error {
 func (h *Handler) ListTourReviews(c *fiber.Ctx) error {
 	tourID, err := parseUUID(c.Params("id"))
 	if err != nil {
-		return writeAppError(c, err.(*AppError))
+		return writeAppError(c, err)
 	}
 
 	if _, err := h.tours.GetPublicTourCached(c.Context(), tourID); err != nil {

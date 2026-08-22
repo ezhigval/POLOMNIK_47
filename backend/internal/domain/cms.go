@@ -9,15 +9,16 @@ import (
 )
 
 const (
-	BlockTypeHero                 = "hero"
-	BlockTypeAbout                = "about"
-	BlockTypeWhyUs                = "why_us"
-	BlockTypeHowItWorks           = "how_it_works"
-	BlockTypeFAQ                  = "faq"
-	BlockTypeCTA                  = "cta"
-	BlockTypeRichText             = "rich_text"
-	BlockTypePopularDestinations  = "popular_destinations"
-	BlockTypeTestimonials         = "testimonials"
+	BlockTypeHero                = "hero"
+	BlockTypeAbout               = "about"
+	BlockTypeWhyUs               = "why_us"
+	BlockTypeHowItWorks          = "how_it_works"
+	BlockTypeFAQ                 = "faq"
+	BlockTypeCTA                 = "cta"
+	BlockTypeRichText            = "rich_text"
+	BlockTypePopularDestinations = "popular_destinations"
+	BlockTypeTestimonials        = "testimonials"
+	BlockTypeFeaturedRoute       = "featured_route"
 
 	PageSlugHome = "home"
 	PagePathHome = "/"
@@ -125,7 +126,7 @@ func NewBlock(input NewBlockInput) (Block, error) {
 
 func IsValidBlockType(blockType string) bool {
 	switch blockType {
-	case BlockTypeHero, BlockTypeAbout, BlockTypeWhyUs, BlockTypeHowItWorks, BlockTypeFAQ, BlockTypeCTA, BlockTypeRichText, BlockTypePopularDestinations, BlockTypeTestimonials:
+	case BlockTypeHero, BlockTypeAbout, BlockTypeWhyUs, BlockTypeHowItWorks, BlockTypeFAQ, BlockTypeCTA, BlockTypeRichText, BlockTypePopularDestinations, BlockTypeTestimonials, BlockTypeFeaturedRoute:
 		return true
 	default:
 		return false

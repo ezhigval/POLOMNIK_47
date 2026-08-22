@@ -74,6 +74,7 @@ type ReviewRepository interface {
 	CreateReview(ctx context.Context, review domain.Review) (domain.Review, error)
 	ApproveReview(ctx context.Context, id uuid.UUID) (domain.Review, error)
 	RejectReview(ctx context.Context, id uuid.UUID) (domain.Review, error)
+	UpdateReview(ctx context.Context, review domain.Review) (domain.Review, error)
 	DeleteReview(ctx context.Context, id uuid.UUID) error
 }
 
@@ -99,4 +100,21 @@ type SupportRepository interface {
 	ListMessages(ctx context.Context, threadID uuid.UUID) ([]domain.SupportMessage, error)
 	AddMessage(ctx context.Context, message domain.SupportMessage) (domain.SupportMessage, error)
 	TouchThread(ctx context.Context, threadID uuid.UUID) error
+}
+
+type NewsFilters struct {
+	PublishedOnly bool
+}
+
+type NewsList struct {
+	Items []domain.NewsArticle
+	Meta  PageMeta
+}
+
+type NewsRepository interface {
+	ListNews(ctx context.Context, filters NewsFilters, pagination Pagination) (NewsList, error)
+	GetNews(ctx context.Context, id uuid.UUID) (domain.NewsArticle, error)
+	CreateNews(ctx context.Context, article domain.NewsArticle) (domain.NewsArticle, error)
+	UpdateNews(ctx context.Context, article domain.NewsArticle) (domain.NewsArticle, error)
+	DeleteNews(ctx context.Context, id uuid.UUID) error
 }

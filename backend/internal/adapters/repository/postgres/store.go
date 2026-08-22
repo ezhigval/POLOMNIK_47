@@ -9,8 +9,8 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/lib/pq"
 	_ "github.com/jackc/pgx/v5/stdlib"
+	"github.com/lib/pq"
 
 	"polomnik/internal/domain"
 	"polomnik/internal/ports"
@@ -62,7 +62,7 @@ func (s *Store) ListTours(ctx context.Context, filters ports.TourFilters, pagina
 		return ports.TourList{}, err
 	}
 
-	rows, err := s.db.QueryContext(ctx, `
+	rows, err := s.conn(ctx).QueryContext(ctx, `
 SELECT id, slug, title, description, price, currency, date_start, date_end,
        slots_total, slots_left, location, images, is_active, is_hot,
        overbooking_enabled, created_at, updated_at
@@ -88,7 +88,7 @@ LIMIT $10 OFFSET $11
 }
 
 func (s *Store) GetTour(ctx context.Context, id uuid.UUID) (domain.Tour, error) {
-	row := s.db.QueryRowContext(ctx, `
+	row := s.conn(ctx).QueryRowContext(ctx, `
 SELECT id, slug, title, description, price, currency, date_start, date_end,
        slots_total, slots_left, location, images, is_active, is_hot,
        overbooking_enabled, created_at, updated_at
@@ -99,7 +99,7 @@ WHERE id = $1
 }
 
 func (s *Store) CreateTour(ctx context.Context, tour domain.Tour) (domain.Tour, error) {
-	row := s.db.QueryRowContext(ctx, `
+	row := s.conn(ctx).QueryRowContext(ctx, `
 INSERT INTO tours (
     id, slug, title, description, price, currency, date_start, date_end,
     slots_total, slots_left, location, images, is_active, is_hot,
@@ -118,7 +118,7 @@ RETURNING id, slug, title, description, price, currency, date_start, date_end,
 }
 
 func (s *Store) UpdateTour(ctx context.Context, tour domain.Tour) (domain.Tour, error) {
-	row := s.db.QueryRowContext(ctx, `
+	row := s.conn(ctx).QueryRowContext(ctx, `
 UPDATE tours
 SET slug = $2,
     title = $3,
@@ -146,7 +146,7 @@ RETURNING id, slug, title, description, price, currency, date_start, date_end,
 }
 
 func (s *Store) DeleteTour(ctx context.Context, id uuid.UUID) error {
-	result, err := s.db.ExecContext(ctx, `DELETE FROM tours WHERE id = $1`, id)
+	result, err := s.conn(ctx).ExecContext(ctx, `DELETE FROM tours WHERE id = $1`, id)
 	if err != nil {
 		return fmt.Errorf("delete tour: %w", err)
 	}
@@ -158,7 +158,7 @@ func (s *Store) ReserveSlots(ctx context.Context, tourID uuid.UUID, peopleCount 
 		return domain.ErrInvalidPeopleCount
 	}
 
-	result, err := s.db.ExecContext(ctx, `
+	result, err := s.conn(ctx).ExecContext(ctx, `
 UPDATE tours
 SET slots_left = slots_left - $2,
     updated_at = NOW()
@@ -180,7 +180,7 @@ WHERE id = $1 AND slots_left >= $2
 		return err
 	}
 	if tour.OverbookingEnabled {
-		_, err := s.db.ExecContext(ctx, `UPDATE tours SET updated_at = NOW() WHERE id = $1`, tourID)
+		_, err := s.conn(ctx).ExecContext(ctx, `UPDATE tours SET updated_at = NOW() WHERE id = $1`, tourID)
 		if err != nil {
 			return fmt.Errorf("touch overbooked tour: %w", err)
 		}
@@ -195,7 +195,7 @@ func (s *Store) ReleaseSlots(ctx context.Context, tourID uuid.UUID, peopleCount 
 		return domain.ErrInvalidPeopleCount
 	}
 
-	result, err := s.db.ExecContext(ctx, `
+	result, err := s.conn(ctx).ExecContext(ctx, `
 UPDATE tours
 SET slots_left = LEAST(slots_total, slots_left + $2),
     updated_at = NOW()
@@ -208,7 +208,7 @@ WHERE id = $1
 }
 
 func (s *Store) CreateBooking(ctx context.Context, booking domain.Booking) (domain.Booking, error) {
-	row := s.db.QueryRowContext(ctx, `
+	row := s.conn(ctx).QueryRowContext(ctx, `
 INSERT INTO bookings (
     id, tour_id, user_id, name, phone, email, people_count, status, total_price,
     comment, overbooked, source, created_at, updated_at
@@ -225,7 +225,7 @@ RETURNING id, tour_id, user_id, name, phone, email, people_count, status, total_
 }
 
 func (s *Store) GetBooking(ctx context.Context, id uuid.UUID) (domain.Booking, error) {
-	row := s.db.QueryRowContext(ctx, `
+	row := s.conn(ctx).QueryRowContext(ctx, `
 SELECT id, tour_id, user_id, name, phone, email, people_count, status, total_price,
        comment, overbooked, source, created_at, updated_at
 FROM bookings
@@ -243,7 +243,7 @@ func (s *Store) ListBookings(ctx context.Context, filters ports.BookingFilters, 
 		return ports.BookingList{}, err
 	}
 
-	rows, err := s.db.QueryContext(ctx, `
+	rows, err := s.conn(ctx).QueryContext(ctx, `
 SELECT id, tour_id, user_id, name, phone, email, people_count, status, total_price,
        comment, overbooked, source, created_at, updated_at
 FROM bookings
@@ -273,7 +273,7 @@ func (s *Store) UpdateBookingStatus(ctx context.Context, id uuid.UUID, status do
 		return domain.Booking{}, err
 	}
 
-	row := s.db.QueryRowContext(ctx, `
+	row := s.conn(ctx).QueryRowContext(ctx, `
 UPDATE bookings
 SET status = $2,
     updated_at = $3
@@ -285,7 +285,7 @@ RETURNING id, tour_id, user_id, name, phone, email, people_count, status, total_
 }
 
 func (s *Store) MarkBookingOverbooked(ctx context.Context, id uuid.UUID) (domain.Booking, error) {
-	row := s.db.QueryRowContext(ctx, `
+	row := s.conn(ctx).QueryRowContext(ctx, `
 UPDATE bookings
 SET overbooked = TRUE,
     updated_at = NOW()
@@ -305,8 +305,8 @@ func (s *Store) ListReviews(ctx context.Context, filters ports.ReviewFilters, pa
 		return ports.ReviewList{}, err
 	}
 
-	rows, err := s.db.QueryContext(ctx, `
-SELECT id, tour_id, client_name, rating, text, is_approved, created_at, updated_at
+	rows, err := s.conn(ctx).QueryContext(ctx, `
+SELECT `+reviewSelectColumns+`
 FROM reviews
 WHERE `+reviewWhereClause+`
 ORDER BY created_at DESC, id ASC
@@ -326,8 +326,8 @@ LIMIT $4 OFFSET $5
 }
 
 func (s *Store) GetReview(ctx context.Context, id uuid.UUID) (domain.Review, error) {
-	row := s.db.QueryRowContext(ctx, `
-SELECT id, tour_id, client_name, rating, text, is_approved, created_at, updated_at
+	row := s.conn(ctx).QueryRowContext(ctx, `
+SELECT `+reviewSelectColumns+`
 FROM reviews
 WHERE id = $1
 `, id)
@@ -335,15 +335,15 @@ WHERE id = $1
 }
 
 func (s *Store) CreateReview(ctx context.Context, review domain.Review) (domain.Review, error) {
-	row := s.db.QueryRowContext(ctx, `
+	row := s.conn(ctx).QueryRowContext(ctx, `
 INSERT INTO reviews (
-    id, tour_id, client_name, rating, text, is_approved, created_at, updated_at
+    id, tour_id, client_name, rating, text, is_approved, company_reply, company_replied_at, created_at, updated_at
 ) VALUES (
-    $1, $2, $3, $4, $5, $6, $7, $8
+    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10
 )
-RETURNING id, tour_id, client_name, rating, text, is_approved, created_at, updated_at
+RETURNING `+reviewSelectColumns+`
 `, review.ID, review.TourID, review.ClientName, review.Rating, review.Text,
-		review.IsApproved, review.CreatedAt, review.UpdatedAt)
+		review.IsApproved, review.CompanyReply, review.CompanyRepliedAt, review.CreatedAt, review.UpdatedAt)
 	return scanReview(row)
 }
 
@@ -356,23 +356,37 @@ func (s *Store) RejectReview(ctx context.Context, id uuid.UUID) (domain.Review, 
 }
 
 func (s *Store) DeleteReview(ctx context.Context, id uuid.UUID) error {
-	result, err := s.db.ExecContext(ctx, `DELETE FROM reviews WHERE id = $1`, id)
+	result, err := s.conn(ctx).ExecContext(ctx, `DELETE FROM reviews WHERE id = $1`, id)
 	if err != nil {
 		return fmt.Errorf("delete review: %w", err)
 	}
 	return requireAffected(result)
 }
 
+func (s *Store) UpdateReview(ctx context.Context, review domain.Review) (domain.Review, error) {
+	row := s.conn(ctx).QueryRowContext(ctx, `
+UPDATE reviews
+SET company_reply = $2,
+    company_replied_at = $3,
+    updated_at = $4
+WHERE id = $1
+RETURNING `+reviewSelectColumns+`
+`, review.ID, review.CompanyReply, review.CompanyRepliedAt, review.UpdatedAt)
+	return scanReview(row)
+}
+
 func (s *Store) setReviewApproval(ctx context.Context, id uuid.UUID, approved bool) (domain.Review, error) {
-	row := s.db.QueryRowContext(ctx, `
+	row := s.conn(ctx).QueryRowContext(ctx, `
 UPDATE reviews
 SET is_approved = $2,
     updated_at = NOW()
 WHERE id = $1
-RETURNING id, tour_id, client_name, rating, text, is_approved, created_at, updated_at
+RETURNING `+reviewSelectColumns+`
 `, id, approved)
 	return scanReview(row)
 }
+
+const reviewSelectColumns = `id, tour_id, client_name, rating, text, is_approved, company_reply, company_replied_at, created_at, updated_at`
 
 const tourWhereClause = `
 ($1::date IS NULL OR date_end >= $1) AND
@@ -542,6 +556,7 @@ func scanBookings(rows *sql.Rows) ([]domain.Booking, error) {
 
 func scanReview(row scanner) (domain.Review, error) {
 	var review domain.Review
+	var companyRepliedAt sql.NullTime
 	err := row.Scan(
 		&review.ID,
 		&review.TourID,
@@ -549,6 +564,8 @@ func scanReview(row scanner) (domain.Review, error) {
 		&review.Rating,
 		&review.Text,
 		&review.IsApproved,
+		&review.CompanyReply,
+		&companyRepliedAt,
 		&review.CreatedAt,
 		&review.UpdatedAt,
 	)
@@ -557,6 +574,10 @@ func scanReview(row scanner) (domain.Review, error) {
 	}
 	if err != nil {
 		return domain.Review{}, fmt.Errorf("scan review: %w", err)
+	}
+	if companyRepliedAt.Valid {
+		t := companyRepliedAt.Time.UTC()
+		review.CompanyRepliedAt = &t
 	}
 	return review, nil
 }

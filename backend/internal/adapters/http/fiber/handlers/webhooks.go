@@ -12,8 +12,8 @@ type bitrixWebhookRequest struct {
 	Event string `json:"event"`
 	Data  struct {
 		FIELDS struct {
-			ID       string `json:"ID"`
-			STAGEID  string `json:"STAGE_ID"`
+			ID      string `json:"ID"`
+			STAGEID string `json:"STAGE_ID"`
 		} `json:"FIELDS"`
 	} `json:"data"`
 }

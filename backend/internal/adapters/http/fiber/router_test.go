@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"log/slog"
 	"net/http"
@@ -79,6 +80,8 @@ func TestNotFoundUsesErrorEnvelope(t *testing.T) {
 func TestCreateBookingAndListTours(t *testing.T) {
 	store := memory.NewStore()
 	app := newTestAppWithStore(store, "secret-token")
+	start := time.Now().UTC().AddDate(0, 0, 30).Format("2006-01-02")
+	end := time.Now().UTC().AddDate(0, 0, 34).Format("2006-01-02")
 
 	createTourReq := httptest.NewRequest(http.MethodPost, "/api/v1/management/tours", bytes.NewBufferString(`{
 		"slug": "pilgrimage",
@@ -86,8 +89,8 @@ func TestCreateBookingAndListTours(t *testing.T) {
 		"description": "Test",
 		"price": 15000,
 		"currency": "RUB",
-		"date_start": "2026-08-01",
-		"date_end": "2026-08-05",
+		"date_start": "`+start+`",
+		"date_end": "`+end+`",
 		"slots_total": 10,
 		"slots_left": 10,
 		"location": "Moscow",
@@ -255,8 +258,8 @@ func testTourForHandler(t *testing.T, store *memory.Store) domain.Tour {
 		Title:      "Handler Test Tour",
 		Price:      15000,
 		Currency:   "RUB",
-		DateStart:  time.Date(2026, 9, 1, 0, 0, 0, 0, time.UTC),
-		DateEnd:    time.Date(2026, 9, 5, 0, 0, 0, 0, time.UTC),
+		DateStart:  time.Now().UTC().AddDate(0, 0, 30),
+		DateEnd:    time.Now().UTC().AddDate(0, 0, 34),
 		SlotsTotal: 10,
 		SlotsLeft:  10,
 		Location:   "Moscow",
@@ -294,6 +297,160 @@ func TestOAuthRequiresInternalSecret(t *testing.T) {
 	}
 }
 
+func TestCreateAndListNews(t *testing.T) {
+	store := memory.NewStore()
+	app := newTestAppWithStore(store, "secret-token")
+
+	createReq := httptest.NewRequest(http.MethodPost, "/api/v1/management/news", bytes.NewBufferString(`{
+		"slug": "tikhvin-path",
+		"title": "Тихвинский путь",
+		"excerpt": "Анонс",
+		"body": "Первый абзац.\n\nВторой абзац.",
+		"image_url": "/images/hero/tikhvin-monastery.webp",
+		"published_at": "2026-08-21",
+		"is_published": true,
+		"sort_order": 0
+	}`))
+	createReq.Header.Set("Content-Type", "application/json")
+	createReq.Header.Set("X-Admin-Token", "secret-token")
+
+	createResp, err := app.Test(createReq)
+	if err != nil {
+		t.Fatalf("create news request failed: %v", err)
+	}
+	if createResp.StatusCode != http.StatusCreated {
+		t.Fatalf("expected 201, got %d", createResp.StatusCode)
+	}
+
+	listReq := httptest.NewRequest(http.MethodGet, "/api/v1/news", nil)
+	listResp, err := app.Test(listReq)
+	if err != nil {
+		t.Fatalf("list news request failed: %v", err)
+	}
+	if listResp.StatusCode != http.StatusOK {
+		t.Fatalf("expected 200, got %d", listResp.StatusCode)
+	}
+
+	var body struct {
+		Data []struct {
+			Slug  string `json:"slug"`
+			Title string `json:"title"`
+		} `json:"data"`
+	}
+	if err := json.NewDecoder(listResp.Body).Decode(&body); err != nil {
+		t.Fatalf("decode list news: %v", err)
+	}
+	if len(body.Data) != 1 || body.Data[0].Slug != "tikhvin-path" {
+		t.Fatalf("expected one published article, got %+v", body.Data)
+	}
+}
+
+func TestSetCompanyReplyOnReview(t *testing.T) {
+	store := memory.NewStore()
+	app := newTestAppWithStore(store, "secret-token")
+
+	createTourReq := httptest.NewRequest(http.MethodPost, "/api/v1/management/tours", bytes.NewBufferString(`{
+		"slug": "optina",
+		"title": "Оптина пустынь",
+		"description": "Test",
+		"price": 15000,
+		"currency": "RUB",
+		"date_start": "2026-08-01",
+		"date_end": "2026-08-05",
+		"slots_total": 10,
+		"slots_left": 10,
+		"location": "Козельск",
+		"images": [],
+		"is_active": true,
+		"is_hot": false,
+		"overbooking_enabled": false
+	}`))
+	createTourReq.Header.Set("Content-Type", "application/json")
+	createTourReq.Header.Set("X-Admin-Token", "secret-token")
+
+	createTourResp, err := app.Test(createTourReq)
+	if err != nil {
+		t.Fatalf("create tour request failed: %v", err)
+	}
+	if createTourResp.StatusCode != http.StatusCreated {
+		t.Fatalf("expected 201, got %d", createTourResp.StatusCode)
+	}
+
+	var createdTour struct {
+		Data struct {
+			ID string `json:"id"`
+		} `json:"data"`
+	}
+	if err := json.NewDecoder(createTourResp.Body).Decode(&createdTour); err != nil {
+		t.Fatalf("decode created tour: %v", err)
+	}
+
+	createReviewBody := fmt.Sprintf(`{
+		"tour_id": %q,
+		"client_name": "Мария К.",
+		"rating": 5,
+		"text": "Поездка оставила глубокое впечатление.",
+		"is_approved": true
+	}`, createdTour.Data.ID)
+	createReviewReq := httptest.NewRequest(http.MethodPost, "/api/v1/management/reviews", bytes.NewBufferString(createReviewBody))
+	createReviewReq.Header.Set("Content-Type", "application/json")
+	createReviewReq.Header.Set("X-Admin-Token", "secret-token")
+
+	createReviewResp, err := app.Test(createReviewReq)
+	if err != nil {
+		t.Fatalf("create review request failed: %v", err)
+	}
+	if createReviewResp.StatusCode != http.StatusCreated {
+		t.Fatalf("expected 201, got %d", createReviewResp.StatusCode)
+	}
+
+	var createdReview struct {
+		Data struct {
+			ID string `json:"id"`
+		} `json:"data"`
+	}
+	if err := json.NewDecoder(createReviewResp.Body).Decode(&createdReview); err != nil {
+		t.Fatalf("decode created review: %v", err)
+	}
+
+	replyReq := httptest.NewRequest(
+		http.MethodPatch,
+		"/api/v1/management/reviews/"+createdReview.Data.ID+"/reply",
+		bytes.NewBufferString(`{"company_reply":"Благодарим за добрые слова."}`),
+	)
+	replyReq.Header.Set("Content-Type", "application/json")
+	replyReq.Header.Set("X-Admin-Token", "secret-token")
+
+	replyResp, err := app.Test(replyReq)
+	if err != nil {
+		t.Fatalf("set reply request failed: %v", err)
+	}
+	if replyResp.StatusCode != http.StatusOK {
+		t.Fatalf("expected 200, got %d", replyResp.StatusCode)
+	}
+
+	listReq := httptest.NewRequest(http.MethodGet, "/api/v1/reviews", nil)
+	listResp, err := app.Test(listReq)
+	if err != nil {
+		t.Fatalf("list reviews request failed: %v", err)
+	}
+	if listResp.StatusCode != http.StatusOK {
+		t.Fatalf("expected 200, got %d", listResp.StatusCode)
+	}
+
+	var body struct {
+		Data []struct {
+			CompanyReply string `json:"company_reply"`
+		} `json:"data"`
+	}
+	if err := json.NewDecoder(listResp.Body).Decode(&body); err != nil {
+		t.Fatalf("decode list reviews: %v", err)
+	}
+	if len(body.Data) != 1 || body.Data[0].CompanyReply != "Благодарим за добрые слова." {
+		t.Fatalf("expected public review with company reply, got %+v", body.Data)
+	}
+}
+
 func newTestApp(cfg config.Config) *fiber.App {
 	return newTestAppWithStore(memory.NewStore(), cfg.AdminToken)
 }
@@ -305,6 +462,7 @@ func newTestAppWithStore(store *memory.Store, adminToken string) *fiber.App {
 		noop.NewCRMAdapter(),
 		noop.NewAccountingAdapter(),
 		notificationnoop.New(),
+		store,
 	)
 	return NewRouter(config.Config{
 		AppEnv:            "test",
@@ -313,16 +471,19 @@ func newTestAppWithStore(store *memory.Store, adminToken string) *fiber.App {
 		InternalAPISecret: config.DefaultInternalAPISecret,
 		JWTSecret:         config.DefaultJWTSecret,
 	}, discardLogger(), Services{
-		Tours:    application.NewTourService(store, nil, noop.NewCRMAdapter()),
-		Bookings: bookingService,
-		Reviews:  application.NewReviewService(store, store, noop.NewCRMAdapter()),
+		Tours:        application.NewTourService(store, nil, noop.NewCRMAdapter()),
+		Bookings:     bookingService,
+		Reviews:      application.NewReviewService(store, store, noop.NewCRMAdapter()),
 		Integrations: application.NewIntegrationService(store, store),
 		Webhooks: application.NewWebhookService(
 			bookingService,
 			noop.NewCRMInboundAdapter(),
-			config.Config{},
+			"",
+			false,
 		),
 		Auth: application.NewAuthService(store, store, config.DefaultJWTSecret, 24*time.Hour),
+		CMS:  application.NewCMSService(store),
+		News: application.NewNewsService(store),
 	}, HealthDeps{})
 }
 

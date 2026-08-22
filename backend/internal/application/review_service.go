@@ -72,3 +72,13 @@ func (s *ReviewService) RejectReview(ctx context.Context, id uuid.UUID) (domain.
 func (s *ReviewService) DeleteReview(ctx context.Context, id uuid.UUID) error {
 	return s.reviews.DeleteReview(ctx, id)
 }
+
+func (s *ReviewService) SetCompanyReply(ctx context.Context, id uuid.UUID, text string) (domain.Review, error) {
+	review, err := s.reviews.GetReview(ctx, id)
+	if err != nil {
+		return domain.Review{}, err
+	}
+
+	review.SetCompanyReply(text)
+	return s.reviews.UpdateReview(ctx, review)
+}

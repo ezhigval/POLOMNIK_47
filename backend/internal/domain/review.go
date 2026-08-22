@@ -8,14 +8,16 @@ import (
 )
 
 type Review struct {
-	ID         uuid.UUID
-	TourID     uuid.UUID
-	ClientName string
-	Rating     int
-	Text       string
-	IsApproved bool
-	CreatedAt  time.Time
-	UpdatedAt  time.Time
+	ID               uuid.UUID
+	TourID           uuid.UUID
+	ClientName       string
+	Rating           int
+	Text             string
+	IsApproved       bool
+	CompanyReply     string
+	CompanyRepliedAt *time.Time
+	CreatedAt        time.Time
+	UpdatedAt        time.Time
 }
 
 type NewReviewInput struct {
@@ -67,4 +69,15 @@ func (r *Review) Approve() {
 func (r *Review) Reject() {
 	r.IsApproved = false
 	r.UpdatedAt = time.Now().UTC()
+}
+
+func (r *Review) SetCompanyReply(text string) {
+	r.CompanyReply = strings.TrimSpace(text)
+	now := time.Now().UTC()
+	r.UpdatedAt = now
+	if r.CompanyReply == "" {
+		r.CompanyRepliedAt = nil
+		return
+	}
+	r.CompanyRepliedAt = &now
 }

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"net/mail"
 	"strconv"
 	"strings"
@@ -28,7 +29,7 @@ func parseOptionalDate(value string) (*time.Time, error) {
 		return nil, &AppError{
 			Status:  422,
 			Code:    "VALIDATION_ERROR",
-			Message: "Invalid date format, expected YYYY-MM-DD",
+			Message: "Некорректная дата, ожидается ГГГГ-ММ-ДД",
 		}
 	}
 	return &parsed, nil
@@ -43,7 +44,7 @@ func parseRequiredDate(value string) (time.Time, error) {
 		return time.Time{}, &AppError{
 			Status:  422,
 			Code:    "VALIDATION_ERROR",
-			Message: "Date is required",
+			Message: "Укажите дату",
 		}
 	}
 	return *parsed, nil
@@ -55,7 +56,7 @@ func parseUUID(value string) (uuid.UUID, error) {
 		return uuid.Nil, &AppError{
 			Status:  422,
 			Code:    "VALIDATION_ERROR",
-			Message: "Invalid UUID",
+			Message: "Некорректный идентификатор",
 		}
 	}
 	return id, nil
@@ -71,7 +72,7 @@ func parseOptionalInt(value string) (*int, error) {
 		return nil, &AppError{
 			Status:  422,
 			Code:    "VALIDATION_ERROR",
-			Message: "Invalid integer value",
+			Message: "Некорректное число",
 		}
 	}
 	return &parsed, nil
@@ -95,14 +96,14 @@ func validateEmail(email string) error {
 		return &AppError{
 			Status:  422,
 			Code:    "VALIDATION_ERROR",
-			Message: "Invalid email address",
+			Message: "Некорректный email",
 		}
 	}
 	return nil
 }
 
 func respondError(c *fiber.Ctx, err error, mapper func(error) *AppError) error {
-	if appErr, ok := err.(*AppError); ok {
+	if appErr := asAppError(err); appErr != nil {
 		return writeAppError(c, appErr)
 	}
 	if appErr := mapper(err); appErr != nil {
@@ -111,7 +112,24 @@ func respondError(c *fiber.Ctx, err error, mapper func(error) *AppError) error {
 	return err
 }
 
-func writeAppError(c *fiber.Ctx, appErr *AppError) error {
+func asAppError(err error) *AppError {
+	var appErr *AppError
+	if errors.As(err, &appErr) {
+		return appErr
+	}
+	return nil
+}
+
+func writeAppError(c *fiber.Ctx, err error) error {
+	appErr := asAppError(err)
+	if appErr == nil {
+		return c.Status(500).JSON(fiber.Map{
+			"error": fiber.Map{
+				"code":    "INTERNAL_ERROR",
+				"message": "Внутренняя ошибка сервера",
+			},
+		})
+	}
 	return c.Status(appErr.Status).JSON(fiber.Map{
 		"error": fiber.Map{
 			"code":    appErr.Code,

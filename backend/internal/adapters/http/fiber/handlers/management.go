@@ -29,7 +29,7 @@ func (h *Handler) ManagementListTours(c *fiber.Ctx) error {
 func (h *Handler) ManagementGetTour(c *fiber.Ctx) error {
 	id, err := parseUUID(c.Params("id"))
 	if err != nil {
-		return writeAppError(c, err.(*AppError))
+		return writeAppError(c, err)
 	}
 
 	tour, err := h.tours.GetTour(c.Context(), id)
@@ -48,17 +48,17 @@ func (h *Handler) ManagementCreateTour(c *fiber.Ctx) error {
 		return writeAppError(c, &AppError{
 			Status:  422,
 			Code:    "VALIDATION_ERROR",
-			Message: "Invalid request body",
+			Message: "Некорректные данные запроса",
 		})
 	}
 
 	dateStart, err := parseRequiredDate(req.DateStart)
 	if err != nil {
-		return writeAppError(c, err.(*AppError))
+		return writeAppError(c, err)
 	}
 	dateEnd, err := parseRequiredDate(req.DateEnd)
 	if err != nil {
-		return writeAppError(c, err.(*AppError))
+		return writeAppError(c, err)
 	}
 
 	tour, err := h.tours.CreateTour(c.Context(), application.CreateTourInput{
@@ -89,7 +89,7 @@ func (h *Handler) ManagementCreateTour(c *fiber.Ctx) error {
 func (h *Handler) ManagementUpdateTour(c *fiber.Ctx) error {
 	id, err := parseUUID(c.Params("id"))
 	if err != nil {
-		return writeAppError(c, err.(*AppError))
+		return writeAppError(c, err)
 	}
 
 	var req dto.TourUpsertRequest
@@ -97,17 +97,17 @@ func (h *Handler) ManagementUpdateTour(c *fiber.Ctx) error {
 		return writeAppError(c, &AppError{
 			Status:  422,
 			Code:    "VALIDATION_ERROR",
-			Message: "Invalid request body",
+			Message: "Некорректные данные запроса",
 		})
 	}
 
 	dateStart, err := parseRequiredDate(req.DateStart)
 	if err != nil {
-		return writeAppError(c, err.(*AppError))
+		return writeAppError(c, err)
 	}
 	dateEnd, err := parseRequiredDate(req.DateEnd)
 	if err != nil {
-		return writeAppError(c, err.(*AppError))
+		return writeAppError(c, err)
 	}
 
 	tour, err := h.tours.UpdateTour(c.Context(), id, application.UpdateTourInput{
@@ -138,7 +138,7 @@ func (h *Handler) ManagementUpdateTour(c *fiber.Ctx) error {
 func (h *Handler) ManagementDeleteTour(c *fiber.Ctx) error {
 	id, err := parseUUID(c.Params("id"))
 	if err != nil {
-		return writeAppError(c, err.(*AppError))
+		return writeAppError(c, err)
 	}
 
 	if err := h.tours.DeleteTour(c.Context(), id); err != nil {
@@ -168,7 +168,7 @@ func (h *Handler) ManagementListBookings(c *fiber.Ctx) error {
 func (h *Handler) ManagementGetBooking(c *fiber.Ctx) error {
 	id, err := parseUUID(c.Params("id"))
 	if err != nil {
-		return writeAppError(c, err.(*AppError))
+		return writeAppError(c, err)
 	}
 
 	booking, err := h.bookings.GetBooking(c.Context(), id)
@@ -184,7 +184,7 @@ func (h *Handler) ManagementGetBooking(c *fiber.Ctx) error {
 func (h *Handler) ManagementUpdateBookingStatus(c *fiber.Ctx) error {
 	id, err := parseUUID(c.Params("id"))
 	if err != nil {
-		return writeAppError(c, err.(*AppError))
+		return writeAppError(c, err)
 	}
 
 	var req dto.UpdateBookingStatusRequest
@@ -192,7 +192,7 @@ func (h *Handler) ManagementUpdateBookingStatus(c *fiber.Ctx) error {
 		return writeAppError(c, &AppError{
 			Status:  422,
 			Code:    "VALIDATION_ERROR",
-			Message: "Invalid request body",
+			Message: "Некорректные данные запроса",
 		})
 	}
 
@@ -230,13 +230,13 @@ func (h *Handler) ManagementCreateReview(c *fiber.Ctx) error {
 		return writeAppError(c, &AppError{
 			Status:  422,
 			Code:    "VALIDATION_ERROR",
-			Message: "Invalid request body",
+			Message: "Некорректные данные запроса",
 		})
 	}
 
 	tourID, err := parseUUID(req.TourID)
 	if err != nil {
-		return writeAppError(c, err.(*AppError))
+		return writeAppError(c, err)
 	}
 
 	review, err := h.reviews.CreateReview(c.Context(), application.CreateReviewInput{
@@ -258,7 +258,7 @@ func (h *Handler) ManagementCreateReview(c *fiber.Ctx) error {
 func (h *Handler) ManagementApproveReview(c *fiber.Ctx) error {
 	id, err := parseUUID(c.Params("id"))
 	if err != nil {
-		return writeAppError(c, err.(*AppError))
+		return writeAppError(c, err)
 	}
 
 	review, err := h.reviews.ApproveReview(c.Context(), id)
@@ -274,7 +274,7 @@ func (h *Handler) ManagementApproveReview(c *fiber.Ctx) error {
 func (h *Handler) ManagementRejectReview(c *fiber.Ctx) error {
 	id, err := parseUUID(c.Params("id"))
 	if err != nil {
-		return writeAppError(c, err.(*AppError))
+		return writeAppError(c, err)
 	}
 
 	review, err := h.reviews.RejectReview(c.Context(), id)
@@ -287,10 +287,35 @@ func (h *Handler) ManagementRejectReview(c *fiber.Ctx) error {
 	})
 }
 
+func (h *Handler) ManagementSetReviewReply(c *fiber.Ctx) error {
+	id, err := parseUUID(c.Params("id"))
+	if err != nil {
+		return writeAppError(c, err)
+	}
+
+	var req dto.SetCompanyReplyRequest
+	if err := c.BodyParser(&req); err != nil {
+		return writeAppError(c, &AppError{
+			Status:  422,
+			Code:    "VALIDATION_ERROR",
+			Message: "Некорректные данные запроса",
+		})
+	}
+
+	review, err := h.reviews.SetCompanyReply(c.Context(), id, req.CompanyReply)
+	if err != nil {
+		return respondError(c, err, MapError)
+	}
+
+	return c.JSON(dto.DataEnvelope[dto.ManagementReviewResponse]{
+		Data: dto.ToManagementReviewResponse(review),
+	})
+}
+
 func (h *Handler) ManagementDeleteReview(c *fiber.Ctx) error {
 	id, err := parseUUID(c.Params("id"))
 	if err != nil {
-		return writeAppError(c, err.(*AppError))
+		return writeAppError(c, err)
 	}
 
 	if err := h.reviews.DeleteReview(c.Context(), id); err != nil {

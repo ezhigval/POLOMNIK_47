@@ -9,12 +9,12 @@ import (
 )
 
 const (
-	OutboxEventCRMPushBooking         = "crm.push_booking"
-	OutboxEventCRMUpdateBookingStatus = "crm.update_booking_status"
-	OutboxEventCRMSyncTour            = "crm.sync_tour"
-	OutboxEventAccountingExport       = "accounting.export_booking"
-	OutboxEventAccountingCounterparty = "accounting.sync_counterparty"
-	OutboxEventCRMPushReview          = "crm.push_review"
+	OutboxEventCRMPushBooking             = "crm.push_booking"
+	OutboxEventCRMUpdateBookingStatus     = "crm.update_booking_status"
+	OutboxEventCRMSyncTour                = "crm.sync_tour"
+	OutboxEventAccountingExport           = "accounting.export_booking"
+	OutboxEventAccountingCounterparty     = "accounting.sync_counterparty"
+	OutboxEventCRMPushReview              = "crm.push_review"
 	OutboxEventNotificationBookingCreated = "notification.booking.created"
 	OutboxEventNotificationBookingStatus  = "notification.booking.status_changed"
 )

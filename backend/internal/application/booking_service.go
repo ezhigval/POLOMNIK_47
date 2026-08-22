@@ -17,6 +17,7 @@ type BookingService struct {
 	crm           ports.CRMPort
 	accounting    ports.AccountingPort
 	notifications ports.NotificationPort
+	tx            ports.TransactionManager
 }
 
 func NewBookingService(
@@ -25,6 +26,7 @@ func NewBookingService(
 	crm ports.CRMPort,
 	accounting ports.AccountingPort,
 	notifications ports.NotificationPort,
+	tx ports.TransactionManager,
 ) *BookingService {
 	return &BookingService{
 		bookings:      bookings,
@@ -32,6 +34,7 @@ func NewBookingService(
 		crm:           crm,
 		accounting:    accounting,
 		notifications: notifications,
+		tx:            tx,
 	}
 }
 
@@ -83,22 +86,27 @@ func (s *BookingService) CreateBooking(ctx context.Context, input CreateBookingI
 		return CreateBookingResult{}, err
 	}
 
-	if err := s.tours.ReserveSlots(ctx, tour.ID, booking.PeopleCount); err != nil {
-		return CreateBookingResult{}, err
-	}
-
-	created, err := s.bookings.CreateBooking(ctx, booking)
-	if err != nil {
-		_ = s.tours.ReleaseSlots(ctx, tour.ID, booking.PeopleCount)
-		return CreateBookingResult{}, err
-	}
-
-	if created.Overbooked {
-		created, err = s.bookings.MarkBookingOverbooked(ctx, created.ID)
-		if err != nil {
-			_ = s.tours.ReleaseSlots(ctx, tour.ID, booking.PeopleCount)
-			return CreateBookingResult{}, err
+	var created domain.Booking
+	err = s.runInTx(ctx, func(ctx context.Context) error {
+		if err := s.tours.ReserveSlots(ctx, tour.ID, booking.PeopleCount); err != nil {
+			return err
 		}
+
+		created, err = s.bookings.CreateBooking(ctx, booking)
+		if err != nil {
+			return err
+		}
+
+		if created.Overbooked {
+			created, err = s.bookings.MarkBookingOverbooked(ctx, created.ID)
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		return CreateBookingResult{}, err
 	}
 
 	result, err := s.crm.PushBooking(ctx, created)
@@ -110,6 +118,13 @@ func (s *BookingService) CreateBooking(ctx context.Context, input CreateBookingI
 		Booking:           created,
 		IntegrationStatus: integrationStatus,
 	}, nil
+}
+
+func (s *BookingService) runInTx(ctx context.Context, fn func(context.Context) error) error {
+	if s.tx == nil {
+		return fn(ctx)
+	}
+	return s.tx.WithinTransaction(ctx, fn)
 }
 
 func (s *BookingService) GetBooking(ctx context.Context, id uuid.UUID) (domain.Booking, error) {

@@ -13,8 +13,8 @@ import (
 
 	"polomnik/internal/adapters/integration/bitrix"
 	"polomnik/internal/adapters/integration/noop"
-	notificationnoop "polomnik/internal/adapters/notification/noop"
 	"polomnik/internal/adapters/integration/recording"
+	notificationnoop "polomnik/internal/adapters/notification/noop"
 	"polomnik/internal/adapters/repository/memory"
 	"polomnik/internal/config"
 	"polomnik/internal/domain"

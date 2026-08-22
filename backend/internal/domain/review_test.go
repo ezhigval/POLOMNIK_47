@@ -37,6 +37,29 @@ func TestReviewApproveAndReject(t *testing.T) {
 	}
 }
 
+func TestReviewSetCompanyReply(t *testing.T) {
+	review, err := NewReview(validReviewInput())
+	if err != nil {
+		t.Fatalf("create review: %v", err)
+	}
+
+	review.SetCompanyReply("  Благодарим за отзыв.  ")
+	if review.CompanyReply != "Благодарим за отзыв." {
+		t.Fatalf("unexpected reply %q", review.CompanyReply)
+	}
+	if review.CompanyRepliedAt == nil {
+		t.Fatal("expected replied_at to be set")
+	}
+
+	review.SetCompanyReply("   ")
+	if review.CompanyReply != "" {
+		t.Fatalf("expected empty reply, got %q", review.CompanyReply)
+	}
+	if review.CompanyRepliedAt != nil {
+		t.Fatal("expected replied_at to be cleared")
+	}
+}
+
 func validReviewInput(mutators ...func(*NewReviewInput)) NewReviewInput {
 	input := NewReviewInput{
 		ID:         uuid.New(),

@@ -21,19 +21,20 @@ func testDate(year int, month time.Month, day int) time.Time {
 }
 
 func testTour(mutators ...func(*domain.NewTourInput)) domain.Tour {
+	start := time.Now().UTC().Truncate(24*time.Hour).AddDate(0, 0, 30)
 	input := domain.NewTourInput{
 		ID:         testUUID("11111111-1111-1111-1111-111111111111"),
 		Slug:       "test-tour",
 		Title:      "Test Tour",
 		Price:      10000,
 		Currency:   "RUB",
-		DateStart:  testDate(2026, 8, 1),
-		DateEnd:    testDate(2026, 8, 5),
+		DateStart:  start,
+		DateEnd:    start.AddDate(0, 0, 4),
 		SlotsTotal: 10,
 		SlotsLeft:  10,
 		Location:   "Moscow",
 		IsActive:   true,
-		Now:        testDate(2026, 5, 20),
+		Now:        time.Now().UTC(),
 	}
 	for _, mutate := range mutators {
 		mutate(&input)

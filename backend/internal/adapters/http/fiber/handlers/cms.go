@@ -53,7 +53,7 @@ func (h *Handler) ManagementListCMSPages(c *fiber.Ctx) error {
 func (h *Handler) ManagementGetCMSPage(c *fiber.Ctx) error {
 	id, err := parseUUID(c.Params("id"))
 	if err != nil {
-		return writeAppError(c, err.(*AppError))
+		return writeAppError(c, err)
 	}
 	page, err := h.cms.GetPage(c.Context(), id)
 	if err != nil {
@@ -65,7 +65,7 @@ func (h *Handler) ManagementGetCMSPage(c *fiber.Ctx) error {
 func (h *Handler) ManagementBootstrapHomeCMSPage(c *fiber.Ctx) error {
 	page, err := h.cms.BootstrapHomePage(c.Context())
 	if err != nil {
-		return respondError(c, err, MapCMSError)
+		return respondError(c, err, MapError)
 	}
 	return c.Status(fiber.StatusCreated).JSON(dto.DataEnvelope[dto.CMSPageResponse]{Data: dto.ToCMSPageResponse(page)})
 }
@@ -73,7 +73,7 @@ func (h *Handler) ManagementBootstrapHomeCMSPage(c *fiber.Ctx) error {
 func (h *Handler) ManagementCreateCMSPage(c *fiber.Ctx) error {
 	var req dto.CMSPageCreateRequest
 	if err := c.BodyParser(&req); err != nil {
-		return writeAppError(c, &AppError{Status: 422, Code: "VALIDATION_ERROR", Message: "Invalid request body"})
+		return writeAppError(c, &AppError{Status: 422, Code: "VALIDATION_ERROR", Message: "Некорректные данные запроса"})
 	}
 	published := true
 	if req.IsPublished != nil {
@@ -86,7 +86,7 @@ func (h *Handler) ManagementCreateCMSPage(c *fiber.Ctx) error {
 		IsPublished: published,
 	})
 	if err != nil {
-		return respondError(c, err, MapCMSError)
+		return respondError(c, err, MapError)
 	}
 	return c.Status(fiber.StatusCreated).JSON(dto.DataEnvelope[dto.CMSPageResponse]{Data: dto.ToCMSPageResponse(page)})
 }
@@ -94,11 +94,11 @@ func (h *Handler) ManagementCreateCMSPage(c *fiber.Ctx) error {
 func (h *Handler) ManagementUpdateCMSPage(c *fiber.Ctx) error {
 	id, err := parseUUID(c.Params("id"))
 	if err != nil {
-		return writeAppError(c, err.(*AppError))
+		return writeAppError(c, err)
 	}
 	var req dto.CMSPageUpdateRequest
 	if err := c.BodyParser(&req); err != nil {
-		return writeAppError(c, &AppError{Status: 422, Code: "VALIDATION_ERROR", Message: "Invalid request body"})
+		return writeAppError(c, &AppError{Status: 422, Code: "VALIDATION_ERROR", Message: "Некорректные данные запроса"})
 	}
 	page, err := h.cms.UpdatePage(c.Context(), id, application.UpdatePageInput{
 		Title:       req.Title,
@@ -106,7 +106,7 @@ func (h *Handler) ManagementUpdateCMSPage(c *fiber.Ctx) error {
 		IsPublished: req.IsPublished,
 	})
 	if err != nil {
-		return respondError(c, err, MapCMSError)
+		return respondError(c, err, MapError)
 	}
 	return c.JSON(dto.DataEnvelope[dto.CMSPageResponse]{Data: dto.ToCMSPageResponse(page)})
 }
@@ -114,7 +114,7 @@ func (h *Handler) ManagementUpdateCMSPage(c *fiber.Ctx) error {
 func (h *Handler) ManagementDeleteCMSPage(c *fiber.Ctx) error {
 	id, err := parseUUID(c.Params("id"))
 	if err != nil {
-		return writeAppError(c, err.(*AppError))
+		return writeAppError(c, err)
 	}
 	if err := h.cms.DeletePage(c.Context(), id); err != nil {
 		return respondError(c, err, MapError)
@@ -139,11 +139,11 @@ func (h *Handler) ManagementListCMSTemplates(c *fiber.Ctx) error {
 func (h *Handler) ManagementCreateCMSBlock(c *fiber.Ctx) error {
 	pageID, err := parseUUID(c.Params("id"))
 	if err != nil {
-		return writeAppError(c, err.(*AppError))
+		return writeAppError(c, err)
 	}
 	var req dto.CMSBlockCreateRequest
 	if err := c.BodyParser(&req); err != nil {
-		return writeAppError(c, &AppError{Status: 422, Code: "VALIDATION_ERROR", Message: "Invalid request body"})
+		return writeAppError(c, &AppError{Status: 422, Code: "VALIDATION_ERROR", Message: "Некорректные данные запроса"})
 	}
 	visible := true
 	if req.IsVisible != nil {
@@ -155,7 +155,7 @@ func (h *Handler) ManagementCreateCMSBlock(c *fiber.Ctx) error {
 		IsVisible: visible,
 	})
 	if err != nil {
-		return respondError(c, err, MapCMSError)
+		return respondError(c, err, MapError)
 	}
 	return c.Status(fiber.StatusCreated).JSON(dto.DataEnvelope[dto.CMSBlockResponse]{Data: dto.ToCMSBlockResponse(block)})
 }
@@ -163,11 +163,11 @@ func (h *Handler) ManagementCreateCMSBlock(c *fiber.Ctx) error {
 func (h *Handler) ManagementUpdateCMSBlock(c *fiber.Ctx) error {
 	id, err := parseUUID(c.Params("id"))
 	if err != nil {
-		return writeAppError(c, err.(*AppError))
+		return writeAppError(c, err)
 	}
 	var req dto.CMSBlockUpdateRequest
 	if err := c.BodyParser(&req); err != nil {
-		return writeAppError(c, &AppError{Status: 422, Code: "VALIDATION_ERROR", Message: "Invalid request body"})
+		return writeAppError(c, &AppError{Status: 422, Code: "VALIDATION_ERROR", Message: "Некорректные данные запроса"})
 	}
 	block, err := h.cms.UpdateBlock(c.Context(), id, application.UpdateBlockInput{
 		Content:   req.Content,
@@ -175,7 +175,7 @@ func (h *Handler) ManagementUpdateCMSBlock(c *fiber.Ctx) error {
 		SortOrder: req.SortOrder,
 	})
 	if err != nil {
-		return respondError(c, err, MapCMSError)
+		return respondError(c, err, MapError)
 	}
 	return c.JSON(dto.DataEnvelope[dto.CMSBlockResponse]{Data: dto.ToCMSBlockResponse(block)})
 }
@@ -183,7 +183,7 @@ func (h *Handler) ManagementUpdateCMSBlock(c *fiber.Ctx) error {
 func (h *Handler) ManagementDeleteCMSBlock(c *fiber.Ctx) error {
 	id, err := parseUUID(c.Params("id"))
 	if err != nil {
-		return writeAppError(c, err.(*AppError))
+		return writeAppError(c, err)
 	}
 	if err := h.cms.DeleteBlock(c.Context(), id); err != nil {
 		return respondError(c, err, MapError)
@@ -194,17 +194,17 @@ func (h *Handler) ManagementDeleteCMSBlock(c *fiber.Ctx) error {
 func (h *Handler) ManagementReorderCMSBlocks(c *fiber.Ctx) error {
 	pageID, err := parseUUID(c.Params("id"))
 	if err != nil {
-		return writeAppError(c, err.(*AppError))
+		return writeAppError(c, err)
 	}
 	var req dto.CMSReorderRequest
 	if err := c.BodyParser(&req); err != nil {
-		return writeAppError(c, &AppError{Status: 422, Code: "VALIDATION_ERROR", Message: "Invalid request body"})
+		return writeAppError(c, &AppError{Status: 422, Code: "VALIDATION_ERROR", Message: "Некорректные данные запроса"})
 	}
 	ids := make([]uuid.UUID, 0, len(req.BlockIDs))
 	for _, value := range req.BlockIDs {
 		id, parseErr := uuid.Parse(value)
 		if parseErr != nil {
-			return writeAppError(c, &AppError{Status: 422, Code: "VALIDATION_ERROR", Message: "Invalid block id"})
+			return writeAppError(c, &AppError{Status: 422, Code: "VALIDATION_ERROR", Message: "Некорректный идентификатор блока"})
 		}
 		ids = append(ids, id)
 	}
@@ -216,12 +216,4 @@ func (h *Handler) ManagementReorderCMSBlocks(c *fiber.Ctx) error {
 		return respondError(c, err, MapError)
 	}
 	return c.JSON(dto.DataEnvelope[dto.CMSPageResponse]{Data: dto.ToCMSPageResponse(page)})
-}
-
-func MapCMSError(err error) *AppError {
-	mapped := MapError(err)
-	if mapped != nil {
-		return mapped
-	}
-	return &AppError{Status: 500, Code: "INTERNAL_ERROR", Message: "Internal server error"}
 }

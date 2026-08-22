@@ -85,7 +85,7 @@ func (a ODataAccountingAdapter) ExportBooking(ctx context.Context, booking domai
 		"Date":            time.Now().UTC().Format(time.RFC3339),
 		"Comment":         marker,
 		"Контрагент_Key":  counterpartyID,
-		"Комментарий":     fmt.Sprintf("Polomnik tour %s, %d чел.", booking.TourID, booking.PeopleCount),
+		"Комментарий":     fmt.Sprintf("Palomnik tour %s, %d чел.", booking.TourID, booking.PeopleCount),
 	})
 	if err != nil {
 		return ports.IntegrationResult{}, err

@@ -24,6 +24,11 @@ type Store struct {
 	outboxEvents    map[uuid.UUID]domain.OutboxEvent
 	cmsPages        map[uuid.UUID]domain.Page
 	cmsBlocks       map[uuid.UUID]domain.Block
+	news            map[uuid.UUID]domain.NewsArticle
+}
+
+func (s *Store) WithinTransaction(ctx context.Context, fn func(context.Context) error) error {
+	return fn(ctx)
 }
 
 func NewStore() *Store {
@@ -39,6 +44,7 @@ func NewStore() *Store {
 		outboxEvents:    make(map[uuid.UUID]domain.OutboxEvent),
 		cmsPages:        make(map[uuid.UUID]domain.Page),
 		cmsBlocks:       make(map[uuid.UUID]domain.Block),
+		news:            make(map[uuid.UUID]domain.NewsArticle),
 	}
 }
 
@@ -262,6 +268,17 @@ func (s *Store) DeleteReview(_ context.Context, id uuid.UUID) error {
 	}
 	delete(s.reviews, id)
 	return nil
+}
+
+func (s *Store) UpdateReview(_ context.Context, review domain.Review) (domain.Review, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	if _, ok := s.reviews[review.ID]; !ok {
+		return domain.Review{}, domain.ErrNotFound
+	}
+	s.reviews[review.ID] = review
+	return review, nil
 }
 
 func matchesTourFilters(tour domain.Tour, filters ports.TourFilters) bool {

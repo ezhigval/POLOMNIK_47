@@ -15,16 +15,16 @@ func (h *Handler) CreateBooking(c *fiber.Ctx) error {
 		return writeAppError(c, &AppError{
 			Status:  422,
 			Code:    "VALIDATION_ERROR",
-			Message: "Invalid request body",
+			Message: "Некорректные данные запроса",
 		})
 	}
 
 	tourID, err := parseUUID(req.TourID)
 	if err != nil {
-		return writeAppError(c, err.(*AppError))
+		return writeAppError(c, err)
 	}
 	if err := validateEmail(req.Email); err != nil {
-		return writeAppError(c, err.(*AppError))
+		return writeAppError(c, err)
 	}
 
 	result, err := h.bookings.CreateBooking(c.Context(), application.CreateBookingInput{

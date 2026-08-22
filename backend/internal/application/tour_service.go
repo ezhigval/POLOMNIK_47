@@ -37,22 +37,7 @@ type CreateTourInput struct {
 	OverbookingEnabled bool
 }
 
-type UpdateTourInput struct {
-	Slug               string
-	Title              string
-	Description        string
-	Price              int
-	Currency           string
-	DateStart          time.Time
-	DateEnd            time.Time
-	SlotsTotal         int
-	SlotsLeft          int
-	Location           string
-	Images             []string
-	IsActive           bool
-	IsHot              bool
-	OverbookingEnabled bool
-}
+type UpdateTourInput = CreateTourInput
 
 func (s *TourService) ListPublicTours(ctx context.Context, filters ports.TourFilters, pagination ports.Pagination) (ports.TourList, error) {
 	active := true

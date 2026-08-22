@@ -104,3 +104,43 @@ func TestReviewServiceApproveReview(t *testing.T) {
 		t.Fatal("expected review to be approved")
 	}
 }
+
+func TestReviewServiceSetCompanyReply(t *testing.T) {
+	ctx := context.Background()
+	store := memory.NewStore()
+	service := NewReviewService(store, store, noop.NewCRMAdapter())
+
+	tour := testTour()
+	if _, err := store.CreateTour(ctx, tour); err != nil {
+		t.Fatalf("create tour: %v", err)
+	}
+
+	created, err := service.CreateReview(ctx, CreateReviewInput{
+		TourID:     tour.ID,
+		ClientName: "Anna",
+		Rating:     5,
+		Text:       "Great tour",
+	})
+	if err != nil {
+		t.Fatalf("create review: %v", err)
+	}
+
+	updated, err := service.SetCompanyReply(ctx, created.ID, "Спасибо за добрые слова.")
+	if err != nil {
+		t.Fatalf("set company reply: %v", err)
+	}
+	if updated.CompanyReply != "Спасибо за добрые слова." {
+		t.Fatalf("unexpected reply %q", updated.CompanyReply)
+	}
+	if updated.CompanyRepliedAt == nil {
+		t.Fatal("expected replied_at to be set")
+	}
+
+	cleared, err := service.SetCompanyReply(ctx, created.ID, "")
+	if err != nil {
+		t.Fatalf("clear company reply: %v", err)
+	}
+	if cleared.CompanyReply != "" || cleared.CompanyRepliedAt != nil {
+		t.Fatal("expected reply to be cleared")
+	}
+}

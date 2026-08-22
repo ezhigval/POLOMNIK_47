@@ -14,7 +14,7 @@ func (h *Handler) Register(c *fiber.Ctx) error {
 		return writeAppError(c, &AppError{
 			Status:  422,
 			Code:    "VALIDATION_ERROR",
-			Message: "Invalid request body",
+			Message: "Некорректные данные запроса",
 		})
 	}
 
@@ -25,7 +25,7 @@ func (h *Handler) Register(c *fiber.Ctx) error {
 		Password: req.Password,
 	})
 	if err != nil {
-		return respondError(c, err, MapAuthError)
+		return respondError(c, err, MapError)
 	}
 
 	return c.Status(fiber.StatusCreated).JSON(dto.DataEnvelope[dto.AuthResponse]{
@@ -42,7 +42,7 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 		return writeAppError(c, &AppError{
 			Status:  422,
 			Code:    "VALIDATION_ERROR",
-			Message: "Invalid request body",
+			Message: "Некорректные данные запроса",
 		})
 	}
 
@@ -51,7 +51,7 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 		Password: req.Password,
 	})
 	if err != nil {
-		return respondError(c, err, MapAuthError)
+		return respondError(c, err, MapError)
 	}
 
 	return c.JSON(dto.DataEnvelope[dto.AuthResponse]{
@@ -68,7 +68,7 @@ func (h *Handler) Me(c *fiber.Ctx) error {
 		return writeAppError(c, &AppError{
 			Status:  401,
 			Code:    "UNAUTHORIZED",
-			Message: "Authentication required",
+			Message: "Нужно войти в аккаунт",
 		})
 	}
 
@@ -88,7 +88,7 @@ func (h *Handler) MyBookings(c *fiber.Ctx) error {
 		return writeAppError(c, &AppError{
 			Status:  401,
 			Code:    "UNAUTHORIZED",
-			Message: "Authentication required",
+			Message: "Нужно войти в аккаунт",
 		})
 	}
 
@@ -101,8 +101,4 @@ func (h *Handler) MyBookings(c *fiber.Ctx) error {
 		Data: dto.ToMyBookingResponses(list.Items),
 		Meta: list.Meta,
 	})
-}
-
-func MapAuthError(err error) *AppError {
-	return MapError(err)
 }

@@ -5,18 +5,23 @@ import (
 	"fmt"
 	"strings"
 
-	"polomnik/internal/config"
 	"polomnik/internal/ports"
 )
 
 type WebhookService struct {
-	bookings *BookingService
-	inbound  ports.CRMInboundPort
-	cfg      config.Config
+	bookings     *BookingService
+	inbound      ports.CRMInboundPort
+	inboundToken string
+	requireToken bool
 }
 
-func NewWebhookService(bookings *BookingService, inbound ports.CRMInboundPort, cfg config.Config) *WebhookService {
-	return &WebhookService{bookings: bookings, inbound: inbound, cfg: cfg}
+func NewWebhookService(bookings *BookingService, inbound ports.CRMInboundPort, inboundToken string, requireToken bool) *WebhookService {
+	return &WebhookService{
+		bookings:     bookings,
+		inbound:      inbound,
+		inboundToken: inboundToken,
+		requireToken: requireToken,
+	}
 }
 
 type BitrixDealWebhookInput struct {
@@ -51,9 +56,9 @@ func (s *WebhookService) HandleBitrixDealUpdate(ctx context.Context, input Bitri
 }
 
 func (s *WebhookService) validateInboundToken(token string) error {
-	expected := s.cfg.BitrixInboundToken
+	expected := strings.TrimSpace(s.inboundToken)
 	if expected == "" {
-		if s.cfg.IsProduction() || strings.EqualFold(s.cfg.CRMAdapter, "bitrix") {
+		if s.requireToken {
 			return ErrUnauthorized
 		}
 		return nil

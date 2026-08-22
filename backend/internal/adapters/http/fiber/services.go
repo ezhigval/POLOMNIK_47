@@ -14,4 +14,5 @@ type Services struct {
 	Favorites    *application.FavoriteService
 	Support      *application.SupportService
 	CMS          *application.CMSService
+	News         *application.NewsService
 }

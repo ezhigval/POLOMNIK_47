@@ -5,11 +5,12 @@ import (
 	"log/slog"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 
-	fiberhttp "polomnik/internal/adapters/http/fiber"
 	cachenoop "polomnik/internal/adapters/cache/noop"
 	rediscache "polomnik/internal/adapters/cache/redis"
+	fiberhttp "polomnik/internal/adapters/http/fiber"
 	"polomnik/internal/adapters/integration"
 	"polomnik/internal/adapters/notification"
 	"polomnik/internal/adapters/repository/memory"
@@ -33,7 +34,7 @@ func run() int {
 		return 1
 	}
 
-	tourRepo, bookingRepo, reviewRepo, integrationRefs, outboxRepo, userRepo, favoriteRepo, supportRepo, cmsRepo, pgStore, cleanupStore, err := openRepositories(context.Background(), cfg, log)
+	tourRepo, bookingRepo, reviewRepo, integrationRefs, outboxRepo, userRepo, favoriteRepo, supportRepo, cmsRepo, newsRepo, pgStore, cleanupStore, err := openRepositories(context.Background(), cfg, log)
 	if err != nil {
 		log.Error("failed to open storage", slog.Any("error", err))
 		return 1
@@ -55,6 +56,7 @@ func run() int {
 		crm,
 		integration.NewAccounting(cfg, integrationRefs, outboxRepo),
 		notifier,
+		txManager(tourRepo),
 	)
 
 	services := fiberhttp.Services{
@@ -73,12 +75,14 @@ func run() int {
 		Webhooks: application.NewWebhookService(
 			bookingService,
 			integration.NewCRMInbound(cfg),
-			cfg,
+			cfg.BitrixInboundToken,
+			cfg.IsProduction() || strings.EqualFold(cfg.CRMAdapter, "bitrix"),
 		),
 		Auth:      application.NewAuthService(userRepo, bookingRepo, cfg.JWTSecret, cfg.JWTTokenTTL),
 		Favorites: application.NewFavoriteService(favoriteRepo, tourRepo),
 		Support:   application.NewSupportService(supportRepo),
 		CMS:       application.NewCMSService(cmsRepo),
+		News:      application.NewNewsService(newsRepo),
 	}
 
 	health := fiberhttp.HealthDeps{
@@ -124,19 +128,19 @@ func openRepositories(
 	ctx context.Context,
 	cfg config.Config,
 	log *slog.Logger,
-) (ports.TourRepository, ports.BookingRepository, ports.ReviewRepository, ports.IntegrationReferenceRepository, ports.OutboxRepository, ports.UserRepository, ports.FavoriteRepository, ports.SupportRepository, ports.CMSRepository, *postgres.Store, func(), error) {
+) (ports.TourRepository, ports.BookingRepository, ports.ReviewRepository, ports.IntegrationReferenceRepository, ports.OutboxRepository, ports.UserRepository, ports.FavoriteRepository, ports.SupportRepository, ports.CMSRepository, ports.NewsRepository, *postgres.Store, func(), error) {
 	if cfg.DatabaseURL != "" {
 		store, err := postgres.Open(ctx, cfg.DatabaseURL)
 		if err != nil {
-			return nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, func() {}, err
+			return nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, func() {}, err
 		}
 		cleanup := func() { _ = store.Close() }
-		return store, store, store, store, store, store, store, store, store, store, cleanup, nil
+		return store, store, store, store, store, store, store, store, store, store, store, cleanup, nil
 	}
 
 	log.Warn("DATABASE_URL is empty, using in-memory storage")
 	store := memory.NewStore()
-	return store, store, store, store, store, store, store, store, store, nil, func() {}, nil
+	return store, store, store, store, store, store, store, store, store, store, nil, func() {}, nil
 }
 
 func openCache(cfg config.Config, log *slog.Logger) (ports.CachePort, *rediscache.Cache, func(), error) {
@@ -151,4 +155,11 @@ func openCache(cfg config.Config, log *slog.Logger) (ports.CachePort, *rediscach
 	}
 
 	return cache, cache, func() { _ = cache.Close() }, nil
+}
+
+func txManager(repo ports.TourRepository) ports.TransactionManager {
+	if tx, ok := repo.(ports.TransactionManager); ok {
+		return tx
+	}
+	return nil
 }
