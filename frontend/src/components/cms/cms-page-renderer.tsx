@@ -5,7 +5,7 @@ import { FaqSection } from "@/components/faq-section";
 import { FeaturedRouteSection } from "@/components/featured-route-section";
 import { HeroSection } from "@/components/hero-section";
 import { HowItWorksSection } from "@/components/how-it-works";
-import { PopularDestinations } from "@/components/popular-destinations";
+import { PopularDestinations, PopularDestinationsSkeleton } from "@/components/popular-destinations";
 import { SectionHeading } from "@/components/section-heading";
 import { TestimonialsSection } from "@/components/testimonials-section";
 import { WhyUsSection } from "@/components/why-us-section";
@@ -91,7 +91,11 @@ function CmsBlockView({ block }: { block: CmsBlock }) {
     case "featured_route":
       return <FeaturedRouteSection content={asContent<FeaturedRouteBlockContent>(block.content)} />;
     case "popular_destinations":
-      return <PopularDestinations />;
+      return (
+        <Suspense fallback={<PopularDestinationsSkeleton />}>
+          <PopularDestinations />
+        </Suspense>
+      );
     case "testimonials":
       return (
         <Suspense fallback={<ReviewsSkeleton />}>

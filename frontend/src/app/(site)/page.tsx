@@ -6,7 +6,7 @@ import { FaqSection } from "@/components/faq-section";
 import { FeaturedRouteSection } from "@/components/featured-route-section";
 import { HeroSection } from "@/components/hero-section";
 import { HowItWorksSection } from "@/components/how-it-works";
-import { PopularDestinations } from "@/components/popular-destinations";
+import { PopularDestinations, PopularDestinationsSkeleton } from "@/components/popular-destinations";
 import { TestimonialsSection } from "@/components/testimonials-section";
 import { WhyUsSection } from "@/components/why-us-section";
 import { getPublishedPage } from "@/lib/api/cms";
@@ -31,7 +31,9 @@ export default async function HomePage() {
 
       <div className="mx-auto max-w-6xl space-y-20 px-4 py-8 sm:space-y-24 sm:py-12">
         <FeaturedRouteSection />
-        <PopularDestinations />
+        <Suspense fallback={<PopularDestinationsSkeleton />}>
+          <PopularDestinations />
+        </Suspense>
         <AboutSection />
         <WhyUsSection />
         <HowItWorksSection />

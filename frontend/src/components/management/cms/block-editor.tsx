@@ -164,7 +164,11 @@ function BlockContentForm({ type, content, loading, error, onCancel, onSave }: B
   if (type === "popular_destinations" || type === "testimonials") {
     return (
       <div className="space-y-3">
-        <p className="text-sm text-stone-600">Виджет без настроек контента.</p>
+        <p className="text-sm text-stone-600">
+          {type === "popular_destinations"
+            ? "На сайте показываются туры с пометкой «Популярный». Если таких нет, блок скрывается."
+            : "Виджет без настроек контента."}
+        </p>
         <FormError>{error}</FormError>
         <div className="flex gap-2">
           <button type="button" disabled={loading} onClick={() => onSave({})} className="btn-primary">
