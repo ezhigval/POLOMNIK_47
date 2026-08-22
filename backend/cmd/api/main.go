@@ -14,10 +14,12 @@ import (
 	"polomnik/internal/adapters/integration"
 	"polomnik/internal/adapters/notification"
 	telegramnotify "polomnik/internal/adapters/notification/telegram"
+	"polomnik/internal/adapters/phone"
 	"polomnik/internal/adapters/repository/memory"
 	"polomnik/internal/adapters/repository/postgres"
 	"polomnik/internal/application"
 	"polomnik/internal/config"
+	"polomnik/internal/domain"
 	"polomnik/internal/logger"
 	"polomnik/internal/ports"
 )
@@ -51,8 +53,11 @@ func run() int {
 
 	crm := integration.NewCRM(cfg, integrationRefs, outboxRepo)
 	telegramDeps := notification.Deps{}
+	if routing, ok := tourRepo.(ports.NotificationRoutingRepository); ok {
+		telegramDeps.Routing = routing
+	}
 	if recipients, ok := tourRepo.(ports.TelegramRecipientsRepository); ok {
-		telegramDeps.Recipients = recipients
+		telegramDeps.Legacy = recipients
 	}
 	if chats, ok := tourRepo.(ports.TelegramChatMapRepository); ok {
 		telegramDeps.Chats = chats
@@ -66,6 +71,26 @@ func run() int {
 		notifier,
 		txManager(tourRepo),
 	)
+
+	var siteSettingsRepo ports.SiteSettingsRepository
+	if repo, ok := tourRepo.(ports.SiteSettingsRepository); ok {
+		siteSettingsRepo = repo
+	}
+	var adminRoleRepo ports.AdminRoleRepository
+	if repo, ok := tourRepo.(ports.AdminRoleRepository); ok {
+		adminRoleRepo = repo
+	}
+
+	notificationSettings := application.NewNotificationSettingsService(
+		telegramDeps.Routing,
+		telegramDeps.Legacy,
+		telegramDeps.Chats,
+		cfg.NotificationAdapter == "telegram" && cfg.TelegramBotToken != "",
+		cfg.MaxBotToken != "",
+	)
+	siteDefaults := domain.SiteSettings{}
+	siteSettings := application.NewSiteSettingsService(siteSettingsRepo, siteDefaults)
+	adminRoles := application.NewAdminRoleService(adminRoleRepo, userRepo, cfg.AdminToken, cfg.JWTSecret)
 
 	services := fiberhttp.Services{
 		Tours: application.NewTourService(
@@ -86,12 +111,15 @@ func run() int {
 			cfg.BitrixInboundToken,
 			cfg.IsProduction() || strings.EqualFold(cfg.CRMAdapter, "bitrix"),
 		),
-		Auth:      application.NewAuthService(userRepo, bookingRepo, cfg.JWTSecret, cfg.JWTTokenTTL),
-		Favorites: application.NewFavoriteService(favoriteRepo, tourRepo),
-		Support:   application.NewSupportService(supportRepo, notifier),
-		CMS:       application.NewCMSService(cmsRepo),
-		News:      application.NewNewsService(newsRepo),
-		Telegram:  application.NewTelegramService(telegramDeps.Recipients, telegramDeps.Chats, telegramnotify.NewClient(cfg), cfg.TelegramChatID),
+		Auth:          application.NewAuthService(userRepo, bookingRepo, phone.New(cfg), cfg.JWTSecret, cfg.JWTTokenTTL),
+		Favorites:     application.NewFavoriteService(favoriteRepo, tourRepo),
+		Support:       application.NewSupportService(supportRepo, notifier),
+		CMS:           application.NewCMSService(cmsRepo),
+		News:          application.NewNewsService(newsRepo),
+		Telegram:      application.NewTelegramService(notificationSettings, telegramDeps.Chats, telegramnotify.NewClient(cfg), cfg.TelegramChatID),
+		Notifications: notificationSettings,
+		SiteSettings:  siteSettings,
+		AdminRoles:    adminRoles,
 	}
 
 	health := fiberhttp.HealthDeps{

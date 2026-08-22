@@ -16,11 +16,14 @@ export function StructuredData() {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "TravelAgency",
+    "@id": `${siteConfig.url}/#organization`,
     name: siteConfig.name,
     legalName: siteConfig.fullName,
     alternateName: siteConfig.fullName,
     description: siteConfig.description,
     url: siteConfig.url,
+    logo: absoluteUrl("/opengraph-image"),
+    image: absoluteUrl("/opengraph-image"),
     areaServed: {
       "@type": "AdministrativeArea",
       name: "Россия",

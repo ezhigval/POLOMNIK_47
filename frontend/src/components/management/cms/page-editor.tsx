@@ -111,13 +111,8 @@ export function PageEditor({ page, templates }: PageEditorProps) {
             <input required name="title" defaultValue={page.title} className="input-field" />
           </label>
           <label className="block text-sm">
-            <span className="mb-1 block font-medium">Адрес на сайте</span>
-            <input type="hidden" name="path" value={page.slug === "home" ? "/" : page.path} />
-            <input
-              disabled
-              value={page.slug === "home" ? "/" : page.path}
-              className="input-field bg-stone-50 text-stone-500"
-            />
+            <span className="mb-1 block font-medium">Path</span>
+            <input required name="path" defaultValue={page.path} className="input-field" />
           </label>
         </div>
 

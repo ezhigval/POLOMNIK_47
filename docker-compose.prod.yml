@@ -58,6 +58,9 @@ services:
       TELEGRAM_WEBHOOK_URL: ${TELEGRAM_WEBHOOK_URL:-https://api.tikhvin-palomnik.ru/api/v1/webhooks/telegram}
       TELEGRAM_LOGIN_BOT_TOKEN: ${TELEGRAM_LOGIN_BOT_TOKEN:-}
       TELEGRAM_LOGIN_BOT_USERNAME: ${TELEGRAM_LOGIN_BOT_USERNAME:-}
+      PHONE_ADAPTER: ${PHONE_ADAPTER:-noop}
+      SMS_ADAPTER: ${SMS_ADAPTER:-}
+      SMSRU_API_ID: ${SMSRU_API_ID:-}
       MANAGEMENT_BASE_URL: ${MANAGEMENT_BASE_URL:-https://tikhvin-palomnik.ru/management/bookings}
     volumes:
       - uploads_data:/data/uploads

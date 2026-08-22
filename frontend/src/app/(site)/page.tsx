@@ -10,11 +10,32 @@ import { PopularDestinations, PopularDestinationsSkeleton } from "@/components/p
 import { TestimonialsSection } from "@/components/testimonials-section";
 import { WhyUsSection } from "@/components/why-us-section";
 import { getPublishedPage } from "@/lib/api/cms";
+import { siteConfig } from "@/lib/site-config";
 import type { Metadata } from "next";
 
-export const metadata: Metadata = {
-  alternates: { canonical: "/" },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const cmsPage = await getPublishedPage("home").catch(() => null);
+  const title = cmsPage?.meta_title?.trim() || undefined;
+  const description =
+    cmsPage?.meta_description?.trim() || siteConfig.description;
+
+  return {
+    ...(title ? { title: { absolute: title } } : {}),
+    description,
+    alternates: { canonical: "/" },
+    openGraph: {
+      title: title || `${siteConfig.name} — ${siteConfig.tagline}`,
+      description,
+      url: "/",
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: title || `${siteConfig.name} — ${siteConfig.tagline}`,
+      description,
+    },
+  };
+}
 
 export default async function HomePage() {
   const cmsPage = await getPublishedPage("home").catch(() => null);

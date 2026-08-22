@@ -54,6 +54,9 @@ type Config struct {
 	TelegramWebhookURL       string
 	TelegramLoginBotToken    string
 	TelegramLoginBotUsername string
+	MaxBotToken              string
+	PhoneAdapter             string
+	SMSRUAPIID               string
 	ManagementBaseURL        string
 	UploadDir                string
 	UploadPublicBaseURL      string
@@ -110,6 +113,9 @@ func Load() Config {
 		TelegramWebhookURL:       os.Getenv("TELEGRAM_WEBHOOK_URL"),
 		TelegramLoginBotToken:    os.Getenv("TELEGRAM_LOGIN_BOT_TOKEN"),
 		TelegramLoginBotUsername: os.Getenv("TELEGRAM_LOGIN_BOT_USERNAME"),
+		MaxBotToken:              os.Getenv("MAX_BOT_TOKEN"),
+		PhoneAdapter:             phoneAdapterFromEnv(),
+		SMSRUAPIID:               os.Getenv("SMSRU_API_ID"),
 		ManagementBaseURL:        envString("MANAGEMENT_BASE_URL", "http://localhost:3000/management/bookings"),
 		UploadDir:                envString("UPLOAD_DIR", "./data/uploads"),
 		UploadPublicBaseURL:      envString("UPLOAD_PUBLIC_BASE_URL", "http://localhost:8080"),
@@ -147,6 +153,17 @@ func (c Config) EffectiveTelegramWebhookURL() string {
 func (c Config) TelegramAPIHostIsOfficial() bool {
 	base := strings.ToLower(strings.TrimSpace(c.TelegramAPIBase))
 	return base == "" || strings.Contains(base, "api.telegram.org")
+}
+
+// phoneAdapterFromEnv prefers PHONE_ADAPTER; SMS_ADAPTER is a legacy alias.
+func phoneAdapterFromEnv() string {
+	if value := strings.TrimSpace(os.Getenv("PHONE_ADAPTER")); value != "" {
+		return value
+	}
+	if value := strings.TrimSpace(os.Getenv("SMS_ADAPTER")); value != "" {
+		return value
+	}
+	return "noop"
 }
 
 func envString(key string, fallback string) string {

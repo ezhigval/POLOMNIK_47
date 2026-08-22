@@ -16,7 +16,7 @@ import (
 
 func (s *Store) ListPages(ctx context.Context, filters ports.CMSPageFilters) ([]domain.Page, error) {
 	query := `
-SELECT id, slug, title, path, is_published, created_at, updated_at
+SELECT id, slug, title, path, meta_title, meta_description, is_published, created_at, updated_at
 FROM cms_pages`
 	args := []any{}
 	if filters.PublishedOnly {
@@ -43,7 +43,7 @@ FROM cms_pages`
 
 func (s *Store) GetPage(ctx context.Context, id uuid.UUID) (domain.Page, error) {
 	row := s.db.QueryRowContext(ctx, `
-SELECT id, slug, title, path, is_published, created_at, updated_at
+SELECT id, slug, title, path, meta_title, meta_description, is_published, created_at, updated_at
 FROM cms_pages WHERE id = $1
 `, id)
 	return scanCMSPage(row)
@@ -51,7 +51,7 @@ FROM cms_pages WHERE id = $1
 
 func (s *Store) GetPageBySlug(ctx context.Context, slug string) (domain.Page, error) {
 	row := s.db.QueryRowContext(ctx, `
-SELECT id, slug, title, path, is_published, created_at, updated_at
+SELECT id, slug, title, path, meta_title, meta_description, is_published, created_at, updated_at
 FROM cms_pages WHERE slug = $1
 `, slug)
 	return scanCMSPage(row)
@@ -59,7 +59,7 @@ FROM cms_pages WHERE slug = $1
 
 func (s *Store) GetPageByPath(ctx context.Context, path string) (domain.Page, error) {
 	row := s.db.QueryRowContext(ctx, `
-SELECT id, slug, title, path, is_published, created_at, updated_at
+SELECT id, slug, title, path, meta_title, meta_description, is_published, created_at, updated_at
 FROM cms_pages WHERE path = $1
 `, path)
 	return scanCMSPage(row)
@@ -67,9 +67,9 @@ FROM cms_pages WHERE path = $1
 
 func (s *Store) CreatePage(ctx context.Context, page domain.Page) (domain.Page, error) {
 	_, err := s.db.ExecContext(ctx, `
-INSERT INTO cms_pages (id, slug, title, path, is_published, created_at, updated_at)
-VALUES ($1, $2, $3, $4, $5, $6, $7)
-`, page.ID, page.Slug, page.Title, page.Path, page.IsPublished, page.CreatedAt, page.UpdatedAt)
+INSERT INTO cms_pages (id, slug, title, path, meta_title, meta_description, is_published, created_at, updated_at)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+`, page.ID, page.Slug, page.Title, page.Path, page.MetaTitle, page.MetaDescription, page.IsPublished, page.CreatedAt, page.UpdatedAt)
 	if err != nil {
 		return domain.Page{}, mapCMSWriteError(err)
 	}
@@ -79,9 +79,9 @@ VALUES ($1, $2, $3, $4, $5, $6, $7)
 func (s *Store) UpdatePage(ctx context.Context, page domain.Page) (domain.Page, error) {
 	result, err := s.db.ExecContext(ctx, `
 UPDATE cms_pages
-SET title = $2, path = $3, is_published = $4, updated_at = $5
+SET title = $2, path = $3, meta_title = $4, meta_description = $5, is_published = $6, updated_at = $7
 WHERE id = $1
-`, page.ID, page.Title, page.Path, page.IsPublished, page.UpdatedAt)
+`, page.ID, page.Title, page.Path, page.MetaTitle, page.MetaDescription, page.IsPublished, page.UpdatedAt)
 	if err != nil {
 		return domain.Page{}, mapCMSWriteError(err)
 	}
@@ -192,7 +192,17 @@ WHERE id = $1 AND page_id = $2
 
 func scanCMSPage(row scanner) (domain.Page, error) {
 	var page domain.Page
-	err := row.Scan(&page.ID, &page.Slug, &page.Title, &page.Path, &page.IsPublished, &page.CreatedAt, &page.UpdatedAt)
+	err := row.Scan(
+		&page.ID,
+		&page.Slug,
+		&page.Title,
+		&page.Path,
+		&page.MetaTitle,
+		&page.MetaDescription,
+		&page.IsPublished,
+		&page.CreatedAt,
+		&page.UpdatedAt,
+	)
 	if errors.Is(err, sql.ErrNoRows) {
 		return domain.Page{}, domain.ErrNotFound
 	}

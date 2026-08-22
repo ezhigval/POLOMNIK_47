@@ -6,6 +6,7 @@ import { getSessionUser } from "@/lib/auth/session";
 
 export const metadata: Metadata = {
   title: "Чат поддержки",
+  robots: { index: false, follow: false },
 };
 
 export default async function SupportChatPage() {

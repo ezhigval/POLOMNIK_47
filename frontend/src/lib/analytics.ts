@@ -1,6 +1,9 @@
 export const analyticsConfig = {
   yandexMetrikaId: process.env.NEXT_PUBLIC_YM_ID?.trim() || "",
   googleAnalyticsId: process.env.NEXT_PUBLIC_GA_ID?.trim() || "",
+  /** Webvisor / clickmap — только при явном NEXT_PUBLIC_YM_WEBVISOR=1 */
+  yandexWebvisor: process.env.NEXT_PUBLIC_YM_WEBVISOR === "1",
+  yandexClickmap: process.env.NEXT_PUBLIC_YM_CLICKMAP !== "0",
 };
 
 export function isAnalyticsEnabled(): boolean {
@@ -35,6 +38,16 @@ export function trackTourView(tourId: string, title: string): void {
   trackEvent("tour_view", { tour_id: tourId, tour_title: title });
 }
 
+/** Начало заполнения формы заявки (первый фокус). */
+export function trackBeginCheckout(tourId: string): void {
+  trackEvent("begin_checkout", { tour_id: tourId });
+}
+
 export function trackBookingSubmit(tourId: string, peopleCount: number): void {
   trackEvent("booking_submit", { tour_id: tourId, people_count: peopleCount });
+}
+
+/** Клик по телефону / email / чату поддержки. */
+export function trackSupportContact(channel: "phone" | "email" | "chat"): void {
+  trackEvent("support_contact", { channel });
 }

@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { AuthDivider, GoogleAuthButton } from "@/components/auth/google-auth-button";
 import { PageIntro } from "@/components/page-intro";
 import { RegisterForm } from "@/components/auth/register-form";
 import { getSessionUser } from "@/lib/auth/session";
@@ -32,8 +31,6 @@ export default async function RegisterPage({ searchParams }: RegisterPageProps) 
         title="Регистрация"
         description="Создайте аккаунт, чтобы сохранять туры и отслеживать заявки."
       />
-      <GoogleAuthButton returnUrl={returnUrl} />
-      <AuthDivider />
       <RegisterForm returnUrl={returnUrl} />
     </div>
   );

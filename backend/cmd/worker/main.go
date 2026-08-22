@@ -45,8 +45,11 @@ func run() int {
 	crm := integration.NewCRM(cfg, integrationRefs, outboxRepo)
 	accounting := integration.NewAccounting(cfg, integrationRefs, outboxRepo)
 	telegramDeps := notification.Deps{}
+	if routing, ok := tourRepo.(ports.NotificationRoutingRepository); ok {
+		telegramDeps.Routing = routing
+	}
 	if recipients, ok := tourRepo.(ports.TelegramRecipientsRepository); ok {
-		telegramDeps.Recipients = recipients
+		telegramDeps.Legacy = recipients
 	}
 	if chats, ok := tourRepo.(ports.TelegramChatMapRepository); ok {
 		telegramDeps.Chats = chats

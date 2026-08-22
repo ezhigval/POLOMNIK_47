@@ -3,12 +3,18 @@ import type { Metadata } from "next";
 import { DioceseAffiliation } from "@/components/diocese-affiliation";
 import { FaqSection } from "@/components/faq-section";
 import { SectionHeading } from "@/components/section-heading";
+import { SupportContactLink } from "@/components/support-contact-link";
 import { contactEmail, contactPhone, contactPhoneDisplay } from "@/lib/contact";
 
 export const metadata: Metadata = {
   title: "Поддержка",
   description: "Помощь по бронированию, оплате, документам и поездке.",
   alternates: { canonical: "/support" },
+  openGraph: {
+    title: "Поддержка",
+    description: "Помощь по бронированию, оплате, документам и поездке.",
+    url: "/support",
+  },
 };
 
 const topics = [
@@ -56,18 +62,28 @@ export default function SupportPage() {
           Ответы на частые вопросы, контакты менеджера и помощь с подбором поездки.
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
-          <a href={`tel:${contactPhone}`} className="btn-primary bg-white text-brand-900 hover:bg-brand-50">
+          <SupportContactLink
+            channel="phone"
+            href={`tel:${contactPhone}`}
+            className="btn-primary bg-white text-brand-900 hover:bg-brand-50"
+          >
             {contactPhoneDisplay}
-          </a>
-          <a
+          </SupportContactLink>
+          <SupportContactLink
+            channel="email"
             href={`mailto:${contactEmail}`}
             className="btn-secondary border-white/30 bg-white/10 text-white hover:bg-white/20"
           >
             {contactEmail}
-          </a>
-          <Link href="/support/chat" className="btn-secondary border-white/30 bg-white/10 text-white hover:bg-white/20">
+          </SupportContactLink>
+          <SupportContactLink
+            channel="chat"
+            as="link"
+            href="/support/chat"
+            className="btn-secondary border-white/30 bg-white/10 text-white hover:bg-white/20"
+          >
             Открыть чат
-          </Link>
+          </SupportContactLink>
         </div>
         <DioceseAffiliation
           className="mt-6"
@@ -127,9 +143,14 @@ export default function SupportPage() {
             <Link href="/account/register" className="btn-secondary">
               Регистрация
             </Link>
-            <Link href="/support/chat" className="btn-secondary">
+            <SupportContactLink
+              channel="chat"
+              as="link"
+              href="/support/chat"
+              className="btn-secondary"
+            >
               Чат поддержки
-            </Link>
+            </SupportContactLink>
           </div>
         </div>
       </section>

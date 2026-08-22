@@ -8,6 +8,8 @@ export function Analytics() {
 
   const ymId = analyticsConfig.yandexMetrikaId;
   const gaId = analyticsConfig.googleAnalyticsId;
+  const webvisor = analyticsConfig.yandexWebvisor;
+  const clickmap = analyticsConfig.yandexClickmap;
 
   return (
     <>
@@ -21,7 +23,14 @@ export function Analytics() {
                 for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
                 k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
               })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=${ymId}', 'ym');
-              ym(${ymId}, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true});
+              ym(${ymId}, 'init', {
+                ssr:true,
+                webvisor:${webvisor ? "true" : "false"},
+                clickmap:${clickmap ? "true" : "false"},
+                ecommerce:"dataLayer",
+                accurateTrackBounce:true,
+                trackLinks:true
+              });
             `}
           </Script>
           <noscript>

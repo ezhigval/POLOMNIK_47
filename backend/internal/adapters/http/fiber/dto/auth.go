@@ -9,15 +9,45 @@ import (
 )
 
 type RegisterRequest struct {
-	Email    string `json:"email"`
-	Phone    string `json:"phone"`
-	Name     string `json:"name"`
-	Password string `json:"password"`
+	Email        string `json:"email"`
+	Phone        string `json:"phone"`
+	Name         string `json:"name"`
+	Password     string `json:"password"`
+	PhoneCheckID string `json:"phone_check_id"`
 }
 
 type LoginRequest struct {
 	Login    string `json:"login"`
 	Password string `json:"password"`
+}
+
+type PhoneStartRequest struct {
+	Phone string `json:"phone"`
+}
+
+type PhoneCheckRequest struct {
+	CheckID string `json:"check_id"`
+}
+
+type AuthMethodsResponse struct {
+	Password  bool                   `json:"password"`
+	PhoneCall AuthMethodStatusResponse `json:"phone_call"`
+}
+
+type AuthMethodStatusResponse struct {
+	Available bool   `json:"available"`
+	Message   string `json:"message,omitempty"`
+}
+
+type PhoneStartResponse struct {
+	CheckID         string `json:"check_id"`
+	CallPhone       string `json:"call_phone"`
+	CallPhonePretty string `json:"call_phone_pretty"`
+	ExpiresIn       int    `json:"expires_in"`
+}
+
+type PhoneStatusResponse struct {
+	Status string `json:"status"`
 }
 
 type AuthResponse struct {

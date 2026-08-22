@@ -1,11 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useMemo, useRef, useState } from "react";
 import { ApiError } from "@/lib/api/client";
 import { formatBookingStatus, formatPrice, getSlotsAvailability } from "@/lib/format";
 import { createBooking, type CreateBookingResult, type Tour } from "@/lib/api/tours";
-import { trackBookingSubmit } from "@/lib/analytics";
+import { trackBeginCheckout, trackBookingSubmit } from "@/lib/analytics";
 import type { BookingProfile } from "@/lib/auth/user-features";
 
 type BookingFormProps = {
@@ -18,9 +18,18 @@ export function BookingForm({ tour, profile = null }: BookingFormProps) {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<CreateBookingResult | null>(null);
   const [peopleCount, setPeopleCount] = useState(1);
+  const beginCheckoutSent = useRef(false);
 
   const soldOut = getSlotsAvailability(tour.slots_left) === "sold_out";
   const estimatedTotal = useMemo(() => tour.price * peopleCount, [tour.price, peopleCount]);
+
+  function onFormFocus() {
+    if (beginCheckoutSent.current || soldOut) {
+      return;
+    }
+    beginCheckoutSent.current = true;
+    trackBeginCheckout(tour.id);
+  }
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -112,6 +121,7 @@ export function BookingForm({ tour, profile = null }: BookingFormProps) {
     <form
       id="booking-form"
       onSubmit={onSubmit}
+      onFocus={onFormFocus}
       className="space-y-4 rounded-2xl border border-stone-200 bg-white p-5 shadow-md ring-1 ring-stone-100 lg:sticky lg:top-24"
     >
       <div>

@@ -35,17 +35,26 @@ export function verifyAdminSessionValue(sessionValue: string, adminToken: string
   return timingSafeEqual(expected, actual);
 }
 
+export function isManagementJwt(sessionValue: string): boolean {
+  return sessionValue.split(".").length === 3;
+}
+
+export async function getAdminSessionCookie(): Promise<string | null> {
+  const cookieStore = await cookies();
+  return cookieStore.get(ADMIN_SESSION_COOKIE)?.value ?? null;
+}
+
 export async function isAdminAuthenticated(): Promise<boolean> {
+  const session = await getAdminSessionCookie();
+  if (!session) {
+    return false;
+  }
+  if (isManagementJwt(session)) {
+    return true;
+  }
   const adminToken = process.env.ADMIN_TOKEN;
   if (!adminToken) {
     return false;
   }
-
-  const cookieStore = await cookies();
-  const session = cookieStore.get(ADMIN_SESSION_COOKIE)?.value;
-  if (!session) {
-    return false;
-  }
-
   return verifyAdminSessionValue(session, adminToken);
 }

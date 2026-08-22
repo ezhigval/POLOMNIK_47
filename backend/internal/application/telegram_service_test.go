@@ -9,7 +9,7 @@ import (
 )
 
 func TestTelegramSettingsValidation(t *testing.T) {
-	svc := NewTelegramService(memory.NewStore(), memory.NewStore(), nil, "")
+	svc := NewTelegramServiceFromRepos(memory.NewStore(), memory.NewStore(), nil, "")
 	if _, err := svc.UpdateRecipients(context.Background(), "ab", ""); err != domain.ErrInvalidTelegramUsername {
 		t.Fatalf("expected invalid username, got %v", err)
 	}
@@ -33,7 +33,7 @@ func TestTelegramSettingsValidation(t *testing.T) {
 
 func TestTelegramInboundUpdatePersistsChatMap(t *testing.T) {
 	store := memory.NewStore()
-	svc := NewTelegramService(store, store, nil, "")
+	svc := NewTelegramServiceFromRepos(store, store, nil, "")
 
 	if _, err := svc.UpdateRecipients(context.Background(), "ezhigval", ""); err != nil {
 		t.Fatalf("update: %v", err)
@@ -72,7 +72,7 @@ func TestTelegramInboundUpdatePersistsChatMap(t *testing.T) {
 
 func TestTelegramInboundUpdateIgnoresInvalidUsername(t *testing.T) {
 	store := memory.NewStore()
-	svc := NewTelegramService(store, store, nil, "")
+	svc := NewTelegramServiceFromRepos(store, store, nil, "")
 	if err := svc.HandleInboundUpdate(context.Background(), TelegramInboundUpdate{
 		Username: "ab",
 		ChatID:   "111",

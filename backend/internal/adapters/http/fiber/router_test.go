@@ -481,11 +481,14 @@ func newTestAppWithStore(store *memory.Store, adminToken string) *fiber.App {
 			"",
 			false,
 		),
-		Auth:     application.NewAuthService(store, store, config.DefaultJWTSecret, 24*time.Hour),
+		Auth:     application.NewAuthService(store, store, nil, config.DefaultJWTSecret, 24*time.Hour),
 		Support:  application.NewSupportService(store, notificationnoop.New()),
 		CMS:      application.NewCMSService(store),
 		News:     application.NewNewsService(store),
-		Telegram: application.NewTelegramService(store, store, nil, ""),
+		Telegram: application.NewTelegramServiceFromRepos(store, store, nil, ""),
+		Notifications: application.NewNotificationSettingsService(store, store, store, false, false),
+		SiteSettings:  application.NewSiteSettingsService(store, domain.SiteSettings{}),
+		AdminRoles:    application.NewAdminRoleService(store, store, adminToken, config.DefaultJWTSecret),
 	}, HealthDeps{})
 }
 

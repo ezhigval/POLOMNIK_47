@@ -134,7 +134,8 @@ Bitrix24 возвращается на этапе интеграций.
 Зафиксировано владельцем после запуска palomnik:
 
 - Публичный домен один: `tikhvin-palomnik.ru`.
-- Регистрация и кабинет (`/account`) есть; Google в UI — наследие, соцсети Яндекс/VK/Max/Telegram Login — в очереди v2.
+- Регистрация и кабинет (`/account`) есть; Google в UI скрыт; соцсети Яндекс/VK/Max/Telegram Login — в очереди v2 (см. [OAUTH_SETUP.md](OAUTH_SETUP.md)).
+- Подтверждение телефона — звонок sms.ru callcheck (`PHONE_ADAPTER` / `SMSRU_API_ID`), не SMS.
 - Админка: один вход по токену/паролю env. Роли full/manager/stats — в очереди v2.
 - Главная правится блоками CMS; фабрики новых страниц в UI нет.
 - Telegram: один бот; получатели заявок и поддержки — `@username` в «Настройках».

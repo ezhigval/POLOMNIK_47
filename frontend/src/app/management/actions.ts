@@ -24,11 +24,18 @@ import {
   updateManagementNews,
   deleteManagementNews,
   updateManagementTelegramSettings,
+  updateManagementNotificationSettings,
+  updateManagementSiteSettings,
+  createManagementRole,
+  updateManagementRole,
+  deleteManagementRole,
+  assignManagementRoleUser,
   type CmsBlockCreateInput,
   type CmsBlockUpdateInput,
   type CmsPageCreateInput,
   type CmsPageUpdateInput,
   type NewsUpsertInput,
+  type SiteSettings,
   type TourUpsertInput,
 } from "@/lib/api/management";
 import { ApiError } from "@/lib/api/client";
@@ -228,6 +235,91 @@ export async function updateTelegramSettingsAction(input: {
     const settings = await updateManagementTelegramSettings(input);
     revalidatePath("/management/settings");
     return settings;
+  } catch (error) {
+    if (error instanceof ApiError) {
+      throw new Error(error.message);
+    }
+    throw error;
+  }
+}
+
+export async function updateNotificationSettingsAction(
+  events: Record<string, Array<{ channel: string; address: string }>>,
+) {
+  try {
+    const settings = await updateManagementNotificationSettings(events);
+    revalidatePath("/management/settings");
+    return settings;
+  } catch (error) {
+    if (error instanceof ApiError) {
+      throw new Error(error.message);
+    }
+    throw error;
+  }
+}
+
+export async function updateSiteSettingsAction(input: SiteSettings) {
+  try {
+    const settings = await updateManagementSiteSettings(input);
+    revalidatePath("/management/settings");
+    return settings;
+  } catch (error) {
+    if (error instanceof ApiError) {
+      throw new Error(error.message);
+    }
+    throw error;
+  }
+}
+
+export async function createAdminRoleAction(input: {
+  name: string;
+  password: string;
+  permissions: string[];
+}) {
+  try {
+    const role = await createManagementRole(input);
+    revalidatePath("/management/settings");
+    return { id: role.id, name: role.name, permissions: role.permissions ?? [] };
+  } catch (error) {
+    if (error instanceof ApiError) {
+      throw new Error(error.message);
+    }
+    throw error;
+  }
+}
+
+export async function updateAdminRoleAction(
+  id: string,
+  input: { password?: string; permissions?: string[] },
+) {
+  try {
+    const role = await updateManagementRole(id, input);
+    revalidatePath("/management/settings");
+    return role;
+  } catch (error) {
+    if (error instanceof ApiError) {
+      throw new Error(error.message);
+    }
+    throw error;
+  }
+}
+
+export async function deleteAdminRoleAction(id: string) {
+  try {
+    await deleteManagementRole(id);
+    revalidatePath("/management/settings");
+  } catch (error) {
+    if (error instanceof ApiError) {
+      throw new Error(error.message);
+    }
+    throw error;
+  }
+}
+
+export async function assignAdminRoleUserAction(roleId: string, userId: string) {
+  try {
+    await assignManagementRoleUser(roleId, userId);
+    revalidatePath("/management/settings");
   } catch (error) {
     if (error instanceof ApiError) {
       throw new Error(error.message);

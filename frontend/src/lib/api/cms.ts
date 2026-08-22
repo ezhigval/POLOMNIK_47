@@ -110,6 +110,8 @@ export type CmsPage = {
   slug: string;
   title: string;
   path: string;
+  meta_title?: string;
+  meta_description?: string;
   is_published: boolean;
   created_at?: string;
   updated_at?: string;

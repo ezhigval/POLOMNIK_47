@@ -101,9 +101,11 @@ func (h *Handler) ManagementUpdateCMSPage(c *fiber.Ctx) error {
 		return writeAppError(c, &AppError{Status: 422, Code: "VALIDATION_ERROR", Message: "Некорректные данные запроса"})
 	}
 	page, err := h.cms.UpdatePage(c.Context(), id, application.UpdatePageInput{
-		Title:       req.Title,
-		Path:        req.Path,
-		IsPublished: req.IsPublished,
+		Title:           req.Title,
+		Path:            req.Path,
+		MetaTitle:       req.MetaTitle,
+		MetaDescription: req.MetaDescription,
+		IsPublished:     req.IsPublished,
 	})
 	if err != nil {
 		return respondError(c, err, MapError)

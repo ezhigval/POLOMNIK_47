@@ -1,6 +1,12 @@
 import "server-only";
 
+import { cookies } from "next/headers";
 import { apiUrl, requestJson, ApiError, type DataEnvelope, type ListEnvelope } from "./client";
+import {
+  ADMIN_SESSION_COOKIE,
+  isManagementJwt,
+  verifyAdminSessionValue,
+} from "@/lib/auth/admin-session";
 import type { CmsBlock, CmsBlockTemplate, CmsBlockType, CmsPage } from "./cms";
 import type { Tour } from "./tours";
 
@@ -58,17 +64,29 @@ export function isManagementConfigured(): boolean {
   return Boolean(process.env.ADMIN_TOKEN);
 }
 
-async function managementRequest<T>(path: string, init?: RequestInit): Promise<T> {
-  const adminToken = process.env.ADMIN_TOKEN;
-  if (!adminToken) {
-    throw new ApiError(503, "SERVICE_UNAVAILABLE", "Management API is not configured");
+async function managementAuthHeaders(): Promise<Record<string, string>> {
+  const cookieStore = await cookies();
+  const session = cookieStore.get(ADMIN_SESSION_COOKIE)?.value;
+  if (session && isManagementJwt(session)) {
+    return { "X-Admin-Session": session };
   }
+  const adminToken = process.env.ADMIN_TOKEN;
+  if (adminToken && session && verifyAdminSessionValue(session, adminToken)) {
+    return { "X-Admin-Token": adminToken };
+  }
+  if (adminToken) {
+    return { "X-Admin-Token": adminToken };
+  }
+  throw new ApiError(503, "SERVICE_UNAVAILABLE", "Management API is not configured");
+}
 
+async function managementRequest<T>(path: string, init?: RequestInit): Promise<T> {
+  const auth = await managementAuthHeaders();
   return requestJson<T>(apiUrl(`/management${path}`), {
     cache: "no-store",
     ...init,
     headers: {
-      "X-Admin-Token": adminToken,
+      ...auth,
       ...(init?.headers ?? {}),
     },
   });
@@ -88,10 +106,7 @@ export async function createManagementTour(input: TourUpsertInput) {
 }
 
 export async function uploadManagementImage(file: File) {
-  const adminToken = process.env.ADMIN_TOKEN;
-  if (!adminToken) {
-    throw new ApiError(503, "SERVICE_UNAVAILABLE", "Management API is not configured");
-  }
+  const auth = await managementAuthHeaders();
 
   const body = new FormData();
   body.append("file", file);
@@ -100,7 +115,7 @@ export async function uploadManagementImage(file: File) {
     method: "POST",
     cache: "no-store",
     headers: {
-      "X-Admin-Token": adminToken,
+      ...auth,
     },
     body,
   });
@@ -280,6 +295,8 @@ export type CmsPageCreateInput = {
 export type CmsPageUpdateInput = {
   title?: string;
   path?: string;
+  meta_title?: string;
+  meta_description?: string;
   is_published?: boolean;
 };
 
@@ -478,4 +495,122 @@ export async function updateManagementTelegramSettings(input: {
     body: JSON.stringify(input),
   });
   return body.data;
+}
+
+export type NotificationSettings = {
+  channels: Array<{ id: string; configured: boolean; label: string }>;
+  events: Array<{
+    kind: string;
+    title: string;
+    recipients: Array<{
+      channel: string;
+      address: string;
+      event: string;
+      ready: boolean;
+      status: string;
+      label: string;
+    }>;
+  }>;
+};
+
+export type SiteSettings = {
+  site_name: string;
+  full_name: string;
+  tagline: string;
+  description: string;
+  region: string;
+  departure_city: string;
+  parent_org_name: string;
+  parent_org_url: string;
+  contact_phone: string;
+  contact_phone_display: string;
+  contact_email: string;
+  mail_forward_to: string;
+};
+
+export type AdminRole = {
+  id: string;
+  name: string;
+  permissions: string[];
+  created_at?: string;
+  updated_at?: string;
+};
+
+export type ManagementSession = {
+  full_admin: boolean;
+  role_id?: string;
+  role_name?: string;
+  permissions: string[];
+};
+
+export async function getManagementSession() {
+  const body = await managementRequest<DataEnvelope<ManagementSession>>("/session");
+  return body.data;
+}
+
+export async function getManagementNotificationSettings() {
+  const body = await managementRequest<DataEnvelope<NotificationSettings>>("/notification-settings");
+  return body.data;
+}
+
+export async function updateManagementNotificationSettings(
+  events: Record<string, Array<{ channel: string; address: string }>>,
+) {
+  const body = await managementRequest<DataEnvelope<NotificationSettings>>("/notification-settings", {
+    method: "PATCH",
+    body: JSON.stringify({ events }),
+  });
+  return body.data;
+}
+
+export async function getManagementSiteSettings() {
+  const body = await managementRequest<DataEnvelope<SiteSettings>>("/site-settings");
+  return body.data;
+}
+
+export async function updateManagementSiteSettings(input: SiteSettings) {
+  const body = await managementRequest<DataEnvelope<SiteSettings>>("/site-settings", {
+    method: "PATCH",
+    body: JSON.stringify(input),
+  });
+  return body.data;
+}
+
+export async function listManagementRoles() {
+  const body = await managementRequest<DataEnvelope<AdminRole[]>>("/roles");
+  return body.data ?? [];
+}
+
+export async function createManagementRole(input: {
+  name: string;
+  password: string;
+  permissions: string[];
+}) {
+  const body = await managementRequest<DataEnvelope<AdminRole>>("/roles", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+  return body.data;
+}
+
+export async function updateManagementRole(
+  id: string,
+  input: { password?: string; permissions?: string[] },
+) {
+  const body = await managementRequest<DataEnvelope<AdminRole>>(`/roles/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(input),
+  });
+  return body.data;
+}
+
+export async function deleteManagementRole(id: string) {
+  await managementRequest<void>(`/roles/${id}`, { method: "DELETE" });
+}
+
+export async function assignManagementRoleUser(roleId: string, userId: string) {
+  await managementRequest<DataEnvelope<{ status: string }>>(`/roles/${roleId}/assignments`, {
+    method: "POST",
+    body: JSON.stringify({ user_id: userId }),
+  });
 }

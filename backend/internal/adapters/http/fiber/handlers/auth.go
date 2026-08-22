@@ -19,10 +19,11 @@ func (h *Handler) Register(c *fiber.Ctx) error {
 	}
 
 	result, err := h.auth.Register(c.Context(), application.RegisterInput{
-		Email:    req.Email,
-		Phone:    req.Phone,
-		Name:     req.Name,
-		Password: req.Password,
+		Email:        req.Email,
+		Phone:        req.Phone,
+		Name:         req.Name,
+		Password:     req.Password,
+		PhoneCheckID: req.PhoneCheckID,
 	})
 	if err != nil {
 		return respondError(c, err, MapError)
@@ -50,6 +51,85 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 		Login:    req.Login,
 		Password: req.Password,
 	})
+	if err != nil {
+		return respondError(c, err, MapError)
+	}
+
+	return c.JSON(dto.DataEnvelope[dto.AuthResponse]{
+		Data: dto.AuthResponse{
+			Token: result.Token,
+			User:  dto.ToUserResponse(result.User),
+		},
+	})
+}
+
+func (h *Handler) AuthMethods(c *fiber.Ctx) error {
+	methods := h.auth.AuthMethods()
+	return c.JSON(dto.DataEnvelope[dto.AuthMethodsResponse]{
+		Data: dto.AuthMethodsResponse{
+			Password: methods.Password,
+			PhoneCall: dto.AuthMethodStatusResponse{
+				Available: methods.PhoneCall.Available,
+				Message:   methods.PhoneCall.Message,
+			},
+		},
+	})
+}
+
+func (h *Handler) StartPhoneVerification(c *fiber.Ctx) error {
+	var req dto.PhoneStartRequest
+	if err := c.BodyParser(&req); err != nil {
+		return writeAppError(c, &AppError{
+			Status:  422,
+			Code:    "VALIDATION_ERROR",
+			Message: "Некорректные данные запроса",
+		})
+	}
+
+	result, err := h.auth.StartPhoneVerification(c.Context(), req.Phone)
+	if err != nil {
+		return respondError(c, err, MapError)
+	}
+
+	return c.JSON(dto.DataEnvelope[dto.PhoneStartResponse]{
+		Data: dto.PhoneStartResponse{
+			CheckID:         result.CheckID,
+			CallPhone:       result.CallPhone,
+			CallPhonePretty: result.CallPhonePretty,
+			ExpiresIn:       result.ExpiresIn,
+		},
+	})
+}
+
+func (h *Handler) PhoneVerificationStatus(c *fiber.Ctx) error {
+	checkID := c.Query("check_id")
+	if checkID == "" {
+		var req dto.PhoneCheckRequest
+		_ = c.BodyParser(&req)
+		checkID = req.CheckID
+	}
+
+	result, err := h.auth.PhoneVerificationStatus(c.Context(), checkID)
+	if err != nil {
+		return respondError(c, err, MapError)
+	}
+
+	return c.JSON(dto.DataEnvelope[dto.PhoneStatusResponse]{
+		Data: dto.PhoneStatusResponse{Status: result.Status},
+	})
+}
+
+func (h *Handler) CompletePhoneLogin(c *fiber.Ctx) error {
+	var req dto.PhoneCheckRequest
+	if err := c.BodyParser(&req); err != nil {
+		return writeAppError(c, &AppError{
+			Status:  422,
+			Code:    "VALIDATION_ERROR",
+			Message: "Некорректные данные запроса",
+		})
+	}
+
+	result, err := h.auth.CompletePhoneLogin(c.Context(), req.CheckID)
 	if err != nil {
 		return respondError(c, err, MapError)
 	}

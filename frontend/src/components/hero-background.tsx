@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { heroBackgroundImages } from "@/lib/tour-cover";
+import { siteConfig } from "@/lib/site-config";
 
 const INTERVAL_MS = 7000;
 
@@ -28,7 +29,7 @@ export function HeroBackground() {
         <Image
           key={src}
           src={src}
-          alt=""
+          alt={i === 0 ? `${siteConfig.name} — паломнические поездки` : ""}
           fill
           priority={i === 0}
           sizes="100vw"

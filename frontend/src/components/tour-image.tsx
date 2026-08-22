@@ -7,9 +7,16 @@ type TourImageProps = {
   priority?: boolean;
   className?: string;
   overlay?: boolean;
+  sizes?: string;
 };
 
-export function TourImage({ tour, priority = false, className = "", overlay = false }: TourImageProps) {
+export function TourImage({
+  tour,
+  priority = false,
+  className = "",
+  overlay = false,
+  sizes = "(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw",
+}: TourImageProps) {
   const imageUrl = getTourCoverUrl(tour);
 
   if (imageUrl) {
@@ -19,7 +26,7 @@ export function TourImage({ tour, priority = false, className = "", overlay = fa
           src={imageUrl}
           alt={tour.title}
           fill
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          sizes={sizes}
           priority={priority}
           className="object-cover transition duration-500 group-hover/img:scale-105"
           fallbackClassName="size-full object-cover transition duration-500 group-hover/img:scale-105"
