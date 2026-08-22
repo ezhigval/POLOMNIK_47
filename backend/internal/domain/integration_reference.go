@@ -8,9 +8,10 @@ import (
 )
 
 const (
-	EntityTypeBooking = "booking"
-	EntityTypeTour    = "tour"
-	EntityTypeReview  = "review"
+	EntityTypeBooking        = "booking"
+	EntityTypeTour           = "tour"
+	EntityTypeReview         = "review"
+	EntityTypeSupportMessage = "support_message"
 
 	ExternalSystemBitrix24 = "bitrix24"
 	ExternalSystemOneC     = "onec"

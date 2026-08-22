@@ -297,7 +297,18 @@ export type CmsBlockUpdateInput = {
 
 export async function listManagementCmsPages() {
   const body = await managementRequest<ListEnvelope<CmsPage>>("/cms/pages");
-  return body.data;
+  return body.data ?? [];
+}
+
+export async function listManagementCmsPagesOrEmpty(): Promise<{ pages: CmsPage[]; unavailable: boolean }> {
+  try {
+    return { pages: await listManagementCmsPages(), unavailable: false };
+  } catch (error) {
+    if (error instanceof ApiError) {
+      return { pages: [], unavailable: true };
+    }
+    throw error;
+  }
 }
 
 export async function getManagementCmsPage(id: string) {
@@ -411,4 +422,60 @@ export async function updateManagementNews(id: string, input: NewsUpsertInput) {
 
 export async function deleteManagementNews(id: string) {
   await managementRequest<void>(`/news/${id}`, { method: "DELETE" });
+}
+
+export type ManagementTelegramRecipient = {
+  username: string;
+  kind: "booking" | "support";
+  chat_bound: boolean;
+  status: string;
+};
+
+export type ManagementTelegramSettings = {
+  booking_usernames: string;
+  support_usernames: string;
+  recipients: ManagementTelegramRecipient[];
+};
+
+export async function getManagementTelegramSettings() {
+  const body = await managementRequest<DataEnvelope<ManagementTelegramSettings>>("/telegram-settings");
+  return body.data;
+}
+
+function normalizeTelegramSettings(
+  settings: ManagementTelegramSettings | null | undefined,
+): ManagementTelegramSettings | null {
+  if (!settings) {
+    return null;
+  }
+  return {
+    booking_usernames: settings.booking_usernames ?? "",
+    support_usernames: settings.support_usernames ?? "",
+    recipients: Array.isArray(settings.recipients) ? settings.recipients : [],
+  };
+}
+
+export async function getManagementTelegramSettingsOrEmpty(): Promise<{
+  settings: ManagementTelegramSettings | null;
+  unavailable: boolean;
+}> {
+  try {
+    return {
+      settings: normalizeTelegramSettings(await getManagementTelegramSettings()),
+      unavailable: false,
+    };
+  } catch {
+    return { settings: null, unavailable: true };
+  }
+}
+
+export async function updateManagementTelegramSettings(input: {
+  booking_usernames: string;
+  support_usernames: string;
+}) {
+  const body = await managementRequest<DataEnvelope<ManagementTelegramSettings>>("/telegram-settings", {
+    method: "PATCH",
+    body: JSON.stringify(input),
+  });
+  return body.data;
 }

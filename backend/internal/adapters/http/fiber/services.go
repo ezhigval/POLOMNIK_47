@@ -15,4 +15,5 @@ type Services struct {
 	Support      *application.SupportService
 	CMS          *application.CMSService
 	News         *application.NewsService
+	Telegram     *application.TelegramService
 }

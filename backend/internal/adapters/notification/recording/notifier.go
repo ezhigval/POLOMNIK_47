@@ -44,13 +44,40 @@ func (n Notifier) NotifyBookingStatusChanged(
 	return nil
 }
 
+func (n Notifier) NotifySupportMessage(ctx context.Context, note domain.SupportNotification) error {
+	err := n.inner.NotifySupportMessage(ctx, note)
+	payload, _ := json.Marshal(map[string]string{
+		"thread_id":  note.ThreadID.String(),
+		"message_id": note.MessageID.String(),
+		"user_id":    note.UserID.String(),
+		"body":       note.Body,
+	})
+	entityID := note.MessageID
+	if entityID == uuid.Nil {
+		entityID = note.ThreadID
+	}
+	n.recordTyped(ctx, domain.OutboxEventNotificationSupport, domain.EntityTypeSupportMessage, entityID, payload, err)
+	return nil
+}
+
 func (n Notifier) record(ctx context.Context, eventType string, entityID uuid.UUID, callErr error) {
-	n.recordWithPayload(ctx, eventType, entityID, json.RawMessage(`{}`), callErr)
+	n.recordTyped(ctx, eventType, domain.EntityTypeBooking, entityID, json.RawMessage(`{}`), callErr)
 }
 
 func (n Notifier) recordWithPayload(
 	ctx context.Context,
 	eventType string,
+	entityID uuid.UUID,
+	payload json.RawMessage,
+	callErr error,
+) {
+	n.recordTyped(ctx, eventType, domain.EntityTypeBooking, entityID, payload, callErr)
+}
+
+func (n Notifier) recordTyped(
+	ctx context.Context,
+	eventType string,
+	entityType string,
 	entityID uuid.UUID,
 	payload json.RawMessage,
 	callErr error,
@@ -63,7 +90,7 @@ func (n Notifier) recordWithPayload(
 	event, err := domain.NewOutboxEvent(domain.NewOutboxEventInput{
 		ID:         uuid.New(),
 		EventType:  eventType,
-		EntityType: domain.EntityTypeBooking,
+		EntityType: entityType,
 		EntityID:   entityID,
 		Payload:    payload,
 		Status:     domain.OutboxStatusPending,

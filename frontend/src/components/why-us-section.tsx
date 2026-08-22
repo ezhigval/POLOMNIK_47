@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { whyUsItems } from "@/lib/site-content";
+import { trustStats, whyUsItems } from "@/lib/site-content";
 import { SectionHeading } from "@/components/section-heading";
 import type { WhyUsBlockContent } from "@/lib/api/cms";
 
@@ -26,21 +26,53 @@ const icons: Record<string, ReactNode> = {
   ),
 };
 
+type WhyUsStat = { value: string; label: string };
+
 type WhyUsSectionProps = {
   content?: WhyUsBlockContent;
+  fallbackStats?: WhyUsStat[];
 };
 
-export function WhyUsSection({ content }: WhyUsSectionProps = {}) {
+function statsWithoutOverlap(stats: WhyUsStat[], items: { title: string; description: string }[]) {
+  return stats.filter((stat) => {
+    const value = stat.value.trim().toLowerCase();
+    const label = stat.label.trim().toLowerCase();
+    return !items.some((item) => {
+      const text = `${item.title} ${item.description}`.toLowerCase();
+      return Boolean(value && label && text.includes(value) && text.includes(label));
+    });
+  });
+}
+
+export function WhyUsSection({ content, fallbackStats }: WhyUsSectionProps = {}) {
   const eyebrow = content?.eyebrow ?? "Почему мы";
   const title = content?.title ?? "Паломничество без лишних забот";
   const description =
     content?.description?.trim() ||
     "Мы не просто везём вас в монастырь — мы создаём возможность для тишины, молитвы и встречи с Богом.";
   const items = content?.items?.length ? content.items : whyUsItems;
+  const stats = statsWithoutOverlap(
+    content?.stats?.length ? content.stats : fallbackStats?.length ? fallbackStats : trustStats,
+    items,
+  );
 
   return (
     <section id="why-us" className="scroll-mt-24">
       <SectionHeading eyebrow={eyebrow} title={title} description={description} />
+
+      {stats.length ? (
+        <dl className="mt-10 grid grid-cols-2 gap-5 sm:grid-cols-4">
+          {stats.map((stat) => (
+            <div
+              key={stat.label}
+              className="rounded-2xl border border-stone-200/80 bg-white px-4 py-5 shadow-sm transition hover:border-brand-200 hover:shadow-md"
+            >
+              <dt className="font-display text-2xl font-semibold text-stone-900 sm:text-3xl">{stat.value}</dt>
+              <dd className="mt-1 text-xs text-stone-600 sm:text-sm">{stat.label}</dd>
+            </div>
+          ))}
+        </dl>
+      ) : null}
 
       <ul className="mt-10 grid gap-5 sm:grid-cols-2">
         {items.map((item) => (

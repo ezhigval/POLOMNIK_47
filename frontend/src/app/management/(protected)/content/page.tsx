@@ -10,18 +10,18 @@ import {
   ManagementTh,
 } from "@/components/management/management-panel";
 import { StatusBadge } from "@/components/management/status-badge";
-import { listManagementCmsPages } from "@/lib/api/management";
+import { listManagementCmsPagesOrEmpty } from "@/lib/api/management";
 
 export default async function ManagementContentPage() {
-  const pages = await listManagementCmsPages();
+  const { pages, unavailable } = await listManagementCmsPagesOrEmpty();
   const hasHome = pages.some((page) => page.slug === "home");
 
   return (
     <div className="grid gap-8 lg:grid-cols-[1.2fr_1fr]">
       <div className="space-y-6">
-        {!hasHome ? <BootstrapHomeButton /> : null}
+        {!unavailable && !hasHome ? <BootstrapHomeButton /> : null}
 
-        <ManagementPanel title="Страницы" description={`${pages.length} в CMS`}>
+        <ManagementPanel title="Страницы" description={unavailable ? "недоступно" : `${pages.length} в CMS`}>
         <ManagementTable>
           <ManagementTableHead>
             <ManagementTh>Название</ManagementTh>
@@ -32,7 +32,9 @@ export default async function ManagementContentPage() {
           </ManagementTableHead>
           <tbody>
             {pages.length === 0 ? (
-              <ManagementEmptyRow colSpan={5}>Страниц пока нет.</ManagementEmptyRow>
+              <ManagementEmptyRow colSpan={5}>
+                {unavailable ? "Список страниц сейчас недоступен." : "Страниц пока нет."}
+              </ManagementEmptyRow>
             ) : (
               pages.map((page) => (
                 <tr key={page.id} className="border-b border-stone-100 align-top last:border-0">

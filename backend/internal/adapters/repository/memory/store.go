@@ -12,19 +12,21 @@ import (
 )
 
 type Store struct {
-	mu              sync.RWMutex
-	tours           map[uuid.UUID]domain.Tour
-	bookings        map[uuid.UUID]domain.Booking
-	reviews         map[uuid.UUID]domain.Review
-	users           map[uuid.UUID]domain.User
-	favorites       map[string]domain.Favorite
-	supportThreads  map[uuid.UUID]domain.SupportThread
-	supportMessages map[uuid.UUID]domain.SupportMessage
-	integrationRefs map[string]domain.IntegrationReference
-	outboxEvents    map[uuid.UUID]domain.OutboxEvent
-	cmsPages        map[uuid.UUID]domain.Page
-	cmsBlocks       map[uuid.UUID]domain.Block
-	news            map[uuid.UUID]domain.NewsArticle
+	mu                 sync.RWMutex
+	tours              map[uuid.UUID]domain.Tour
+	bookings           map[uuid.UUID]domain.Booking
+	reviews            map[uuid.UUID]domain.Review
+	users              map[uuid.UUID]domain.User
+	favorites          map[string]domain.Favorite
+	supportThreads     map[uuid.UUID]domain.SupportThread
+	supportMessages    map[uuid.UUID]domain.SupportMessage
+	integrationRefs    map[string]domain.IntegrationReference
+	outboxEvents       map[uuid.UUID]domain.OutboxEvent
+	cmsPages           map[uuid.UUID]domain.Page
+	cmsBlocks          map[uuid.UUID]domain.Block
+	news               map[uuid.UUID]domain.NewsArticle
+	telegramRecipients *domain.TelegramRecipients
+	telegramChats      map[string]domain.TelegramChatBinding
 }
 
 func (s *Store) WithinTransaction(ctx context.Context, fn func(context.Context) error) error {
@@ -45,6 +47,7 @@ func NewStore() *Store {
 		cmsPages:        make(map[uuid.UUID]domain.Page),
 		cmsBlocks:       make(map[uuid.UUID]domain.Block),
 		news:            make(map[uuid.UUID]domain.NewsArticle),
+		telegramChats:   make(map[string]domain.TelegramChatBinding),
 	}
 }
 

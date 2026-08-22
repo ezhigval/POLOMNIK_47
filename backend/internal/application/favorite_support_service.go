@@ -36,11 +36,12 @@ func (s *FavoriteService) RemoveFavorite(ctx context.Context, userID, tourID uui
 }
 
 type SupportService struct {
-	support ports.SupportRepository
+	support       ports.SupportRepository
+	notifications ports.NotificationPort
 }
 
-func NewSupportService(support ports.SupportRepository) *SupportService {
-	return &SupportService{support: support}
+func NewSupportService(support ports.SupportRepository, notifications ports.NotificationPort) *SupportService {
+	return &SupportService{support: support, notifications: notifications}
 }
 
 const supportWelcomeMessage = "Здравствуйте! Мы получили ваше сообщение. Менеджер ответит в рабочее время — обычно в течение нескольких часов."
@@ -97,6 +98,14 @@ func (s *SupportService) SendUserMessage(ctx context.Context, userID uuid.UUID, 
 		return nil, err
 	}
 	_ = s.support.TouchThread(ctx, thread.ID)
+	if s.notifications != nil {
+		_ = s.notifications.NotifySupportMessage(ctx, domain.SupportNotification{
+			ThreadID:  thread.ID,
+			MessageID: message.ID,
+			UserID:    userID,
+			Body:      message.Body,
+		})
+	}
 
 	existing, err := s.support.ListMessages(ctx, thread.ID)
 	if err != nil {

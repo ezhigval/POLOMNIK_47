@@ -150,6 +150,18 @@ async function main() {
   });
   assert(favoriteAdd.response.status === 201, "add favorite failed");
 
+  const cmsPages = await request("/management/cms/pages", {
+    headers: adminHeaders,
+  });
+  assert(cmsPages.response.ok, "management cms pages must not 500 (missing SEO columns or empty CMS)");
+  assert(Array.isArray(cmsPages.body?.data), "cms pages data must be array");
+
+  const publicHome = await request("/pages/home");
+  assert(
+    publicHome.response.status === 200 || publicHome.response.status === 404,
+    `public CMS home must not 500, got ${publicHome.response.status}`,
+  );
+
   const integrationRefs = await request("/management/integration-references", {
     headers: adminHeaders,
   });

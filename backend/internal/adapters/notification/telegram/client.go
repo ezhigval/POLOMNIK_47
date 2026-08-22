@@ -65,6 +65,39 @@ func (c Client) SendMessage(ctx context.Context, chatID string, text string) err
 	return nil
 }
 
+func (c Client) SetWebhook(ctx context.Context, webhookURL, secretToken string) error {
+	if c.token == "" || strings.TrimSpace(webhookURL) == "" {
+		return ports.ErrNotificationNotConfigured
+	}
+
+	endpoint := fmt.Sprintf("%s/bot%s/setWebhook", c.apiBase, c.token)
+	form := url.Values{}
+	form.Set("url", strings.TrimSpace(webhookURL))
+	if secret := strings.TrimSpace(secretToken); secret != "" {
+		form.Set("secret_token", secret)
+	}
+	form.Set("allowed_updates", `["message"]`)
+	form.Set("drop_pending_updates", "false")
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, endpoint, strings.NewReader(form.Encode()))
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode >= 300 {
+		body, _ := io.ReadAll(io.LimitReader(resp.Body, 512))
+		return fmt.Errorf("telegram setWebhook: status %d: %s", resp.StatusCode, strings.TrimSpace(string(body)))
+	}
+	return nil
+}
+
 func (c Client) Configured() bool {
 	return c.token != ""
 }

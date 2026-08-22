@@ -36,6 +36,7 @@ export type WhyUsBlockContent = {
   title?: string;
   description?: string;
   items?: { title: string; description: string; icon: string }[];
+  stats?: { value: string; label: string }[];
 };
 
 export type HowItWorksBlockContent = {
@@ -123,9 +124,9 @@ export type CmsBlockTemplate = {
 
 export async function getPublishedPage(slug: string): Promise<CmsPage | null> {
   try {
-    return await apiGet<CmsPage>(`/api/v1/pages/${encodeURIComponent(slug)}`);
+    return await apiGet<CmsPage>(`/pages/${encodeURIComponent(slug)}`);
   } catch (error) {
-    if (error instanceof ApiError && error.status === 404) {
+    if (error instanceof ApiError && (error.status === 404 || error.status >= 500)) {
       return null;
     }
     throw error;

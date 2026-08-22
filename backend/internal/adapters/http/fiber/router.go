@@ -15,6 +15,7 @@ import (
 	"polomnik/internal/adapters/http/fiber/dto"
 	"polomnik/internal/adapters/http/fiber/handlers"
 	appmiddleware "polomnik/internal/adapters/http/fiber/middleware"
+	"polomnik/internal/application"
 	"polomnik/internal/config"
 )
 
@@ -51,7 +52,20 @@ func NewRouter(cfg config.Config, log *slog.Logger, services Services, health He
 		}
 	}
 
-	h := handlers.New(services.Tours, services.Bookings, services.Reviews, services.Integrations, services.Webhooks, services.Auth, services.Favorites, services.Support, services.CMS, services.News)
+	h := handlers.New(
+		services.Tours,
+		services.Bookings,
+		services.Reviews,
+		services.Integrations,
+		services.Webhooks,
+		services.Auth,
+		services.Favorites,
+		services.Support,
+		services.CMS,
+		services.News,
+		services.Telegram,
+		application.TelegramWebhookSecret(cfg.InternalAPISecret),
+	)
 
 	ready := handlers.NewReadinessChecker(health.PingDB, health.PingCache, health.CacheRequired)
 
@@ -78,6 +92,7 @@ func NewRouter(cfg config.Config, log *slog.Logger, services Services, health He
 	v1.Get("/pages/:slug", h.GetPublicCMSPage)
 	v1.Post("/bookings", appmiddleware.RateLimit(30, time.Minute), appmiddleware.OptionalUserAuth(services.Auth), h.CreateBooking)
 	v1.Post("/webhooks/bitrix/deal", appmiddleware.RateLimit(60, time.Minute), h.BitrixDealWebhook)
+	v1.Post("/webhooks/telegram", appmiddleware.RateLimit(120, time.Minute), h.TelegramWebhook)
 
 	me := v1.Group("/me", appmiddleware.RequireUserAuth(services.Auth))
 	me.Get("/", h.Me)
@@ -112,6 +127,9 @@ func NewRouter(cfg config.Config, log *slog.Logger, services Services, health He
 	management.Get("/news/:id", h.ManagementGetNews)
 	management.Patch("/news/:id", h.ManagementUpdateNews)
 	management.Delete("/news/:id", h.ManagementDeleteNews)
+
+	management.Get("/telegram-settings", h.ManagementGetTelegramSettings)
+	management.Patch("/telegram-settings", h.ManagementUpdateTelegramSettings)
 
 	management.Get("/integration-references", h.ManagementListIntegrationReferences)
 	management.Get("/outbox-events", h.ManagementListOutboxEvents)

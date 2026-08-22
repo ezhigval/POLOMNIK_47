@@ -118,3 +118,13 @@ type NewsRepository interface {
 	UpdateNews(ctx context.Context, article domain.NewsArticle) (domain.NewsArticle, error)
 	DeleteNews(ctx context.Context, id uuid.UUID) error
 }
+
+type TelegramRecipientsRepository interface {
+	GetTelegramRecipients(ctx context.Context) (domain.TelegramRecipients, error)
+	UpsertTelegramRecipients(ctx context.Context, settings domain.TelegramRecipients) (domain.TelegramRecipients, error)
+}
+
+type TelegramChatMapRepository interface {
+	UpsertTelegramChatBinding(ctx context.Context, binding domain.TelegramChatBinding) error
+	ListTelegramChatBindings(ctx context.Context, usernames []string) (map[string]string, error)
+}
