@@ -1,3 +1,5 @@
+export const NEWS_AI_DISCLAIMER = "Новость создана с помощью ИИ, могут быть неточности";
+
 export type NewsArticle = {
   slug: string;
   title: string;

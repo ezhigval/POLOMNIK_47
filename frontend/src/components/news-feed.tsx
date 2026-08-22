@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { formatNewsDate, type NewsArticle } from "@/lib/news";
+import { formatNewsDate, NEWS_AI_DISCLAIMER, type NewsArticle } from "@/lib/news";
 
 type NewsFeedProps = {
   articles: NewsArticle[];
@@ -118,14 +118,30 @@ export function NewsFeed({ articles }: NewsFeedProps) {
                 {openArticle.title}
               </h2>
               <div className="mt-5 space-y-4 text-sm leading-7 text-stone-700 sm:text-base">
-                {openArticle.paragraphs.map((paragraph) => (
+                {articleParagraphs(openArticle.paragraphs).map((paragraph) => (
                   <p key={paragraph}>{paragraph}</p>
                 ))}
               </div>
+              {hasAiDisclaimer(openArticle.paragraphs) ? (
+                <p className="mt-6 border-t border-stone-100 pt-4 text-xs leading-5 text-stone-400">
+                  {NEWS_AI_DISCLAIMER}
+                </p>
+              ) : null}
             </div>
           </article>
         </div>
       ) : null}
     </>
   );
+}
+
+function articleParagraphs(paragraphs: string[]): string[] {
+  if (hasAiDisclaimer(paragraphs)) {
+    return paragraphs.slice(0, -1);
+  }
+  return paragraphs;
+}
+
+function hasAiDisclaimer(paragraphs: string[]): boolean {
+  return paragraphs.at(-1)?.trim() === NEWS_AI_DISCLAIMER;
 }
