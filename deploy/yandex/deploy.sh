@@ -49,10 +49,12 @@ rsync -az --delete \
 
 # Never `compose down -v` — the named Postgres volume must survive.
 # Disk is tight: rebuild frontend only; recreate api/worker from existing images + updated env.
-echo "Rebuilding frontend, then recreating stack (no postgres wipe)..."
+echo "Rebuilding frontend + api/worker, then recreating stack (no postgres wipe)..."
 ssh "${SSH_OPTS[@]}" "$REMOTE" "cd /opt/polomnik && \
-  $COMPOSE up -d --no-deps --build frontend && \
-  $COMPOSE up -d --no-build && \
+  $COMPOSE build frontend api worker && \
+  $COMPOSE up -d --no-deps frontend && \
+  $COMPOSE up -d && \
   $COMPOSE ps"
+
 
 echo "Done. https://tikhvin-palomnik.ru"

@@ -57,6 +57,24 @@ type Config struct {
 	MaxBotToken              string
 	PhoneAdapter             string
 	SMSRUAPIID               string
+	MailAdapter              string
+	SMTPHost                 string
+	SMTPPort                 string
+	SMTPUsername             string
+	SMTPPassword             string
+	SMTPFrom                 string
+	SMTPTimeout              time.Duration
+	MailForwardToFallback    string
+	YandexOAuthClientID      string
+	YandexOAuthClientSecret  string
+	VKOAuthClientID          string
+	VKOAuthClientSecret      string
+	MaxOAuthClientID         string
+	MaxOAuthClientSecret     string
+	MaxOAuthAuthorizeURL     string
+	MaxOAuthTokenURL         string
+	MaxOAuthUserInfoURL      string
+	PublicSiteURL            string
 	ManagementBaseURL        string
 	UploadDir                string
 	UploadPublicBaseURL      string
@@ -116,6 +134,24 @@ func Load() Config {
 		MaxBotToken:              os.Getenv("MAX_BOT_TOKEN"),
 		PhoneAdapter:             phoneAdapterFromEnv(),
 		SMSRUAPIID:               os.Getenv("SMSRU_API_ID"),
+		MailAdapter:              envString("MAIL_ADAPTER", "noop"),
+		SMTPHost:                 os.Getenv("SMTP_HOST"),
+		SMTPPort:                 envString("SMTP_PORT", "587"),
+		SMTPUsername:             os.Getenv("SMTP_USERNAME"),
+		SMTPPassword:             os.Getenv("SMTP_PASSWORD"),
+		SMTPFrom:                 os.Getenv("SMTP_FROM"),
+		SMTPTimeout:              envDuration("SMTP_TIMEOUT", 15*time.Second),
+		MailForwardToFallback:    os.Getenv("MAIL_FORWARD_TO"),
+		YandexOAuthClientID:      os.Getenv("YANDEX_OAUTH_CLIENT_ID"),
+		YandexOAuthClientSecret:  os.Getenv("YANDEX_OAUTH_CLIENT_SECRET"),
+		VKOAuthClientID:          os.Getenv("VK_OAUTH_CLIENT_ID"),
+		VKOAuthClientSecret:      os.Getenv("VK_OAUTH_CLIENT_SECRET"),
+		MaxOAuthClientID:         os.Getenv("MAX_OAUTH_CLIENT_ID"),
+		MaxOAuthClientSecret:     os.Getenv("MAX_OAUTH_CLIENT_SECRET"),
+		MaxOAuthAuthorizeURL:     os.Getenv("MAX_OAUTH_AUTHORIZE_URL"),
+		MaxOAuthTokenURL:         os.Getenv("MAX_OAUTH_TOKEN_URL"),
+		MaxOAuthUserInfoURL:      os.Getenv("MAX_OAUTH_USERINFO_URL"),
+		PublicSiteURL:            envString("PUBLIC_SITE_URL", "https://tikhvin-palomnik.ru"),
 		ManagementBaseURL:        envString("MANAGEMENT_BASE_URL", "http://localhost:3000/management/bookings"),
 		UploadDir:                envString("UPLOAD_DIR", "./data/uploads"),
 		UploadPublicBaseURL:      envString("UPLOAD_PUBLIC_BASE_URL", "http://localhost:8080"),

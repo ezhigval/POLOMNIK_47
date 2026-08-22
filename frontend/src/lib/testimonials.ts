@@ -1,7 +1,7 @@
 import { getReviews, getTours } from "@/lib/api/tours";
-import { fallbackTestimonials } from "@/lib/site-content";
 import type { Testimonial } from "@/components/testimonial-card";
 
+/** Only approved reviews from API — no invented fallback quotes. */
 export async function loadTestimonials(limit: number): Promise<Testimonial[]> {
   try {
     const [reviewsResponse, toursResponse] = await Promise.all([
@@ -10,7 +10,7 @@ export async function loadTestimonials(limit: number): Promise<Testimonial[]> {
     ]);
 
     if (reviewsResponse.data.length === 0) {
-      return fallbackTestimonials.slice(0, limit);
+      return [];
     }
 
     const tourTitles = new Map(toursResponse.data.map((tour) => [tour.id, tour.title]));
@@ -22,6 +22,6 @@ export async function loadTestimonials(limit: number): Promise<Testimonial[]> {
       company_reply: review.company_reply,
     }));
   } catch {
-    return fallbackTestimonials.slice(0, limit);
+    return [];
   }
 }

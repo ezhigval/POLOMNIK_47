@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useCallback, useState } from "react";
 import { PhoneCallVerify } from "@/components/auth/phone-call-verify";
+import { SocialAuthButtons } from "@/components/auth/social-auth-buttons";
 import { FormError } from "@/components/form-error";
 import { safeReturnUrl } from "@/lib/site-nav";
 
@@ -135,6 +136,10 @@ export function LoginForm({ returnUrl = "/account/trips" }: LoginFormProps) {
         {!callAvailable ? null : (
           <p className="text-xs text-stone-500">Аккаунт с этим телефоном должен уже существовать.</p>
         )}
+      </div>
+
+      <div className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
+        <SocialAuthButtons />
       </div>
     </div>
   );

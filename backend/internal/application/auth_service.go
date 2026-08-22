@@ -23,11 +23,21 @@ type AuthService struct {
 	users     ports.UserRepository
 	bookings  ports.BookingRepository
 	phones    ports.PhoneVerifier
+	mailer    ports.Mailer
+	social    SocialAuthConfig
 	jwtSecret []byte
 	tokenTTL  time.Duration
 
 	mu         sync.Mutex
 	challenges map[string]phoneChallengeRecord
+}
+
+type SocialAuthConfig struct {
+	YandexConfigured   bool
+	VKConfigured       bool
+	MaxConfigured      bool
+	TelegramConfigured bool
+	TelegramBotUsername string
 }
 
 type phoneChallengeRecord struct {
@@ -39,6 +49,8 @@ func NewAuthService(
 	users ports.UserRepository,
 	bookings ports.BookingRepository,
 	phones ports.PhoneVerifier,
+	mailer ports.Mailer,
+	social SocialAuthConfig,
 	jwtSecret string,
 	tokenTTL time.Duration,
 ) *AuthService {
@@ -48,15 +60,28 @@ func NewAuthService(
 	if phones == nil {
 		phones = unavailablePhoneVerifier{}
 	}
+	if mailer == nil {
+		mailer = unavailableMailer{}
+	}
 	return &AuthService{
 		users:      users,
 		bookings:   bookings,
 		phones:     phones,
+		mailer:     mailer,
+		social:     social,
 		jwtSecret:  []byte(jwtSecret),
 		tokenTTL:   tokenTTL,
 		challenges: make(map[string]phoneChallengeRecord),
 	}
 }
+
+type unavailableMailer struct{}
+
+func (unavailableMailer) Configured() bool { return false }
+func (unavailableMailer) Send(context.Context, ports.MailMessage) error {
+	return ports.ErrMailerNotConfigured
+}
+
 
 type unavailablePhoneVerifier struct{}
 
@@ -94,11 +119,17 @@ type AuthClaims struct {
 type AuthMethods struct {
 	Password  bool
 	PhoneCall AuthMethodStatus
+	Yandex    AuthMethodStatus
+	VK        AuthMethodStatus
+	Max       AuthMethodStatus
+	Telegram  AuthMethodStatus
+	Mail      AuthMethodStatus
 }
 
 type AuthMethodStatus struct {
 	Available bool
 	Message   string
+	Username  string
 }
 
 type PhoneStartResult struct {
@@ -117,9 +148,26 @@ func (s *AuthService) AuthMethods() AuthMethods {
 	if s.phones.Available() {
 		phone = AuthMethodStatus{Available: true}
 	}
+	socialStatus := func(ok bool) AuthMethodStatus {
+		if ok {
+			return AuthMethodStatus{Available: true}
+		}
+		return AuthMethodStatus{Available: false, Message: unavailableMessage}
+	}
+	mail := AuthMethodStatus{Available: false, Message: unavailableMessage}
+	if s.mailer != nil && s.mailer.Configured() {
+		mail = AuthMethodStatus{Available: true}
+	}
+	telegram := socialStatus(s.social.TelegramConfigured)
+	telegram.Username = s.social.TelegramBotUsername
 	return AuthMethods{
 		Password:  true,
 		PhoneCall: phone,
+		Yandex:    socialStatus(s.social.YandexConfigured),
+		VK:        socialStatus(s.social.VKConfigured),
+		Max:       socialStatus(s.social.MaxConfigured),
+		Telegram:  telegram,
+		Mail:      mail,
 	}
 }
 
@@ -255,12 +303,25 @@ func (s *AuthService) Register(ctx context.Context, input RegisterInput) (AuthRe
 		return AuthResult{}, err
 	}
 
+	s.sendRegistrationMail(ctx, created)
+
 	token, err := s.issueToken(created.ID)
 	if err != nil {
 		return AuthResult{}, err
 	}
 
 	return AuthResult{Token: token, User: sanitizeUser(created)}, nil
+}
+
+func (s *AuthService) sendRegistrationMail(ctx context.Context, user domain.User) {
+	if s.mailer == nil || !s.mailer.Configured() || strings.TrimSpace(user.Email) == "" {
+		return
+	}
+	_ = s.mailer.Send(ctx, ports.MailMessage{
+		To:      []string{user.Email},
+		Subject: "Регистрация на сайте паломнической службы",
+		Text:    "Здравствуйте, " + user.Name + "!\n\nВаш аккаунт создан. Войти можно на сайте в разделе «Кабинет».\n",
+	})
 }
 
 func (s *AuthService) Login(ctx context.Context, input LoginInput) (AuthResult, error) {
