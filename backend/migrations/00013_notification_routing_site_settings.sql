@@ -1,7 +1,6 @@
 -- +goose Up
--- Notification routing (event → channel+address) and public site identity.
--- Prod may already have a historical site_settings table from an older goose 10;
--- CREATE IF NOT EXISTS keeps that safe. telegram_recipients is kept and copied once.
+-- Notification routing (event → channel+address) and evolve historical site_settings.
+-- Prod already has site_settings from an older shape (site_full_name / site_tagline / …).
 
 CREATE TABLE IF NOT EXISTS notification_routing (
     id SMALLINT PRIMARY KEY CHECK (id = 1),
@@ -30,11 +29,40 @@ CREATE TABLE IF NOT EXISTS site_settings (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-INSERT INTO site_settings (id)
-VALUES (1)
-ON CONFLICT (id) DO NOTHING;
+-- Rename historical columns to the canonical names used by the API.
+DO $$
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM information_schema.columns
+        WHERE table_schema = 'public' AND table_name = 'site_settings' AND column_name = 'site_full_name'
+    ) AND NOT EXISTS (
+        SELECT 1 FROM information_schema.columns
+        WHERE table_schema = 'public' AND table_name = 'site_settings' AND column_name = 'full_name'
+    ) THEN
+        ALTER TABLE site_settings RENAME COLUMN site_full_name TO full_name;
+    END IF;
 
--- Ensure columns exist when an older site_settings shape is already present.
+    IF EXISTS (
+        SELECT 1 FROM information_schema.columns
+        WHERE table_schema = 'public' AND table_name = 'site_settings' AND column_name = 'site_tagline'
+    ) AND NOT EXISTS (
+        SELECT 1 FROM information_schema.columns
+        WHERE table_schema = 'public' AND table_name = 'site_settings' AND column_name = 'tagline'
+    ) THEN
+        ALTER TABLE site_settings RENAME COLUMN site_tagline TO tagline;
+    END IF;
+
+    IF EXISTS (
+        SELECT 1 FROM information_schema.columns
+        WHERE table_schema = 'public' AND table_name = 'site_settings' AND column_name = 'site_description'
+    ) AND NOT EXISTS (
+        SELECT 1 FROM information_schema.columns
+        WHERE table_schema = 'public' AND table_name = 'site_settings' AND column_name = 'description'
+    ) THEN
+        ALTER TABLE site_settings RENAME COLUMN site_description TO description;
+    END IF;
+END $$;
+
 ALTER TABLE site_settings ADD COLUMN IF NOT EXISTS site_name TEXT NOT NULL DEFAULT '';
 ALTER TABLE site_settings ADD COLUMN IF NOT EXISTS full_name TEXT NOT NULL DEFAULT '';
 ALTER TABLE site_settings ADD COLUMN IF NOT EXISTS tagline TEXT NOT NULL DEFAULT '';
@@ -49,9 +77,19 @@ ALTER TABLE site_settings ADD COLUMN IF NOT EXISTS contact_email TEXT NOT NULL D
 ALTER TABLE site_settings ADD COLUMN IF NOT EXISTS mail_forward_to TEXT NOT NULL DEFAULT '';
 ALTER TABLE site_settings ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
 
+-- Seed only when the table is empty (never wipe existing identity row).
+INSERT INTO site_settings (
+    id, site_name, full_name, tagline, description, region, departure_city,
+    parent_org_name, parent_org_url, contact_phone, contact_phone_display,
+    contact_email, mail_forward_to
+)
+SELECT
+    1, '', '', '', '', '', '',
+    '', '', '', '',
+    '', ''
+WHERE NOT EXISTS (SELECT 1 FROM site_settings WHERE id = 1);
+
 -- One-shot migrate from legacy telegram username lists into JSON routes.
--- booking_usernames → booking_created + booking_status_changed (telegram channel).
--- support_usernames → support_message.
 UPDATE notification_routing nr
 SET
     routes = subquery.routes,
