@@ -3,7 +3,8 @@ import { Pagination } from "@/components/pagination";
 import { TourCard } from "@/components/tour-card";
 import { ActiveFilterChips, TourFilters } from "@/components/tour-filters";
 import { ApiError } from "@/lib/api/client";
-import { getPopularTours, getTours } from "@/lib/api/tours";
+import { getPopularTours, getTours, type Tour } from "@/lib/api/tours";
+import { rankSimilarTours } from "@/lib/similar-tours";
 import {
   hasActiveFilters,
   parseTourFilters,
@@ -20,7 +21,8 @@ type ToursSectionProps = {
 
 async function loadToursData(filters: TourFilterValues, showPopularBlock: boolean) {
   const query = toTourQueryParams(filters);
-  const showPopular = showPopularBlock && !hasActiveFilters(filters);
+  const active = hasActiveFilters(filters);
+  const showPopular = showPopularBlock && !active;
 
   try {
     const [toursResponse, popular] = await Promise.all([
@@ -28,10 +30,17 @@ async function loadToursData(filters: TourFilterValues, showPopularBlock: boolea
       showPopular ? getPopularTours(6) : Promise.resolve([]),
     ]);
 
+    let similar: Tour[] = [];
+    if (active && toursResponse.data.length === 0) {
+      const broader = await getTours({ limit: "20" });
+      similar = rankSimilarTours(broader.data, filters, 6);
+    }
+
     return {
       error: null as string | null,
       toursResponse,
       popular,
+      similar,
       showPopular,
     };
   } catch (err) {
@@ -42,6 +51,7 @@ async function loadToursData(filters: TourFilterValues, showPopularBlock: boolea
           : "Не удалось загрузить туры. Попробуйте обновить страницу.",
       toursResponse: null,
       popular: [],
+      similar: [] as Tour[],
       showPopular,
     };
   }
@@ -56,7 +66,7 @@ async function ToursContent({
   showPopularBlock: boolean;
   basePath: string;
 }) {
-  const { error, toursResponse, popular, showPopular } = await loadToursData(filters, showPopularBlock);
+  const { error, toursResponse, popular, similar, showPopular } = await loadToursData(filters, showPopularBlock);
 
   if (error) {
     return (
@@ -88,15 +98,35 @@ async function ToursContent({
           <h2 className="text-xl font-semibold">
             {hasActiveFilters(filters) ? "Результаты поиска" : "Все туры"}
           </h2>
-          <span className="text-sm text-stone-500">Найдено: {toursResponse.meta.total}</span>
+          {toursResponse.data.length > 0 ? (
+            <span className="text-sm text-stone-500">Найдено: {toursResponse.meta.total}</span>
+          ) : null}
         </div>
 
         {toursResponse.data.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-stone-300 bg-white p-8 text-center text-stone-500">
-            {hasActiveFilters(filters)
-              ? "По выбранным фильтрам туры не найдены."
-              : "Пока нет доступных туров."}
-          </div>
+          similar.length > 0 ? (
+            <div className="space-y-6">
+              <p className="rounded-2xl border border-dashed border-stone-300 bg-white p-5 text-sm text-stone-600">
+                По выбранным фильтрам точных совпадений нет.
+              </p>
+              <div>
+                <h3 className="mb-4 text-lg font-semibold text-stone-900">
+                  Есть похожие туры, не попадающие в некоторые ваши критерии
+                </h3>
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  {similar.map((tour) => (
+                    <TourCard key={tour.id} tour={tour} />
+                  ))}
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="rounded-2xl border border-dashed border-stone-300 bg-white p-8 text-center text-stone-500">
+              {hasActiveFilters(filters)
+                ? "По выбранным фильтрам туры не найдены."
+                : "Пока нет доступных туров."}
+            </div>
+          )
         ) : (
           <>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">

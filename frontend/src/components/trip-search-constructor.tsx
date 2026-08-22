@@ -2,9 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
-import { departureCities, popularDestinations } from "@/lib/destinations";
 import { pluralRu } from "@/lib/format";
-import { siteConfig } from "@/lib/site-config";
 import { toSearchParams, type TripSearchValues } from "@/lib/tour-filters";
 
 type TripSearchConstructorProps = {
@@ -19,8 +17,6 @@ export function TripSearchConstructor({
   className = "",
 }: TripSearchConstructorProps) {
   const router = useRouter();
-  const [from, setFrom] = useState(initialValues?.from ?? siteConfig.departureCity);
-  const [destination, setDestination] = useState(initialValues?.destination ?? "");
   const [dateFrom, setDateFrom] = useState(initialValues?.date_from ?? "");
   const [dateTo, setDateTo] = useState(initialValues?.date_to ?? "");
   const [people, setPeople] = useState(initialValues?.people ?? "2");
@@ -28,8 +24,6 @@ export function TripSearchConstructor({
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const params = toSearchParams({
-      from,
-      destination,
       date_from: dateFrom,
       date_to: dateTo,
       people,
@@ -43,37 +37,6 @@ export function TripSearchConstructor({
       className={`search-constructor ${compact ? "search-constructor-compact" : ""} ${className}`}
     >
       <div className="search-constructor-grid">
-        <label className="search-field">
-          <span className="search-field-label">Откуда</span>
-          <select
-            className="search-field-input"
-            value={from}
-            onChange={(event) => setFrom(event.target.value)}
-          >
-            {departureCities.map((city) => (
-              <option key={city} value={city}>
-                {city}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        <label className="search-field">
-          <span className="search-field-label">Куда</span>
-          <select
-            className="search-field-input"
-            value={destination}
-            onChange={(event) => setDestination(event.target.value)}
-          >
-            <option value="">Любое направление</option>
-            {popularDestinations.map((item) => (
-              <option key={item.id} value={item.id}>
-                {item.label}
-              </option>
-            ))}
-          </select>
-        </label>
-
         <label className="search-field">
           <span className="search-field-label">Дата с</span>
           <input

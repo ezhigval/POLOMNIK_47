@@ -116,6 +116,7 @@ const chipLabels: Partial<Record<keyof TourFilterValues, string>> = {
   price_max: "до",
   is_hot: "Популярные",
   q: "Направление",
+  people: "Паломников",
   page: "",
 };
 
@@ -129,6 +130,7 @@ export function ActiveFilterChips({ filters, basePath = "/search" }: ActiveFilte
   if (filters.price_max) chips.push({ key: "price_max", label: `Цена до ${filters.price_max}`, removeKey: "price_max" });
   if (filters.is_hot === "true") chips.push({ key: "is_hot", label: chipLabels.is_hot ?? "Популярные", removeKey: "is_hot" });
   if (filters.q) chips.push({ key: "q", label: `${chipLabels.q}: ${filters.q}`, removeKey: "q" });
+  if (filters.people) chips.push({ key: "people", label: `Паломников: ${filters.people}`, removeKey: "people" });
 
   if (chips.length === 0) return null;
 
@@ -154,8 +156,9 @@ export function ActiveFilterChips({ filters, basePath = "/search" }: ActiveFilte
 
 function buildRemoveFilterHref(filters: TourFilterValues, removeKey: string, basePath: string): string {
   const params = new URLSearchParams();
+  const skip = new Set(["page", "from", "destination", "min_slots", removeKey]);
   for (const [key, value] of Object.entries(filters)) {
-    if (key === removeKey || key === "page" || !value) continue;
+    if (skip.has(key) || !value) continue;
     params.set(key, value);
   }
   const query = params.toString();

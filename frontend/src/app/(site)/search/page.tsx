@@ -3,7 +3,6 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import { TripSearchConstructor } from "@/components/trip-search-constructor";
 import { ToursSection } from "@/components/tours-section";
-import { findDestination } from "@/lib/destinations";
 import { parseTourFilters } from "@/lib/tour-filters";
 
 export const metadata: Metadata = {
@@ -19,18 +18,16 @@ type SearchPageProps = {
 export default async function SearchPage({ searchParams }: SearchPageProps) {
   const params = await searchParams;
   const filters = parseTourFilters(params);
-  const destination = filters.destination ? findDestination(filters.destination) : undefined;
 
   return (
     <div className="mx-auto max-w-6xl space-y-8 px-4 py-8 sm:py-10">
       <div className="space-y-3">
         <p className="text-sm font-medium uppercase tracking-widest text-brand-800">Поиск</p>
         <h1 className="font-display text-3xl font-semibold text-stone-900 sm:text-4xl">
-          {destination ? `Туры: ${destination.label}` : "Подбор паломнического тура"}
+          Подбор паломнического тура
         </h1>
         <p className="max-w-2xl text-sm text-stone-600 sm:text-base">
-          Укажите направление, даты и количество человек — покажем доступные поездки с учётом
-          свободных мест.
+          Укажите даты и количество человек — покажем доступные поездки с учётом свободных мест.
         </p>
       </div>
 
