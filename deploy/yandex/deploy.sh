@@ -43,14 +43,17 @@ rsync -az --delete \
   --exclude .next \
   --exclude backups \
   --exclude frontend/.env.local \
+  --exclude .env.admins \
   --exclude "data/uploads" \
   --exclude "backend/data/uploads" \
   "$ROOT_DIR/" "${REMOTE}:/opt/polomnik/"
 
-# Frontend + Caddy change often; a full stack --build also rebuilds goose/api and fills the 20 GB disk.
-echo "Rebuilding frontend, then applying prod overlay (unpublished DB/API ports)..."
+# Never `compose down -v` — the named Postgres volume must survive.
+# Migrations are bind-mounted; rebuild app images only (not postgres).
+echo "Applying migrations, then rebuilding frontend/api/worker..."
 ssh "${SSH_OPTS[@]}" "$REMOTE" "cd /opt/polomnik && \
-  $COMPOSE up -d --no-deps --build frontend && \
+  $COMPOSE run --rm migrate && \
+  $COMPOSE up -d --no-deps --build frontend api worker && \
   $COMPOSE up -d --no-build && \
   $COMPOSE ps"
 

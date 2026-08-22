@@ -23,6 +23,7 @@ import {
   createManagementNews,
   updateManagementNews,
   deleteManagementNews,
+  updateManagementTelegramSettings,
   type CmsBlockCreateInput,
   type CmsBlockUpdateInput,
   type CmsPageCreateInput,
@@ -217,4 +218,20 @@ export async function deleteNewsAction(formData: FormData) {
   const id = String(formData.get("id") ?? "");
   await deleteManagementNews(id);
   revalidateNewsPaths();
+}
+
+export async function updateTelegramSettingsAction(input: {
+  booking_usernames: string;
+  support_usernames: string;
+}) {
+  try {
+    const settings = await updateManagementTelegramSettings(input);
+    revalidatePath("/management/settings");
+    return settings;
+  } catch (error) {
+    if (error instanceof ApiError) {
+      throw new Error(error.message);
+    }
+    throw error;
+  }
 }

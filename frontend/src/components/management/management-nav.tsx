@@ -11,6 +11,7 @@ const links = [
   { href: "/management/bookings", label: "Заявки" },
   { href: "/management/reviews", label: "Отзывы" },
   { href: "/management/integrations", label: "Синхронизация" },
+  { href: "/management/settings", label: "Настройки" },
 ];
 
 export function ManagementNav() {

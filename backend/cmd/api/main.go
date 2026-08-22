@@ -13,6 +13,7 @@ import (
 	fiberhttp "polomnik/internal/adapters/http/fiber"
 	"polomnik/internal/adapters/integration"
 	"polomnik/internal/adapters/notification"
+	telegramnotify "polomnik/internal/adapters/notification/telegram"
 	"polomnik/internal/adapters/repository/memory"
 	"polomnik/internal/adapters/repository/postgres"
 	"polomnik/internal/application"
@@ -49,7 +50,14 @@ func run() int {
 	defer cleanupCache()
 
 	crm := integration.NewCRM(cfg, integrationRefs, outboxRepo)
-	notifier := notification.New(cfg, outboxRepo)
+	telegramDeps := notification.Deps{}
+	if recipients, ok := tourRepo.(ports.TelegramRecipientsRepository); ok {
+		telegramDeps.Recipients = recipients
+	}
+	if chats, ok := tourRepo.(ports.TelegramChatMapRepository); ok {
+		telegramDeps.Chats = chats
+	}
+	notifier := notification.New(cfg, outboxRepo, telegramDeps)
 	bookingService := application.NewBookingService(
 		bookingRepo,
 		tourRepo,
@@ -80,9 +88,10 @@ func run() int {
 		),
 		Auth:      application.NewAuthService(userRepo, bookingRepo, cfg.JWTSecret, cfg.JWTTokenTTL),
 		Favorites: application.NewFavoriteService(favoriteRepo, tourRepo),
-		Support:   application.NewSupportService(supportRepo),
+		Support:   application.NewSupportService(supportRepo, notifier),
 		CMS:       application.NewCMSService(cmsRepo),
 		News:      application.NewNewsService(newsRepo),
+		Telegram:  application.NewTelegramService(telegramDeps.Recipients, telegramDeps.Chats, telegramnotify.NewClient(cfg), cfg.TelegramChatID),
 	}
 
 	health := fiberhttp.HealthDeps{
@@ -96,6 +105,18 @@ func run() int {
 	}
 
 	app := fiberhttp.NewRouter(cfg, log, services, health)
+
+	if cfg.NotificationAdapter == "telegram" && cfg.TelegramBotToken != "" {
+		webhookURL := cfg.EffectiveTelegramWebhookURL()
+		if webhookURL != "" {
+			client := telegramnotify.NewClient(cfg)
+			if err := client.SetWebhook(context.Background(), webhookURL, application.TelegramWebhookSecret(cfg.InternalAPISecret)); err != nil {
+				log.Error("telegram setWebhook failed", slog.Any("error", err))
+			} else {
+				log.Info("telegram webhook registered")
+			}
+		}
+	}
 
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()

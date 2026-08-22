@@ -35,6 +35,10 @@ func Validate(cfg Config) error {
 		return fmt.Errorf("BITRIX_INBOUND_TOKEN is required when CRM_ADAPTER=bitrix")
 	}
 
+	if cfg.IsProduction() && strings.EqualFold(cfg.NotificationAdapter, "telegram") && cfg.TelegramAPIHostIsOfficial() {
+		return fmt.Errorf("TELEGRAM_API_BASE must be the outbound Worker URL when NOTIFICATION_ADAPTER=telegram in production")
+	}
+
 	return nil
 }
 

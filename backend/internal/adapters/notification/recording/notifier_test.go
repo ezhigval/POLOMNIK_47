@@ -23,6 +23,10 @@ func (failingNotifier) NotifyBookingStatusChanged(context.Context, domain.Bookin
 	return errors.New("telegram down")
 }
 
+func (failingNotifier) NotifySupportMessage(context.Context, domain.SupportNotification) error {
+	return errors.New("telegram down")
+}
+
 func TestRecordingNotifierSkipsNotConfigured(t *testing.T) {
 	ctx := context.Background()
 	store := memory.NewStore()

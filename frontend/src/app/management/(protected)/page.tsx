@@ -1,7 +1,7 @@
 import Link from "next/link";
 import {
   listManagementBookings,
-  listManagementCmsPages,
+  listManagementCmsPagesOrEmpty,
   listManagementIntegrationReferences,
   listManagementNews,
   listManagementOutboxEvents,
@@ -34,16 +34,31 @@ function StatCard({ title, value, hint, href, accent }: StatCardProps) {
   );
 }
 
+function settledList<T>(result: PromiseSettledResult<T[]>, fallback: T[] = []): T[] {
+  return result.status === "fulfilled" ? result.value : fallback;
+}
+
 export default async function ManagementDashboardPage() {
-  const [tours, bookings, reviews, integrationRefs, outboxEvents, cmsPages, news] = await Promise.all([
-    listManagementTours(),
-    listManagementBookings(),
-    listManagementReviews(),
-    listManagementIntegrationReferences(),
-    listManagementOutboxEvents({ status: "pending" }),
-    listManagementCmsPages(),
-    listManagementNews(),
-  ]);
+  const [toursResult, bookingsResult, reviewsResult, integrationRefsResult, outboxEventsResult, cmsResult, newsResult] =
+    await Promise.allSettled([
+      listManagementTours(),
+      listManagementBookings(),
+      listManagementReviews(),
+      listManagementIntegrationReferences(),
+      listManagementOutboxEvents({ status: "pending" }),
+      listManagementCmsPagesOrEmpty(),
+      listManagementNews(),
+    ]);
+
+  const tours = settledList(toursResult);
+  const bookings = settledList(bookingsResult);
+  const reviews = settledList(reviewsResult);
+  const integrationRefs = settledList(integrationRefsResult);
+  const outboxEvents = settledList(outboxEventsResult);
+  const news = settledList(newsResult);
+  const cms =
+    cmsResult.status === "fulfilled" ? cmsResult.value : { pages: [], unavailable: true };
+  const cmsPages = cms.pages;
 
   const newBookings = bookings.filter((booking) => booking.status === "NEW").length;
   const pendingReviews = reviews.filter((review) => !review.is_approved).length;
@@ -54,9 +69,13 @@ export default async function ManagementDashboardPage() {
     {
       title: "Страницы CMS",
       value: cmsPages.length,
-      hint: cmsPages.some((page) => page.slug === "home") ? "главная настроена" : "главная не создана",
+      hint: cms.unavailable
+        ? "недоступно"
+        : cmsPages.some((page) => page.slug === "home")
+          ? "главная настроена"
+          : "главная не создана",
       href: "/management/content",
-      accent: !cmsPages.some((page) => page.slug === "home"),
+      accent: cms.unavailable || !cmsPages.some((page) => page.slug === "home"),
     },
     {
       title: "Новости",
@@ -123,6 +142,9 @@ export default async function ManagementDashboardPage() {
           </Link>
           <Link href="/management/reviews" className="btn-secondary">
             Модерировать отзывы
+          </Link>
+          <Link href="/management/settings" className="btn-secondary">
+            Настройки
           </Link>
         </div>
       </section>

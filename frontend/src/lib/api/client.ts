@@ -80,7 +80,12 @@ export async function requestJson<T>(url: string, init: RequestInit = {}): Promi
 }
 
 export function apiUrl(path: string): string {
-  return `${getApiBaseUrl()}${path}`;
+  const base = getApiBaseUrl().replace(/\/$/, "");
+  let normalized = path.startsWith("/") ? path : `/${path}`;
+  if (base.endsWith("/api/v1") && normalized.startsWith("/api/v1/")) {
+    normalized = normalized.slice("/api/v1".length);
+  }
+  return `${base}${normalized}`;
 }
 
 export async function apiGet<T>(path: string): Promise<T> {

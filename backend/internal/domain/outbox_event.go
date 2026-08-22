@@ -17,6 +17,7 @@ const (
 	OutboxEventCRMPushReview              = "crm.push_review"
 	OutboxEventNotificationBookingCreated = "notification.booking.created"
 	OutboxEventNotificationBookingStatus  = "notification.booking.status_changed"
+	OutboxEventNotificationSupport        = "notification.support.message"
 )
 
 type OutboxStatus string

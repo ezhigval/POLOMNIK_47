@@ -44,7 +44,14 @@ func run() int {
 
 	crm := integration.NewCRM(cfg, integrationRefs, outboxRepo)
 	accounting := integration.NewAccounting(cfg, integrationRefs, outboxRepo)
-	notifications := notification.Inner(cfg)
+	telegramDeps := notification.Deps{}
+	if recipients, ok := tourRepo.(ports.TelegramRecipientsRepository); ok {
+		telegramDeps.Recipients = recipients
+	}
+	if chats, ok := tourRepo.(ports.TelegramChatMapRepository); ok {
+		telegramDeps.Chats = chats
+	}
+	notifications := notification.Inner(cfg, telegramDeps)
 	worker := application.NewOutboxWorker(
 		outboxRepo,
 		tourRepo,

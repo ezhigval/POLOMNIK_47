@@ -87,6 +87,8 @@ func mapValidationError(err error) *AppError {
 		return &AppError{Status: 422, Code: "VALIDATION_ERROR", Message: "Введите текст отзыва"}
 	case errors.Is(err, domain.ErrInvalidSupportMessage):
 		return &AppError{Status: 422, Code: "VALIDATION_ERROR", Message: "Введите текст сообщения"}
+	case errors.Is(err, domain.ErrInvalidTelegramUsername):
+		return &AppError{Status: 422, Code: "VALIDATION_ERROR", Message: "Укажите корректный Telegram username (латиница, 5–32 символа)"}
 	case errors.Is(err, domain.ErrInvalidSupportSender):
 		return &AppError{Status: 422, Code: "VALIDATION_ERROR", Message: "Некорректный отправитель сообщения"}
 	case errors.Is(err, domain.ErrInvalidBlockType):

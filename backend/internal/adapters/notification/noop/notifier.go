@@ -22,3 +22,7 @@ func (Notifier) NotifyNewBooking(context.Context, domain.Booking, domain.Tour) e
 func (Notifier) NotifyBookingStatusChanged(context.Context, domain.Booking, domain.Tour, domain.BookingStatus) error {
 	return ports.ErrNotificationNotConfigured
 }
+
+func (Notifier) NotifySupportMessage(context.Context, domain.SupportNotification) error {
+	return ports.ErrNotificationNotConfigured
+}

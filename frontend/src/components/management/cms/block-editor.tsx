@@ -388,11 +388,6 @@ function HeroForm({ content, loading, error, onCancel, onSave }: BlockFormFields
   const [eyebrow, setEyebrow] = useState(stringValue(content, "eyebrow"));
   const [title, setTitle] = useState(stringValue(content, "title"));
   const [subtitle, setSubtitle] = useState(stringValue(content, "subtitle"));
-  const [primaryCta, setPrimaryCta] = useState(stringValue(content, "primaryCta"));
-  const [primaryHref, setPrimaryHref] = useState(stringValue(content, "primaryHref"));
-  const [secondaryCta, setSecondaryCta] = useState(stringValue(content, "secondaryCta"));
-  const [secondaryHref, setSecondaryHref] = useState(stringValue(content, "secondaryHref"));
-  const [stats, setStats] = useState(objectArray<{ value: string; label: string }>(content, "stats", ["value", "label"]));
 
   return (
     <form
@@ -403,30 +398,17 @@ function HeroForm({ content, loading, error, onCancel, onSave }: BlockFormFields
           eyebrow,
           title,
           subtitle,
-          primaryCta,
-          primaryHref,
-          secondaryCta,
-          secondaryHref,
-          stats,
+          primaryCta: stringValue(content, "primaryCta"),
+          primaryHref: stringValue(content, "primaryHref"),
+          secondaryCta: stringValue(content, "secondaryCta"),
+          secondaryHref: stringValue(content, "secondaryHref"),
+          stats: objectArray<{ value: string; label: string }>(content, "stats", ["value", "label"]),
         });
       }}
     >
       <Field label="Надзаголовок" value={eyebrow} onChange={setEyebrow} />
       <Field label="Заголовок" value={title} onChange={setTitle} />
       <Field label="Подзаголовок" value={subtitle} onChange={setSubtitle} multiline />
-      <Field label="Основная кнопка" value={primaryCta} onChange={setPrimaryCta} />
-      <Field label="Ссылка основной кнопки" value={primaryHref} onChange={setPrimaryHref} />
-      <Field label="Вторая кнопка" value={secondaryCta} onChange={setSecondaryCta} />
-      <Field label="Ссылка второй кнопки" value={secondaryHref} onChange={setSecondaryHref} />
-      <ObjectListEditor
-        label="Статистика"
-        rows={stats}
-        fields={[
-          { key: "value", value: "Значение" },
-          { key: "label", value: "Подпись" },
-        ]}
-        onChange={(rows) => setStats(rows as { value: string; label: string }[])}
-      />
       <FormActions loading={loading} error={error} onCancel={onCancel} />
     </form>
   );
@@ -556,18 +538,30 @@ function WhyUsForm({ content, loading, error, onCancel, onSave }: BlockFormField
       "icon",
     ]),
   );
+  const [stats, setStats] = useState(
+    objectArray<{ value: string; label: string }>(content, "stats", ["value", "label"]),
+  );
 
   return (
     <form
       className="space-y-3"
       onSubmit={(event) => {
         event.preventDefault();
-        onSave({ eyebrow, title, description, items });
+        onSave({ eyebrow, title, description, items, stats });
       }}
     >
       <Field label="Надзаголовок" value={eyebrow} onChange={setEyebrow} />
       <Field label="Заголовок" value={title} onChange={setTitle} />
       <Field label="Описание" value={description} onChange={setDescription} multiline />
+      <ObjectListEditor
+        label="Статистика"
+        rows={stats}
+        fields={[
+          { key: "value", value: "Значение" },
+          { key: "label", value: "Подпись" },
+        ]}
+        onChange={(rows) => setStats(rows as { value: string; label: string }[])}
+      />
       <ObjectListEditor
         label="Пункты"
         rows={items}

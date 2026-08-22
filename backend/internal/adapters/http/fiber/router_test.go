@@ -481,12 +481,127 @@ func newTestAppWithStore(store *memory.Store, adminToken string) *fiber.App {
 			"",
 			false,
 		),
-		Auth: application.NewAuthService(store, store, config.DefaultJWTSecret, 24*time.Hour),
-		CMS:  application.NewCMSService(store),
-		News: application.NewNewsService(store),
+		Auth:     application.NewAuthService(store, store, config.DefaultJWTSecret, 24*time.Hour),
+		Support:  application.NewSupportService(store, notificationnoop.New()),
+		CMS:      application.NewCMSService(store),
+		News:     application.NewNewsService(store),
+		Telegram: application.NewTelegramService(store, store, nil, ""),
 	}, HealthDeps{})
 }
 
 func discardLogger() *slog.Logger {
 	return slog.New(slog.NewTextHandler(io.Discard, nil))
+}
+
+func TestManagementListCMSPagesEmpty(t *testing.T) {
+	app := newTestAppWithStore(memory.NewStore(), "admin-token")
+
+	req := httptest.NewRequest("GET", "/api/v1/management/cms/pages", nil)
+	req.Header.Set("X-Admin-Token", "admin-token")
+	resp, err := app.Test(req)
+	if err != nil {
+		t.Fatalf("request failed: %v", err)
+	}
+	if resp.StatusCode != 200 {
+		body, _ := io.ReadAll(resp.Body)
+		t.Fatalf("expected 200, got %d %s", resp.StatusCode, body)
+	}
+
+	var body struct {
+		Data []struct {
+			ID    string `json:"id"`
+			Slug  string `json:"slug"`
+			Title string `json:"title"`
+		} `json:"data"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&body); err != nil {
+		t.Fatalf("decode: %v", err)
+	}
+	if body.Data == nil {
+		t.Fatal("cms pages data must be an array, not null")
+	}
+}
+
+func TestPublicCMSPageMissingIs404(t *testing.T) {
+	app := newTestApp(config.Config{AppEnv: "test", HTTPAddr: ":0"})
+
+	req := httptest.NewRequest("GET", "/api/v1/pages/home", nil)
+	resp, err := app.Test(req)
+	if err != nil {
+		t.Fatalf("request failed: %v", err)
+	}
+	if resp.StatusCode != 404 {
+		body, _ := io.ReadAll(resp.Body)
+		t.Fatalf("expected 404 for unpublished/missing home, got %d %s", resp.StatusCode, body)
+	}
+}
+
+func TestTelegramSettingsAndWebhook(t *testing.T) {
+	store := memory.NewStore()
+	app := newTestAppWithStore(store, "admin-token")
+
+	patch := httptest.NewRequest("PATCH", "/api/v1/management/telegram-settings", bytes.NewBufferString(`{"booking_usernames":"@EzhigVal","support_usernames":"other_user"}`))
+	patch.Header.Set("Content-Type", "application/json")
+	patch.Header.Set("X-Admin-Token", "admin-token")
+	patchResp, err := app.Test(patch)
+	if err != nil {
+		t.Fatalf("patch: %v", err)
+	}
+	if patchResp.StatusCode != 200 {
+		body, _ := io.ReadAll(patchResp.Body)
+		t.Fatalf("expected patch 200, got %d %s", patchResp.StatusCode, body)
+	}
+
+	invalid := httptest.NewRequest("PATCH", "/api/v1/management/telegram-settings", bytes.NewBufferString(`{"booking_usernames":"ab"}`))
+	invalid.Header.Set("Content-Type", "application/json")
+	invalid.Header.Set("X-Admin-Token", "admin-token")
+	invalidResp, err := app.Test(invalid)
+	if err != nil {
+		t.Fatalf("invalid: %v", err)
+	}
+	if invalidResp.StatusCode != 422 {
+		t.Fatalf("expected 422, got %d", invalidResp.StatusCode)
+	}
+
+	webhook := httptest.NewRequest("POST", "/api/v1/webhooks/telegram", bytes.NewBufferString(`{"message":{"from":{"username":"EzhigVal"},"chat":{"id":111},"text":"/start"}}`))
+	webhook.Header.Set("Content-Type", "application/json")
+	webhook.Header.Set("X-Telegram-Bot-Api-Secret-Token", application.TelegramWebhookSecret(config.DefaultInternalAPISecret))
+	webhookResp, err := app.Test(webhook)
+	if err != nil {
+		t.Fatalf("webhook: %v", err)
+	}
+	if webhookResp.StatusCode != 200 {
+		body, _ := io.ReadAll(webhookResp.Body)
+		t.Fatalf("expected webhook 200, got %d %s", webhookResp.StatusCode, body)
+	}
+
+	getReq := httptest.NewRequest("GET", "/api/v1/management/telegram-settings", nil)
+	getReq.Header.Set("X-Admin-Token", "admin-token")
+	getResp, err := app.Test(getReq)
+	if err != nil {
+		t.Fatalf("get: %v", err)
+	}
+	if getResp.StatusCode != 200 {
+		t.Fatalf("expected get 200, got %d", getResp.StatusCode)
+	}
+	var body struct {
+		Data struct {
+			Recipients []struct {
+				Username  string `json:"username"`
+				ChatBound bool   `json:"chat_bound"`
+			} `json:"recipients"`
+		} `json:"data"`
+	}
+	if err := json.NewDecoder(getResp.Body).Decode(&body); err != nil {
+		t.Fatalf("decode: %v", err)
+	}
+	bound := false
+	for _, item := range body.Data.Recipients {
+		if item.Username == "ezhigval" && item.ChatBound {
+			bound = true
+		}
+	}
+	if !bound {
+		t.Fatalf("expected ezhigval to be bound after /start, got %+v", body.Data.Recipients)
+	}
 }

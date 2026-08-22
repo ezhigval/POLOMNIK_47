@@ -18,7 +18,7 @@ func SystemInfo(cfg config.Config, integrations *application.IntegrationService)
 			CRMAdapter:          cfg.CRMAdapter,
 			AccountingAdapter:   cfg.AccountingAdapter,
 			NotificationAdapter: cfg.NotificationAdapter,
-			TelegramConfigured:  strings.TrimSpace(cfg.TelegramBotToken) != "" && strings.TrimSpace(cfg.TelegramChatID) != "",
+			TelegramConfigured:  strings.TrimSpace(cfg.TelegramBotToken) != "",
 			BitrixConfigured:    strings.TrimSpace(cfg.BitrixWebhookURL) != "",
 			OneCConfigured:      strings.TrimSpace(cfg.OneCBaseURL) != "",
 		}

@@ -42,4 +42,6 @@ var (
 	ErrNotFound                  = errors.New("not found")
 	ErrInvalidSupportMessage     = errors.New("invalid support message")
 	ErrInvalidSupportSender      = errors.New("invalid support sender")
+	ErrInvalidTelegramUsername   = errors.New("invalid telegram username")
+	ErrInvalidTelegramChatID     = errors.New("invalid telegram chat id")
 )

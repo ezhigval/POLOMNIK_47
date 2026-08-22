@@ -8,21 +8,26 @@ import (
 	"polomnik/internal/ports"
 )
 
-func Inner(cfg config.Config) ports.NotificationPort {
+type Deps struct {
+	Recipients ports.TelegramRecipientsRepository
+	Chats      ports.TelegramChatMapRepository
+}
+
+func Inner(cfg config.Config, deps Deps) ports.NotificationPort {
 	switch cfg.NotificationAdapter {
 	case "telegram":
-		return telegram.New(cfg)
+		return telegram.New(cfg, deps.Recipients, deps.Chats)
 	default:
 		return noop.New()
 	}
 }
 
-func New(cfg config.Config, outbox ports.OutboxRepository) ports.NotificationPort {
+func New(cfg config.Config, outbox ports.OutboxRepository, deps Deps) ports.NotificationPort {
 	if !Enabled(cfg) {
 		return noop.New()
 	}
 
-	inner := telegram.New(cfg)
+	inner := telegram.New(cfg, deps.Recipients, deps.Chats)
 	return recording.New(inner, outbox)
 }
 

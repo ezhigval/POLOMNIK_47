@@ -73,3 +73,18 @@ func TestLoadUsesEnvironment(t *testing.T) {
 		t.Fatalf("expected shutdown timeout from env, got %s", cfg.ShutdownTimeout)
 	}
 }
+
+func TestEffectiveTelegramLoginFallsBackToBotToken(t *testing.T) {
+	t.Setenv("TELEGRAM_BOT_TOKEN", "main-token")
+	t.Setenv("TELEGRAM_BOT_USERNAME", "PalomnikBot")
+	t.Setenv("TELEGRAM_LOGIN_BOT_TOKEN", "")
+	t.Setenv("TELEGRAM_LOGIN_BOT_USERNAME", "")
+
+	cfg := Load()
+	if cfg.EffectiveTelegramLoginBotToken() != "main-token" {
+		t.Fatalf("token fallback: %q", cfg.EffectiveTelegramLoginBotToken())
+	}
+	if cfg.EffectiveTelegramLoginBotUsername() != "PalomnikBot" {
+		t.Fatalf("username fallback: %q", cfg.EffectiveTelegramLoginBotUsername())
+	}
+}

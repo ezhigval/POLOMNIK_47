@@ -27,6 +27,26 @@ func TestValidateBitrixRequiresInboundToken(t *testing.T) {
 	}
 }
 
+func TestValidateProductionTelegramRequiresWorkerURL(t *testing.T) {
+	cfg := Load()
+	cfg.AppEnv = "production"
+	cfg.JWTSecret = "production-jwt-secret-value-32chars"
+	cfg.AdminToken = "production-admin-token"
+	cfg.InternalAPISecret = "production-internal"
+	cfg.DatabaseURL = "postgres://example"
+	cfg.NotificationAdapter = "telegram"
+	cfg.TelegramAPIBase = "https://api.telegram.org"
+
+	if err := Validate(cfg); err == nil {
+		t.Fatal("expected official Telegram API host to fail in production")
+	}
+
+	cfg.TelegramAPIBase = "https://polomnik-telegram-api.example.workers.dev"
+	if err := Validate(cfg); err != nil {
+		t.Fatalf("worker url should pass: %v", err)
+	}
+}
+
 func TestValidateLocalAllowsDefaults(t *testing.T) {
 	cfg := Load()
 	cfg.AppEnv = "local"
