@@ -30,13 +30,19 @@ type PhoneCheckRequest struct {
 }
 
 type AuthMethodsResponse struct {
-	Password  bool                   `json:"password"`
+	Password  bool                     `json:"password"`
 	PhoneCall AuthMethodStatusResponse `json:"phone_call"`
+	Yandex    AuthMethodStatusResponse `json:"yandex"`
+	VK        AuthMethodStatusResponse `json:"vk"`
+	Max       AuthMethodStatusResponse `json:"max"`
+	Telegram  AuthMethodStatusResponse `json:"telegram"`
+	Mail      AuthMethodStatusResponse `json:"mail"`
 }
 
 type AuthMethodStatusResponse struct {
 	Available bool   `json:"available"`
 	Message   string `json:"message,omitempty"`
+	Username  string `json:"username,omitempty"`
 }
 
 type PhoneStartResponse struct {

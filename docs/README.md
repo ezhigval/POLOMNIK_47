@@ -18,3 +18,4 @@
 | [SEO_ADS.md](SEO_ADS.md) | Метрика/GA, sitemap, Директ/VK, UTM |
 | [INTEGRATIONS.md](INTEGRATIONS.md) | Bitrix24 и 1С как адаптеры |
 | [PROJECT_SPEC.md](PROJECT_SPEC.md) | Цель продукта |
+- [V2_OWNER_SETUP.md](./V2_OWNER_SETUP.md) — чеклист владельца к v2 (OAuth, почта, sms.ru, Метрика)

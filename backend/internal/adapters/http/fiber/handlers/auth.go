@@ -65,16 +65,26 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 
 func (h *Handler) AuthMethods(c *fiber.Ctx) error {
 	methods := h.auth.AuthMethods()
+	status := func(s application.AuthMethodStatus) dto.AuthMethodStatusResponse {
+		return dto.AuthMethodStatusResponse{
+			Available: s.Available,
+			Message:   s.Message,
+			Username:  s.Username,
+		}
+	}
 	return c.JSON(dto.DataEnvelope[dto.AuthMethodsResponse]{
 		Data: dto.AuthMethodsResponse{
-			Password: methods.Password,
-			PhoneCall: dto.AuthMethodStatusResponse{
-				Available: methods.PhoneCall.Available,
-				Message:   methods.PhoneCall.Message,
-			},
+			Password:  methods.Password,
+			PhoneCall: status(methods.PhoneCall),
+			Yandex:    status(methods.Yandex),
+			VK:        status(methods.VK),
+			Max:       status(methods.Max),
+			Telegram:  status(methods.Telegram),
+			Mail:      status(methods.Mail),
 		},
 	})
 }
+
 
 func (h *Handler) StartPhoneVerification(c *fiber.Ctx) error {
 	var req dto.PhoneStartRequest

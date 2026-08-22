@@ -15,6 +15,7 @@ import (
 	"polomnik/internal/adapters/notification"
 	telegramnotify "polomnik/internal/adapters/notification/telegram"
 	"polomnik/internal/adapters/phone"
+	"polomnik/internal/adapters/mail"
 	"polomnik/internal/adapters/repository/memory"
 	"polomnik/internal/adapters/repository/postgres"
 	"polomnik/internal/application"
@@ -111,7 +112,21 @@ func run() int {
 			cfg.BitrixInboundToken,
 			cfg.IsProduction() || strings.EqualFold(cfg.CRMAdapter, "bitrix"),
 		),
-		Auth:          application.NewAuthService(userRepo, bookingRepo, phone.New(cfg), cfg.JWTSecret, cfg.JWTTokenTTL),
+		Auth: application.NewAuthService(
+			userRepo,
+			bookingRepo,
+			phone.New(cfg),
+			mail.New(cfg),
+			application.SocialAuthConfig{
+				YandexConfigured:    strings.TrimSpace(cfg.YandexOAuthClientID) != "" && strings.TrimSpace(cfg.YandexOAuthClientSecret) != "",
+				VKConfigured:        strings.TrimSpace(cfg.VKOAuthClientID) != "" && strings.TrimSpace(cfg.VKOAuthClientSecret) != "",
+				MaxConfigured:       strings.TrimSpace(cfg.MaxOAuthClientID) != "" && strings.TrimSpace(cfg.MaxOAuthClientSecret) != "",
+				TelegramConfigured:  cfg.EffectiveTelegramLoginBotToken() != "" && cfg.EffectiveTelegramLoginBotUsername() != "",
+				TelegramBotUsername: cfg.EffectiveTelegramLoginBotUsername(),
+			},
+			cfg.JWTSecret,
+			cfg.JWTTokenTTL,
+		),
 		Favorites:     application.NewFavoriteService(favoriteRepo, tourRepo),
 		Support:       application.NewSupportService(supportRepo, notifier),
 		CMS:           application.NewCMSService(cmsRepo),
