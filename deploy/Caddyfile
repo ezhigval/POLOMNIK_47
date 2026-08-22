@@ -2,12 +2,31 @@
 	email {$ACME_EMAIL}
 }
 
+www.{$SITE_DOMAIN} {
+	redir https://{$SITE_DOMAIN}{uri} permanent
+}
+
 {$SITE_DOMAIN} {
 	encode gzip
+	header {
+		Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
+	}
 	reverse_proxy frontend:3000
 }
 
 {$API_DOMAIN} {
 	encode gzip
+	header {
+		Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
+	}
 	reverse_proxy api:8080
+}
+
+# Old typo domain — keep 301 so bookmarks do not 404.
+tikhvin-polomnik.ru, www.tikhvin-polomnik.ru {
+	redir https://{$SITE_DOMAIN}{uri} permanent
+}
+
+api.tikhvin-polomnik.ru {
+	redir https://{$API_DOMAIN}{uri} permanent
 }

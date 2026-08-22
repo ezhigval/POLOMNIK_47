@@ -1,0 +1,13 @@
+#cloud-config
+package_update: true
+packages:
+  - ca-certificates
+  - curl
+  - rsync
+
+runcmd:
+  - curl -fsSL https://get.docker.com | sh
+  - systemctl enable --now docker
+  - usermod -aG docker yc-user
+  - mkdir -p /opt/polomnik
+  - chown yc-user:yc-user /opt/polomnik

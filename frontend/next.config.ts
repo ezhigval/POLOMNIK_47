@@ -1,4 +1,18 @@
+import os from "node:os";
 import type { NextConfig } from "next";
+
+function lanDevHosts(): string[] {
+  const hosts = new Set<string>();
+  for (const addrs of Object.values(os.networkInterfaces())) {
+    for (const addr of addrs ?? []) {
+      const family = String(addr.family);
+      if ((family === "IPv4" || family === "4") && !addr.internal) {
+        hosts.add(addr.address);
+      }
+    }
+  }
+  return [...hosts];
+}
 
 const googleOAuthOrigins = [
   "https://accounts.google.com",
@@ -14,7 +28,7 @@ function buildContentSecurityPolicy(): string {
       "img-src 'self' data: blob: http://localhost:8080 http://127.0.0.1:8080 https://images.unsplash.com https://*.googleusercontent.com https://mc.yandex.ru https:",
       "font-src 'self' data:",
       [
-        "connect-src 'self'",
+        "connect-src 'self' ws: wss:",
         "http://localhost:8080",
         "http://127.0.0.1:8080",
         "https:",
@@ -47,6 +61,7 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  allowedDevOrigins: lanDevHosts(),
   images: {
     remotePatterns: [
       {
@@ -54,7 +69,24 @@ const nextConfig: NextConfig = {
         hostname: "images.unsplash.com",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "api.tikhvin-palomnik.ru",
+        pathname: "/**",
+      },
     ],
+  },
+  async rewrites() {
+    const internal = process.env.API_INTERNAL_URL?.replace(/\/$/, "");
+    if (!internal) {
+      return [];
+    }
+    return [
+      {
+        source: "/api/v1/:path*",
+        destination: `${internal}/:path*`,
+      },
+    ];
   },
   async headers() {
     const headers = [...securityHeaders];

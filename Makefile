@@ -1,12 +1,12 @@
-.PHONY: test test-backend test-frontend build smoke smoke-docker e2e-docker integration-smoke-docker docker-up docker-down docker-prod docker-integrations backup-db worker check-ops
+.PHONY: test test-backend test-frontend build smoke smoke-docker e2e-docker integration-smoke-docker docker-up docker-down docker-prod docker-integrations backup-db worker check-ops deploy deploy-prod
 
 test: test-backend test-frontend
 
 test-backend:
-	cd backend && go test ./...
+	cd backend && go test ./... && go vet ./...
 
 test-frontend:
-	cd frontend && npm run build
+	cd frontend && npm run lint && npm run build
 
 build: test-backend test-frontend
 
@@ -48,3 +48,9 @@ backup-db:
 
 worker:
 	cd backend && go run ./cmd/worker
+
+deploy:
+	chmod +x deploy/yandex/deploy.sh
+	./deploy/yandex/deploy.sh
+
+deploy-prod: deploy
