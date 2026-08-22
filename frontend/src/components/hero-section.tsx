@@ -13,9 +13,9 @@ export function HeroSection({ content }: HeroSectionProps = {}) {
   const title = content?.title || heroContent.title;
   const subtitle = content?.subtitle || heroContent.subtitle;
   const stats = content?.stats?.length ? content.stats : trustStats;
-  const primaryCta = content?.primaryCta || heroContent.primaryCta;
+  const primaryCta = content?.primaryCta;
   const primaryHref = content?.primaryHref || "/search";
-  const secondaryCta = content?.secondaryCta || heroContent.secondaryCta;
+  const secondaryCta = content?.secondaryCta;
   const secondaryHref = content?.secondaryHref || "/#how-it-works";
 
   return (
