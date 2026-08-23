@@ -126,3 +126,18 @@ export async function updateUserProfile(
     body: JSON.stringify(input),
   });
 }
+
+export type Passenger = {
+  id: string;
+  name: string;
+  phone: string;
+  birth_date: string;
+  passport: string;
+  created_at: string;
+};
+
+export async function fetchMyPassengers(token: string): Promise<Passenger[]> {
+  return authRequest<Passenger[]>("/me/passengers", {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}

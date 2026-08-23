@@ -248,6 +248,8 @@ func (s *Store) MergeAccountInto(_ context.Context, targetID, sourceID uuid.UUID
 		}
 	}
 
+	mergePassengersLocked(s, targetID, sourceID)
+
 	delete(s.users, sourceID)
 	return nil
 }

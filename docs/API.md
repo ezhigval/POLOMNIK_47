@@ -457,6 +457,10 @@ User session: `Authorization: Bearer`. Internal OAuth completion (Next.js → AP
 GET   /api/v1/me
 PATCH /api/v1/me
 GET   /api/v1/me/identities
+GET   /api/v1/me/passengers
+POST  /api/v1/me/passengers
+PATCH /api/v1/me/passengers/:id
+DELETE /api/v1/me/passengers/:id
 GET   /api/v1/me/bookings
 POST  /api/v1/auth/oauth
 ```
@@ -465,11 +469,13 @@ POST  /api/v1/auth/oauth
 
 `GET /me/identities` returns `{ "data": [ { "provider", "subject", "created_at" } ] }` for the current user. Providers in product: `yandex`, `vk`, `max`, `telegram`.
 
+Passengers (session required): body `name`, `phone`, `birth_date` (`YYYY-MM-DD`), `passport`, honeypot `website`. All four fields required. Phone normalized like the profile. No SNILS. Date of birth cannot be in the future. Passport is stored as given text — no invented series/number format. Cabinet returns full fields to the owner. Texts for messengers use `Passenger.MessengerLine()`: name readable, phone/passport last two characters, date of birth `**.**.****`.
+
 `POST /auth/oauth` (internal) body: `provider`, `subject`, `email`, `name`, `phone`. If the request also has a valid user `Authorization: Bearer`:
 
 - unused identity is linked to the current user;
 - identity of the same user is a no-op;
-- identity of another user merges that account **into the current** (bookings, favorites, support threads, admin role assignments). Profile fields that already differ are not overwritten.
+- identity of another user merges that account **into the current** (bookings, favorites, support threads, admin role assignments, passengers). Profile fields that already differ are not overwritten.
 
 Response extra fields (omitted when false/empty): `linked`, `merged`, `kept_fields` (conflict field names only: `name` / `email` / `phone` — no values). Invalid Bearer is ignored and the call is treated as login.
 

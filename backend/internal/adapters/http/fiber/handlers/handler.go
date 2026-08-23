@@ -13,6 +13,7 @@ type Handler struct {
 	webhooks              *application.WebhookService
 	auth                  *application.AuthService
 	favorites             *application.FavoriteService
+	passengers            *application.PassengerService
 	support               *application.SupportService
 	cms                   *application.CMSService
 	news                  *application.NewsService
@@ -33,6 +34,7 @@ func New(
 	webhooks *application.WebhookService,
 	auth *application.AuthService,
 	favorites *application.FavoriteService,
+	passengers *application.PassengerService,
 	support *application.SupportService,
 	cms *application.CMSService,
 	news *application.NewsService,
@@ -52,6 +54,7 @@ func New(
 		webhooks:              webhooks,
 		auth:                  auth,
 		favorites:             favorites,
+		passengers:            passengers,
 		support:               support,
 		cms:                   cms,
 		news:                  news,

@@ -13,6 +13,8 @@ var (
 	ErrInvalidContactName         = errors.New("invalid contact name")
 	ErrInvalidPhone               = errors.New("invalid phone")
 	ErrInvalidEmail               = errors.New("invalid email")
+	ErrInvalidBirthDate           = errors.New("invalid birth date")
+	ErrInvalidPassport            = errors.New("invalid passport")
 	ErrInvalidPassword            = errors.New("invalid password")
 	ErrInvalidCredentials         = errors.New("invalid credentials")
 	ErrDuplicateEmail             = errors.New("duplicate email")

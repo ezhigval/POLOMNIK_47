@@ -18,6 +18,7 @@ type Store struct {
 	reviews             map[uuid.UUID]domain.Review
 	users               map[uuid.UUID]domain.User
 	identities          map[string]domain.UserIdentity
+	passengers          map[uuid.UUID]domain.Passenger
 	favorites           map[string]domain.Favorite
 	supportThreads      map[uuid.UUID]domain.SupportThread
 	supportMessages     map[uuid.UUID]domain.SupportMessage
@@ -45,6 +46,7 @@ func NewStore() *Store {
 		reviews:          make(map[uuid.UUID]domain.Review),
 		users:            make(map[uuid.UUID]domain.User),
 		identities:       make(map[string]domain.UserIdentity),
+		passengers:       make(map[uuid.UUID]domain.Passenger),
 		favorites:        make(map[string]domain.Favorite),
 		supportThreads:   make(map[uuid.UUID]domain.SupportThread),
 		supportMessages:  make(map[uuid.UUID]domain.SupportMessage),

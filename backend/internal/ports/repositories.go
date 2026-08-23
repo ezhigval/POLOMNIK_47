@@ -92,6 +92,14 @@ type UserRepository interface {
 	MergeAccountInto(ctx context.Context, targetID, sourceID uuid.UUID) error
 }
 
+type PassengerRepository interface {
+	ListPassengers(ctx context.Context, userID uuid.UUID) ([]domain.Passenger, error)
+	GetPassenger(ctx context.Context, userID, id uuid.UUID) (domain.Passenger, error)
+	CreatePassenger(ctx context.Context, passenger domain.Passenger) (domain.Passenger, error)
+	UpdatePassenger(ctx context.Context, passenger domain.Passenger) (domain.Passenger, error)
+	DeletePassenger(ctx context.Context, userID, id uuid.UUID) error
+}
+
 type FavoriteRepository interface {
 	AddFavorite(ctx context.Context, userID, tourID uuid.UUID) error
 	RemoveFavorite(ctx context.Context, userID, tourID uuid.UUID) error

@@ -23,6 +23,7 @@ func TestStoreImplementsRepositoryPorts(t *testing.T) {
 	var _ ports.ReviewRepository = store
 	var _ ports.IntegrationReferenceRepository = store
 	var _ ports.OutboxRepository = store
+	var _ ports.PassengerRepository = store
 }
 
 func TestStoreIntegration(t *testing.T) {

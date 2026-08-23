@@ -563,6 +563,124 @@ func TestPatchMeUpdatesProfile(t *testing.T) {
 	}
 }
 
+func TestPassengerCabinetCRUD(t *testing.T) {
+	store := memory.NewStore()
+	app := newTestAppWithStore(store, "secret-token")
+
+	registerReq := httptest.NewRequest(http.MethodPost, "/api/v1/auth/register", bytes.NewBufferString(`{
+		"name": "Хозяин",
+		"email": "pax-http@example.com",
+		"phone": "+79001236666",
+		"password": "password1"
+	}`))
+	registerReq.Header.Set("Content-Type", "application/json")
+	registerResp, err := app.Test(registerReq)
+	if err != nil {
+		t.Fatalf("register: %v", err)
+	}
+	if registerResp.StatusCode != http.StatusCreated {
+		body, _ := io.ReadAll(registerResp.Body)
+		t.Fatalf("register status %d: %s", registerResp.StatusCode, body)
+	}
+	var registered struct {
+		Data struct {
+			Token string `json:"token"`
+		} `json:"data"`
+	}
+	if err := json.NewDecoder(registerResp.Body).Decode(&registered); err != nil {
+		t.Fatalf("decode register: %v", err)
+	}
+
+	unauth := httptest.NewRequest(http.MethodGet, "/api/v1/me/passengers", nil)
+	unauthResp, err := app.Test(unauth)
+	if err != nil {
+		t.Fatalf("unauth: %v", err)
+	}
+	if unauthResp.StatusCode != http.StatusUnauthorized {
+		t.Fatalf("expected 401, got %d", unauthResp.StatusCode)
+	}
+
+	createReq := httptest.NewRequest(http.MethodPost, "/api/v1/me/passengers", bytes.NewBufferString(`{
+		"name": "Анна Паломница",
+		"phone": "89001112233",
+		"birth_date": "1985-03-01",
+		"passport": "4010 654321"
+	}`))
+	createReq.Header.Set("Content-Type", "application/json")
+	createReq.Header.Set("Authorization", "Bearer "+registered.Data.Token)
+	createResp, err := app.Test(createReq)
+	if err != nil {
+		t.Fatalf("create: %v", err)
+	}
+	if createResp.StatusCode != http.StatusCreated {
+		body, _ := io.ReadAll(createResp.Body)
+		t.Fatalf("create status %d: %s", createResp.StatusCode, body)
+	}
+	var created struct {
+		Data struct {
+			ID        string `json:"id"`
+			Phone     string `json:"phone"`
+			BirthDate string `json:"birth_date"`
+			Passport  string `json:"passport"`
+		} `json:"data"`
+	}
+	if err := json.NewDecoder(createResp.Body).Decode(&created); err != nil {
+		t.Fatalf("decode create: %v", err)
+	}
+	if created.Data.Phone != "+79001112233" || created.Data.BirthDate != "1985-03-01" || created.Data.Passport != "4010 654321" {
+		t.Fatalf("unexpected passenger: %+v", created.Data)
+	}
+
+	listReq := httptest.NewRequest(http.MethodGet, "/api/v1/me/passengers", nil)
+	listReq.Header.Set("Authorization", "Bearer "+registered.Data.Token)
+	listResp, err := app.Test(listReq)
+	if err != nil {
+		t.Fatalf("list: %v", err)
+	}
+	if listResp.StatusCode != http.StatusOK {
+		t.Fatalf("list status %d", listResp.StatusCode)
+	}
+	var listed struct {
+		Data []struct {
+			ID string `json:"id"`
+		} `json:"data"`
+	}
+	if err := json.NewDecoder(listResp.Body).Decode(&listed); err != nil {
+		t.Fatalf("decode list: %v", err)
+	}
+	if len(listed.Data) != 1 || listed.Data[0].ID != created.Data.ID {
+		t.Fatalf("list: %+v", listed.Data)
+	}
+
+	patchReq := httptest.NewRequest(http.MethodPatch, "/api/v1/me/passengers/"+created.Data.ID, bytes.NewBufferString(`{
+		"name": "Анна Иванова",
+		"phone": "+79001112233",
+		"birth_date": "1985-03-01",
+		"passport": "4010 654321"
+	}`))
+	patchReq.Header.Set("Content-Type", "application/json")
+	patchReq.Header.Set("Authorization", "Bearer "+registered.Data.Token)
+	patchResp, err := app.Test(patchReq)
+	if err != nil {
+		t.Fatalf("patch: %v", err)
+	}
+	if patchResp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(patchResp.Body)
+		t.Fatalf("patch status %d: %s", patchResp.StatusCode, body)
+	}
+
+	deleteReq := httptest.NewRequest(http.MethodDelete, "/api/v1/me/passengers/"+created.Data.ID, nil)
+	deleteReq.Header.Set("Authorization", "Bearer "+registered.Data.Token)
+	deleteResp, err := app.Test(deleteReq)
+	if err != nil {
+		t.Fatalf("delete: %v", err)
+	}
+	if deleteResp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(deleteResp.Body)
+		t.Fatalf("delete status %d: %s", deleteResp.StatusCode, body)
+	}
+}
+
 func TestCreateAndListNews(t *testing.T) {
 	store := memory.NewStore()
 	app := newTestAppWithStore(store, "secret-token")
@@ -748,6 +866,7 @@ func newTestAppWithStore(store *memory.Store, adminToken string) *fiber.App {
 			false,
 		),
 		Auth:          application.NewAuthService(store, store, nil, nil, application.SocialAuthConfig{}, config.DefaultJWTSecret, 24*time.Hour, "http://localhost:3000", store),
+		Passengers:    application.NewPassengerService(store),
 		Support:       application.NewSupportService(store, notificationnoop.New()),
 		CMS:           application.NewCMSService(store),
 		News:          application.NewNewsService(store, nil),

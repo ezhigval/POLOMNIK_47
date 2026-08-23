@@ -13,7 +13,10 @@ export function AccountNav() {
       aria-label="Разделы личного кабинета"
     >
       {accountNavLinks.map((link) => {
-        const active = pathname === link.href || pathname.startsWith(`${link.href}/`);
+        const active =
+          link.href === "/account"
+            ? pathname === "/account"
+            : pathname === link.href || pathname.startsWith(`${link.href}/`);
         return (
           <Link
             key={link.href}

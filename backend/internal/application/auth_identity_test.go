@@ -135,6 +135,21 @@ func TestOAuthMergeMovesBookingAndKeepsEmail(t *testing.T) {
 		t.Fatalf("store booking: %v", err)
 	}
 
+	passenger, err := domain.NewPassenger(domain.NewPassengerInput{
+		ID:        testUUID("33333333-3333-3333-3333-333333333333"),
+		UserID:    other.User.ID,
+		Name:      "Спутник",
+		Phone:     "+79001230088",
+		BirthDate: time.Date(1991, 2, 3, 0, 0, 0, 0, time.UTC),
+		Passport:  "4010 111111",
+	})
+	if err != nil {
+		t.Fatalf("new passenger: %v", err)
+	}
+	if _, err := store.CreatePassenger(ctx, passenger); err != nil {
+		t.Fatalf("store passenger: %v", err)
+	}
+
 	merged, err := svc.OAuthLogin(ctx, OAuthLoginInput{
 		Provider:     "yandex",
 		Subject:      "ya-merge",
@@ -166,6 +181,14 @@ func TestOAuthMergeMovesBookingAndKeepsEmail(t *testing.T) {
 	}
 	if len(list.Items) != 1 || list.Items[0].ID != booking.ID {
 		t.Fatalf("booking was not moved, got %+v", list.Items)
+	}
+
+	moved, err := store.ListPassengers(ctx, current.User.ID)
+	if err != nil {
+		t.Fatalf("list passengers: %v", err)
+	}
+	if len(moved) != 1 || moved[0].ID != passenger.ID {
+		t.Fatalf("passenger was not moved, got %+v", moved)
 	}
 
 	if _, err := store.GetUserByID(ctx, other.User.ID); !errors.Is(err, domain.ErrNotFound) {

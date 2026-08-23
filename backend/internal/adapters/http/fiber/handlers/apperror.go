@@ -94,6 +94,10 @@ func mapValidationError(err error) *AppError {
 		return &AppError{Status: 422, Code: "VALIDATION_ERROR", Message: "Укажите имя"}
 	case errors.Is(err, domain.ErrInvalidPhone):
 		return &AppError{Status: 422, Code: "VALIDATION_ERROR", Message: "Укажите корректный телефон"}
+	case errors.Is(err, domain.ErrInvalidBirthDate):
+		return &AppError{Status: 422, Code: "VALIDATION_ERROR", Message: "Укажите дату рождения"}
+	case errors.Is(err, domain.ErrInvalidPassport):
+		return &AppError{Status: 422, Code: "VALIDATION_ERROR", Message: "Укажите паспорт"}
 	case errors.Is(err, domain.ErrInvalidEmail):
 		return &AppError{Status: 422, Code: "VALIDATION_ERROR", Message: "Укажите корректный email"}
 	case errors.Is(err, domain.ErrInvalidPassword):

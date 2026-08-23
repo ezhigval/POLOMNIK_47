@@ -211,6 +211,19 @@ func appendBookingDetails(b *strings.Builder, booking domain.Booking, tour domai
 	b.WriteString(fmt.Sprintf("ID: <code>%s</code>", booking.ID.String()))
 }
 
+func formatPassengersForMessenger(passengers []domain.Passenger) string {
+	if len(passengers) == 0 {
+		return ""
+	}
+	var b strings.Builder
+	b.WriteString("Пассажиры:\n")
+	for _, passenger := range passengers {
+		b.WriteString(escapeHTML(passenger.MessengerLine()))
+		b.WriteString("\n")
+	}
+	return b.String()
+}
+
 func formatBookingStatus(status domain.BookingStatus) string {
 	switch status {
 	case domain.BookingStatusNew:
