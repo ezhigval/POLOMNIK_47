@@ -516,6 +516,63 @@ func (s *AuthService) GetUser(ctx context.Context, userID uuid.UUID) (domain.Use
 	return sanitizeUser(user), nil
 }
 
+type UpdateProfileInput struct {
+	Name         string
+	Email        string
+	Phone        string
+	PhoneCheckID string
+}
+
+func (s *AuthService) UpdateProfile(ctx context.Context, userID uuid.UUID, input UpdateProfileInput) (domain.User, error) {
+	if userID == uuid.Nil {
+		return domain.User{}, domain.ErrInvalidID
+	}
+	current, err := s.users.GetUserByID(ctx, userID)
+	if err != nil {
+		return domain.User{}, err
+	}
+
+	updated, err := current.WithProfile(input.Name, input.Email, input.Phone)
+	if err != nil {
+		return domain.User{}, err
+	}
+
+	if updated.Email != "" && !strings.EqualFold(updated.Email, current.Email) {
+		existing, err := s.users.GetUserByEmail(ctx, updated.Email)
+		if err == nil && existing.ID != current.ID {
+			return domain.User{}, domain.ErrDuplicateEmail
+		}
+		if err != nil && !errors.Is(err, domain.ErrNotFound) {
+			return domain.User{}, err
+		}
+	}
+
+	if updated.Phone != "" && updated.Phone != current.Phone {
+		existing, err := s.users.GetUserByPhone(ctx, updated.Phone)
+		if err == nil && existing.ID != current.ID {
+			return domain.User{}, domain.ErrDuplicatePhone
+		}
+		if err != nil && !errors.Is(err, domain.ErrNotFound) {
+			return domain.User{}, err
+		}
+		if s.phones.Available() {
+			confirmed, err := s.requireConfirmedPhone(ctx, input.PhoneCheckID)
+			if err != nil {
+				return domain.User{}, err
+			}
+			if confirmed != updated.Phone {
+				return domain.User{}, ErrPhoneVerificationNotConfirmed
+			}
+		}
+	}
+
+	saved, err := s.users.UpdateUserProfile(ctx, updated)
+	if err != nil {
+		return domain.User{}, err
+	}
+	return sanitizeUser(saved), nil
+}
+
 func (s *AuthService) ListIdentities(ctx context.Context, userID uuid.UUID) ([]domain.UserIdentity, error) {
 	if userID == uuid.Nil {
 		return nil, domain.ErrInvalidID

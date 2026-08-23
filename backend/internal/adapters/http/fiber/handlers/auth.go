@@ -238,6 +238,43 @@ func (h *Handler) Me(c *fiber.Ctx) error {
 	})
 }
 
+func (h *Handler) UpdateMe(c *fiber.Ctx) error {
+	userID, ok := appmiddleware.UserIDFromContext(c)
+	if !ok {
+		return writeAppError(c, &AppError{
+			Status:  401,
+			Code:    "UNAUTHORIZED",
+			Message: "Нужно войти в аккаунт",
+		})
+	}
+
+	var req dto.UpdateProfileRequest
+	if err := c.BodyParser(&req); err != nil {
+		return writeAppError(c, &AppError{
+			Status:  422,
+			Code:    "VALIDATION_ERROR",
+			Message: "Некорректные данные запроса",
+		})
+	}
+	if err := rejectHoneypot(req.Website); err != nil {
+		return writeAppError(c, err)
+	}
+
+	user, err := h.auth.UpdateProfile(c.Context(), userID, application.UpdateProfileInput{
+		Name:         req.Name,
+		Email:        req.Email,
+		Phone:        req.Phone,
+		PhoneCheckID: req.PhoneCheckID,
+	})
+	if err != nil {
+		return respondError(c, err, MapError)
+	}
+
+	return c.JSON(dto.DataEnvelope[dto.UserResponse]{
+		Data: dto.ToUserResponse(user),
+	})
+}
+
 func (h *Handler) MyIdentities(c *fiber.Ctx) error {
 	userID, ok := appmiddleware.UserIDFromContext(c)
 	if !ok {

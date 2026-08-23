@@ -454,11 +454,14 @@ Bitrix24 outbound webhook sends deal stage changes. Backend resolves `ORIGIN_ID`
 User session: `Authorization: Bearer`. Internal OAuth completion (Next.js → API) also requires `X-Internal-Secret`.
 
 ```text
-GET  /api/v1/me
-GET  /api/v1/me/identities
-GET  /api/v1/me/bookings
-POST /api/v1/auth/oauth
+GET   /api/v1/me
+PATCH /api/v1/me
+GET   /api/v1/me/identities
+GET   /api/v1/me/bookings
+POST  /api/v1/auth/oauth
 ```
+
+`PATCH /me` (session required): `name`, `email`, `phone`, optional `phone_check_id`, honeypot `website`. Имя обязательно. Почта и телефон могут быть пустыми (oauth-only). Смена телефона при включённом callcheck требует тот же звонок, что регистрация. Уникальность почты и телефона как при регистрации. Пароль здесь не меняется (есть восстановление).
 
 `GET /me/identities` returns `{ "data": [ { "provider", "subject", "created_at" } ] }` for the current user. Providers in product: `yandex`, `vk`, `max`, `telegram`.
 

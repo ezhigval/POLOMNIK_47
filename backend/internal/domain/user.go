@@ -85,6 +85,32 @@ func NewUser(input RegisterUserInput) (User, error) {
 	}, nil
 }
 
+// WithProfile updates name/email/phone. Phone may be empty (oauth-only accounts).
+func (u User) WithProfile(name, email, phone string) (User, error) {
+	name = strings.TrimSpace(name)
+	if name == "" || utf8.RuneCountInString(name) > maxNameLength {
+		return User{}, ErrInvalidContactName
+	}
+
+	email = strings.TrimSpace(strings.ToLower(email))
+	if email != "" && !strings.Contains(email, "@") {
+		return User{}, ErrInvalidEmail
+	}
+
+	phone = strings.TrimSpace(phone)
+	if phone != "" {
+		phone = NormalizePhone(phone)
+		if phone == "" {
+			return User{}, ErrInvalidPhone
+		}
+	}
+
+	u.Name = name
+	u.Email = email
+	u.Phone = phone
+	return u, nil
+}
+
 func NormalizePhone(phone string) string {
 	digits := strings.Builder{}
 	for _, r := range phone {
