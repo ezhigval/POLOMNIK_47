@@ -3,6 +3,7 @@ package memory
 import (
 	"context"
 	"sort"
+	"strings"
 
 	"github.com/google/uuid"
 
@@ -34,6 +35,19 @@ func (s *Store) ListNews(_ context.Context, filters ports.NewsFilters, paginatio
 
 	pageItems, meta := page(items, pagination)
 	return ports.NewsList{Items: pageItems, Meta: meta}, nil
+}
+
+func (s *Store) GetNewsBySlug(_ context.Context, slug string) (domain.NewsArticle, error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	slug = strings.TrimSpace(slug)
+	for _, article := range s.news {
+		if article.Slug == slug {
+			return article, nil
+		}
+	}
+	return domain.NewsArticle{}, domain.ErrNotFound
 }
 
 func (s *Store) GetNews(_ context.Context, id uuid.UUID) (domain.NewsArticle, error) {

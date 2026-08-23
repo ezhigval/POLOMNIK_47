@@ -494,6 +494,19 @@ Invalid internal secret → 401, as before.
 
 Права — существующие Permission, не новые. `ADMIN_TOKEN` в боте не угадывается: нужна привязка Telegram Login + назначение роли.
 
+## 8c. SMM и новость по slug (этап 6)
+
+```text
+GET    /api/v1/news/:slug
+GET    /api/v1/management/smm
+POST   /api/v1/management/smm
+GET    /api/v1/management/smm/:id
+POST   /api/v1/management/smm/:id/publish
+DELETE /api/v1/management/smm/:id
+```
+
+`GET /news/:slug` — только `is_published=true`. Management SMM: `manage_content`. Тело поста — `title`, `body`, `url`, `publish_at` (RFC3339), `channels` (`site_news` / `telegram_channel` / `vk_wall` / `max_feed`). Публикация пишет `results[]` по каждому каналу; один канал может упасть.
+
 ## 9. Future APIs
 
 Not in MVP 1 (частично уже есть в коде; этот список устарел — см. ROADMAP):

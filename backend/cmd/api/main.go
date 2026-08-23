@@ -99,6 +99,8 @@ func run() int {
 	siteSettings := application.NewSiteSettingsService(siteSettingsRepo, siteDefaults)
 	adminRoles := application.NewAdminRoleService(adminRoleRepo, userRepo, cfg.AdminToken, cfg.JWTSecret)
 	newsService := application.NewNewsService(newsRepo, cache)
+	publisherPort := publisher.New(cfg, newsService)
+	smmService := application.NewSMMService(smmRepo(tourRepo), publisherPort)
 	tourService := application.NewTourService(tourRepo, cache, crm)
 	messengerPort := messenger.New(cfg)
 	supportService := application.NewSupportService(supportRepo, notifier).WithClientMessenger(messengerPort, userRepo)
@@ -152,13 +154,14 @@ func run() int {
 		Support:        supportService,
 		CMS:            application.NewCMSService(cmsRepo),
 		News:           newsService,
+		SMM:            smmService,
 		Telegram:       telegramService,
 		Notifications:  notificationSettings,
 		SiteSettings:   siteSettings,
 		AdminRoles:     adminRoles,
 		Captcha:        captcha.New(cfg),
 		Messenger:      messengerPort,
-		Publisher:      publisher.New(cfg, newsService),
+		Publisher:      publisherPort,
 		AI:             ai.New(cfg),
 		WebhookGuard:   application.NewWebhookGuard(cache),
 		RateLimiter:    rateLimiterFromCache(redisCache),
@@ -268,6 +271,13 @@ func txManager(repo ports.TourRepository) ports.TransactionManager {
 func passengerRepo(repo ports.TourRepository) ports.PassengerRepository {
 	if passengers, ok := repo.(ports.PassengerRepository); ok {
 		return passengers
+	}
+	return nil
+}
+
+func smmRepo(repo ports.TourRepository) ports.SMMPostRepository {
+	if posts, ok := repo.(ports.SMMPostRepository); ok {
+		return posts
 	}
 	return nil
 }

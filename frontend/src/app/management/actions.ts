@@ -21,6 +21,10 @@ import {
   createManagementNews,
   updateManagementNews,
   deleteManagementNews,
+  createManagementSMM,
+  publishManagementSMM,
+  deleteManagementSMM,
+  type SMMPostCreateInput,
   updateManagementTelegramSettings,
   updateManagementNotificationSettings,
   updateManagementSiteSettings,
@@ -215,6 +219,28 @@ export async function deleteNewsAction(formData: FormData) {
   const id = String(formData.get("id") ?? "");
   await deleteManagementNews(id);
   revalidateNewsPaths();
+}
+
+function revalidateSMMPaths() {
+  revalidatePath("/management/smm");
+  revalidatePath("/news");
+}
+
+export async function createSMMPostAction(input: SMMPostCreateInput) {
+  await createManagementSMM(input);
+  revalidateSMMPaths();
+}
+
+export async function publishSMMPostAction(formData: FormData) {
+  const id = String(formData.get("id") ?? "");
+  await publishManagementSMM(id);
+  revalidateSMMPaths();
+}
+
+export async function deleteSMMPostAction(formData: FormData) {
+  const id = String(formData.get("id") ?? "");
+  await deleteManagementSMM(id);
+  revalidateSMMPaths();
 }
 
 export async function updateTelegramSettingsAction(input: {

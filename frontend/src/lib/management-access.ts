@@ -23,6 +23,7 @@ export const MANAGEMENT_NAV: ManagementNavItem[] = [
   { href: "/management", label: "Обзор", exact: true, anyOf: [] },
   { href: "/management/content", label: "Главная", anyOf: [PERM.content] },
   { href: "/management/news", label: "Новости", anyOf: [PERM.content] },
+  { href: "/management/smm", label: "Контент-план", anyOf: [PERM.content] },
   { href: "/management/tours", label: "Туры", anyOf: [PERM.tours] },
   { href: "/management/bookings", label: "Заявки", anyOf: [PERM.bookings] },
   { href: "/management/support", label: "Поддержка", anyOf: [PERM.support] },

@@ -129,9 +129,24 @@ type NewsList struct {
 type NewsRepository interface {
 	ListNews(ctx context.Context, filters NewsFilters, pagination Pagination) (NewsList, error)
 	GetNews(ctx context.Context, id uuid.UUID) (domain.NewsArticle, error)
+	GetNewsBySlug(ctx context.Context, slug string) (domain.NewsArticle, error)
 	CreateNews(ctx context.Context, article domain.NewsArticle) (domain.NewsArticle, error)
 	UpdateNews(ctx context.Context, article domain.NewsArticle) (domain.NewsArticle, error)
 	DeleteNews(ctx context.Context, id uuid.UUID) error
+}
+
+type SMMPostList struct {
+	Items []domain.SMMPost
+	Meta  PageMeta
+}
+
+type SMMPostRepository interface {
+	CreateSMMPost(ctx context.Context, post domain.SMMPost) (domain.SMMPost, error)
+	GetSMMPost(ctx context.Context, id uuid.UUID) (domain.SMMPost, error)
+	ListSMMPosts(ctx context.Context, pagination Pagination) (SMMPostList, error)
+	ListDueSMMPosts(ctx context.Context, now time.Time) ([]domain.SMMPost, error)
+	SaveSMMPost(ctx context.Context, post domain.SMMPost) (domain.SMMPost, error)
+	DeleteSMMPost(ctx context.Context, id uuid.UUID) error
 }
 
 type TelegramRecipientsRepository interface {

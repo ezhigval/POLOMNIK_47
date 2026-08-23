@@ -116,6 +116,8 @@ func mapValidationError(err error) *AppError {
 		return &AppError{Status: 422, Code: "VALIDATION_ERROR", Message: "Некорректный адрес получателя"}
 	case errors.Is(err, domain.ErrInvalidNotificationEvent):
 		return &AppError{Status: 422, Code: "VALIDATION_ERROR", Message: "Некорректный тип события уведомления"}
+	case errors.Is(err, domain.ErrInvalidPublisherChannel):
+		return &AppError{Status: 422, Code: "VALIDATION_ERROR", Message: "Укажите каналы publisher: site_news, telegram_channel, vk_wall, max_feed"}
 	case errors.Is(err, domain.ErrInvalidAdminRoleName):
 		return &AppError{Status: 422, Code: "VALIDATION_ERROR", Message: "Имя роли: латиница, цифры, _ или -, 2–64 символа"}
 	case errors.Is(err, domain.ErrInvalidPermission):

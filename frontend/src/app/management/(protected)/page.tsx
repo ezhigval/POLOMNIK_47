@@ -162,6 +162,7 @@ export default async function ManagementDashboardPage() {
     actions.push(
       { href: "/management/content", label: "Редактировать главную", primary: true },
       { href: "/management/news", label: "Новости" },
+      { href: "/management/smm", label: "Контент-план" },
     );
   }
   if (can(PERM.tours)) {

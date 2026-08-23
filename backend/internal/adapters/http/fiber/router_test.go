@@ -17,6 +17,7 @@ import (
 
 	"palomnik/internal/adapters/integration/noop"
 	notificationnoop "palomnik/internal/adapters/notification/noop"
+	publishernoop "palomnik/internal/adapters/publisher/noop"
 	"palomnik/internal/adapters/repository/memory"
 	"palomnik/internal/application"
 	"palomnik/internal/config"
@@ -870,6 +871,7 @@ func newTestAppWithStore(store *memory.Store, adminToken string) *fiber.App {
 		Support:       application.NewSupportService(store, notificationnoop.New()),
 		CMS:           application.NewCMSService(store),
 		News:          application.NewNewsService(store, nil),
+		SMM:           application.NewSMMService(store, publishernoop.New()),
 		Telegram:      application.NewTelegramServiceFromRepos(store, store, nil, ""),
 		Notifications: application.NewNotificationSettingsService(store, store, store, false, false),
 		SiteSettings:  application.NewSiteSettingsService(store, domain.SiteSettings{}),

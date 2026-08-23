@@ -515,6 +515,57 @@ export async function deleteManagementNews(id: string) {
   await managementRequest<void>(`/news/${id}`, { method: "DELETE" });
 }
 
+export type ManagementSMMResult = {
+  channel: string;
+  ok: boolean;
+  error?: string;
+  attempted_at?: string;
+};
+
+export type ManagementSMMPost = {
+  id: string;
+  title: string;
+  body: string;
+  url: string;
+  publish_at: string;
+  channels: string[];
+  published_at?: string;
+  results: ManagementSMMResult[];
+  created_at: string;
+};
+
+export type SMMPostCreateInput = {
+  title: string;
+  body: string;
+  url: string;
+  publish_at: string;
+  channels: string[];
+};
+
+export async function listManagementSMM() {
+  const body = await managementRequest<ListEnvelope<ManagementSMMPost>>("/smm?limit=100");
+  return body.data;
+}
+
+export async function createManagementSMM(input: SMMPostCreateInput) {
+  const body = await managementRequest<DataEnvelope<ManagementSMMPost>>("/smm", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+  return body.data;
+}
+
+export async function publishManagementSMM(id: string) {
+  const body = await managementRequest<DataEnvelope<ManagementSMMPost>>(`/smm/${id}/publish`, {
+    method: "POST",
+  });
+  return body.data;
+}
+
+export async function deleteManagementSMM(id: string) {
+  await managementRequest<void>(`/smm/${id}`, { method: "DELETE" });
+}
+
 export type ManagementTelegramRecipient = {
   username: string;
   kind: "booking" | "support";

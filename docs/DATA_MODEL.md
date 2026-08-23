@@ -234,3 +234,21 @@ passengers
 
 В мессенджеры уходит только маска: телефон и паспорт — последние 2 символа, дата рождения `**.**.****`, ФИО без маски. СНИЛС нет.
 
+## 9. SMM-план (v3 этап 6)
+
+```text
+smm_posts
+  id UUID
+  title TEXT
+  body TEXT            # текст поста из плана, без генерации
+  url TEXT
+  publish_at TIMESTAMPTZ
+  channels TEXT[]      # site_news / telegram_channel / vk_wall / max_feed
+  published_at TIMESTAMPTZ  # момент попытки публикации
+  results JSONB        # [{channel, ok, error, attempted_at}] по каждому каналу
+  created_at TIMESTAMPTZ
+  updated_at TIMESTAMPTZ
+```
+
+Падение одного канала не откатывает остальные. `PUBLISHER_ADAPTER=noop` ничего не постит, только пишет ошибку в results.
+

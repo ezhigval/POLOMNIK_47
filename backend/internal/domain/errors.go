@@ -50,6 +50,7 @@ var (
 	ErrInvalidNotificationChannel = errors.New("invalid notification channel")
 	ErrInvalidNotificationAddress = errors.New("invalid notification address")
 	ErrInvalidNotificationEvent   = errors.New("invalid notification event")
+	ErrInvalidPublisherChannel    = errors.New("invalid publisher channel")
 	ErrInvalidAdminRoleName       = errors.New("invalid admin role name")
 	ErrInvalidPermission          = errors.New("invalid permission")
 	ErrForbidden                  = errors.New("forbidden")

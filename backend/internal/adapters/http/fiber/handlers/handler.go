@@ -17,6 +17,7 @@ type Handler struct {
 	support               *application.SupportService
 	cms                   *application.CMSService
 	news                  *application.NewsService
+	smm                   *application.SMMService
 	telegram              *application.TelegramService
 	notifications         *application.NotificationSettingsService
 	siteSettings          *application.SiteSettingsService
@@ -38,6 +39,7 @@ func New(
 	support *application.SupportService,
 	cms *application.CMSService,
 	news *application.NewsService,
+	smm *application.SMMService,
 	telegram *application.TelegramService,
 	notifications *application.NotificationSettingsService,
 	siteSettings *application.SiteSettingsService,
@@ -58,6 +60,7 @@ func New(
 		support:               support,
 		cms:                   cms,
 		news:                  news,
+		smm:                   smm,
 		telegram:              telegram,
 		notifications:         notifications,
 		siteSettings:          siteSettings,

@@ -70,6 +70,7 @@ func NewRouter(cfg config.Config, log *slog.Logger, services Services, health He
 		services.Support,
 		services.CMS,
 		services.News,
+		services.SMM,
 		services.Telegram,
 		services.Notifications,
 		services.SiteSettings,
@@ -110,6 +111,7 @@ func NewRouter(cfg config.Config, log *slog.Logger, services Services, health He
 
 	v1.Get("/reviews", h.ListReviews)
 	v1.Get("/news", h.ListPublicNews)
+	v1.Get("/news/:slug", h.GetPublicNewsBySlug)
 	v1.Get("/pages", h.ListPublicCMSPages)
 	v1.Get("/pages/:slug", h.GetPublicCMSPage)
 	v1.Get("/site-settings", h.GetPublicSiteSettings)
@@ -169,6 +171,12 @@ func NewRouter(cfg config.Config, log *slog.Logger, services Services, health He
 	management.Get("/news/:id", require(domain.PermManageContent), h.ManagementGetNews)
 	management.Patch("/news/:id", require(domain.PermManageContent), h.ManagementUpdateNews)
 	management.Delete("/news/:id", require(domain.PermManageContent), h.ManagementDeleteNews)
+
+	management.Get("/smm", require(domain.PermManageContent), h.ManagementListSMM)
+	management.Post("/smm", require(domain.PermManageContent), h.ManagementCreateSMM)
+	management.Get("/smm/:id", require(domain.PermManageContent), h.ManagementGetSMM)
+	management.Post("/smm/:id/publish", require(domain.PermManageContent), h.ManagementPublishSMM)
+	management.Delete("/smm/:id", require(domain.PermManageContent), h.ManagementDeleteSMM)
 
 	management.Get("/telegram-settings", require(domain.PermManageRecipients), h.ManagementGetTelegramSettings)
 	management.Patch("/telegram-settings", require(domain.PermManageRecipients), h.ManagementUpdateTelegramSettings)

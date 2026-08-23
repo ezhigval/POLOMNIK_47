@@ -1,4 +1,4 @@
-import { apiGetList } from "./client";
+import { apiGet, apiGetList } from "./client";
 
 export type PublicNewsArticle = {
   id: string;
@@ -15,4 +15,8 @@ export type PublicNewsArticle = {
 export async function listPublicNews() {
   const body = await apiGetList<PublicNewsArticle>("/news?limit=100");
   return body.data;
+}
+
+export async function getPublicNewsBySlug(slug: string) {
+  return apiGet<PublicNewsArticle>(`/news/${encodeURIComponent(slug)}`);
 }

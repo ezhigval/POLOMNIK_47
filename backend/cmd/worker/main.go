@@ -11,6 +11,7 @@ import (
 
 	"palomnik/internal/adapters/integration"
 	"palomnik/internal/adapters/notification"
+	"palomnik/internal/adapters/publisher"
 	"palomnik/internal/adapters/repository/memory"
 	"palomnik/internal/adapters/repository/postgres"
 	"palomnik/internal/application"
@@ -55,6 +56,12 @@ func run() int {
 		telegramDeps.Chats = chats
 	}
 	notifications := notification.Inner(cfg, telegramDeps)
+	var smm *application.SMMService
+	if newsRepo, ok := tourRepo.(ports.NewsRepository); ok {
+		if posts, ok := tourRepo.(ports.SMMPostRepository); ok {
+			smm = application.NewSMMService(posts, publisher.New(cfg, application.NewNewsService(newsRepo, nil)))
+		}
+	}
 	worker := application.NewOutboxWorker(
 		outboxRepo,
 		tourRepo,
@@ -78,6 +85,14 @@ func run() int {
 	defer ticker.Stop()
 
 	for {
+		if smm != nil {
+			if n, smmErr := smm.PublishDue(ctx, time.Now().UTC()); smmErr != nil {
+				log.Error("smm due publish failed", slog.Any("error", smmErr))
+			} else if n > 0 {
+				log.Info("smm due posts published", slog.Int("count", n))
+			}
+		}
+
 		processed, err := worker.ProcessBatch(ctx, cfg.OutboxWorkerBatchSize)
 		if err != nil {
 			log.Error("outbox batch failed", slog.Any("error", err))

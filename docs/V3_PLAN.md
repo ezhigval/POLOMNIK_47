@@ -146,6 +146,8 @@ WhatsApp — только официальный Cloud API. `ExportPayment` на
 
 Материал + слот времени + список publisher. Источник сначала `/management/smm`, позже тот же порт может читать таблицу. Страница `/news/[slug]`. Текст поста только из плана. Падение одного канала не откатывает остальные.
 
+**Сделано в коде:** таблица `smm_posts` (goose 17), админка `/management/smm`, `POST /management/smm/:id/publish` и публикация due в worker. Текст = title/body/url из плана. Каналы — имена PublisherPort. `PUBLISHER_ADAPTER=noop` на проде ничего не постит. Публичная страница `/news/[slug]` для опубликованных статей.
+
 ---
 
 ## Этап 7 — ИИ

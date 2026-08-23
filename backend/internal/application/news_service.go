@@ -65,6 +65,17 @@ func (s *NewsService) GetNews(ctx context.Context, id uuid.UUID) (domain.NewsArt
 	return s.news.GetNews(ctx, id)
 }
 
+func (s *NewsService) GetPublishedNewsBySlug(ctx context.Context, slug string) (domain.NewsArticle, error) {
+	article, err := s.news.GetNewsBySlug(ctx, slug)
+	if err != nil {
+		return domain.NewsArticle{}, err
+	}
+	if !article.IsPublished {
+		return domain.NewsArticle{}, domain.ErrNotFound
+	}
+	return article, nil
+}
+
 func (s *NewsService) CreateNews(ctx context.Context, input NewsArticleInput) (domain.NewsArticle, error) {
 	article, err := domain.NewNewsArticle(domain.NewNewsArticleInput{
 		ID:          uuid.New(),

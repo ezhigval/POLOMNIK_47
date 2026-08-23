@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/lib/pq"
@@ -46,6 +47,15 @@ LIMIT $2 OFFSET $3
 	}
 
 	return ports.NewsList{Items: items, Meta: pageMeta(pagination, total)}, nil
+}
+
+func (s *Store) GetNewsBySlug(ctx context.Context, slug string) (domain.NewsArticle, error) {
+	row := s.db.QueryRowContext(ctx, `
+SELECT id, slug, title, excerpt, body, image_url, published_at, is_published, sort_order, created_at, updated_at
+FROM news_articles
+WHERE slug = $1
+`, strings.TrimSpace(slug))
+	return scanNewsArticle(row)
 }
 
 func (s *Store) GetNews(ctx context.Context, id uuid.UUID) (domain.NewsArticle, error) {
