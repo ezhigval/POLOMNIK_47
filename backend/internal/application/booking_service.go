@@ -135,6 +135,21 @@ func (s *BookingService) ListBookings(ctx context.Context, filters ports.Booking
 	return s.bookings.ListBookings(ctx, filters, pagination)
 }
 
+func (s *BookingService) ListAllBookings(ctx context.Context, filters ports.BookingFilters) ([]domain.Booking, error) {
+	var all []domain.Booking
+	for page := 1; page <= 1000; page++ {
+		list, err := s.bookings.ListBookings(ctx, filters, ports.NormalizePagination(page, 100))
+		if err != nil {
+			return nil, err
+		}
+		all = append(all, list.Items...)
+		if !list.Meta.HasNext {
+			return all, nil
+		}
+	}
+	return all, nil
+}
+
 func (s *BookingService) UpdateBookingStatus(ctx context.Context, id uuid.UUID, status domain.BookingStatus) (domain.Booking, error) {
 	existing, err := s.bookings.GetBooking(ctx, id)
 	if err != nil {
