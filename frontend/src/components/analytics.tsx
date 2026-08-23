@@ -9,11 +9,11 @@ export function Analytics() {
   const [choice, setChoice] = useState<CookieConsentChoice | null>(null);
 
   useEffect(() => {
-    setChoice(getCookieConsent());
     function onChange(event: Event) {
       const detail = (event as CustomEvent<CookieConsentChoice>).detail;
       setChoice(detail ?? getCookieConsent());
     }
+    void Promise.resolve().then(() => setChoice(getCookieConsent()));
     window.addEventListener("palomnik:cookie-consent-changed", onChange);
     return () => window.removeEventListener("palomnik:cookie-consent-changed", onChange);
   }, []);

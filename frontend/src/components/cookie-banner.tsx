@@ -14,7 +14,7 @@ export function CookieBanner() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    setVisible(getCookieConsent() === null);
+    void Promise.resolve().then(() => setVisible(getCookieConsent() === null));
   }, []);
 
   function choose(choice: CookieConsentChoice) {

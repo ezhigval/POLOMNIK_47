@@ -48,7 +48,9 @@ export function AccountConsentsPanel() {
   }
 
   useEffect(() => {
-    void load();
+    void Promise.resolve().then(() => {
+      void load();
+    });
   }, []);
 
   async function saveMarketing() {
