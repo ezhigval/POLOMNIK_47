@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Analytics } from "@/components/analytics";
+import { CookieBanner } from "@/components/cookie-banner";
 import { LiveRefresh } from "@/components/live-refresh";
 import { displaySerif, geistMono, geistSans } from "@/lib/fonts";
 import { siteConfig } from "@/lib/site-config";
@@ -49,6 +50,7 @@ export default function RootLayout({
       <body className="flex min-h-full flex-col bg-stone-50 text-stone-900 antialiased">
         {children}
         {process.env.NEXT_PUBLIC_LIVE_REFRESH === "1" ? <LiveRefresh /> : null}
+        <CookieBanner />
         <Analytics />
       </body>
     </html>

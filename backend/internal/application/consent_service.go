@@ -29,9 +29,9 @@ type RecordConsentInput struct {
 
 func documentTypeForConsent(consentType domain.ConsentType) domain.LegalDocumentType {
 	switch consentType {
-	case domain.ConsentTypeMarketing:
+	case domain.ConsentTypeMarketing, domain.ConsentTypeMarketingRevoked:
 		return domain.LegalDocTypeMarketing
-	case domain.ConsentTypeDistribution:
+	case domain.ConsentTypeDistribution, domain.ConsentTypeDistributionRevoked:
 		return domain.LegalDocTypeDistribution
 	case domain.ConsentTypeCookieAll, domain.ConsentTypeCookieEssential, domain.ConsentTypeCookieReject:
 		return domain.LegalDocTypeCookie

@@ -76,6 +76,8 @@ func MapBookingError(err error) *AppError {
 
 func mapValidationError(err error) *AppError {
 	switch {
+	case errors.Is(err, domain.ErrConsentRequired):
+		return &AppError{Status: 422, Code: "CONSENT_REQUIRED", Message: "Необходимо согласие на обработку или распространение персональных данных"}
 	case errors.Is(err, domain.ErrInvalidID):
 		return &AppError{Status: 422, Code: "VALIDATION_ERROR", Message: "Некорректный идентификатор"}
 	case errors.Is(err, domain.ErrInvalidSlug), errors.Is(err, domain.ErrInvalidPath):

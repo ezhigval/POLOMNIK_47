@@ -28,6 +28,7 @@ export const MANAGEMENT_NAV: ManagementNavItem[] = [
   { href: "/management/bookings", label: "Заявки", anyOf: [PERM.bookings] },
   { href: "/management/support", label: "Поддержка", anyOf: [PERM.support] },
   { href: "/management/reviews", label: "Отзывы", anyOf: [PERM.content] },
+  { href: "/management/legal", label: "Юридические", anyOf: [PERM.content] },
   { href: "/management/integrations", label: "Синхронизация", anyOf: [PERM.integrations, PERM.stats] },
   { href: "/management/ai", label: "ИИ и watchdog", anyOf: [PERM.stats] },
   {

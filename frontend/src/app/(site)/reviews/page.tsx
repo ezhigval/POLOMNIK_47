@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PageIntro } from "@/components/page-intro";
+import { PublicReviewForm } from "@/components/public-review-form";
 import { TestimonialCard } from "@/components/testimonial-card";
+import { getTours } from "@/lib/api/tours";
 import { siteConfig } from "@/lib/site-config";
 import { loadTestimonials } from "@/lib/testimonials";
 
@@ -18,6 +20,13 @@ export const metadata: Metadata = {
 
 export default async function ReviewsPage() {
   const testimonials = await loadTestimonials(24);
+  let tours: { id: string; title: string }[] = [];
+  try {
+    const list = await getTours();
+    tours = list.data.map((tour) => ({ id: tour.id, title: tour.title }));
+  } catch {
+    tours = [];
+  }
 
   return (
     <div className="mx-auto max-w-6xl space-y-8 px-4 py-8 sm:py-10">
@@ -41,6 +50,10 @@ export default async function ReviewsPage() {
           ))}
         </div>
       )}
+
+      <div className="mx-auto max-w-xl">
+        <PublicReviewForm tours={tours} />
+      </div>
 
       <div className="flex justify-center">
         <Link href="/search" className="btn-primary px-8 py-3">

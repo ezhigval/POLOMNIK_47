@@ -27,6 +27,7 @@ export function CreateReviewForm({ tours }: CreateReviewFormProps) {
         rating: Number(formData.get("rating") ?? 5),
         text: String(formData.get("text") ?? ""),
         is_approved: formData.get("is_approved") === "on",
+        allow_distribution: formData.get("allow_distribution") === "on",
       });
       event.currentTarget.reset();
     } catch (err) {
@@ -83,6 +84,14 @@ export function CreateReviewForm({ tours }: CreateReviewFormProps) {
       <label className="flex items-center gap-2 text-sm">
         <input type="checkbox" name="is_approved" className="size-4" />
         Одобрен сразу
+      </label>
+
+      <label className="flex items-start gap-2 text-sm leading-5">
+        <input type="checkbox" name="allow_distribution" className="mt-0.5 size-4 shrink-0" />
+        <span>
+          Есть согласие субъекта на распространение ПД (публикация имени/текста). Без него отзыв не
+          публикуется.
+        </span>
       </label>
 
       <FormError>{error}</FormError>

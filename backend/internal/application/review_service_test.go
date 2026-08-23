@@ -22,12 +22,13 @@ func TestReviewServiceListPublicReviewsReturnsOnlyApproved(t *testing.T) {
 	}
 
 	approved, err := domain.NewReview(domain.NewReviewInput{
-		ID:         testUUID("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
-		TourID:     tour.ID,
-		ClientName: "Anna",
-		Rating:     5,
-		Text:       "Great tour",
-		IsApproved: true,
+		ID:                testUUID("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+		TourID:            tour.ID,
+		ClientName:        "Anna",
+		Rating:            5,
+		Text:              "Great tour",
+		IsApproved:        true,
+		AllowDistribution: true,
 	})
 	if err != nil {
 		t.Fatalf("create approved review domain: %v", err)
@@ -87,10 +88,11 @@ func TestReviewServiceApproveReview(t *testing.T) {
 	}
 
 	created, err := service.CreateReview(ctx, CreateReviewInput{
-		TourID:     tour.ID,
-		ClientName: "Anna",
-		Rating:     5,
-		Text:       "Great tour",
+		TourID:            tour.ID,
+		ClientName:        "Anna",
+		Rating:            5,
+		Text:              "Great tour",
+		AllowDistribution: true,
 	})
 	if err != nil {
 		t.Fatalf("create review: %v", err)

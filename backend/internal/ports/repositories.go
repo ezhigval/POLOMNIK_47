@@ -58,9 +58,10 @@ type BookingRepository interface {
 }
 
 type ReviewFilters struct {
-	TourID     *uuid.UUID
-	Rating     *int
-	IsApproved *bool
+	TourID            *uuid.UUID
+	Rating            *int
+	IsApproved        *bool
+	AllowDistribution *bool
 }
 
 type ReviewList struct {

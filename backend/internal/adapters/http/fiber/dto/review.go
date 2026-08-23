@@ -19,15 +19,19 @@ type ReviewResponse struct {
 
 type ManagementReviewResponse struct {
 	ReviewResponse
-	IsApproved bool `json:"is_approved"`
+	IsApproved        bool `json:"is_approved"`
+	AllowDistribution bool `json:"allow_distribution"`
 }
 
 type CreateReviewRequest struct {
-	TourID     string `json:"tour_id"`
-	ClientName string `json:"client_name"`
-	Rating     int    `json:"rating"`
-	Text       string `json:"text"`
-	IsApproved bool   `json:"is_approved"`
+	TourID              string `json:"tour_id"`
+	ClientName          string `json:"client_name"`
+	Rating              int    `json:"rating"`
+	Text                string `json:"text"`
+	IsApproved          bool   `json:"is_approved"`
+	AllowDistribution   bool   `json:"allow_distribution"`
+	ConsentPersonalData bool   `json:"consent_personal_data"`
+	Website             string `json:"website"`
 }
 
 type SetCompanyReplyRequest struct {
@@ -57,7 +61,8 @@ func formatOptionalTime(value *time.Time) *string {
 
 func ToManagementReviewResponse(review domain.Review) ManagementReviewResponse {
 	return ManagementReviewResponse{
-		ReviewResponse: ToReviewResponse(review),
-		IsApproved:     review.IsApproved,
+		ReviewResponse:    ToReviewResponse(review),
+		IsApproved:        review.IsApproved,
+		AllowDistribution: review.AllowDistribution,
 	}
 }

@@ -385,6 +385,7 @@ export type CreateReviewInput = {
   rating: number;
   text: string;
   is_approved: boolean;
+  allow_distribution: boolean;
 };
 
 export async function createManagementReview(input: CreateReviewInput) {
@@ -803,4 +804,52 @@ export async function assignManagementRoleUser(roleId: string, userId: string) {
     method: "POST",
     body: JSON.stringify({ user_id: userId }),
   });
+}
+
+export type ManagementLegalDocument = {
+  id: string;
+  type: string;
+  version: string;
+  title: string;
+  published_at: string;
+  updated_at: string;
+  is_active: boolean;
+  content?: string;
+};
+
+export type ManagementConsent = {
+  id: string;
+  user_id?: string | null;
+  request_id?: string | null;
+  consent_type: string;
+  document_id: string;
+  document_version: string;
+  accepted_at: string;
+};
+
+export async function listManagementLegalDocuments(type?: string) {
+  const query = type ? `?type=${encodeURIComponent(type)}` : "";
+  const body = await managementRequest<DataEnvelope<ManagementLegalDocument[]>>(
+    `/legal/documents${query}`,
+  );
+  return body.data;
+}
+
+export async function publishManagementLegalDocument(input: {
+  type: string;
+  version: string;
+  title: string;
+  content: string;
+}) {
+  const body = await managementRequest<DataEnvelope<ManagementLegalDocument>>("/legal/documents", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+  return body.data;
+}
+
+export async function listManagementConsents(page = 1, limit = 50) {
+  return managementRequest<ListEnvelope<ManagementConsent>>(
+    `/consents?page=${page}&limit=${limit}`,
+  );
 }

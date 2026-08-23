@@ -310,7 +310,7 @@ SELECT `+reviewSelectColumns+`
 FROM reviews
 WHERE `+reviewWhereClause+`
 ORDER BY created_at DESC, id ASC
-LIMIT $4 OFFSET $5
+LIMIT $5 OFFSET $6
 `, append(args, pagination.Limit, offset(pagination))...)
 	if err != nil {
 		return ports.ReviewList{}, fmt.Errorf("list reviews: %w", err)
@@ -337,13 +337,13 @@ WHERE id = $1
 func (s *Store) CreateReview(ctx context.Context, review domain.Review) (domain.Review, error) {
 	row := s.conn(ctx).QueryRowContext(ctx, `
 INSERT INTO reviews (
-    id, tour_id, client_name, rating, text, is_approved, company_reply, company_replied_at, created_at, updated_at
+    id, tour_id, client_name, rating, text, is_approved, allow_distribution, company_reply, company_replied_at, created_at, updated_at
 ) VALUES (
-    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10
+    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11
 )
 RETURNING `+reviewSelectColumns+`
 `, review.ID, review.TourID, review.ClientName, review.Rating, review.Text,
-		review.IsApproved, review.CompanyReply, review.CompanyRepliedAt, review.CreatedAt, review.UpdatedAt)
+		review.IsApproved, review.AllowDistribution, review.CompanyReply, review.CompanyRepliedAt, review.CreatedAt, review.UpdatedAt)
 	return scanReview(row)
 }
 
@@ -386,7 +386,7 @@ RETURNING `+reviewSelectColumns+`
 	return scanReview(row)
 }
 
-const reviewSelectColumns = `id, tour_id, client_name, rating, text, is_approved, company_reply, company_replied_at, created_at, updated_at`
+const reviewSelectColumns = `id, tour_id, client_name, rating, text, is_approved, allow_distribution, company_reply, company_replied_at, created_at, updated_at`
 
 const tourWhereClause = `
 ($1::date IS NULL OR date_end >= $1) AND
@@ -443,7 +443,8 @@ func bookingFilterArgs(filters ports.BookingFilters) []any {
 const reviewWhereClause = `
 ($1::uuid IS NULL OR tour_id = $1) AND
 ($2::integer IS NULL OR rating = $2) AND
-($3::boolean IS NULL OR is_approved = $3)
+($3::boolean IS NULL OR is_approved = $3) AND
+($4::boolean IS NULL OR allow_distribution = $4)
 `
 
 func reviewFilterArgs(filters ports.ReviewFilters) []any {
@@ -451,6 +452,7 @@ func reviewFilterArgs(filters ports.ReviewFilters) []any {
 		uuidValue(filters.TourID),
 		intValue(filters.Rating),
 		boolValue(filters.IsApproved),
+		boolValue(filters.AllowDistribution),
 	}
 }
 
@@ -564,6 +566,7 @@ func scanReview(row scanner) (domain.Review, error) {
 		&review.Rating,
 		&review.Text,
 		&review.IsApproved,
+		&review.AllowDistribution,
 		&review.CompanyReply,
 		&companyRepliedAt,
 		&review.CreatedAt,

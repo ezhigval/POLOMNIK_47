@@ -113,6 +113,7 @@ func NewRouter(cfg config.Config, log *slog.Logger, services Services, health He
 	v1.Get("/tours", h.ListTours)
 
 	v1.Get("/reviews", h.ListReviews)
+	v1.Post("/reviews", appmiddleware.OptionalUserAuth(services.Auth), h.CreatePublicReview)
 	v1.Get("/news", h.ListPublicNews)
 	v1.Get("/news/:slug", h.GetPublicNewsBySlug)
 	v1.Get("/pages", h.ListPublicCMSPages)

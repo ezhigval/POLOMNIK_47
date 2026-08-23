@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { BrandMark } from "@/components/brand-mark";
+import { CookieSettingsButton } from "@/components/cookie-settings-button";
 import { DioceseAffiliation } from "@/components/diocese-affiliation";
 import { contactEmail, contactPhone, contactPhoneDisplay } from "@/lib/contact";
 import { accountNavLinks, footerNavLinks } from "@/lib/site-nav";
@@ -74,6 +75,9 @@ export function SiteFooter() {
               <a href={`mailto:${contactEmail}`} className="transition hover:text-white">
                 {contactEmail}
               </a>
+            </li>
+            <li className="pt-2">
+              <CookieSettingsButton />
             </li>
             <li className="pt-2">
               <a

@@ -369,6 +369,9 @@ func matchesReviewFilters(review domain.Review, filters ports.ReviewFilters) boo
 	if filters.IsApproved != nil && review.IsApproved != *filters.IsApproved {
 		return false
 	}
+	if filters.AllowDistribution != nil && review.AllowDistribution != *filters.AllowDistribution {
+		return false
+	}
 	return true
 }
 

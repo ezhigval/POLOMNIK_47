@@ -10,21 +10,25 @@ import (
 type ConsentType string
 
 const (
-	ConsentTypePersonalData ConsentType = "personal_data"
-	ConsentTypeMarketing    ConsentType = "marketing"
-	ConsentTypeDistribution ConsentType = "distribution"
-	ConsentTypeCookieAll    ConsentType = "cookie_all"
-	ConsentTypeCookieEssential ConsentType = "cookie_essential"
-	ConsentTypeCookieReject ConsentType = "cookie_reject"
+	ConsentTypePersonalData       ConsentType = "personal_data"
+	ConsentTypeMarketing          ConsentType = "marketing"
+	ConsentTypeMarketingRevoked   ConsentType = "marketing_revoked"
+	ConsentTypeDistribution       ConsentType = "distribution"
+	ConsentTypeDistributionRevoked ConsentType = "distribution_revoked"
+	ConsentTypeCookieAll          ConsentType = "cookie_all"
+	ConsentTypeCookieEssential    ConsentType = "cookie_essential"
+	ConsentTypeCookieReject       ConsentType = "cookie_reject"
 )
 
 var consentTypes = map[ConsentType]struct{}{
-	ConsentTypePersonalData:    {},
-	ConsentTypeMarketing:       {},
-	ConsentTypeDistribution:    {},
-	ConsentTypeCookieAll:       {},
-	ConsentTypeCookieEssential: {},
-	ConsentTypeCookieReject:    {},
+	ConsentTypePersonalData:        {},
+	ConsentTypeMarketing:           {},
+	ConsentTypeMarketingRevoked:    {},
+	ConsentTypeDistribution:        {},
+	ConsentTypeDistributionRevoked: {},
+	ConsentTypeCookieAll:           {},
+	ConsentTypeCookieEssential:     {},
+	ConsentTypeCookieReject:        {},
 }
 
 func ParseConsentType(raw string) (ConsentType, error) {

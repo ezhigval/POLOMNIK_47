@@ -32,6 +32,7 @@ export const accountNavLinks: NavLink[] = [
   { href: "/account/passengers", label: "Пассажиры" },
   { href: "/account/trips", label: "Мои поездки" },
   { href: "/account/favorites", label: "Избранное" },
+  { href: "/account/consents", label: "Согласия" },
   { href: "/support/chat", label: "Чат поддержки" },
 ];
 

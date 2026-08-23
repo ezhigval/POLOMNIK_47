@@ -89,3 +89,67 @@ export function MarketingConsentCheckbox({ checked, onChange, disabled }: Market
     />
   );
 }
+
+type DistributionConsentProps = {
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+  disabled?: boolean;
+  required?: boolean;
+};
+
+export function DistributionConsentCheckbox({
+  checked,
+  onChange,
+  disabled,
+  required = false,
+}: DistributionConsentProps) {
+  return (
+    <ConsentCheckbox
+      name="consent_distribution"
+      checked={checked}
+      onChange={onChange}
+      required={required}
+      disabled={disabled}
+      documentType="distribution"
+      documentTitle="Согласия на обработку персональных данных, разрешённых для распространения"
+      labelPrefix="Я даю согласие на обработку моих персональных данных, разрешённых для распространения, на условиях"
+    />
+  );
+}
+
+type PhotoDistributionConsentProps = {
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+  disabled?: boolean;
+};
+
+export function PhotoDistributionConsentCheckbox({
+  checked,
+  onChange,
+  disabled,
+}: PhotoDistributionConsentProps) {
+  return (
+    <label className="flex items-start gap-3 text-sm leading-6 text-stone-700">
+      <input
+        type="checkbox"
+        name="consent_photo_distribution"
+        checked={checked}
+        onChange={(event) => onChange(event.target.checked)}
+        disabled={disabled}
+        className="mt-1 size-4 shrink-0 rounded border-stone-300 text-brand-800 focus:ring-brand-700"
+      />
+      <span>
+        Я разрешаю публикацию предоставленной фотографии и связанных с ней персональных данных на сайте и в
+        официальных социальных сетях оператора на условиях{" "}
+        <Link
+          href="/legal/distribution-consent"
+          target="_blank"
+          className="font-medium text-brand-800 underline underline-offset-2 hover:text-brand-900"
+        >
+          Согласия на обработку персональных данных, разрешённых для распространения
+        </Link>
+        .
+      </span>
+    </label>
+  );
+}

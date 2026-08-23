@@ -261,11 +261,12 @@ func (h *Handler) ManagementCreateReview(c *fiber.Ctx) error {
 	}
 
 	review, err := h.reviews.CreateReview(c.Context(), application.CreateReviewInput{
-		TourID:     tourID,
-		ClientName: req.ClientName,
-		Rating:     req.Rating,
-		Text:       req.Text,
-		IsApproved: req.IsApproved,
+		TourID:            tourID,
+		ClientName:        req.ClientName,
+		Rating:            req.Rating,
+		Text:              req.Text,
+		IsApproved:        req.IsApproved,
+		AllowDistribution: req.AllowDistribution,
 	})
 	if err != nil {
 		return respondError(c, err, MapError)

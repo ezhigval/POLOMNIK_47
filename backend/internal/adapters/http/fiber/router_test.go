@@ -780,7 +780,8 @@ func TestSetCompanyReplyOnReview(t *testing.T) {
 		"client_name": "Мария К.",
 		"rating": 5,
 		"text": "Поездка оставила глубокое впечатление.",
-		"is_approved": true
+		"is_approved": true,
+		"allow_distribution": true
 	}`, createdTour.Data.ID)
 	createReviewReq := httptest.NewRequest(http.MethodPost, "/api/v1/management/reviews", bytes.NewBufferString(createReviewBody))
 	createReviewReq.Header.Set("Content-Type", "application/json")

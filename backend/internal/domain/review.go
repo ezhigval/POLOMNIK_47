@@ -14,6 +14,7 @@ type Review struct {
 	Rating           int
 	Text             string
 	IsApproved       bool
+	AllowDistribution bool
 	CompanyReply     string
 	CompanyRepliedAt *time.Time
 	CreatedAt        time.Time
@@ -21,13 +22,14 @@ type Review struct {
 }
 
 type NewReviewInput struct {
-	ID         uuid.UUID
-	TourID     uuid.UUID
-	ClientName string
-	Rating     int
-	Text       string
-	IsApproved bool
-	Now        time.Time
+	ID                uuid.UUID
+	TourID            uuid.UUID
+	ClientName        string
+	Rating            int
+	Text              string
+	IsApproved        bool
+	AllowDistribution bool
+	Now               time.Time
 }
 
 func NewReview(input NewReviewInput) (Review, error) {
@@ -49,15 +51,19 @@ func NewReview(input NewReviewInput) (Review, error) {
 		now = time.Now().UTC()
 	}
 
+	// Публикация без согласия на распространение не допускается.
+	isApproved := input.IsApproved && input.AllowDistribution
+
 	return Review{
-		ID:         input.ID,
-		TourID:     input.TourID,
-		ClientName: strings.TrimSpace(input.ClientName),
-		Rating:     input.Rating,
-		Text:       strings.TrimSpace(input.Text),
-		IsApproved: input.IsApproved,
-		CreatedAt:  now,
-		UpdatedAt:  now,
+		ID:                input.ID,
+		TourID:            input.TourID,
+		ClientName:        strings.TrimSpace(input.ClientName),
+		Rating:            input.Rating,
+		Text:              strings.TrimSpace(input.Text),
+		IsApproved:        isApproved,
+		AllowDistribution: input.AllowDistribution,
+		CreatedAt:         now,
+		UpdatedAt:         now,
 	}, nil
 }
 
