@@ -97,7 +97,7 @@ async function ToursContent({
       <section>
         <div className="mb-4 flex items-center justify-between gap-3">
           <h2 className="text-xl font-semibold">
-            {hasActiveFilters(filters) ? "Результаты поиска" : "Расписание"}
+            {hasActiveFilters(filters) ? "Результаты поиска" : "Все туры"}
           </h2>
           {toursResponse.data.length > 0 ? (
             <span className="text-sm text-stone-500">Найдено: {toursResponse.meta.total}</span>

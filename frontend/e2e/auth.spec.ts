@@ -1,5 +1,14 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 import { randomUUID } from "node:crypto";
+
+async function acceptRequiredConsents(page: Page) {
+  const banner = page.getByRole("dialog", { name: "Настройки cookie" });
+  if (await banner.isVisible().catch(() => false)) {
+    await banner.getByRole("button", { name: "Только необходимые" }).click();
+  }
+  await page.locator('input[name="consent_personal_data"]').check({ force: true });
+  await page.locator('input[name="consent_terms"]').check({ force: true });
+}
 
 function uniqueCredentials() {
   const suffix = randomUUID().replace(/-/g, "").slice(0, 12);
@@ -19,8 +28,7 @@ test("user can register and see empty trips page", async ({ page }) => {
   await page.getByLabel(/^Телефон/i).fill(user.phone);
   await page.getByLabel(/^Email/i).fill(user.email);
   await page.getByLabel(/^Пароль/i).fill(user.password);
-  await page.getByRole("checkbox", { name: /согласие на обработку моих персональных данных/i }).check();
-  await page.getByRole("checkbox", { name: /принимаю условия/i }).check();
+  await acceptRequiredConsents(page);
   await page.getByRole("button", { name: "Создать аккаунт" }).click();
 
   await expect(page).toHaveURL(/\/account\/trips/);
@@ -36,8 +44,7 @@ test("user can login after registration", async ({ page }) => {
   await page.getByLabel(/^Телефон/i).fill(user.phone);
   await page.getByLabel(/^Email/i).fill(user.email);
   await page.getByLabel(/^Пароль/i).fill(user.password);
-  await page.getByRole("checkbox", { name: /согласие на обработку моих персональных данных/i }).check();
-  await page.getByRole("checkbox", { name: /принимаю условия/i }).check();
+  await acceptRequiredConsents(page);
   await page.getByRole("button", { name: "Создать аккаунт" }).click();
   await expect(page).toHaveURL(/\/account\/trips/);
 

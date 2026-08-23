@@ -5,7 +5,7 @@ const BOOKABLE_TOUR_ID = "33333333-4444-4444-4444-444444444444";
 
 test("guest can browse search and submit a booking", async ({ page }) => {
   await page.goto("/search");
-  await expect(page.getByRole("heading", { name: "Расписание" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Расписание", level: 1 })).toBeVisible();
 
   await page.goto(`/tours/${BOOKABLE_TOUR_ID}`);
   await expect(page.getByRole("heading", { level: 1 })).toContainText("Валаам");
@@ -14,7 +14,8 @@ test("guest can browse search and submit a booking", async ({ page }) => {
   await bookingForm.scrollIntoViewIfNeeded();
   await bookingForm.getByLabel(/Имя и фамилия/i).fill("E2E Guest");
   await bookingForm.getByLabel(/^Телефон/i).fill("+79991112233");
-  await bookingForm.getByRole("checkbox", { name: /согласие на обработку моих персональных данных/i }).check();
+  await page.getByRole("dialog", { name: "Настройки cookie" }).getByRole("button", { name: "Только необходимые" }).click().catch(() => undefined);
+  await bookingForm.locator('input[name="consent_personal_data"]').check({ force: true });
   await bookingForm.getByRole("button", { name: "Отправить заявку" }).click();
 
   await expect(page.getByRole("heading", { name: "Заявка отправлена" })).toBeVisible();
