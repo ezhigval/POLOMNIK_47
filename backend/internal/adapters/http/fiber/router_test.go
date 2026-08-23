@@ -22,6 +22,7 @@ import (
 	"palomnik/internal/application"
 	"palomnik/internal/config"
 	"palomnik/internal/domain"
+	"palomnik/internal/legal/operator"
 )
 
 func TestHealthRoutes(t *testing.T) {
@@ -135,7 +136,9 @@ func TestCreateBookingAndListTours(t *testing.T) {
 		"phone": "+79999999999",
 		"email": "mail@test.com",
 		"people_count": 2,
-		"comment": "Please call me"
+		"comment": "Please call me",
+		"consent_personal_data": true,
+		"consent_terms": true
 	}`))
 	bookingReq.Header.Set("Content-Type", "application/json")
 
@@ -330,7 +333,9 @@ func TestOAuthWithBearerMergesAccounts(t *testing.T) {
 		"name": "Текущий",
 		"email": "keep@example.com",
 		"phone": "+79001234444",
-		"password": "password1"
+		"password": "password1",
+		"consent_personal_data": true,
+		"consent_terms": true
 	}`))
 	registerReq.Header.Set("Content-Type", "application/json")
 	registerResp, err := app.Test(registerReq)
@@ -356,7 +361,9 @@ func TestOAuthWithBearerMergesAccounts(t *testing.T) {
 		"provider": "yandex",
 		"subject": "ya-http-merge",
 		"email": "other@example.com",
-		"name": "Другой"
+		"name": "Другой",
+		"consent_personal_data": true,
+		"consent_terms": true
 	}`))
 	oauthReq.Header.Set("Content-Type", "application/json")
 	oauthReq.Header.Set("X-Internal-Secret", config.DefaultInternalAPISecret)
@@ -505,7 +512,9 @@ func TestPatchMeUpdatesProfile(t *testing.T) {
 		"name": "Старое Имя",
 		"email": "profile@example.com",
 		"phone": "+79001235555",
-		"password": "password1"
+		"password": "password1",
+		"consent_personal_data": true,
+		"consent_terms": true
 	}`))
 	registerReq.Header.Set("Content-Type", "application/json")
 	registerResp, err := app.Test(registerReq)
@@ -572,7 +581,9 @@ func TestPassengerCabinetCRUD(t *testing.T) {
 		"name": "Хозяин",
 		"email": "pax-http@example.com",
 		"phone": "+79001236666",
-		"password": "password1"
+		"password": "password1",
+		"consent_personal_data": true,
+		"consent_terms": true
 	}`))
 	registerReq.Header.Set("Content-Type", "application/json")
 	registerResp, err := app.Test(registerReq)
@@ -605,7 +616,8 @@ func TestPassengerCabinetCRUD(t *testing.T) {
 		"name": "Анна Паломница",
 		"phone": "89001112233",
 		"birth_date": "1985-03-01",
-		"passport": "4010 654321"
+		"passport": "4010 654321",
+		"consent_personal_data": true
 	}`))
 	createReq.Header.Set("Content-Type", "application/json")
 	createReq.Header.Set("Authorization", "Bearer "+registered.Data.Token)
@@ -775,7 +787,8 @@ func TestSetCompanyReplyOnReview(t *testing.T) {
 		"client_name": "Мария К.",
 		"rating": 5,
 		"text": "Поездка оставила глубокое впечатление.",
-		"is_approved": true
+		"is_approved": true,
+		"allow_distribution": true
 	}`, createdTour.Data.ID)
 	createReviewReq := httptest.NewRequest(http.MethodPost, "/api/v1/management/reviews", bytes.NewBufferString(createReviewBody))
 	createReviewReq.Header.Set("Content-Type", "application/json")
@@ -849,6 +862,11 @@ func newTestAppWithStore(store *memory.Store, adminToken string) *fiber.App {
 		notificationnoop.New(),
 		store,
 	)
+	opConfig := operator.Default()
+	legalService := application.NewLegalDocumentService(store, opConfig)
+	consentService := application.NewConsentService(store, store)
+	_ = legalService.BootstrapInitialDocuments(context.Background())
+
 	return NewRouter(config.Config{
 		AppEnv:            "test",
 		HTTPAddr:          ":0",
@@ -884,6 +902,9 @@ func newTestAppWithStore(store *memory.Store, adminToken string) *fiber.App {
 		Notifications: application.NewNotificationSettingsService(store, store, store, false, false),
 		SiteSettings:  application.NewSiteSettingsService(store, domain.SiteSettings{}),
 		AdminRoles:    application.NewAdminRoleService(store, store, adminToken, config.DefaultJWTSecret),
+		Legal:         legalService,
+		Consents:      consentService,
+		Photos:        application.NewUserPhotoService(store),
 	}, HealthDeps{})
 }
 

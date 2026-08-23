@@ -7,6 +7,7 @@ import (
 	"palomnik/internal/adapters/http/fiber/dto"
 	appmiddleware "palomnik/internal/adapters/http/fiber/middleware"
 	"palomnik/internal/application"
+	"palomnik/internal/domain"
 )
 
 func (h *Handler) CreateBooking(c *fiber.Ctx) error {
@@ -32,6 +33,13 @@ func (h *Handler) CreateBooking(c *fiber.Ctx) error {
 	if err := h.verifyCaptcha(c, req.CaptchaToken); err != nil {
 		return writeAppError(c, err)
 	}
+	if !req.ConsentPersonalData {
+		return writeAppError(c, &AppError{
+			Status:  422,
+			Code:    "CONSENT_REQUIRED",
+			Message: "Необходимо согласие на обработку персональных данных",
+		})
+	}
 
 	result, err := h.bookings.CreateBooking(c.Context(), application.CreateBookingInput{
 		TourID:      tourID,
@@ -45,6 +53,29 @@ func (h *Handler) CreateBooking(c *fiber.Ctx) error {
 	})
 	if err != nil {
 		return respondError(c, err, MapBookingError)
+	}
+
+	bookingID := result.Booking.ID
+	userID := optionalUserID(c)
+	if _, err := h.consents.RecordConsent(c.Context(), application.RecordConsentInput{
+		ConsentType: domain.ConsentTypePersonalData,
+		UserID:      userID,
+		RequestID:   &bookingID,
+		IP:          c.IP(),
+		UserAgent:   c.Get("User-Agent"),
+	}); err != nil {
+		return respondError(c, err, MapBookingError)
+	}
+	if req.ConsentMarketing {
+		if _, err := h.consents.RecordConsent(c.Context(), application.RecordConsentInput{
+			ConsentType: domain.ConsentTypeMarketing,
+			UserID:      userID,
+			RequestID:   &bookingID,
+			IP:          c.IP(),
+			UserAgent:   c.Get("User-Agent"),
+		}); err != nil {
+			return respondError(c, err, MapBookingError)
+		}
 	}
 
 	return c.Status(fiber.StatusCreated).JSON(dto.DataEnvelope[dto.CreateBookingResponse]{

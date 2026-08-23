@@ -28,6 +28,7 @@ import (
 	"palomnik/internal/application"
 	"palomnik/internal/config"
 	"palomnik/internal/domain"
+	"palomnik/internal/legal/operator"
 	"palomnik/internal/logger"
 	"palomnik/internal/ports"
 )
@@ -143,6 +144,21 @@ func run() int {
 		Users:      userRepo,
 	})
 
+	opConfig := operator.Default()
+	var legalRepo ports.LegalDocumentRepository
+	var consentRepo ports.ConsentRepository
+	if repo, ok := tourRepo.(ports.LegalDocumentRepository); ok {
+		legalRepo = repo
+	}
+	if repo, ok := tourRepo.(ports.ConsentRepository); ok {
+		consentRepo = repo
+	}
+	legalService := application.NewLegalDocumentService(legalRepo, opConfig)
+	consentService := application.NewConsentService(consentRepo, legalRepo)
+	if err := legalService.BootstrapInitialDocuments(context.Background()); err != nil {
+		log.Error("failed to bootstrap legal documents", slog.Any("error", err))
+	}
+
 	services := fiberhttp.Services{
 		Tours:    tourService,
 		Bookings: bookingService,
@@ -177,6 +193,7 @@ func run() int {
 		),
 		Favorites:      application.NewFavoriteService(favoriteRepo, tourRepo),
 		Passengers:     application.NewPassengerService(passengerRepo(tourRepo)),
+		Photos:         application.NewUserPhotoService(photoRepo(tourRepo)),
 		Support:        supportService,
 		CMS:            application.NewCMSService(cmsRepo),
 		News:           newsService,
@@ -185,6 +202,8 @@ func run() int {
 		Notifications:  notificationSettings,
 		SiteSettings:   siteSettings,
 		AdminRoles:     adminRoles,
+		Legal:          legalService,
+		Consents:       consentService,
 		Captcha:        captcha.New(cfg),
 		Messenger:      messengerPort,
 		Publisher:      publisherPort,
@@ -299,6 +318,13 @@ func txManager(repo ports.TourRepository) ports.TransactionManager {
 func passengerRepo(repo ports.TourRepository) ports.PassengerRepository {
 	if passengers, ok := repo.(ports.PassengerRepository); ok {
 		return passengers
+	}
+	return nil
+}
+
+func photoRepo(repo ports.TourRepository) ports.UserPhotoRepository {
+	if photos, ok := repo.(ports.UserPhotoRepository); ok {
+		return photos
 	}
 	return nil
 }

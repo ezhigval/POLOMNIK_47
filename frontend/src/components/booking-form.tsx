@@ -8,6 +8,7 @@ import { createBooking, type CreateBookingResult, type Tour } from "@/lib/api/to
 import { trackBeginCheckout, trackBookingSubmit } from "@/lib/analytics";
 import type { BookingProfile } from "@/lib/auth/user-features";
 import { HoneypotField } from "@/components/honeypot-field";
+import { MarketingConsentCheckbox, PersonalDataConsentCheckbox } from "@/components/consent-checkbox";
 
 type BookingFormProps = {
   tour: Tour;
@@ -19,6 +20,8 @@ export function BookingForm({ tour, profile = null }: BookingFormProps) {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<CreateBookingResult | null>(null);
   const [peopleCount, setPeopleCount] = useState(1);
+  const [consentPersonalData, setConsentPersonalData] = useState(false);
+  const [consentMarketing, setConsentMarketing] = useState(false);
   const beginCheckoutSent = useRef(false);
 
   const soldOut = getSlotsAvailability(tour.slots_left) === "sold_out";
@@ -35,6 +38,10 @@ export function BookingForm({ tour, profile = null }: BookingFormProps) {
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (soldOut) return;
+    if (!consentPersonalData) {
+      setError("Необходимо согласие на обработку персональных данных");
+      return;
+    }
 
     setLoading(true);
     setError(null);
@@ -50,10 +57,14 @@ export function BookingForm({ tour, profile = null }: BookingFormProps) {
         people_count: Number(formData.get("people_count") ?? 1),
         comment: String(formData.get("comment") ?? ""),
         website: String(formData.get("website") ?? ""),
+        consent_personal_data: consentPersonalData,
+        consent_marketing: consentMarketing,
       });
       setSuccess(result);
       trackBookingSubmit(tour.id, peopleCount);
       setPeopleCount(1);
+      setConsentPersonalData(false);
+      setConsentMarketing(false);
       event.currentTarget.reset();
     } catch (err) {
       if (err instanceof ApiError) {
@@ -238,17 +249,20 @@ export function BookingForm({ tour, profile = null }: BookingFormProps) {
         </p>
       ) : null}
 
-      <button type="submit" disabled={loading || soldOut} className="btn-primary w-full">
+      <PersonalDataConsentCheckbox
+        checked={consentPersonalData}
+        onChange={setConsentPersonalData}
+        disabled={loading || soldOut}
+      />
+      <MarketingConsentCheckbox
+        checked={consentMarketing}
+        onChange={setConsentMarketing}
+        disabled={loading || soldOut}
+      />
+
+      <button type="submit" disabled={loading || soldOut || !consentPersonalData} className="btn-primary w-full">
         {loading ? "Отправляем…" : soldOut ? "Мест нет" : "Отправить заявку"}
       </button>
-
-      <p className="text-center text-xs leading-5 text-stone-500">
-        Нажимая кнопку, вы соглашаетесь на{" "}
-        <Link href="/privacy" className="underline underline-offset-2 hover:text-stone-700">
-          обработку персональных данных
-        </Link>{" "}
-        для связи по заявке.
-      </p>
     </form>
   );
 }

@@ -4,6 +4,7 @@ import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { FormError } from "@/components/form-error";
 import { HoneypotField } from "@/components/honeypot-field";
+import { PersonalDataConsentCheckbox } from "@/components/consent-checkbox";
 import type { Passenger, User } from "@/lib/api/auth";
 
 type PassengerFormProps = {
@@ -20,6 +21,7 @@ export function PassengerForm({ user, passenger, onCancel }: PassengerFormProps)
   const [phone, setPhone] = useState(passenger?.phone ?? user.phone);
   const [birthDate, setBirthDate] = useState(passenger?.birth_date ?? "");
   const [passport, setPassport] = useState(passenger?.passport ?? "");
+  const [consentPersonalData, setConsentPersonalData] = useState(false);
 
   function fillFromProfile() {
     setName(user.name);
@@ -31,6 +33,12 @@ export function PassengerForm({ user, passenger, onCancel }: PassengerFormProps)
     setLoading(true);
     setError(null);
 
+    if (!passenger && !consentPersonalData) {
+      setLoading(false);
+      setError("Необходимо согласие на обработку персональных данных");
+      return;
+    }
+
     const formData = new FormData(event.currentTarget);
     const payload = {
       name,
@@ -38,6 +46,7 @@ export function PassengerForm({ user, passenger, onCancel }: PassengerFormProps)
       birth_date: birthDate,
       passport,
       website: formData.get("website"),
+      consent_personal_data: passenger ? true : consentPersonalData,
     };
     const url = passenger ? `/api/account/passengers/${passenger.id}` : "/api/account/passengers";
     const method = passenger ? "PATCH" : "POST";
@@ -121,10 +130,22 @@ export function PassengerForm({ user, passenger, onCancel }: PassengerFormProps)
         />
       </label>
 
+      {!passenger ? (
+        <PersonalDataConsentCheckbox
+          checked={consentPersonalData}
+          onChange={setConsentPersonalData}
+          disabled={loading}
+        />
+      ) : null}
+
       <FormError>{error}</FormError>
 
       <div className="flex flex-wrap gap-2">
-        <button type="submit" disabled={loading} className="btn-primary">
+        <button
+          type="submit"
+          disabled={loading || (!passenger && !consentPersonalData)}
+          className="btn-primary"
+        >
           {loading ? "Сохраняем…" : "Сохранить"}
         </button>
         {onCancel ? (

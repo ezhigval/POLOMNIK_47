@@ -5,6 +5,7 @@ import { FormEvent, useEffect, useRef, useState } from "react";
 import type { SupportMessage, SupportThread } from "@/lib/auth/user-features";
 import { FormError } from "@/components/form-error";
 import { HoneypotField } from "@/components/honeypot-field";
+import { PersonalDataConsentCheckbox } from "@/components/consent-checkbox";
 
 type SupportChatProps = {
   initialThread: SupportThread | null;
@@ -16,6 +17,7 @@ export function SupportChat({ initialThread, isAuthenticated }: SupportChatProps
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [consentPersonalData, setConsentPersonalData] = useState(false);
   const bottomRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -27,6 +29,10 @@ export function SupportChat({ initialThread, isAuthenticated }: SupportChatProps
     if (!message.trim()) {
       return;
     }
+    if (!consentPersonalData) {
+      setError("Необходимо согласие на обработку персональных данных");
+      return;
+    }
 
     setLoading(true);
     setError(null);
@@ -36,6 +42,7 @@ export function SupportChat({ initialThread, isAuthenticated }: SupportChatProps
       body: JSON.stringify({
         body: message.trim(),
         website: String(new FormData(event.currentTarget).get("website") ?? ""),
+        consent_personal_data: consentPersonalData,
       }),
     });
 
@@ -86,8 +93,13 @@ export function SupportChat({ initialThread, isAuthenticated }: SupportChatProps
         <div ref={bottomRef} />
       </div>
 
-      <form onSubmit={onSubmit} className="relative border-t border-stone-100 p-4">
+      <form onSubmit={onSubmit} className="relative space-y-3 border-t border-stone-100 p-4">
         <HoneypotField />
+        <PersonalDataConsentCheckbox
+          checked={consentPersonalData}
+          onChange={setConsentPersonalData}
+          disabled={loading}
+        />
         <div className="flex gap-2">
           <input
             value={message}
@@ -96,7 +108,11 @@ export function SupportChat({ initialThread, isAuthenticated }: SupportChatProps
             className="input-field flex-1"
             disabled={loading}
           />
-          <button type="submit" disabled={loading || !message.trim()} className="btn-primary px-5">
+          <button
+            type="submit"
+            disabled={loading || !message.trim() || !consentPersonalData}
+            className="btn-primary px-5"
+          >
             {loading ? "…" : "Отправить"}
           </button>
         </div>

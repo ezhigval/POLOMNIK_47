@@ -36,6 +36,8 @@ export type CreateBookingInput = {
   comment?: string;
   website?: string;
   captcha_token?: string;
+  consent_personal_data: boolean;
+  consent_marketing?: boolean;
 };
 
 export type CreateBookingResult = {

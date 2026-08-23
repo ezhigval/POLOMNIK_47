@@ -110,6 +110,24 @@ func MaskPhone(phone string) string {
 	return maskKeepLastRunes(phone, 2)
 }
 
+func MaskEmail(email string) string {
+	email = strings.TrimSpace(email)
+	if email == "" {
+		return ""
+	}
+	at := strings.LastIndex(email, "@")
+	if at <= 0 {
+		return maskKeepLastRunes(email, 2)
+	}
+	local := email[:at]
+	domainPart := email[at:]
+	runes := []rune(local)
+	if len(runes) <= 1 {
+		return "*" + domainPart
+	}
+	return string(runes[0]) + strings.Repeat("*", len(runes)-1) + domainPart
+}
+
 func MaskPassport(passport string) string {
 	return maskKeepLastRunes(passport, 2)
 }

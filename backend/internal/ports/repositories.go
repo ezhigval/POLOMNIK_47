@@ -58,9 +58,10 @@ type BookingRepository interface {
 }
 
 type ReviewFilters struct {
-	TourID     *uuid.UUID
-	Rating     *int
-	IsApproved *bool
+	TourID            *uuid.UUID
+	Rating            *int
+	IsApproved        *bool
+	AllowDistribution *bool
 }
 
 type ReviewList struct {
@@ -98,6 +99,12 @@ type PassengerRepository interface {
 	CreatePassenger(ctx context.Context, passenger domain.Passenger) (domain.Passenger, error)
 	UpdatePassenger(ctx context.Context, passenger domain.Passenger) (domain.Passenger, error)
 	DeletePassenger(ctx context.Context, userID, id uuid.UUID) error
+}
+
+type UserPhotoRepository interface {
+	ListUserPhotos(ctx context.Context, userID uuid.UUID) ([]domain.UserPhoto, error)
+	CreateUserPhoto(ctx context.Context, photo domain.UserPhoto) (domain.UserPhoto, error)
+	DeleteUserPhoto(ctx context.Context, userID, id uuid.UUID) error
 }
 
 type FavoriteRepository interface {

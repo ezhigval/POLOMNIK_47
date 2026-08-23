@@ -12,6 +12,9 @@ export async function POST(request: Request) {
       password: body.password,
       phone_check_id: body.phone_check_id,
       website: body.website,
+      consent_personal_data: Boolean(body.consent_personal_data),
+      consent_terms: Boolean(body.consent_terms),
+      consent_marketing: Boolean(body.consent_marketing),
     });
 
     const response = NextResponse.json({ user: result.user });

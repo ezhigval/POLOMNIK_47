@@ -32,6 +32,8 @@ async function completeOAuth(
   if (session) {
     headers.Authorization = `Bearer ${session}`;
   }
+  const consentRaw = request.cookies.get("oauth_legal_consent")?.value ?? "";
+  const consentParts = new Set(consentRaw.split(",").map((part) => part.trim()).filter(Boolean));
   const response = await fetch(`${getApiBaseUrl()}/auth/oauth`, {
     method: "POST",
     headers,
@@ -41,6 +43,8 @@ async function completeOAuth(
       email: input.email ?? "",
       name: input.name ?? "",
       phone: input.phone ?? "",
+      consent_personal_data: consentParts.has("pd"),
+      consent_terms: consentParts.has("terms"),
     }),
     cache: "no-store",
   }).catch(() => null);
@@ -84,6 +88,10 @@ export function redirectAfterOAuth(request: NextRequest, result: OAuthCompleteRe
     : new URL("/account/trips", request.url);
   const response = NextResponse.redirect(target);
   setSessionCookie(response, result.token);
+  response.cookies.set("oauth_legal_consent", "", {
+    path: "/",
+    maxAge: 0,
+  });
   return response;
 }
 

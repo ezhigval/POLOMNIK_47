@@ -8,6 +8,7 @@ import (
 	"palomnik/internal/adapters/http/fiber/dto"
 	appmiddleware "palomnik/internal/adapters/http/fiber/middleware"
 	"palomnik/internal/application"
+	"palomnik/internal/domain"
 )
 
 func (h *Handler) Register(c *fiber.Ctx) error {
@@ -25,6 +26,20 @@ func (h *Handler) Register(c *fiber.Ctx) error {
 	if err := h.verifyCaptcha(c, req.CaptchaToken); err != nil {
 		return writeAppError(c, err)
 	}
+	if !req.ConsentPersonalData {
+		return writeAppError(c, &AppError{
+			Status:  422,
+			Code:    "CONSENT_REQUIRED",
+			Message: "Необходимо согласие на обработку персональных данных",
+		})
+	}
+	if !req.ConsentTerms {
+		return writeAppError(c, &AppError{
+			Status:  422,
+			Code:    "CONSENT_REQUIRED",
+			Message: "Необходимо принять пользовательское соглашение",
+		})
+	}
 
 	result, err := h.auth.Register(c.Context(), application.RegisterInput{
 		Email:        req.Email,
@@ -35,6 +50,34 @@ func (h *Handler) Register(c *fiber.Ctx) error {
 	})
 	if err != nil {
 		return respondError(c, err, MapError)
+	}
+
+	userID := result.User.ID
+	if _, err := h.consents.RecordConsent(c.Context(), application.RecordConsentInput{
+		ConsentType: domain.ConsentTypePersonalData,
+		UserID:      &userID,
+		IP:          c.IP(),
+		UserAgent:   c.Get("User-Agent"),
+	}); err != nil {
+		return respondError(c, err, MapError)
+	}
+	if _, err := h.consents.RecordConsent(c.Context(), application.RecordConsentInput{
+		ConsentType: domain.ConsentTypeTerms,
+		UserID:      &userID,
+		IP:          c.IP(),
+		UserAgent:   c.Get("User-Agent"),
+	}); err != nil {
+		return respondError(c, err, MapError)
+	}
+	if req.ConsentMarketing {
+		if _, err := h.consents.RecordConsent(c.Context(), application.RecordConsentInput{
+			ConsentType: domain.ConsentTypeMarketing,
+			UserID:      &userID,
+			IP:          c.IP(),
+			UserAgent:   c.Get("User-Agent"),
+		}); err != nil {
+			return respondError(c, err, MapError)
+		}
 	}
 
 	return c.Status(fiber.StatusCreated).JSON(dto.DataEnvelope[dto.AuthResponse]{

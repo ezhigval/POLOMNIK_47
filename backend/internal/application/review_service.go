@@ -20,16 +20,19 @@ func NewReviewService(reviews ports.ReviewRepository, tours ports.TourRepository
 }
 
 type CreateReviewInput struct {
-	TourID     uuid.UUID
-	ClientName string
-	Rating     int
-	Text       string
-	IsApproved bool
+	TourID            uuid.UUID
+	ClientName        string
+	Rating            int
+	Text              string
+	IsApproved        bool
+	AllowDistribution bool
 }
 
 func (s *ReviewService) ListPublicReviews(ctx context.Context, filters ports.ReviewFilters, pagination ports.Pagination) (ports.ReviewList, error) {
 	approved := true
+	allowDist := true
 	filters.IsApproved = &approved
+	filters.AllowDistribution = &allowDist
 	return s.reviews.ListReviews(ctx, filters, pagination)
 }
 
@@ -43,12 +46,13 @@ func (s *ReviewService) CreateReview(ctx context.Context, input CreateReviewInpu
 	}
 
 	review, err := domain.NewReview(domain.NewReviewInput{
-		ID:         uuid.New(),
-		TourID:     input.TourID,
-		ClientName: input.ClientName,
-		Rating:     input.Rating,
-		Text:       input.Text,
-		IsApproved: input.IsApproved,
+		ID:                uuid.New(),
+		TourID:            input.TourID,
+		ClientName:        input.ClientName,
+		Rating:            input.Rating,
+		Text:              input.Text,
+		IsApproved:        input.IsApproved,
+		AllowDistribution: input.AllowDistribution,
 	})
 	if err != nil {
 		return domain.Review{}, err
@@ -57,6 +61,13 @@ func (s *ReviewService) CreateReview(ctx context.Context, input CreateReviewInpu
 }
 
 func (s *ReviewService) ApproveReview(ctx context.Context, id uuid.UUID) (domain.Review, error) {
+	existing, err := s.reviews.GetReview(ctx, id)
+	if err != nil {
+		return domain.Review{}, err
+	}
+	if !existing.AllowDistribution {
+		return domain.Review{}, domain.ErrConsentRequired
+	}
 	review, err := s.reviews.ApproveReview(ctx, id)
 	if err != nil {
 		return domain.Review{}, err

@@ -75,6 +75,9 @@ func NewRouter(cfg config.Config, log *slog.Logger, services Services, health He
 		services.Notifications,
 		services.SiteSettings,
 		services.AdminRoles,
+		services.Legal,
+		services.Consents,
+		services.Photos,
 		application.TelegramWebhookSecret(cfg.InternalAPISecret),
 		services.Captcha,
 		services.WebhookGuard,
@@ -111,11 +114,17 @@ func NewRouter(cfg config.Config, log *slog.Logger, services Services, health He
 	v1.Get("/tours", h.ListTours)
 
 	v1.Get("/reviews", h.ListReviews)
+	v1.Post("/reviews", appmiddleware.OptionalUserAuth(services.Auth), h.CreatePublicReview)
 	v1.Get("/news", h.ListPublicNews)
 	v1.Get("/news/:slug", h.GetPublicNewsBySlug)
 	v1.Get("/pages", h.ListPublicCMSPages)
 	v1.Get("/pages/:slug", h.GetPublicCMSPage)
 	v1.Get("/site-settings", h.GetPublicSiteSettings)
+	v1.Get("/legal/documents", h.ListPublicLegalDocuments)
+	v1.Get("/legal/documents/:type/download", h.DownloadPublicLegalDocument)
+	v1.Get("/legal/documents/:type", h.GetPublicLegalDocument)
+	v1.Get("/legal/documents/:type/versions/:version", h.GetPublicLegalDocumentVersion)
+	v1.Post("/consents", appmiddleware.OptionalUserAuth(services.Auth), h.RecordConsent)
 	v1.Post("/bookings", bookingLimiter, appmiddleware.OptionalUserAuth(services.Auth), h.CreateBooking)
 	v1.Post("/webhooks/bitrix/deal", webhookLimiter, h.BitrixDealWebhook)
 	v1.Post("/webhooks/telegram", telegramLimiter, h.TelegramWebhook)
@@ -134,6 +143,11 @@ func NewRouter(cfg config.Config, log *slog.Logger, services Services, health He
 	me.Delete("/favorites/:tourId", h.RemoveFavorite)
 	me.Get("/support", h.GetSupportThread)
 	me.Post("/support/messages", supportLimiter, h.SendSupportMessage)
+	me.Get("/consents", h.ListMyConsents)
+	me.Get("/photos", h.ListMyPhotos)
+	me.Post("/photos", authLimiter, h.CreateMyPhoto)
+	me.Delete("/photos/:id", h.DeleteMyPhoto)
+	me.Post("/uploads", appmiddleware.RateLimit(30, time.Minute), handlers.UploadImage(cfg))
 
 	adminAuth := appmiddleware.AdminAuth(services.AdminRoles, cfg.AdminToken)
 	require := func(perm domain.Permission) fiber.Handler {
@@ -212,6 +226,10 @@ func NewRouter(cfg config.Config, log *slog.Logger, services Services, health He
 	management.Post("/cms/pages/:id/blocks/reorder", require(domain.PermManageContent), h.ManagementReorderCMSBlocks)
 	management.Patch("/cms/blocks/:id", require(domain.PermManageContent), h.ManagementUpdateCMSBlock)
 	management.Delete("/cms/blocks/:id", require(domain.PermManageContent), h.ManagementDeleteCMSBlock)
+
+	management.Get("/legal/documents", require(domain.PermManageContent), h.ManagementListLegalDocuments)
+	management.Post("/legal/documents", require(domain.PermManageContent), h.ManagementPublishLegalDocument)
+	management.Get("/consents", require(domain.PermManageContent), h.ManagementListConsents)
 
 	return app
 }

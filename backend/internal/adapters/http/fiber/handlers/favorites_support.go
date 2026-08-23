@@ -6,6 +6,7 @@ import (
 	"palomnik/internal/adapters/http/fiber/dto"
 	appmiddleware "palomnik/internal/adapters/http/fiber/middleware"
 	"palomnik/internal/application"
+	"palomnik/internal/domain"
 	"palomnik/internal/ports"
 )
 
@@ -16,15 +17,37 @@ func (h *Handler) OAuthLogin(c *fiber.Ctx) error {
 	}
 
 	result, err := h.auth.OAuthLogin(c.Context(), application.OAuthLoginInput{
-		Provider:     req.Provider,
-		Subject:      req.Subject,
-		Email:        req.Email,
-		Name:         req.Name,
-		Phone:        req.Phone,
-		SessionToken: bearerToken(c),
+		Provider:            req.Provider,
+		Subject:             req.Subject,
+		Email:               req.Email,
+		Name:                req.Name,
+		Phone:               req.Phone,
+		SessionToken:        bearerToken(c),
+		ConsentPersonalData: req.ConsentPersonalData,
+		ConsentTerms:        req.ConsentTerms,
 	})
 	if err != nil {
 		return respondError(c, err, MapError)
+	}
+
+	if result.Created {
+		userID := result.User.ID
+		if _, err := h.consents.RecordConsent(c.Context(), application.RecordConsentInput{
+			ConsentType: domain.ConsentTypePersonalData,
+			UserID:      &userID,
+			IP:          c.IP(),
+			UserAgent:   c.Get("User-Agent"),
+		}); err != nil {
+			return respondError(c, err, MapError)
+		}
+		if _, err := h.consents.RecordConsent(c.Context(), application.RecordConsentInput{
+			ConsentType: domain.ConsentTypeTerms,
+			UserID:      &userID,
+			IP:          c.IP(),
+			UserAgent:   c.Get("User-Agent"),
+		}); err != nil {
+			return respondError(c, err, MapError)
+		}
 	}
 
 	return c.JSON(dto.DataEnvelope[dto.AuthResponse]{
@@ -111,6 +134,13 @@ func (h *Handler) SendSupportMessage(c *fiber.Ctx) error {
 	if err := rejectHoneypot(req.Website); err != nil {
 		return writeAppError(c, err)
 	}
+	if !req.ConsentPersonalData {
+		return writeAppError(c, &AppError{
+			Status:  422,
+			Code:    "CONSENT_REQUIRED",
+			Message: "Необходимо согласие на обработку персональных данных",
+		})
+	}
 
 	messages, err := h.support.SendUserMessage(c.Context(), userID, req.Body)
 	if err != nil {
@@ -119,6 +149,17 @@ func (h *Handler) SendSupportMessage(c *fiber.Ctx) error {
 
 	thread, err := h.support.GetOrCreateThread(c.Context(), userID)
 	if err != nil {
+		return respondError(c, err, MapError)
+	}
+
+	threadID := thread.ID
+	if _, err := h.consents.RecordConsent(c.Context(), application.RecordConsentInput{
+		ConsentType: domain.ConsentTypePersonalData,
+		UserID:      &userID,
+		RequestID:   &threadID,
+		IP:          c.IP(),
+		UserAgent:   c.Get("User-Agent"),
+	}); err != nil {
 		return respondError(c, err, MapError)
 	}
 

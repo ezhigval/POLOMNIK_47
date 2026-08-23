@@ -121,6 +121,7 @@ type AuthResult struct {
 	User      domain.User
 	Linked    bool
 	Merged    bool
+	Created   bool
 	Conflicts []domain.ProfileConflict
 }
 
@@ -595,12 +596,14 @@ func (s *AuthService) ListMyBookings(ctx context.Context, userID uuid.UUID, pagi
 }
 
 type OAuthLoginInput struct {
-	Provider     string
-	Subject      string
-	Email        string
-	Name         string
-	Phone        string
-	SessionToken string
+	Provider            string
+	Subject             string
+	Email               string
+	Name                string
+	Phone               string
+	SessionToken        string
+	ConsentPersonalData bool
+	ConsentTerms        bool
 }
 
 func (s *AuthService) OAuthLogin(ctx context.Context, input OAuthLoginInput) (AuthResult, error) {
@@ -640,6 +643,10 @@ func (s *AuthService) loginOrCreateOAuth(ctx context.Context, input OAuthLoginIn
 		return AuthResult{}, err
 	}
 
+	if !input.ConsentPersonalData || !input.ConsentTerms {
+		return AuthResult{}, domain.ErrConsentRequired
+	}
+
 	created, err := domain.NewOAuthUser(domain.OAuthUserInput{
 		ID:       uuid.New(),
 		Provider: input.Provider,
@@ -674,7 +681,12 @@ func (s *AuthService) loginOrCreateOAuth(ctx context.Context, input OAuthLoginIn
 	if err != nil {
 		return AuthResult{}, err
 	}
-	return s.authResult(created, false, false, nil)
+	result, err := s.authResult(created, false, false, nil)
+	if err != nil {
+		return AuthResult{}, err
+	}
+	result.Created = true
+	return result, nil
 }
 
 func (s *AuthService) linkOrMergeOAuth(ctx context.Context, sessionID uuid.UUID, provider, subject string) (AuthResult, error) {

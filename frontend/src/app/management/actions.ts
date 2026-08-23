@@ -34,6 +34,7 @@ import {
   assignManagementRoleUser,
   sendManagementSupportMessage,
   requestManagementSupportDraft,
+  publishManagementLegalDocument,
   type CmsBlockCreateInput,
   type CmsBlockUpdateInput,
   type CmsPageUpdateInput,
@@ -58,6 +59,7 @@ type CreateReviewInput = {
   rating: number;
   text: string;
   is_approved: boolean;
+  allow_distribution: boolean;
 };
 
 export async function createReviewAction(input: CreateReviewInput) {
@@ -67,6 +69,7 @@ export async function createReviewAction(input: CreateReviewInput) {
     rating: input.rating,
     text: input.text,
     is_approved: input.is_approved,
+    allow_distribution: input.allow_distribution,
   });
   revalidateReviewPages();
 }
@@ -348,6 +351,24 @@ export async function assignAdminRoleUserAction(roleId: string, userId: string) 
   try {
     await assignManagementRoleUser(roleId, userId);
     revalidatePath("/management/settings");
+  } catch (error) {
+    if (error instanceof ApiError) {
+      throw new Error(error.message);
+    }
+    throw error;
+  }
+}
+
+export async function publishLegalDocumentAction(input: {
+  type: string;
+  version: string;
+  title: string;
+  content: string;
+}) {
+  try {
+    await publishManagementLegalDocument(input);
+    revalidatePath("/management/legal");
+    revalidatePath("/legal");
   } catch (error) {
     if (error instanceof ApiError) {
       throw new Error(error.message);

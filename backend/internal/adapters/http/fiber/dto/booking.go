@@ -13,9 +13,11 @@ type CreateBookingRequest struct {
 	Phone        string `json:"phone"`
 	Email        string `json:"email"`
 	PeopleCount  int    `json:"people_count"`
-	Comment      string `json:"comment"`
-	Website      string `json:"website"`
-	CaptchaToken string `json:"captcha_token"`
+  Comment              string `json:"comment"`
+  Website              string `json:"website"`
+  CaptchaToken         string `json:"captcha_token"`
+  ConsentPersonalData  bool   `json:"consent_personal_data"`
+  ConsentMarketing     bool   `json:"consent_marketing"`
 }
 
 type CreateBookingResponse struct {

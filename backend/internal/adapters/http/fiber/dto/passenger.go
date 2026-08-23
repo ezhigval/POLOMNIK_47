@@ -7,11 +7,12 @@ import (
 )
 
 type PassengerRequest struct {
-	Name      string `json:"name"`
-	Phone     string `json:"phone"`
-	BirthDate string `json:"birth_date"`
-	Passport  string `json:"passport"`
-	Website   string `json:"website"`
+	Name                string `json:"name"`
+	Phone               string `json:"phone"`
+	BirthDate           string `json:"birth_date"`
+	Passport            string `json:"passport"`
+	Website             string `json:"website"`
+	ConsentPersonalData bool   `json:"consent_personal_data"`
 }
 
 type PassengerResponse struct {

@@ -81,9 +81,9 @@ func managementOrigin(mgmtBase string) string {
 func appendBookingDetails(b *strings.Builder, booking domain.Booking, tour domain.Tour) {
 	b.WriteString(fmt.Sprintf("Тур: %s\n", escapeHTML(tour.Title)))
 	b.WriteString(fmt.Sprintf("Клиент: %s\n", escapeHTML(booking.Name)))
-	b.WriteString(fmt.Sprintf("Телефон: %s\n", escapeHTML(booking.Phone)))
+	b.WriteString(fmt.Sprintf("Телефон: %s\n", escapeHTML(domain.MaskPhone(booking.Phone))))
 	if booking.Email != "" {
-		b.WriteString(fmt.Sprintf("Email: %s\n", escapeHTML(booking.Email)))
+		b.WriteString(fmt.Sprintf("Email: %s\n", escapeHTML(domain.MaskEmail(booking.Email))))
 	}
 	b.WriteString(fmt.Sprintf("Участников: %d\n", booking.PeopleCount))
 	b.WriteString(fmt.Sprintf("Сумма: %d ₽\n", booking.TotalPrice))
