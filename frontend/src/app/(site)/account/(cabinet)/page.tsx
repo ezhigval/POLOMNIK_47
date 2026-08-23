@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { AuthAlert } from "@/components/auth/auth-alert";
-import { fetchAuthMethods, fetchCurrentUser, fetchMyIdentities } from "@/lib/api/auth";
+import { fetchAuthMethods, fetchCurrentUser, fetchMyIdentities, type AuthMethods } from "@/lib/api/auth";
 import { getAuthToken } from "@/lib/auth/session";
 import { userContactLine } from "@/lib/site-nav";
 
@@ -53,7 +53,7 @@ export default async function AccountProfilePage({ searchParams }: PageProps) {
 
   const [identities, methods] = await Promise.all([
     fetchMyIdentities(token).catch(() => []),
-    fetchAuthMethods().catch(() => ({})),
+    fetchAuthMethods().catch((): AuthMethods => ({})),
   ]);
   const linkedProviders = new Set(identities.map((item) => item.provider));
 
