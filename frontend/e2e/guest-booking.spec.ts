@@ -5,7 +5,7 @@ const BOOKABLE_TOUR_ID = "33333333-4444-4444-4444-444444444444";
 
 test("guest can browse search and submit a booking", async ({ page }) => {
   await page.goto("/search");
-  await expect(page.getByRole("heading", { name: "Подбор паломнического тура" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Расписание" })).toBeVisible();
 
   await page.goto(`/tours/${BOOKABLE_TOUR_ID}`);
   await expect(page.getByRole("heading", { level: 1 })).toContainText("Валаам");
