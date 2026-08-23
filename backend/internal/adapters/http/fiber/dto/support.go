@@ -3,7 +3,7 @@ package dto
 import (
 	"time"
 
-	"polomnik/internal/domain"
+	"palomnik/internal/domain"
 )
 
 type OAuthLoginRequest struct {

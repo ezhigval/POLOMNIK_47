@@ -3,8 +3,8 @@ package bitrix
 import (
 	"strings"
 
-	"polomnik/internal/config"
-	"polomnik/internal/domain"
+	"palomnik/internal/config"
+	"palomnik/internal/domain"
 )
 
 var defaultForwardStages = map[domain.BookingStatus]string{

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"polomnik/internal/ports"
+	"palomnik/internal/ports"
 )
 
 type WebhookService struct {

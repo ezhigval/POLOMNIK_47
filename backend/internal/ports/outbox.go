@@ -6,7 +6,7 @@ import (
 
 	"github.com/google/uuid"
 
-	"polomnik/internal/domain"
+	"palomnik/internal/domain"
 )
 
 type OutboxFilters struct {

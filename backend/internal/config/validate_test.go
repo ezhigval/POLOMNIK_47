@@ -41,7 +41,7 @@ func TestValidateProductionTelegramRequiresWorkerURL(t *testing.T) {
 		t.Fatal("expected official Telegram API host to fail in production")
 	}
 
-	cfg.TelegramAPIBase = "https://polomnik-telegram-api.example.workers.dev"
+	cfg.TelegramAPIBase = "https://palomnik-telegram-api.example.workers.dev"
 	if err := Validate(cfg); err != nil {
 		t.Fatalf("worker url should pass: %v", err)
 	}

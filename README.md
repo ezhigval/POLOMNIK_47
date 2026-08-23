@@ -1,4 +1,4 @@
-# Тихвинский путь (POLOMNIK_47)
+# Тихвинский путь
 
 Сайт и API паломнической службы Тихвинской епархии: каталог поездок, заявки, кабинет менеджера. Backend — источник правды; Bitrix24 и 1С подключаются адаптерами (сейчас `noop`).
 
@@ -7,7 +7,7 @@
 Публичный сайт: **https://tikhvin-palomnik.ru**  
 API: **https://api.tikhvin-palomnik.ru**
 
-Старый адрес `tikhvin-polomnik.ru` (через «о») отдаёт 301 на palomnik. Отдельного preview-стенда нет.
+Отдельного preview-стенда нет.
 
 ## Правила (для людей и агентов)
 
@@ -51,7 +51,7 @@ cd frontend && cp .env.example .env.local && npm install && npm run dev
 .
   AGENTS.md                 правила для всех агентов
   docs/                     спецификация, API, деплой, релиз
-  backend/                  Go API (module polomnik)
+  backend/                  Go API (module palomnik)
   frontend/                 Next.js
   deploy/                   Caddy + скрипты Yandex Cloud
   .cursor/rules/            правила Cursor
@@ -77,9 +77,9 @@ make check-ops               # ready + worker + outbox
 make deploy
 ```
 
-ВМ: Ubuntu 24.04, пользователь `smailikin70`, IP `93.77.165.81`, каталог `/opt/polomnik`. SSH: `ssh polomnik-yc`. Compose: `docker-compose.yml` + `docker-compose.prod.yml`, env `.env.production` (не в git).
+ВМ: Ubuntu 24.04, пользователь `smailikin70`, IP `93.77.165.81`, каталог `/opt/palomnik` (`DEPLOY_DIR` если путь другой). SSH: `ssh smailikin70@93.77.165.81`. Compose: `docker-compose.yml` + `docker-compose.prod.yml`, env `.env.production` (не в git).
 
-DNS на REG.RU для зоны **tikhvin-palomnik.ru**: `@` / `www` / `api` → A `93.77.165.81`. Старый `tikhvin-polomnik.ru` можно оставить с теми же A-записями ради 301. Подробности: [docs/DEPLOY.md](docs/DEPLOY.md), [docs/RELEASE.md](docs/RELEASE.md).
+DNS на REG.RU для зоны **tikhvin-palomnik.ru**: `@` / `www` / `api` → A `93.77.165.81`. Подробности: [docs/DEPLOY.md](docs/DEPLOY.md), [docs/RELEASE.md](docs/RELEASE.md).
 
 ## Документация
 

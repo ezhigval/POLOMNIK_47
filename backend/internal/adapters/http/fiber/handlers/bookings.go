@@ -4,9 +4,9 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 
-	"polomnik/internal/adapters/http/fiber/dto"
-	appmiddleware "polomnik/internal/adapters/http/fiber/middleware"
-	"polomnik/internal/application"
+	"palomnik/internal/adapters/http/fiber/dto"
+	appmiddleware "palomnik/internal/adapters/http/fiber/middleware"
+	"palomnik/internal/application"
 )
 
 func (h *Handler) CreateBooking(c *fiber.Ctx) error {

@@ -10,7 +10,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/lib/pq"
 
-	"polomnik/internal/domain"
+	"palomnik/internal/domain"
 )
 
 const userSelectColumns = `

@@ -8,7 +8,7 @@ import (
 
 	"github.com/lib/pq"
 
-	"polomnik/internal/domain"
+	"palomnik/internal/domain"
 )
 
 func (s *Store) GetTelegramRecipients(ctx context.Context) (domain.TelegramRecipients, error) {

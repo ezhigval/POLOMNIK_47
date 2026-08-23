@@ -14,9 +14,9 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 
-	"polomnik/internal/adapters/http/fiber/dto"
-	"polomnik/internal/adapters/http/fiber/handlers"
-	"polomnik/internal/config"
+	"palomnik/internal/adapters/http/fiber/dto"
+	"palomnik/internal/adapters/http/fiber/handlers"
+	"palomnik/internal/config"
 )
 
 func TestUploadImageStoresPNGAndReturnsURL(t *testing.T) {

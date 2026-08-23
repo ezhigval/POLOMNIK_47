@@ -3,7 +3,7 @@ package middleware
 import (
 	"github.com/gofiber/fiber/v2"
 
-	"polomnik/internal/adapters/http/fiber/dto"
+	"palomnik/internal/adapters/http/fiber/dto"
 )
 
 func InternalAuth(secret string) fiber.Handler {

@@ -3,9 +3,9 @@ package middleware
 import (
 	"github.com/gofiber/fiber/v2"
 
-	"polomnik/internal/adapters/http/fiber/dto"
-	"polomnik/internal/application"
-	"polomnik/internal/domain"
+	"palomnik/internal/adapters/http/fiber/dto"
+	"palomnik/internal/application"
+	"palomnik/internal/domain"
 )
 
 const (

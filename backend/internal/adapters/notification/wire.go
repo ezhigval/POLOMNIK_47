@@ -1,13 +1,13 @@
 package notification
 
 import (
-	maxnotify "polomnik/internal/adapters/notification/max"
-	"polomnik/internal/adapters/notification/noop"
-	"polomnik/internal/adapters/notification/recording"
-	"polomnik/internal/adapters/notification/telegram"
-	"polomnik/internal/application"
-	"polomnik/internal/config"
-	"polomnik/internal/ports"
+	maxnotify "palomnik/internal/adapters/notification/max"
+	"palomnik/internal/adapters/notification/noop"
+	"palomnik/internal/adapters/notification/recording"
+	"palomnik/internal/adapters/notification/telegram"
+	"palomnik/internal/application"
+	"palomnik/internal/config"
+	"palomnik/internal/ports"
 )
 
 type Deps struct {

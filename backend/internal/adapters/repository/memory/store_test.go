@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	"polomnik/internal/domain"
-	"polomnik/internal/ports"
+	"palomnik/internal/domain"
+	"palomnik/internal/ports"
 )
 
 func TestStoreImplementsRepositoryPorts(t *testing.T) {

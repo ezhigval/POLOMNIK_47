@@ -3,7 +3,7 @@ package application
 import (
 	"context"
 
-	"polomnik/internal/ports"
+	"palomnik/internal/ports"
 )
 
 type IntegrationService struct {

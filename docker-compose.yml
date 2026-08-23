@@ -2,15 +2,15 @@ services:
   postgres:
     image: postgres:16-alpine
     environment:
-      POSTGRES_DB: polomnik
-      POSTGRES_USER: polomnik
-      POSTGRES_PASSWORD: polomnik
+      POSTGRES_DB: ${POSTGRES_DB:-palomnik}
+      POSTGRES_USER: ${POSTGRES_USER:-palomnik}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-palomnik}
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U polomnik -d polomnik"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-palomnik} -d ${POSTGRES_DB:-palomnik}"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -38,7 +38,7 @@ services:
       - -dir
       - /migrations
       - postgres
-      - postgres://polomnik:polomnik@postgres:5432/polomnik?sslmode=disable
+      - postgres://${POSTGRES_USER:-palomnik}:${POSTGRES_PASSWORD:-palomnik}@postgres:5432/${POSTGRES_DB:-palomnik}?sslmode=disable
       - up
 
   seed:
@@ -54,7 +54,7 @@ services:
       [
         "/bin/sh",
         "-c",
-        "psql postgres://polomnik:polomnik@postgres:5432/polomnik?sslmode=disable -f /seed.sql || true",
+        "psql postgres://${POSTGRES_USER:-palomnik}:${POSTGRES_PASSWORD:-palomnik}@postgres:5432/${POSTGRES_DB:-palomnik}?sslmode=disable -f /seed.sql || true",
       ]
 
   api:
@@ -72,7 +72,7 @@ services:
     environment:
       APP_ENV: local
       HTTP_ADDR: :8080
-      DATABASE_URL: postgres://polomnik:polomnik@postgres:5432/polomnik?sslmode=disable
+      DATABASE_URL: postgres://${POSTGRES_USER:-palomnik}:${POSTGRES_PASSWORD:-palomnik}@postgres:5432/${POSTGRES_DB:-palomnik}?sslmode=disable
       REDIS_URL: redis://redis:6379/0
       ADMIN_TOKEN: dev-admin-token
       LOG_LEVEL: info
@@ -166,7 +166,7 @@ services:
         condition: service_healthy
     environment:
       APP_ENV: local
-      DATABASE_URL: postgres://polomnik:polomnik@postgres:5432/polomnik?sslmode=disable
+      DATABASE_URL: postgres://${POSTGRES_USER:-palomnik}:${POSTGRES_PASSWORD:-palomnik}@postgres:5432/${POSTGRES_DB:-palomnik}?sslmode=disable
       LOG_LEVEL: info
       CRM_ADAPTER: ${CRM_ADAPTER:-noop}
       ACCOUNTING_ADAPTER: ${ACCOUNTING_ADAPTER:-noop}
@@ -175,19 +175,19 @@ services:
       OUTBOX_WORKER_POLL_INTERVAL: ${OUTBOX_WORKER_POLL_INTERVAL:-30s}
       OUTBOX_WORKER_BATCH_SIZE: ${OUTBOX_WORKER_BATCH_SIZE:-10}
       OUTBOX_WORKER_MAX_ATTEMPTS: ${OUTBOX_WORKER_MAX_ATTEMPTS:-5}
-      WORKER_HEARTBEAT_PATH: /tmp/polomnik-worker-heartbeat
+      WORKER_HEARTBEAT_PATH: /tmp/palomnik-worker-heartbeat
       WORKER_HEARTBEAT_MAX_AGE: ${WORKER_HEARTBEAT_MAX_AGE:-2m}
       NOTIFICATION_ADAPTER: ${NOTIFICATION_ADAPTER:-noop}
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
       TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID:-}
       TELEGRAM_API_BASE: ${TELEGRAM_API_BASE:-https://api.telegram.org}
       MANAGEMENT_BASE_URL: ${MANAGEMENT_BASE_URL:-http://localhost:3000/management/bookings}
-    entrypoint: ["/app/polomnik-worker"]
+    entrypoint: ["/app/palomnik-worker"]
     healthcheck:
       test:
         [
           "CMD-SHELL",
-          "test -f /tmp/polomnik-worker-heartbeat && test $$(($$(date +%s) - $$(stat -c %Y /tmp/polomnik-worker-heartbeat))) -lt 120",
+          "test -f /tmp/palomnik-worker-heartbeat && test $$(($$(date +%s) - $$(stat -c %Y /tmp/palomnik-worker-heartbeat))) -lt 120",
         ]
       interval: 15s
       timeout: 5s

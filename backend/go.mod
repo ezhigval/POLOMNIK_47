@@ -1,4 +1,4 @@
-module polomnik
+module palomnik
 
 go 1.25.7
 

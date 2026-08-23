@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	"polomnik/internal/adapters/repository/memory"
-	"polomnik/internal/domain"
+	"palomnik/internal/adapters/repository/memory"
+	"palomnik/internal/domain"
 )
 
 func TestTelegramSettingsValidation(t *testing.T) {

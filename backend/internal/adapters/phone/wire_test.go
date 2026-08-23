@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
-	"polomnik/internal/adapters/phone"
-	"polomnik/internal/config"
+	"palomnik/internal/adapters/phone"
+	"palomnik/internal/config"
 )
 
 func TestNewNoopWithoutCredentials(t *testing.T) {

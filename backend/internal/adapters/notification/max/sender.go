@@ -4,8 +4,8 @@ import (
 	"context"
 	"strings"
 
-	"polomnik/internal/config"
-	"polomnik/internal/ports"
+	"palomnik/internal/config"
+	"palomnik/internal/ports"
 )
 
 // Sender is a Max messenger stub. It never invents an API: without credentials

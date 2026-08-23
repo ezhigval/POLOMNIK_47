@@ -5,11 +5,11 @@ import (
 	"errors"
 	"testing"
 
-	"polomnik/internal/adapters/integration/noop"
-	notificationnoop "polomnik/internal/adapters/notification/noop"
-	"polomnik/internal/adapters/repository/memory"
-	"polomnik/internal/domain"
-	"polomnik/internal/ports"
+	"palomnik/internal/adapters/integration/noop"
+	notificationnoop "palomnik/internal/adapters/notification/noop"
+	"palomnik/internal/adapters/repository/memory"
+	"palomnik/internal/domain"
+	"palomnik/internal/ports"
 )
 
 func TestBookingServiceCreateBookingWithNoopCRMIntegration(t *testing.T) {

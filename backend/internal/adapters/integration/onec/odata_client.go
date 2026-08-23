@@ -136,5 +136,5 @@ func firstODataRefKey(raw json.RawMessage) (string, bool, error) {
 }
 
 func bookingMarker(bookingID string) string {
-	return "polomnik:booking:" + bookingID
+	return "palomnik:booking:" + bookingID
 }

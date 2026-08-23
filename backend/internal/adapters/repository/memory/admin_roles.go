@@ -6,7 +6,7 @@ import (
 
 	"github.com/google/uuid"
 
-	"polomnik/internal/domain"
+	"palomnik/internal/domain"
 )
 
 func (s *Store) ListAdminRoles(_ context.Context) ([]domain.AdminRole, error) {

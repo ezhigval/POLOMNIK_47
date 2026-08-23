@@ -1,7 +1,7 @@
 package fiberhttp
 
 import (
-	"polomnik/internal/application"
+	"palomnik/internal/application"
 )
 
 type Services struct {

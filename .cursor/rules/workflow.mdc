@@ -5,7 +5,7 @@ alwaysApply: true
 
 # Релиз
 
-Публичный домен один: **https://tikhvin-palomnik.ru**. `tikhvin-polomnik.ru` — только 301 на palomnik, не стенд.
+Публичный домен один: **https://tikhvin-palomnik.ru**. Отдельного preview-стенда нет.
 
 Порядок: локально → тесты → GitHub (commit/push только по просьбе) → `make deploy`.
 

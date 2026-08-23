@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
-# Create Yandex Cloud VM + security group for POLOMNIK_47.
+# Create Yandex Cloud VM + security group for Тихвинский путь.
 # Requires: yc CLI authenticated (`yc init`), SSH key at ~/.ssh/id_ed25519.pub
 set -euo pipefail
 
 export PATH="${HOME}/yandex-cloud/bin:${PATH}"
 
 ZONE="${YC_ZONE:-ru-central1-a}"
-NETWORK_NAME="${YC_NETWORK_NAME:-polomnik-net}"
-SUBNET_NAME="${YC_SUBNET_NAME:-polomnik-subnet-a}"
-SG_NAME="${YC_SG_NAME:-polomnik-sg}"
-VM_NAME="${YC_VM_NAME:-polomnik-vm}"
+NETWORK_NAME="${YC_NETWORK_NAME:-palomnik-net}"
+SUBNET_NAME="${YC_SUBNET_NAME:-palomnik-subnet-a}"
+SG_NAME="${YC_SG_NAME:-palomnik-sg}"
+VM_NAME="${YC_VM_NAME:-palomnik-vm}"
 SSH_KEY="${SSH_KEY:-${HOME}/.ssh/id_ed25519.pub}"
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 
@@ -25,7 +25,7 @@ fi
 
 if ! yc vpc network get --name "$NETWORK_NAME" >/dev/null 2>&1; then
   echo "Creating network $NETWORK_NAME"
-  yc vpc network create --name "$NETWORK_NAME" --description "POLOMNIK_47"
+  yc vpc network create --name "$NETWORK_NAME" --description "tikhvin-palomnik"
 fi
 
 if ! yc vpc subnet get --name "$SUBNET_NAME" >/dev/null 2>&1; then

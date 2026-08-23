@@ -29,7 +29,7 @@
 
 ### Техническая связка booking ↔ deal
 
-- `ORIGINATOR_ID=polomnik` (env `BITRIX_ORIGINATOR_ID`)
+- `ORIGINATOR_ID=palomnik` (env `BITRIX_ORIGINATOR_ID`)
 - `ORIGIN_ID=<booking UUID>` — поиск и идемпотентность без кастомных UF-полей
 - Опционально: `BITRIX_UF_TOUR_ID`, `BITRIX_UF_PEOPLE_COUNT` после создания полей в Bitrix
 
@@ -50,8 +50,8 @@
 Endpoints по умолчанию:
 
 ```text
-POST {ONEC_BASE_URL}/hs/polomnik/booking
-POST {ONEC_BASE_URL}/hs/polomnik/counterparty
+POST {ONEC_BASE_URL}/hs/palomnik/booking
+POST {ONEC_BASE_URL}/hs/palomnik/counterparty
 ```
 
 ## 4. Sync policy

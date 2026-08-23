@@ -4,9 +4,9 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 
-	"polomnik/internal/adapters/http/fiber/dto"
-	appmiddleware "polomnik/internal/adapters/http/fiber/middleware"
-	"polomnik/internal/domain"
+	"palomnik/internal/adapters/http/fiber/dto"
+	appmiddleware "palomnik/internal/adapters/http/fiber/middleware"
+	"palomnik/internal/domain"
 )
 
 func (h *Handler) ManagementLogin(c *fiber.Ctx) error {

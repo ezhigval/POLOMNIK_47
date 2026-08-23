@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"polomnik/internal/domain"
+	"palomnik/internal/domain"
 )
 
 func (a CRMAdapter) findProductByOrigin(ctx context.Context, tourID string) (string, bool, error) {

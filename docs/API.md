@@ -56,7 +56,7 @@ Returns API health inside versioned API.
 Readiness probe: PostgreSQL (+ Redis when configured). Use for uptime monitors and load balancer checks.
 
 Outbox worker has no HTTP health endpoint. Docker healthcheck uses heartbeat file
-`WORKER_HEARTBEAT_PATH` (default `/tmp/polomnik-worker-heartbeat`), refreshed after each successful poll.
+`WORKER_HEARTBEAT_PATH` (default `/tmp/palomnik-worker-heartbeat`), refreshed after each successful poll.
 
 ### GET /api/v1/management/system-info
 

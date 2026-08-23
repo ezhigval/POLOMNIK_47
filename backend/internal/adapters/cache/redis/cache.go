@@ -8,7 +8,7 @@ import (
 
 	"github.com/redis/go-redis/v9"
 
-	"polomnik/internal/ports"
+	"palomnik/internal/ports"
 )
 
 type Cache struct {

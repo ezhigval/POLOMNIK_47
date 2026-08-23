@@ -8,8 +8,8 @@ import (
 
 	"github.com/google/uuid"
 
-	"polomnik/internal/domain"
-	"polomnik/internal/ports"
+	"palomnik/internal/domain"
+	"palomnik/internal/ports"
 )
 
 // NotificationDispatcher routes domain notification events to channel adapters.

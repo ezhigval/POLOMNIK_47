@@ -3,9 +3,9 @@ package handlers
 import (
 	"errors"
 
-	"polomnik/internal/application"
-	"polomnik/internal/domain"
-	"polomnik/internal/ports"
+	"palomnik/internal/application"
+	"palomnik/internal/domain"
+	"palomnik/internal/ports"
 )
 
 type AppError struct {

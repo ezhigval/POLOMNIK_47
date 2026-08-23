@@ -15,12 +15,12 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 
-	"polomnik/internal/adapters/integration/noop"
-	notificationnoop "polomnik/internal/adapters/notification/noop"
-	"polomnik/internal/adapters/repository/memory"
-	"polomnik/internal/application"
-	"polomnik/internal/config"
-	"polomnik/internal/domain"
+	"palomnik/internal/adapters/integration/noop"
+	notificationnoop "palomnik/internal/adapters/notification/noop"
+	"palomnik/internal/adapters/repository/memory"
+	"palomnik/internal/application"
+	"palomnik/internal/config"
+	"palomnik/internal/domain"
 )
 
 func TestHealthRoutes(t *testing.T) {

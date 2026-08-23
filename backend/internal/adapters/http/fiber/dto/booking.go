@@ -3,8 +3,8 @@ package dto
 import (
 	"time"
 
-	"polomnik/internal/domain"
-	"polomnik/internal/ports"
+	"palomnik/internal/domain"
+	"palomnik/internal/ports"
 )
 
 type CreateBookingRequest struct {

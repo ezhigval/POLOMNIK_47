@@ -3,8 +3,8 @@ package dto
 import (
 	"encoding/json"
 
-	"polomnik/internal/application"
-	"polomnik/internal/domain"
+	"palomnik/internal/application"
+	"palomnik/internal/domain"
 )
 
 type TelegramSettingsResponse struct {

@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	"polomnik/internal/config"
-	"polomnik/internal/ports"
+	"palomnik/internal/config"
+	"palomnik/internal/ports"
 )
 
 type Mailer struct {

@@ -16,12 +16,12 @@
 
 ## Env (VM)
 
-С ВМ **нельзя** ходить на `api.telegram.org`. Исходящие вызовы — через Worker:
+С ВМ **нельзя** ходить на `api.telegram.org`. Исходящие вызовы — через Cloudflare Worker. URL воркера уже задан в `.env.production` на сервере (`TELEGRAM_API_BASE`); в git его не дублируем.
 
 ```env
 NOTIFICATION_ADAPTER=telegram
 TELEGRAM_BOT_TOKEN=...
-TELEGRAM_API_BASE=https://polomnik-telegram-api.chemical-red.workers.dev
+TELEGRAM_API_BASE=   # значение с ВМ, из текущего .env.production
 TELEGRAM_WEBHOOK_URL=https://api.tikhvin-palomnik.ru/api/v1/webhooks/telegram
 ```
 

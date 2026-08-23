@@ -12,12 +12,12 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/fiber/v2/middleware/requestid"
 
-	"polomnik/internal/adapters/http/fiber/dto"
-	"polomnik/internal/adapters/http/fiber/handlers"
-	appmiddleware "polomnik/internal/adapters/http/fiber/middleware"
-	"polomnik/internal/application"
-	"polomnik/internal/config"
-	"polomnik/internal/domain"
+	"palomnik/internal/adapters/http/fiber/dto"
+	"palomnik/internal/adapters/http/fiber/handlers"
+	appmiddleware "palomnik/internal/adapters/http/fiber/middleware"
+	"palomnik/internal/application"
+	"palomnik/internal/config"
+	"palomnik/internal/domain"
 )
 
 func NewRouter(cfg config.Config, log *slog.Logger, services Services, health HealthDeps) *fiber.App {
@@ -27,7 +27,7 @@ func NewRouter(cfg config.Config, log *slog.Logger, services Services, health He
 	}
 
 	app := fiber.New(fiber.Config{
-		AppName:      "polomnik-api",
+		AppName:      "palomnik-api",
 		ErrorHandler: errorHandler(log),
 		ReadTimeout:  30 * time.Second,
 		WriteTimeout: 30 * time.Second,

@@ -3,8 +3,8 @@ package noop
 import (
 	"context"
 
-	"polomnik/internal/domain"
-	"polomnik/internal/ports"
+	"palomnik/internal/domain"
+	"palomnik/internal/ports"
 )
 
 type Notifier struct{}

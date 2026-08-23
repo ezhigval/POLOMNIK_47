@@ -3,9 +3,9 @@ package noop
 import (
 	"context"
 
-	"polomnik/internal/adapters/integration/stub"
-	"polomnik/internal/domain"
-	"polomnik/internal/ports"
+	"palomnik/internal/adapters/integration/stub"
+	"palomnik/internal/domain"
+	"palomnik/internal/ports"
 )
 
 type CRMAdapter struct{}

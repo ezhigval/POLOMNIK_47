@@ -3,9 +3,9 @@ package integration
 import (
 	"testing"
 
-	"polomnik/internal/adapters/integration/noop"
-	"polomnik/internal/config"
-	"polomnik/internal/ports"
+	"palomnik/internal/adapters/integration/noop"
+	"palomnik/internal/config"
+	"palomnik/internal/ports"
 )
 
 func TestNewCRMReturnsNoopAdapterByDefault(t *testing.T) {

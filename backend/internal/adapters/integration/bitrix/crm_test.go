@@ -10,9 +10,9 @@ import (
 
 	"github.com/google/uuid"
 
-	"polomnik/internal/config"
-	"polomnik/internal/domain"
-	"polomnik/internal/ports"
+	"palomnik/internal/config"
+	"palomnik/internal/domain"
+	"palomnik/internal/ports"
 )
 
 func TestCRMAdapterReturnsNotConfiguredWithoutWebhook(t *testing.T) {

@@ -6,8 +6,8 @@ import (
 	"encoding/hex"
 	"strings"
 
-	"polomnik/internal/domain"
-	"polomnik/internal/ports"
+	"palomnik/internal/domain"
+	"palomnik/internal/ports"
 )
 
 func TelegramWebhookSecret(internalSecret string) string {
