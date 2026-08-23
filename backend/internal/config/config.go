@@ -92,6 +92,11 @@ type Config struct {
 	S3SecretKey              string
 	S3Prefix                 string
 	BackupLastPath           string
+	MessengerAdapter         string
+	MaxAPIBase               string
+	WhatsAppToken            string
+	WhatsAppPhoneNumberID    string
+	WhatsAppGraphBase        string
 }
 
 func Load() Config {
@@ -180,6 +185,11 @@ func Load() Config {
 		S3SecretKey:              os.Getenv("S3_SECRET_KEY"),
 		S3Prefix:                 envString("S3_PREFIX", "palomnik-backups"),
 		BackupLastPath:           envString("BACKUP_LAST_PATH", "./backups/last-backup.json"),
+		MessengerAdapter:         envString("MESSENGER_ADAPTER", "noop"),
+		MaxAPIBase:               envString("MAX_API_BASE", "https://platform-api2.max.ru"),
+		WhatsAppToken:            os.Getenv("WHATSAPP_TOKEN"),
+		WhatsAppPhoneNumberID:    os.Getenv("WHATSAPP_PHONE_NUMBER_ID"),
+		WhatsAppGraphBase:        envString("WHATSAPP_GRAPH_BASE", "https://graph.facebook.com/v21.0"),
 	}
 }
 

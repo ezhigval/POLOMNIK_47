@@ -43,7 +43,9 @@ export default async function ManagementIntegrationsPage() {
     crm_adapter: "",
     accounting_adapter: "",
     notification_adapter: "",
+    messenger_adapter: "",
     telegram_configured: false,
+    messenger_configured: false,
     bitrix_configured: false,
     onec_configured: false,
     outbox: { pending: 0, failed: 0, processed: 0 },
@@ -83,6 +85,12 @@ export default async function ManagementIntegrationsPage() {
             <p className="text-sm font-medium text-stone-900">Telegram</p>
             <div className="mt-2">
               {adapterBadge(systemInfo.notification_adapter, systemInfo.telegram_configured)}
+            </div>
+          </div>
+          <div className="rounded-xl border border-stone-200 bg-stone-50 p-4">
+            <p className="text-sm font-medium text-stone-900">MessengerPort</p>
+            <div className="mt-2">
+              {adapterBadge(systemInfo.messenger_adapter ?? "noop", Boolean(systemInfo.messenger_configured))}
             </div>
           </div>
         </div>

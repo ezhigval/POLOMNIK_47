@@ -170,7 +170,7 @@ Configured()
 Send(channel, address, text)
 ```
 
-Адаптеры: telegram / max / WhatsApp Cloud API. Без ключа `Configured()==false`.
+Адаптеры: telegram / max / WhatsApp Cloud API. Без ключа `Configured()==false`. Выбор: `MESSENGER_ADAPTER`. Чаты — этап 5.
 
 ### PublisherPort (v3, этап 4)
 
