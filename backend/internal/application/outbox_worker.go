@@ -5,8 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/google/uuid"
-
 	"palomnik/internal/domain"
 	"palomnik/internal/ports"
 )
@@ -83,7 +81,7 @@ func (w *OutboxWorker) ProcessOne(ctx context.Context, event domain.OutboxEvent)
 
 func isNotificationEvent(eventType string) bool {
 	switch eventType {
-	case domain.OutboxEventNotificationBookingCreated, domain.OutboxEventNotificationBookingStatus, domain.OutboxEventNotificationSupport:
+	case domain.OutboxEventNotificationBookingCreated, domain.OutboxEventNotificationBookingStatus:
 		return true
 	default:
 		return false
@@ -91,10 +89,6 @@ func isNotificationEvent(eventType string) bool {
 }
 
 func (w *OutboxWorker) dispatchNotification(ctx context.Context, event domain.OutboxEvent) error {
-	if event.EventType == domain.OutboxEventNotificationSupport {
-		return w.dispatchSupportNotification(ctx, event)
-	}
-
 	booking, err := w.bookings.GetBooking(ctx, event.EntityID)
 	if err != nil {
 		return err
@@ -122,32 +116,6 @@ func (w *OutboxWorker) dispatchNotification(ctx context.Context, event domain.Ou
 	default:
 		return fmt.Errorf("unsupported notification event type: %s", event.EventType)
 	}
-}
-
-func (w *OutboxWorker) dispatchSupportNotification(ctx context.Context, event domain.OutboxEvent) error {
-	var payload struct {
-		ThreadID  string `json:"thread_id"`
-		MessageID string `json:"message_id"`
-		UserID    string `json:"user_id"`
-		Body      string `json:"body"`
-	}
-	if len(event.Payload) > 0 {
-		_ = json.Unmarshal(event.Payload, &payload)
-	}
-
-	note := domain.SupportNotification{Body: payload.Body}
-	if parsed, err := uuid.Parse(payload.ThreadID); err == nil {
-		note.ThreadID = parsed
-	}
-	if parsed, err := uuid.Parse(payload.MessageID); err == nil {
-		note.MessageID = parsed
-	} else {
-		note.MessageID = event.EntityID
-	}
-	if parsed, err := uuid.Parse(payload.UserID); err == nil {
-		note.UserID = parsed
-	}
-	return w.notifications.NotifySupportMessage(ctx, note)
 }
 
 func (w *OutboxWorker) dispatch(ctx context.Context, event domain.OutboxEvent) (ports.IntegrationResult, error) {

@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-/** Tour with future dates in dev seed (Валаам, октябрь 2026) */
+/** Tour with future dates in dev seed (Валаам, август 2026) */
 const BOOKABLE_TOUR_ID = "33333333-4444-4444-4444-444444444444";
 
 test("guest can browse search and submit a booking", async ({ page }) => {
