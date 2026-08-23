@@ -14,15 +14,26 @@ const (
 )
 
 type User struct {
-	ID            uuid.UUID
-	Email         string
-	Phone         string
-	Name          string
-	PasswordHash  string
-	OAuthProvider string
-	OAuthSubject  string
-	CreatedAt     time.Time
-	UpdatedAt     time.Time
+	ID           uuid.UUID
+	Email        string
+	Phone        string
+	Name         string
+	PasswordHash string
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
+}
+
+type UserIdentity struct {
+	UserID    uuid.UUID
+	Provider  string
+	Subject   string
+	CreatedAt time.Time
+}
+
+type ProfileConflict struct {
+	Field string
+	Kept  string
+	Other string
 }
 
 type RegisterUserInput struct {
@@ -146,13 +157,60 @@ func NewOAuthUser(input OAuthUserInput) (User, error) {
 	}
 
 	return User{
-		ID:            input.ID,
-		Email:         email,
-		Phone:         phone,
-		Name:          name,
-		OAuthProvider: provider,
-		OAuthSubject:  subject,
-		CreatedAt:     now,
-		UpdatedAt:     now,
+		ID:        input.ID,
+		Email:     email,
+		Phone:     phone,
+		Name:      name,
+		CreatedAt: now,
+		UpdatedAt: now,
 	}, nil
+}
+
+func NormalizeOAuthProvider(raw string) string {
+	return strings.TrimSpace(strings.ToLower(raw))
+}
+
+func NewUserIdentity(userID uuid.UUID, provider, subject string, now time.Time) (UserIdentity, error) {
+	if userID == uuid.Nil {
+		return UserIdentity{}, ErrInvalidID
+	}
+	provider = NormalizeOAuthProvider(provider)
+	subject = strings.TrimSpace(subject)
+	if provider == "" || subject == "" {
+		return UserIdentity{}, ErrInvalidCredentials
+	}
+	if now.IsZero() {
+		now = time.Now().UTC()
+	}
+	return UserIdentity{
+		UserID:    userID,
+		Provider:  provider,
+		Subject:   subject,
+		CreatedAt: now,
+	}, nil
+}
+
+// FillEmptyProfile copies name/email/phone from source only when the target field is empty.
+// Differing non-empty values stay on the target and are returned as conflicts.
+func FillEmptyProfile(into, from User) (User, []ProfileConflict) {
+	var conflicts []ProfileConflict
+	into.Name, conflicts = mergeProfileField(into.Name, from.Name, "name", conflicts)
+	into.Email, conflicts = mergeProfileField(into.Email, from.Email, "email", conflicts)
+	into.Phone, conflicts = mergeProfileField(into.Phone, from.Phone, "phone", conflicts)
+	if into.PasswordHash == "" && from.PasswordHash != "" {
+		into.PasswordHash = from.PasswordHash
+	}
+	return into, conflicts
+}
+
+func mergeProfileField(kept, other, field string, conflicts []ProfileConflict) (string, []ProfileConflict) {
+	kept = strings.TrimSpace(kept)
+	other = strings.TrimSpace(other)
+	if kept == "" {
+		return other, conflicts
+	}
+	if other != "" && !strings.EqualFold(kept, other) {
+		conflicts = append(conflicts, ProfileConflict{Field: field, Kept: kept, Other: other})
+	}
+	return kept, conflicts
 }

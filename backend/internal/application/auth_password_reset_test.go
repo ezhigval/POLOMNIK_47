@@ -31,7 +31,7 @@ func (m *recordingMailer) Send(_ context.Context, message ports.MailMessage) err
 
 func TestRequestPasswordResetUnavailableWithoutMailer(t *testing.T) {
 	store := memory.NewStore()
-	svc := NewAuthService(store, store, nil, &recordingMailer{ok: false}, SocialAuthConfig{}, "secret", time.Hour, "http://localhost:3000")
+	svc := NewAuthService(store, store, nil, &recordingMailer{ok: false}, SocialAuthConfig{}, "secret", time.Hour, "http://localhost:3000", store)
 	err := svc.RequestPasswordReset(context.Background(), "user@example.com")
 	if err != ErrPasswordResetUnavailable {
 		t.Fatalf("want unavailable, got %v", err)
@@ -41,7 +41,7 @@ func TestRequestPasswordResetUnavailableWithoutMailer(t *testing.T) {
 func TestPasswordResetFlow(t *testing.T) {
 	store := memory.NewStore()
 	mailer := &recordingMailer{ok: true}
-	svc := NewAuthService(store, store, nil, mailer, SocialAuthConfig{}, "secret", time.Hour, "https://example.test")
+	svc := NewAuthService(store, store, nil, mailer, SocialAuthConfig{}, "secret", time.Hour, "https://example.test", store)
 
 	_, err := svc.Register(context.Background(), RegisterInput{
 		Email:    "pilgrim@example.com",
@@ -86,7 +86,7 @@ func TestPasswordResetFlow(t *testing.T) {
 func TestRequestPasswordResetUnknownEmailSilent(t *testing.T) {
 	store := memory.NewStore()
 	mailer := &recordingMailer{ok: true}
-	svc := NewAuthService(store, store, nil, mailer, SocialAuthConfig{}, "secret", time.Hour, "http://localhost:3000")
+	svc := NewAuthService(store, store, nil, mailer, SocialAuthConfig{}, "secret", time.Hour, "http://localhost:3000", store)
 	if err := svc.RequestPasswordReset(context.Background(), "nobody@example.com"); err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}

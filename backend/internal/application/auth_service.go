@@ -33,16 +33,17 @@ type AuthService struct {
 	jwtSecret     []byte
 	tokenTTL      time.Duration
 	publicSiteURL string
+	tx            ports.TransactionManager
 
 	mu         sync.Mutex
 	challenges map[string]phoneChallengeRecord
 }
 
 type SocialAuthConfig struct {
-	YandexConfigured   bool
-	VKConfigured       bool
-	MaxConfigured      bool
-	TelegramConfigured bool
+	YandexConfigured    bool
+	VKConfigured        bool
+	MaxConfigured       bool
+	TelegramConfigured  bool
 	TelegramBotUsername string
 }
 
@@ -60,6 +61,7 @@ func NewAuthService(
 	jwtSecret string,
 	tokenTTL time.Duration,
 	publicSiteURL string,
+	tx ports.TransactionManager,
 ) *AuthService {
 	if tokenTTL <= 0 {
 		tokenTTL = 7 * 24 * time.Hour
@@ -79,6 +81,7 @@ func NewAuthService(
 		jwtSecret:     []byte(jwtSecret),
 		tokenTTL:      tokenTTL,
 		publicSiteURL: strings.TrimRight(strings.TrimSpace(publicSiteURL), "/"),
+		tx:            tx,
 		challenges:    make(map[string]phoneChallengeRecord),
 	}
 }
@@ -89,7 +92,6 @@ func (unavailableMailer) Configured() bool { return false }
 func (unavailableMailer) Send(context.Context, ports.MailMessage) error {
 	return ports.ErrMailerNotConfigured
 }
-
 
 type unavailablePhoneVerifier struct{}
 
@@ -102,11 +104,11 @@ func (unavailablePhoneVerifier) Status(context.Context, string) (ports.PhoneChec
 }
 
 type RegisterInput struct {
-	Email         string
-	Phone         string
-	Name          string
-	Password      string
-	PhoneCheckID  string
+	Email        string
+	Phone        string
+	Name         string
+	Password     string
+	PhoneCheckID string
 }
 
 type LoginInput struct {
@@ -115,8 +117,11 @@ type LoginInput struct {
 }
 
 type AuthResult struct {
-	Token string
-	User  domain.User
+	Token     string
+	User      domain.User
+	Linked    bool
+	Merged    bool
+	Conflicts []domain.ProfileConflict
 }
 
 type AuthClaims struct {
@@ -511,43 +516,212 @@ func (s *AuthService) GetUser(ctx context.Context, userID uuid.UUID) (domain.Use
 	return sanitizeUser(user), nil
 }
 
+func (s *AuthService) ListIdentities(ctx context.Context, userID uuid.UUID) ([]domain.UserIdentity, error) {
+	if userID == uuid.Nil {
+		return nil, domain.ErrInvalidID
+	}
+	if _, err := s.users.GetUserByID(ctx, userID); err != nil {
+		return nil, err
+	}
+	identities, err := s.users.ListIdentities(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+	if identities == nil {
+		return []domain.UserIdentity{}, nil
+	}
+	return identities, nil
+}
+
 func (s *AuthService) ListMyBookings(ctx context.Context, userID uuid.UUID, pagination ports.Pagination) (ports.BookingList, error) {
 	return s.bookings.ListBookings(ctx, ports.BookingFilters{UserID: &userID}, pagination)
 }
 
 type OAuthLoginInput struct {
-	Provider string
-	Subject  string
-	Email    string
-	Name     string
+	Provider     string
+	Subject      string
+	Email        string
+	Name         string
+	Phone        string
+	SessionToken string
 }
 
 func (s *AuthService) OAuthLogin(ctx context.Context, input OAuthLoginInput) (AuthResult, error) {
+	provider := domain.NormalizeOAuthProvider(input.Provider)
+	subject := strings.TrimSpace(input.Subject)
+	if provider == "" || subject == "" {
+		return AuthResult{}, domain.ErrInvalidCredentials
+	}
+
+	if sessionID, ok := s.sessionUserID(ctx, input.SessionToken); ok {
+		return s.linkOrMergeOAuth(ctx, sessionID, provider, subject)
+	}
+	return s.loginOrCreateOAuth(ctx, input)
+}
+
+func (s *AuthService) sessionUserID(ctx context.Context, token string) (uuid.UUID, bool) {
+	token = strings.TrimSpace(token)
+	if token == "" {
+		return uuid.Nil, false
+	}
+	userID, err := s.ParseToken(token)
+	if err != nil {
+		return uuid.Nil, false
+	}
+	if _, err := s.users.GetUserByID(ctx, userID); err != nil {
+		return uuid.Nil, false
+	}
+	return userID, true
+}
+
+func (s *AuthService) loginOrCreateOAuth(ctx context.Context, input OAuthLoginInput) (AuthResult, error) {
 	user, err := s.users.GetUserByOAuth(ctx, input.Provider, input.Subject)
-	if errors.Is(err, domain.ErrNotFound) {
-		user, err = domain.NewOAuthUser(domain.OAuthUserInput{
-			ID:       uuid.New(),
-			Provider: input.Provider,
-			Subject:  input.Subject,
-			Email:    input.Email,
-			Name:     input.Name,
-		})
-		if err != nil {
-			return AuthResult{}, err
-		}
-		user, err = s.users.CreateUser(ctx, user)
-		if err != nil {
-			return AuthResult{}, err
-		}
-	} else if err != nil {
+	if err == nil {
+		return s.authResult(user, false, false, nil)
+	}
+	if !errors.Is(err, domain.ErrNotFound) {
 		return AuthResult{}, err
 	}
 
+	created, err := domain.NewOAuthUser(domain.OAuthUserInput{
+		ID:       uuid.New(),
+		Provider: input.Provider,
+		Subject:  input.Subject,
+		Email:    input.Email,
+		Name:     input.Name,
+		Phone:    input.Phone,
+	})
+	if err != nil {
+		return AuthResult{}, err
+	}
+	identity, err := domain.NewUserIdentity(created.ID, input.Provider, input.Subject, created.CreatedAt)
+	if err != nil {
+		return AuthResult{}, err
+	}
+
+	err = s.runInTx(ctx, func(ctx context.Context) error {
+		user, err := s.users.CreateUser(ctx, created)
+		if err != nil {
+			return err
+		}
+		created = user
+		return s.users.AddIdentity(ctx, identity)
+	})
+	if errors.Is(err, domain.ErrDuplicateIdentity) {
+		user, getErr := s.users.GetUserByOAuth(ctx, input.Provider, input.Subject)
+		if getErr != nil {
+			return AuthResult{}, err
+		}
+		return s.authResult(user, false, false, nil)
+	}
+	if err != nil {
+		return AuthResult{}, err
+	}
+	return s.authResult(created, false, false, nil)
+}
+
+func (s *AuthService) linkOrMergeOAuth(ctx context.Context, sessionID uuid.UUID, provider, subject string) (AuthResult, error) {
+	existing, err := s.users.GetIdentity(ctx, provider, subject)
+	if errors.Is(err, domain.ErrNotFound) {
+		return s.addIdentityToSession(ctx, sessionID, provider, subject)
+	}
+	if err != nil {
+		return AuthResult{}, err
+	}
+	if existing.UserID == sessionID {
+		user, err := s.users.GetUserByID(ctx, sessionID)
+		if err != nil {
+			return AuthResult{}, err
+		}
+		return s.authResult(user, true, false, nil)
+	}
+	return s.mergeOAuthAccount(ctx, sessionID, existing.UserID)
+}
+
+func (s *AuthService) addIdentityToSession(ctx context.Context, sessionID uuid.UUID, provider, subject string) (AuthResult, error) {
+	identity, err := domain.NewUserIdentity(sessionID, provider, subject, time.Now().UTC())
+	if err != nil {
+		return AuthResult{}, err
+	}
+	if err := s.users.AddIdentity(ctx, identity); err != nil {
+		if errors.Is(err, domain.ErrDuplicateIdentity) {
+			return s.linkOrMergeOAuth(ctx, sessionID, provider, subject)
+		}
+		return AuthResult{}, err
+	}
+	user, err := s.users.GetUserByID(ctx, sessionID)
+	if err != nil {
+		return AuthResult{}, err
+	}
+	return s.authResult(user, true, false, nil)
+}
+
+func (s *AuthService) mergeOAuthAccount(ctx context.Context, targetID, sourceID uuid.UUID) (AuthResult, error) {
+	var conflicts []domain.ProfileConflict
+	err := s.runInTx(ctx, func(ctx context.Context) error {
+		current, err := s.users.GetUserByID(ctx, targetID)
+		if err != nil {
+			return err
+		}
+		other, err := s.users.GetUserByID(ctx, sourceID)
+		if err != nil {
+			return err
+		}
+
+		filled, profileConflicts := domain.FillEmptyProfile(current, other)
+		conflicts = profileConflicts
+
+		source := other
+		if current.Email == "" && filled.Email != "" {
+			source.Email = ""
+		}
+		if current.Phone == "" && filled.Phone != "" {
+			source.Phone = ""
+		}
+		if source.Email != other.Email || source.Phone != other.Phone {
+			if _, err := s.users.UpdateUserProfile(ctx, source); err != nil {
+				return err
+			}
+		}
+		if _, err := s.users.UpdateUserProfile(ctx, filled); err != nil {
+			return err
+		}
+		if current.PasswordHash == "" && filled.PasswordHash != "" {
+			if err := s.users.UpdateUserPassword(ctx, filled.ID, filled.PasswordHash); err != nil {
+				return err
+			}
+		}
+		return s.users.MergeAccountInto(ctx, filled.ID, other.ID)
+	})
+	if err != nil {
+		return AuthResult{}, err
+	}
+	user, err := s.users.GetUserByID(ctx, targetID)
+	if err != nil {
+		return AuthResult{}, err
+	}
+	return s.authResult(user, true, true, conflicts)
+}
+
+func (s *AuthService) authResult(user domain.User, linked, merged bool, conflicts []domain.ProfileConflict) (AuthResult, error) {
 	token, err := s.issueToken(user.ID)
 	if err != nil {
 		return AuthResult{}, err
 	}
-	return AuthResult{Token: token, User: sanitizeUser(user)}, nil
+	return AuthResult{
+		Token:     token,
+		User:      sanitizeUser(user),
+		Linked:    linked,
+		Merged:    merged,
+		Conflicts: conflicts,
+	}, nil
+}
+
+func (s *AuthService) runInTx(ctx context.Context, fn func(context.Context) error) error {
+	if s.tx == nil {
+		return fn(ctx)
+	}
+	return s.tx.WithinTransaction(ctx, fn)
 }
 
 func (s *AuthService) requireConfirmedPhone(ctx context.Context, checkID string) (string, error) {

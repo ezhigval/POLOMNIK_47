@@ -12,25 +12,26 @@ import (
 )
 
 type Store struct {
-	mu                 sync.RWMutex
-	tours              map[uuid.UUID]domain.Tour
-	bookings           map[uuid.UUID]domain.Booking
-	reviews            map[uuid.UUID]domain.Review
-	users              map[uuid.UUID]domain.User
-	favorites          map[string]domain.Favorite
-	supportThreads     map[uuid.UUID]domain.SupportThread
-	supportMessages    map[uuid.UUID]domain.SupportMessage
-	integrationRefs    map[string]domain.IntegrationReference
-	outboxEvents       map[uuid.UUID]domain.OutboxEvent
-	cmsPages           map[uuid.UUID]domain.Page
-	cmsBlocks          map[uuid.UUID]domain.Block
-	news               map[uuid.UUID]domain.NewsArticle
-	telegramRecipients   *domain.TelegramRecipients
-	telegramChats        map[string]domain.TelegramChatBinding
-	notificationRouting  *domain.NotificationRouting
-	siteSettings         *domain.SiteSettings
-	adminRoles           map[uuid.UUID]domain.AdminRole
-	adminAssignments     []domain.AdminRoleAssignment
+	mu                  sync.RWMutex
+	tours               map[uuid.UUID]domain.Tour
+	bookings            map[uuid.UUID]domain.Booking
+	reviews             map[uuid.UUID]domain.Review
+	users               map[uuid.UUID]domain.User
+	identities          map[string]domain.UserIdentity
+	favorites           map[string]domain.Favorite
+	supportThreads      map[uuid.UUID]domain.SupportThread
+	supportMessages     map[uuid.UUID]domain.SupportMessage
+	integrationRefs     map[string]domain.IntegrationReference
+	outboxEvents        map[uuid.UUID]domain.OutboxEvent
+	cmsPages            map[uuid.UUID]domain.Page
+	cmsBlocks           map[uuid.UUID]domain.Block
+	news                map[uuid.UUID]domain.NewsArticle
+	telegramRecipients  *domain.TelegramRecipients
+	telegramChats       map[string]domain.TelegramChatBinding
+	notificationRouting *domain.NotificationRouting
+	siteSettings        *domain.SiteSettings
+	adminRoles          map[uuid.UUID]domain.AdminRole
+	adminAssignments    []domain.AdminRoleAssignment
 }
 
 func (s *Store) WithinTransaction(ctx context.Context, fn func(context.Context) error) error {
@@ -39,18 +40,19 @@ func (s *Store) WithinTransaction(ctx context.Context, fn func(context.Context) 
 
 func NewStore() *Store {
 	return &Store{
-		tours:           make(map[uuid.UUID]domain.Tour),
-		bookings:        make(map[uuid.UUID]domain.Booking),
-		reviews:         make(map[uuid.UUID]domain.Review),
-		users:           make(map[uuid.UUID]domain.User),
-		favorites:       make(map[string]domain.Favorite),
-		supportThreads:  make(map[uuid.UUID]domain.SupportThread),
-		supportMessages: make(map[uuid.UUID]domain.SupportMessage),
-		integrationRefs: make(map[string]domain.IntegrationReference),
-		outboxEvents:    make(map[uuid.UUID]domain.OutboxEvent),
-		cmsPages:        make(map[uuid.UUID]domain.Page),
-		cmsBlocks:       make(map[uuid.UUID]domain.Block),
-		news:            make(map[uuid.UUID]domain.NewsArticle),
+		tours:            make(map[uuid.UUID]domain.Tour),
+		bookings:         make(map[uuid.UUID]domain.Booking),
+		reviews:          make(map[uuid.UUID]domain.Review),
+		users:            make(map[uuid.UUID]domain.User),
+		identities:       make(map[string]domain.UserIdentity),
+		favorites:        make(map[string]domain.Favorite),
+		supportThreads:   make(map[uuid.UUID]domain.SupportThread),
+		supportMessages:  make(map[uuid.UUID]domain.SupportMessage),
+		integrationRefs:  make(map[string]domain.IntegrationReference),
+		outboxEvents:     make(map[uuid.UUID]domain.OutboxEvent),
+		cmsPages:         make(map[uuid.UUID]domain.Page),
+		cmsBlocks:        make(map[uuid.UUID]domain.Block),
+		news:             make(map[uuid.UUID]domain.NewsArticle),
 		telegramChats:    make(map[string]domain.TelegramChatBinding),
 		adminRoles:       make(map[uuid.UUID]domain.AdminRole),
 		adminAssignments: nil,

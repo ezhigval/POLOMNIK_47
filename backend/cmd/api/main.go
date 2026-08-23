@@ -130,6 +130,7 @@ func run() int {
 			cfg.JWTSecret,
 			cfg.JWTTokenTTL,
 			cfg.PublicSiteURL,
+			txManager(tourRepo),
 		),
 		Favorites:      application.NewFavoriteService(favoriteRepo, tourRepo),
 		Support:        application.NewSupportService(supportRepo, notifier),

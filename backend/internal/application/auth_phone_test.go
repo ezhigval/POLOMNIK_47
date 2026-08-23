@@ -40,7 +40,7 @@ func (f *fakePhone) Status(_ context.Context, _ string) (ports.PhoneCheckStatus,
 
 func TestAuthMethodsPhoneUnavailable(t *testing.T) {
 	store := memory.NewStore()
-	svc := application.NewAuthService(store, store, &fakePhone{available: false}, nil, application.SocialAuthConfig{}, "secret", time.Hour, "http://localhost:3000")
+	svc := application.NewAuthService(store, store, &fakePhone{available: false}, nil, application.SocialAuthConfig{}, "secret", time.Hour, "http://localhost:3000", store)
 	methods := svc.AuthMethods()
 	if methods.PhoneCall.Available {
 		t.Fatal("expected phone unavailable")
@@ -52,7 +52,7 @@ func TestAuthMethodsPhoneUnavailable(t *testing.T) {
 
 func TestStartPhoneVerificationUnavailable(t *testing.T) {
 	store := memory.NewStore()
-	svc := application.NewAuthService(store, store, &fakePhone{available: false}, nil, application.SocialAuthConfig{}, "secret", time.Hour, "http://localhost:3000")
+	svc := application.NewAuthService(store, store, &fakePhone{available: false}, nil, application.SocialAuthConfig{}, "secret", time.Hour, "http://localhost:3000", store)
 	_, err := svc.StartPhoneVerification(context.Background(), "+79001234567")
 	if err != application.ErrPhoneVerificationUnavailable {
 		t.Fatalf("got %v", err)
@@ -62,7 +62,7 @@ func TestStartPhoneVerificationUnavailable(t *testing.T) {
 func TestRegisterRequiresConfirmedCallWhenPhoneAvailable(t *testing.T) {
 	store := memory.NewStore()
 	phones := &fakePhone{available: true, status: ports.PhoneCheckPending}
-	svc := application.NewAuthService(store, store, phones, nil, application.SocialAuthConfig{}, "secret", time.Hour, "http://localhost:3000")
+	svc := application.NewAuthService(store, store, phones, nil, application.SocialAuthConfig{}, "secret", time.Hour, "http://localhost:3000", store)
 
 	_, err := svc.Register(context.Background(), application.RegisterInput{
 		Name:     "Иван Тест",
@@ -92,7 +92,7 @@ func TestRegisterRequiresConfirmedCallWhenPhoneAvailable(t *testing.T) {
 
 func TestRegisterWithoutPhoneAdapter(t *testing.T) {
 	store := memory.NewStore()
-	svc := application.NewAuthService(store, store, nil, nil, application.SocialAuthConfig{}, "secret", time.Hour, "http://localhost:3000")
+	svc := application.NewAuthService(store, store, nil, nil, application.SocialAuthConfig{}, "secret", time.Hour, "http://localhost:3000", store)
 	_, err := svc.Register(context.Background(), application.RegisterInput{
 		Name:     "Иван Тест",
 		Phone:    "+79001234567",

@@ -194,3 +194,27 @@ updated_at TIMESTAMPTZ
 
 In MVP 1, outbox events can remain pending until `cmd/worker` processes them or adapters return `synced` / `not_configured`.
 
+## 8. User and identity (v3 cabinet)
+
+OAuth больше не хранится колонками на `users`. Одна пара `(provider, subject)` — одна строка `user_identities`; у пользователя может быть несколько входов.
+
+```text
+users
+  id UUID
+  email TEXT          # unique where email <> ''
+  phone TEXT          # unique where not empty
+  name TEXT
+  password_hash TEXT  # nullable for oauth-only
+  created_at TIMESTAMPTZ
+  updated_at TIMESTAMPTZ
+
+user_identities
+  user_id UUID        # FK users ON DELETE CASCADE
+  provider TEXT       # yandex / vk / max / telegram
+  subject TEXT
+  created_at TIMESTAMPTZ
+  PRIMARY KEY (provider, subject)
+```
+
+Привязка соцсети при открытой сессии сливает другой кабинет **в текущего**: заявки (`bookings.user_id`), избранное, треды поддержки (открытый тред один: сообщения переносятся), назначения админ-ролей. Имя/почта/телефон целевого профиля не перезаписываются, если оба заполнены и различаются. Пассажиров в схеме ещё нет. СНИЛС нет.
+

@@ -84,8 +84,12 @@ type UserRepository interface {
 	GetUserByEmail(ctx context.Context, email string) (domain.User, error)
 	GetUserByPhone(ctx context.Context, phone string) (domain.User, error)
 	GetUserByOAuth(ctx context.Context, provider, subject string) (domain.User, error)
+	GetIdentity(ctx context.Context, provider, subject string) (domain.UserIdentity, error)
+	ListIdentities(ctx context.Context, userID uuid.UUID) ([]domain.UserIdentity, error)
+	AddIdentity(ctx context.Context, identity domain.UserIdentity) error
 	UpdateUserProfile(ctx context.Context, user domain.User) (domain.User, error)
 	UpdateUserPassword(ctx context.Context, userID uuid.UUID, passwordHash string) error
+	MergeAccountInto(ctx context.Context, targetID, sourceID uuid.UUID) error
 }
 
 type FavoriteRepository interface {
