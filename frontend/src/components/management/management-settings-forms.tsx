@@ -60,6 +60,8 @@ type Props = {
   site: SiteSettingsFormData;
   roles: AdminRoleFormData[];
   canManageRoles: boolean;
+  canManageSite: boolean;
+  canManageRecipients: boolean;
   permissionOptions: PermissionOption[];
 };
 
@@ -81,6 +83,8 @@ export function ManagementSettingsForms({
   site,
   roles,
   canManageRoles,
+  canManageSite,
+  canManageRecipients,
   permissionOptions,
 }: Props) {
   const [error, setError] = useState<string | null>(null);
@@ -197,6 +201,7 @@ export function ManagementSettingsForms({
 
   return (
     <div className="space-y-10">
+      {canManageSite ? (
       <form onSubmit={saveSite} className="space-y-4 rounded-2xl border border-stone-200 bg-white p-5">
         <div>
           <h2 className="text-lg font-semibold text-stone-900">Идентичность сайта</h2>
@@ -243,7 +248,9 @@ export function ManagementSettingsForms({
           Сохранить сайт
         </button>
       </form>
+      ) : null}
 
+      {canManageRecipients ? (
       <form onSubmit={saveRecipients} className="space-y-6 rounded-2xl border border-stone-200 bg-white p-5">
         <div>
           <h2 className="text-lg font-semibold text-stone-900">Получатели уведомлений</h2>
@@ -310,6 +317,7 @@ export function ManagementSettingsForms({
           Сохранить получателей
         </button>
       </form>
+      ) : null}
 
       {canManageRoles ? (
         <section className="space-y-6 rounded-2xl border border-stone-200 bg-white p-5">

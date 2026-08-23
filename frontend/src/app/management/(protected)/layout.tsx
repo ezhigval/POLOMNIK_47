@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ManagementNav } from "@/components/management/management-nav";
 import { AdminLogoutButton } from "@/components/management/admin-logout-button";
-import { isManagementConfigured } from "@/lib/api/management";
+import { getManagementSession, isManagementConfigured } from "@/lib/api/management";
 import { isAdminAuthenticated } from "@/lib/auth/admin-session";
 import { siteConfig } from "@/lib/site-config";
 
@@ -17,6 +17,11 @@ export default async function ProtectedManagementLayout({ children }: { children
     redirect("/management/login");
   }
 
+  const session = await getManagementSession().catch(() => ({
+    full_admin: false,
+    permissions: [] as string[],
+  }));
+
   return (
     <div className="min-h-full bg-stone-100">
       <header className="border-b border-stone-200 bg-white">
@@ -25,7 +30,7 @@ export default async function ProtectedManagementLayout({ children }: { children
             {siteConfig.name} · Админка
           </Link>
           <div className="flex items-center gap-3">
-            <ManagementNav />
+            <ManagementNav fullAdmin={session.full_admin} permissions={session.permissions ?? []} />
             <AdminLogoutButton />
           </div>
         </div>

@@ -10,8 +10,13 @@ import {
   getManagementSystemInfo,
   listManagementIntegrationReferences,
   listManagementOutboxEvents,
+  type ManagementSystemInfo,
 } from "@/lib/api/management";
 import { formatDateTime, integrationSyncLabels, outboxStatusLabels } from "@/lib/format";
+import { ManagementNoAccess } from "@/components/management/management-no-access";
+import { canAccessManagementPage } from "@/lib/management-page-access";
+import { PERM, sessionHasPermission } from "@/lib/management-access";
+import { getManagementSession } from "@/lib/api/management";
 
 function adapterBadge(adapter: string, configured: boolean) {
   if (adapter === "noop" || !adapter) {
@@ -24,10 +29,30 @@ function adapterBadge(adapter: string, configured: boolean) {
 }
 
 export default async function ManagementIntegrationsPage() {
+  if (!(await canAccessManagementPage([PERM.integrations, PERM.stats]))) {
+    return <ManagementNoAccess />;
+  }
+  const session = await getManagementSession().catch(() => ({
+    full_admin: false,
+    permissions: [] as string[],
+  }));
+  const canIntegrations = sessionHasPermission(session, PERM.integrations);
+  const canStats = sessionHasPermission(session, PERM.stats);
+
+  const emptyInfo: ManagementSystemInfo = {
+    crm_adapter: "",
+    accounting_adapter: "",
+    notification_adapter: "",
+    telegram_configured: false,
+    bitrix_configured: false,
+    onec_configured: false,
+    outbox: { pending: 0, failed: 0, processed: 0 },
+  };
+
   const [references, outboxEvents, systemInfo] = await Promise.all([
-    listManagementIntegrationReferences(),
-    listManagementOutboxEvents(),
-    getManagementSystemInfo(),
+    canIntegrations ? listManagementIntegrationReferences().catch(() => []) : Promise.resolve([]),
+    canIntegrations ? listManagementOutboxEvents().catch(() => []) : Promise.resolve([]),
+    canStats ? getManagementSystemInfo().catch(() => emptyInfo) : Promise.resolve(emptyInfo),
   ]);
 
   const notificationEvents = outboxEvents.filter((event) =>
@@ -39,6 +64,8 @@ export default async function ManagementIntegrationsPage() {
 
   return (
     <div className="space-y-6">
+      {canStats ? (
+        <>
       <ManagementPanel
         title="Адаптеры (код готов, подключение — финальный этап)"
         description="По умолчанию все внешние сервисы в режиме noop. Включение и отладка — после наполнения контентом и тестов."
@@ -115,7 +142,11 @@ export default async function ManagementIntegrationsPage() {
           </div>
         </div>
       </ManagementPanel>
+        </>
+      ) : null}
 
+      {canIntegrations ? (
+        <>
       <ManagementPanel
         title="Синхронизация CRM / 1С"
         description="Записи появляются при CRM_ADAPTER=bitrix или ACCOUNTING_ADAPTER=onec. В noop таблицы пустые — это нормально."
@@ -236,6 +267,8 @@ export default async function ManagementIntegrationsPage() {
           </tbody>
         </ManagementTable>
       </ManagementPanel>
+        </>
+      ) : null}
     </div>
   );
 }

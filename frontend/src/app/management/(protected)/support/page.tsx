@@ -9,8 +9,14 @@ import {
 import { StatusBadge } from "@/components/management/status-badge";
 import { listManagementSupportThreads } from "@/lib/api/management";
 import { formatDateTime } from "@/lib/format";
+import { ManagementNoAccess } from "@/components/management/management-no-access";
+import { canAccessManagementPage } from "@/lib/management-page-access";
+import { PERM } from "@/lib/management-access";
 
 export default async function ManagementSupportPage() {
+  if (!(await canAccessManagementPage([PERM.support]))) {
+    return <ManagementNoAccess />;
+  }
   const threads = await listManagementSupportThreads();
 
   return (

@@ -3,12 +3,18 @@ import { notFound } from "next/navigation";
 import { PageEditor } from "@/components/management/cms/page-editor";
 import { getManagementCmsPage, listManagementCmsTemplates } from "@/lib/api/management";
 import { ApiError } from "@/lib/api/client";
+import { ManagementNoAccess } from "@/components/management/management-no-access";
+import { canAccessManagementPage } from "@/lib/management-page-access";
+import { PERM } from "@/lib/management-access";
 
 type PageProps = {
   params: Promise<{ id: string }>;
 };
 
 export default async function ManagementContentEditorPage({ params }: PageProps) {
+  if (!(await canAccessManagementPage([PERM.content]))) {
+    return <ManagementNoAccess />;
+  }
   const { id } = await params;
 
   let page;

@@ -6,12 +6,18 @@ import { StatusBadge } from "@/components/management/status-badge";
 import { ApiError } from "@/lib/api/client";
 import { getManagementSupportThread } from "@/lib/api/management";
 import { formatDateTime } from "@/lib/format";
+import { ManagementNoAccess } from "@/components/management/management-no-access";
+import { canAccessManagementPage } from "@/lib/management-page-access";
+import { PERM } from "@/lib/management-access";
 
 type PageProps = {
   params: Promise<{ id: string }>;
 };
 
 export default async function ManagementSupportThreadPage({ params }: PageProps) {
+  if (!(await canAccessManagementPage([PERM.support]))) {
+    return <ManagementNoAccess />;
+  }
   const { id } = await params;
 
   let thread;

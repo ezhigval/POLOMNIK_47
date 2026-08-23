@@ -11,8 +11,14 @@ import { StatusBadge } from "@/components/management/status-badge";
 import { deleteTourAction } from "@/app/management/actions";
 import { listManagementTours } from "@/lib/api/management";
 import { formatDateRange, formatPrice } from "@/lib/format";
+import { ManagementNoAccess } from "@/components/management/management-no-access";
+import { canAccessManagementPage } from "@/lib/management-page-access";
+import { PERM } from "@/lib/management-access";
 
 export default async function ManagementToursPage() {
+  if (!(await canAccessManagementPage([PERM.tours]))) {
+    return <ManagementNoAccess />;
+  }
   const tours = await listManagementTours();
 
   return (
