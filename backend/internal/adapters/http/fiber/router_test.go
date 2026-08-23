@@ -496,6 +496,73 @@ func TestOAuthWithBearerMergesAccounts(t *testing.T) {
 	}
 }
 
+func TestPatchMeUpdatesProfile(t *testing.T) {
+	store := memory.NewStore()
+	app := newTestAppWithStore(store, "secret-token")
+
+	registerReq := httptest.NewRequest(http.MethodPost, "/api/v1/auth/register", bytes.NewBufferString(`{
+		"name": "Старое Имя",
+		"email": "profile@example.com",
+		"phone": "+79001235555",
+		"password": "password1"
+	}`))
+	registerReq.Header.Set("Content-Type", "application/json")
+	registerResp, err := app.Test(registerReq)
+	if err != nil {
+		t.Fatalf("register: %v", err)
+	}
+	if registerResp.StatusCode != http.StatusCreated {
+		body, _ := io.ReadAll(registerResp.Body)
+		t.Fatalf("register status %d: %s", registerResp.StatusCode, body)
+	}
+	var registered struct {
+		Data struct {
+			Token string `json:"token"`
+		} `json:"data"`
+	}
+	if err := json.NewDecoder(registerResp.Body).Decode(&registered); err != nil {
+		t.Fatalf("decode register: %v", err)
+	}
+
+	unauth := httptest.NewRequest(http.MethodPatch, "/api/v1/me", bytes.NewBufferString(`{"name":"X"}`))
+	unauth.Header.Set("Content-Type", "application/json")
+	unauthResp, err := app.Test(unauth)
+	if err != nil {
+		t.Fatalf("unauth patch: %v", err)
+	}
+	if unauthResp.StatusCode != http.StatusUnauthorized {
+		t.Fatalf("expected 401, got %d", unauthResp.StatusCode)
+	}
+
+	patchReq := httptest.NewRequest(http.MethodPatch, "/api/v1/me", bytes.NewBufferString(`{
+		"name": "Новое Имя",
+		"email": "profile@example.com",
+		"phone": "+79001235555"
+	}`))
+	patchReq.Header.Set("Content-Type", "application/json")
+	patchReq.Header.Set("Authorization", "Bearer "+registered.Data.Token)
+	patchResp, err := app.Test(patchReq)
+	if err != nil {
+		t.Fatalf("patch: %v", err)
+	}
+	if patchResp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(patchResp.Body)
+		t.Fatalf("patch status %d: %s", patchResp.StatusCode, body)
+	}
+	var patched struct {
+		Data struct {
+			Name  string `json:"name"`
+			Email string `json:"email"`
+		} `json:"data"`
+	}
+	if err := json.NewDecoder(patchResp.Body).Decode(&patched); err != nil {
+		t.Fatalf("decode patch: %v", err)
+	}
+	if patched.Data.Name != "Новое Имя" {
+		t.Fatalf("name not updated: %+v", patched.Data)
+	}
+}
+
 func TestCreateAndListNews(t *testing.T) {
 	store := memory.NewStore()
 	app := newTestAppWithStore(store, "secret-token")

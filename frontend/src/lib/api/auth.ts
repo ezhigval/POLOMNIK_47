@@ -109,3 +109,20 @@ export async function fetchMyBookings(token: string): Promise<MyBooking[]> {
     headers: { Authorization: `Bearer ${token}` },
   });
 }
+
+export async function updateUserProfile(
+  token: string,
+  input: {
+    name: string;
+    email: string;
+    phone: string;
+    phone_check_id?: string | null;
+    website?: string | null;
+  },
+): Promise<User> {
+  return authRequest<User>("/me", {
+    method: "PATCH",
+    headers: { Authorization: `Bearer ${token}` },
+    body: JSON.stringify(input),
+  });
+}

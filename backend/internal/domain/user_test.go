@@ -42,3 +42,21 @@ func TestFillEmptyProfileIgnoresCaseOnEmail(t *testing.T) {
 		t.Fatalf("kept email changed: %q", got.Email)
 	}
 }
+
+func TestWithProfileAllowsEmptyPhone(t *testing.T) {
+	user := User{Name: "Старое", Phone: "+79001111111"}
+	got, err := user.WithProfile("Новое Имя", "user@example.com", "")
+	if err != nil {
+		t.Fatalf("with profile: %v", err)
+	}
+	if got.Name != "Новое Имя" || got.Email != "user@example.com" || got.Phone != "" {
+		t.Fatalf("unexpected profile: %+v", got)
+	}
+}
+
+func TestWithProfileRejectsEmptyName(t *testing.T) {
+	user := User{Name: "Анна"}
+	if _, err := user.WithProfile("  ", "", ""); err != ErrInvalidContactName {
+		t.Fatalf("got %v", err)
+	}
+}

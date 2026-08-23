@@ -40,6 +40,14 @@ type PhoneStartRequest struct {
 	Phone string `json:"phone"`
 }
 
+type UpdateProfileRequest struct {
+	Name         string `json:"name"`
+	Email        string `json:"email"`
+	Phone        string `json:"phone"`
+	PhoneCheckID string `json:"phone_check_id"`
+	Website      string `json:"website"`
+}
+
 type PhoneCheckRequest struct {
 	CheckID string `json:"check_id"`
 }
