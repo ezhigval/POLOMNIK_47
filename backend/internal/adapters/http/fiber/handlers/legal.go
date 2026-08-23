@@ -52,6 +52,24 @@ func (h *Handler) GetPublicLegalDocumentVersion(c *fiber.Ctx) error {
 	})
 }
 
+func (h *Handler) DownloadPublicLegalDocument(c *fiber.Ctx) error {
+	docType, err := domain.ParseLegalDocumentType(c.Params("type"))
+	if err != nil {
+		return writeAppError(c, &AppError{Status: 422, Code: "VALIDATION_ERROR", Message: "Некорректный тип документа"})
+	}
+	doc, err := h.legal.GetActiveByType(c.Context(), docType)
+	if err != nil {
+		return respondError(c, err, MapError)
+	}
+	filename := string(doc.Type) + "-v" + doc.Version + ".html"
+	c.Set("Content-Type", "text/html; charset=utf-8")
+	c.Set("Content-Disposition", `attachment; filename="`+filename+`"`)
+	body := "<!DOCTYPE html><html lang=\"ru\"><head><meta charset=\"utf-8\"><title>" +
+		doc.Title + "</title></head><body><h1>" + doc.Title + "</h1>" +
+		"<p>Версия " + doc.Version + "</p>" + doc.Content + "</body></html>"
+	return c.SendString(body)
+}
+
 func (h *Handler) RecordConsent(c *fiber.Ctx) error {
 	var req dto.RecordConsentRequest
 	if err := c.BodyParser(&req); err != nil {

@@ -25,6 +25,8 @@ export const legalDocumentTypes = {
   distribution: "distribution",
   marketing: "marketing",
   cookie: "cookie",
+  terms: "terms",
+  offer: "offer",
 } as const;
 
 export type LegalDocumentType = (typeof legalDocumentTypes)[keyof typeof legalDocumentTypes];
@@ -36,6 +38,8 @@ export const legalDocumentPaths: Record<LegalDocumentType, string> = {
   distribution: "/legal/distribution-consent",
   marketing: "/legal/marketing-consent",
   cookie: "/legal/cookie-policy",
+  terms: "/legal/terms",
+  offer: "/legal/offer",
 };
 
 export function legalDocumentHref(type: LegalDocumentType): string {

@@ -10,6 +10,8 @@ const DOC_TYPES = [
   { value: "distribution", label: "Согласие на распространение" },
   { value: "marketing", label: "Согласие на рекламу" },
   { value: "cookie", label: "Cookie Policy" },
+  { value: "terms", label: "Пользовательское соглашение" },
+  { value: "offer", label: "Публичная оферта" },
 ];
 
 export function PublishLegalDocumentForm() {

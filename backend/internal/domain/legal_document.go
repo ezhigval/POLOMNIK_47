@@ -15,6 +15,8 @@ const (
 	LegalDocTypeDistribution  LegalDocumentType = "distribution"
 	LegalDocTypeMarketing     LegalDocumentType = "marketing"
 	LegalDocTypeCookie        LegalDocumentType = "cookie"
+	LegalDocTypeTerms         LegalDocumentType = "terms"
+	LegalDocTypeOffer         LegalDocumentType = "offer"
 )
 
 var legalDocumentTypes = map[LegalDocumentType]struct{}{
@@ -23,6 +25,8 @@ var legalDocumentTypes = map[LegalDocumentType]struct{}{
 	LegalDocTypeDistribution:  {},
 	LegalDocTypeMarketing:     {},
 	LegalDocTypeCookie:        {},
+	LegalDocTypeTerms:         {},
+	LegalDocTypeOffer:         {},
 }
 
 func ParseLegalDocumentType(raw string) (LegalDocumentType, error) {

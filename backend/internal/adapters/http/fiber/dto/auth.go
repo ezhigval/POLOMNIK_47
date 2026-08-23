@@ -17,6 +17,7 @@ type RegisterRequest struct {
 	Website             string `json:"website"`
 	CaptchaToken        string `json:"captcha_token"`
 	ConsentPersonalData bool   `json:"consent_personal_data"`
+	ConsentTerms        bool   `json:"consent_terms"`
 	ConsentMarketing    bool   `json:"consent_marketing"`
 }
 

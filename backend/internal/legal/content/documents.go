@@ -25,6 +25,8 @@ func AllInitial(op operator.Config) []DocumentSpec {
 		{Type: domain.LegalDocTypeDistribution, Version: InitialVersion, Title: "Согласие на обработку персональных данных, разрешённых для распространения", Content: distributionConsent(op)},
 		{Type: domain.LegalDocTypeMarketing, Version: InitialVersion, Title: "Согласие на получение рекламных и информационно-маркетинговых сообщений", Content: marketingConsent(op)},
 		{Type: domain.LegalDocTypeCookie, Version: InitialVersion, Title: "Политика использования cookie и аналогичных технологий", Content: cookiePolicy(op)},
+		{Type: domain.LegalDocTypeTerms, Version: InitialVersion, Title: "Пользовательское соглашение", Content: termsOfUse(op)},
+		{Type: domain.LegalDocTypeOffer, Version: InitialVersion, Title: "Публичная оферта", Content: publicOffer(op)},
 	}
 }
 

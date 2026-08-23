@@ -7,16 +7,19 @@ import (
 )
 
 type OAuthLoginRequest struct {
-	Provider string `json:"provider"`
-	Subject  string `json:"subject"`
-	Email    string `json:"email"`
-	Name     string `json:"name"`
-	Phone    string `json:"phone"`
+	Provider            string `json:"provider"`
+	Subject             string `json:"subject"`
+	Email               string `json:"email"`
+	Name                string `json:"name"`
+	Phone               string `json:"phone"`
+	ConsentPersonalData bool   `json:"consent_personal_data"`
+	ConsentTerms        bool   `json:"consent_terms"`
 }
 
 type SendSupportMessageRequest struct {
-	Body    string `json:"body"`
-	Website string `json:"website"`
+	Body                string `json:"body"`
+	Website             string `json:"website"`
+	ConsentPersonalData bool   `json:"consent_personal_data"`
 }
 
 type SupportMessageResponse struct {

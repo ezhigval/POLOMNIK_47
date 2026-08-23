@@ -77,6 +77,7 @@ func NewRouter(cfg config.Config, log *slog.Logger, services Services, health He
 		services.AdminRoles,
 		services.Legal,
 		services.Consents,
+		services.Photos,
 		application.TelegramWebhookSecret(cfg.InternalAPISecret),
 		services.Captcha,
 		services.WebhookGuard,
@@ -120,6 +121,7 @@ func NewRouter(cfg config.Config, log *slog.Logger, services Services, health He
 	v1.Get("/pages/:slug", h.GetPublicCMSPage)
 	v1.Get("/site-settings", h.GetPublicSiteSettings)
 	v1.Get("/legal/documents", h.ListPublicLegalDocuments)
+	v1.Get("/legal/documents/:type/download", h.DownloadPublicLegalDocument)
 	v1.Get("/legal/documents/:type", h.GetPublicLegalDocument)
 	v1.Get("/legal/documents/:type/versions/:version", h.GetPublicLegalDocumentVersion)
 	v1.Post("/consents", appmiddleware.OptionalUserAuth(services.Auth), h.RecordConsent)
@@ -142,6 +144,10 @@ func NewRouter(cfg config.Config, log *slog.Logger, services Services, health He
 	me.Get("/support", h.GetSupportThread)
 	me.Post("/support/messages", supportLimiter, h.SendSupportMessage)
 	me.Get("/consents", h.ListMyConsents)
+	me.Get("/photos", h.ListMyPhotos)
+	me.Post("/photos", authLimiter, h.CreateMyPhoto)
+	me.Delete("/photos/:id", h.DeleteMyPhoto)
+	me.Post("/uploads", appmiddleware.RateLimit(30, time.Minute), handlers.UploadImage(cfg))
 
 	adminAuth := appmiddleware.AdminAuth(services.AdminRoles, cfg.AdminToken)
 	require := func(perm domain.Permission) fiber.Handler {

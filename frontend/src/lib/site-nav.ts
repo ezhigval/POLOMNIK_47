@@ -25,6 +25,8 @@ export const footerNavLinks: NavLink[] = [
   { href: "/support/chat", label: "Чат поддержки" },
   { href: "/legal", label: "Юридические документы" },
   { href: "/legal/privacy-policy", label: "Политика конфиденциальности" },
+  { href: "/legal/terms", label: "Пользовательское соглашение" },
+  { href: "/legal/offer", label: "Публичная оферта" },
 ];
 
 export const accountNavLinks: NavLink[] = [
@@ -33,6 +35,7 @@ export const accountNavLinks: NavLink[] = [
   { href: "/account/trips", label: "Мои поездки" },
   { href: "/account/favorites", label: "Избранное" },
   { href: "/account/consents", label: "Согласия" },
+  { href: "/account/photos", label: "Фотографии" },
   { href: "/support/chat", label: "Чат поддержки" },
 ];
 

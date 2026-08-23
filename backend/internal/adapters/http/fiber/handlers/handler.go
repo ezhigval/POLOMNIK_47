@@ -24,6 +24,7 @@ type Handler struct {
 	adminRoles            *application.AdminRoleService
 	legal                 *application.LegalDocumentService
 	consents              *application.ConsentService
+	photos                *application.UserPhotoService
 	telegramWebhookSecret string
 	captcha               ports.CaptchaPort
 	webhookGuard          *application.WebhookGuard
@@ -49,6 +50,7 @@ func New(
 	adminRoles *application.AdminRoleService,
 	legal *application.LegalDocumentService,
 	consents *application.ConsentService,
+	photos *application.UserPhotoService,
 	telegramWebhookSecret string,
 	captcha ports.CaptchaPort,
 	webhookGuard *application.WebhookGuard,
@@ -72,6 +74,7 @@ func New(
 		adminRoles:            adminRoles,
 		legal:                 legal,
 		consents:              consents,
+		photos:                photos,
 		telegramWebhookSecret: telegramWebhookSecret,
 		captcha:               captcha,
 		webhookGuard:          webhookGuard,

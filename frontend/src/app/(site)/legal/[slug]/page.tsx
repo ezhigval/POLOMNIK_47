@@ -10,6 +10,8 @@ const slugToType: Record<string, LegalDocumentType> = {
   "distribution-consent": "distribution",
   "marketing-consent": "marketing",
   "cookie-policy": "cookie",
+  terms: "terms",
+  offer: "offer",
 };
 
 type PageProps = {

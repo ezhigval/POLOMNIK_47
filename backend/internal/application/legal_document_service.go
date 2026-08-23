@@ -2,6 +2,7 @@ package application
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/google/uuid"
@@ -25,16 +26,16 @@ func (s *LegalDocumentService) BootstrapInitialDocuments(ctx context.Context) er
 	if s.repo == nil {
 		return nil
 	}
-	has, err := s.repo.HasAnyDocuments(ctx)
-	if err != nil {
-		return err
-	}
-	if has {
-		return nil
-	}
 
 	now := time.Now().UTC()
 	for _, spec := range content.AllInitial(s.op) {
+		_, err := s.repo.GetActiveByType(ctx, spec.Type)
+		if err == nil {
+			continue
+		}
+		if !errors.Is(err, domain.ErrNotFound) {
+			return err
+		}
 		doc, err := domain.NewLegalDocument(domain.NewLegalDocumentInput{
 			ID:          uuid.New(),
 			Type:        spec.Type,

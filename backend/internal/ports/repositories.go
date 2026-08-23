@@ -101,6 +101,12 @@ type PassengerRepository interface {
 	DeletePassenger(ctx context.Context, userID, id uuid.UUID) error
 }
 
+type UserPhotoRepository interface {
+	ListUserPhotos(ctx context.Context, userID uuid.UUID) ([]domain.UserPhoto, error)
+	CreateUserPhoto(ctx context.Context, photo domain.UserPhoto) (domain.UserPhoto, error)
+	DeleteUserPhoto(ctx context.Context, userID, id uuid.UUID) error
+}
+
 type FavoriteRepository interface {
 	AddFavorite(ctx context.Context, userID, tourID uuid.UUID) error
 	RemoveFavorite(ctx context.Context, userID, tourID uuid.UUID) error

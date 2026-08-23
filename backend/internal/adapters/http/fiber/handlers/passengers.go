@@ -6,6 +6,7 @@ import (
 	"palomnik/internal/adapters/http/fiber/dto"
 	appmiddleware "palomnik/internal/adapters/http/fiber/middleware"
 	"palomnik/internal/application"
+	"palomnik/internal/domain"
 )
 
 func (h *Handler) ListMyPassengers(c *fiber.Ctx) error {
@@ -30,13 +31,44 @@ func (h *Handler) CreateMyPassenger(c *fiber.Ctx) error {
 		return writeAppError(c, &AppError{Status: 401, Code: "UNAUTHORIZED", Message: "Нужно войти в аккаунт"})
 	}
 
-	input, err := parsePassengerRequest(c)
+	var req dto.PassengerRequest
+	if err := c.BodyParser(&req); err != nil {
+		return writeAppError(c, &AppError{Status: 422, Code: "VALIDATION_ERROR", Message: "Некорректные данные запроса"})
+	}
+	if err := rejectHoneypot(req.Website); err != nil {
+		return writeAppError(c, err)
+	}
+	if !req.ConsentPersonalData {
+		return writeAppError(c, &AppError{
+			Status:  422,
+			Code:    "CONSENT_REQUIRED",
+			Message: "Необходимо согласие на обработку персональных данных",
+		})
+	}
+
+	birthDate, err := parseRequiredDate(req.BirthDate)
 	if err != nil {
 		return writeAppError(c, err)
 	}
 
-	created, err := h.passengers.Create(c.Context(), userID, input)
+	created, err := h.passengers.Create(c.Context(), userID, application.PassengerInput{
+		Name:      req.Name,
+		Phone:     req.Phone,
+		BirthDate: birthDate,
+		Passport:  req.Passport,
+	})
 	if err != nil {
+		return respondError(c, err, MapError)
+	}
+
+	passengerID := created.ID
+	if _, err := h.consents.RecordConsent(c.Context(), application.RecordConsentInput{
+		ConsentType: domain.ConsentTypePersonalData,
+		UserID:      &userID,
+		RequestID:   &passengerID,
+		IP:          c.IP(),
+		UserAgent:   c.Get("User-Agent"),
+	}); err != nil {
 		return respondError(c, err, MapError)
 	}
 

@@ -193,6 +193,7 @@ func run() int {
 		),
 		Favorites:      application.NewFavoriteService(favoriteRepo, tourRepo),
 		Passengers:     application.NewPassengerService(passengerRepo(tourRepo)),
+		Photos:         application.NewUserPhotoService(photoRepo(tourRepo)),
 		Support:        supportService,
 		CMS:            application.NewCMSService(cmsRepo),
 		News:           newsService,
@@ -317,6 +318,13 @@ func txManager(repo ports.TourRepository) ports.TransactionManager {
 func passengerRepo(repo ports.TourRepository) ports.PassengerRepository {
 	if passengers, ok := repo.(ports.PassengerRepository); ok {
 		return passengers
+	}
+	return nil
+}
+
+func photoRepo(repo ports.TourRepository) ports.UserPhotoRepository {
+	if photos, ok := repo.(ports.UserPhotoRepository); ok {
+		return photos
 	}
 	return nil
 }

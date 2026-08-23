@@ -33,11 +33,8 @@ import {
   deleteManagementRole,
   assignManagementRoleUser,
   sendManagementSupportMessage,
-<<<<<<< HEAD
   requestManagementSupportDraft,
-=======
   publishManagementLegalDocument,
->>>>>>> f9f53b4 (feat(legal): stages 9-16 reviews, cookie, cabinet, admin, tests)
   type CmsBlockCreateInput,
   type CmsBlockUpdateInput,
   type CmsPageUpdateInput,

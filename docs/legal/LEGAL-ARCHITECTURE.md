@@ -14,6 +14,8 @@
 | 3 | `distribution` | Согласие на распространение ПД | Добровольное: публикация отзывов, фото |
 | 4 | `marketing` | Согласие на рекламу | Добровольное: рассылки, акции |
 | 5 | `cookie` | Cookie Policy | Категории cookie, аналитика |
+| 6 | `terms` | Пользовательское соглашение | Принятие правил сайта (регистрация, OAuth) |
+| 7 | `offer` | Публичная оферта | Условия оказания услуг (черновик) |
 
 ---
 
@@ -21,11 +23,12 @@
 
 | Документ | Форма / механизм | Checkbox |
 |----------|------------------|----------|
-| `personal_data` | Регистрация, заявка, отзыв (обработка) | Обязательный, unchecked |
+| `personal_data` | Регистрация, заявка, отзыв, пассажир, поддержка, фото, OAuth | Обязательный, unchecked |
 | `marketing` | Регистрация, заявка, ЛК | Необязательный, unchecked |
 | `distribution` | Отзыв (публикация), фото | Необязательный, unchecked |
+| `terms` | Регистрация, OAuth (новый аккаунт) | Обязательный, unchecked |
 | `cookie` | Cookie banner | Три варианта выбора |
-| `privacy_policy` | Footer, ссылки из других документов | — |
+| `privacy_policy` / `offer` | Footer, ссылки | — |
 
 Дополнительно:
 - Публичная форма отзыва: `/reviews` + `POST /api/v1/reviews`
@@ -40,6 +43,7 @@
 | consent_type | Связанный документ | Обязательность |
 |--------------|-------------------|----------------|
 | `personal_data` | `personal_data` | Да (регистрация, заявка) |
+| `terms` | `terms` | Да (регистрация, OAuth) |
 | `marketing` | `marketing` | Нет |
 | `distribution` | `distribution` | Нет |
 | `cookie_all` | `cookie` | Нет (выбор пользователя) |
@@ -78,6 +82,7 @@ id, user_id, request_id, consent_type, document_id, document_version, accepted_a
 ```
 GET  /api/v1/legal/documents
 GET  /api/v1/legal/documents/:type
+GET  /api/v1/legal/documents/:type/download
 GET  /api/v1/legal/documents/:type/versions/:version
 POST /api/v1/consents
 ```
@@ -85,7 +90,11 @@ POST /api/v1/consents
 ### Личный кабинет
 
 ```
-GET /api/v1/me/consents
+GET    /api/v1/me/consents
+GET    /api/v1/me/photos
+POST   /api/v1/me/photos
+DELETE /api/v1/me/photos/:id
+POST   /api/v1/me/uploads
 ```
 
 ### Админка

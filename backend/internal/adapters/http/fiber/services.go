@@ -25,6 +25,7 @@ type Services struct {
 	AdminRoles     *application.AdminRoleService
 	Legal          *application.LegalDocumentService
 	Consents       *application.ConsentService
+	Photos         *application.UserPhotoService
 	Captcha        ports.CaptchaPort
 	Messenger      ports.MessengerPort
 	Publisher      ports.PublisherPort

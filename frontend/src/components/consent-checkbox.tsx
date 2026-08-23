@@ -90,6 +90,27 @@ export function MarketingConsentCheckbox({ checked, onChange, disabled }: Market
   );
 }
 
+type TermsConsentProps = {
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+  disabled?: boolean;
+};
+
+export function TermsConsentCheckbox({ checked, onChange, disabled }: TermsConsentProps) {
+  return (
+    <ConsentCheckbox
+      name="consent_terms"
+      checked={checked}
+      onChange={onChange}
+      required
+      disabled={disabled}
+      documentType="terms"
+      documentTitle="Пользовательского соглашения"
+      labelPrefix="Я принимаю условия"
+    />
+  );
+}
+
 type DistributionConsentProps = {
   checked: boolean;
   onChange: (checked: boolean) => void;

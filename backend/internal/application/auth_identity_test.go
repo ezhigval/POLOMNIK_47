@@ -21,16 +21,21 @@ func TestOAuthLoginCreatesIdentity(t *testing.T) {
 	svc := testAuthService(store)
 
 	result, err := svc.OAuthLogin(ctx, OAuthLoginInput{
-		Provider: "Yandex",
-		Subject:  "ya-100",
-		Email:    "oauth@example.com",
-		Name:     "Яндекс Пользователь",
+		Provider:            "Yandex",
+		Subject:             "ya-100",
+		Email:               "oauth@example.com",
+		Name:                "Яндекс Пользователь",
+		ConsentPersonalData: true,
+		ConsentTerms:        true,
 	})
 	if err != nil {
 		t.Fatalf("oauth login: %v", err)
 	}
 	if result.Linked || result.Merged {
 		t.Fatalf("fresh login should not be a link/merge: %+v", result)
+	}
+	if !result.Created {
+		t.Fatalf("expected Created=true for new oauth user")
 	}
 
 	identities, err := svc.ListIdentities(ctx, result.User.ID)
@@ -41,12 +46,32 @@ func TestOAuthLoginCreatesIdentity(t *testing.T) {
 		t.Fatalf("expected yandex identity, got %+v", identities)
 	}
 
-	again, err := svc.OAuthLogin(ctx, OAuthLoginInput{Provider: "yandex", Subject: "ya-100", Name: "Яндекс Пользователь"})
+	again, err := svc.OAuthLogin(ctx, OAuthLoginInput{
+		Provider: "yandex",
+		Subject:  "ya-100",
+		Name:     "Яндекс Пользователь",
+	})
 	if err != nil {
 		t.Fatalf("second oauth login: %v", err)
 	}
 	if again.User.ID != result.User.ID {
 		t.Fatalf("expected same user, got %s vs %s", again.User.ID, result.User.ID)
+	}
+	if again.Created {
+		t.Fatalf("existing oauth login should not set Created")
+	}
+}
+
+func TestOAuthLoginRequiresConsentForNewUser(t *testing.T) {
+	ctx := context.Background()
+	svc := testAuthService(memory.NewStore())
+	_, err := svc.OAuthLogin(ctx, OAuthLoginInput{
+		Provider: "yandex",
+		Subject:  "ya-no-consent",
+		Name:     "Без согласия",
+	})
+	if !errors.Is(err, domain.ErrConsentRequired) {
+		t.Fatalf("expected ErrConsentRequired, got %v", err)
 	}
 }
 
@@ -106,10 +131,12 @@ func TestOAuthMergeMovesBookingAndKeepsEmail(t *testing.T) {
 	}
 
 	other, err := svc.OAuthLogin(ctx, OAuthLoginInput{
-		Provider: "yandex",
-		Subject:  "ya-merge",
-		Email:    "other@example.com",
-		Name:     "Другой",
+		Provider:            "yandex",
+		Subject:             "ya-merge",
+		Email:               "other@example.com",
+		Name:                "Другой",
+		ConsentPersonalData: true,
+		ConsentTerms:        true,
 	})
 	if err != nil {
 		t.Fatalf("oauth other: %v", err)

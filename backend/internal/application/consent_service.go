@@ -35,6 +35,8 @@ func documentTypeForConsent(consentType domain.ConsentType) domain.LegalDocument
 		return domain.LegalDocTypeDistribution
 	case domain.ConsentTypeCookieAll, domain.ConsentTypeCookieEssential, domain.ConsentTypeCookieReject:
 		return domain.LegalDocTypeCookie
+	case domain.ConsentTypeTerms:
+		return domain.LegalDocTypeTerms
 	default:
 		return domain.LegalDocTypePersonalData
 	}

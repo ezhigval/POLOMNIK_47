@@ -36,6 +36,7 @@ type Store struct {
 	adminAssignments    []domain.AdminRoleAssignment
 	legalDocuments      map[uuid.UUID]domain.LegalDocument
 	consents            map[uuid.UUID]domain.Consent
+	userPhotos         map[uuid.UUID]domain.UserPhoto
 }
 
 func (s *Store) WithinTransaction(ctx context.Context, fn func(context.Context) error) error {
@@ -64,6 +65,7 @@ func NewStore() *Store {
 		adminAssignments: nil,
 		legalDocuments:   make(map[uuid.UUID]domain.LegalDocument),
 		consents:         make(map[uuid.UUID]domain.Consent),
+		userPhotos:      make(map[uuid.UUID]domain.UserPhoto),
 	}
 }
 

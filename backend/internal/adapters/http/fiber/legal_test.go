@@ -39,6 +39,7 @@ func TestRegisterRecordsConsent(t *testing.T) {
 		"phone": "+79001112234",
 		"password": "password1",
 		"consent_personal_data": true,
+		"consent_terms": true,
 		"consent_marketing": true
 	}`))
 	req.Header.Set("Content-Type", "application/json")

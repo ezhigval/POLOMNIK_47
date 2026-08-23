@@ -60,9 +60,17 @@ export function LegalDocumentView({ doc, type }: LegalDocumentViewProps) {
       />
 
       <footer className="mt-10 border-t border-stone-200 pt-6 text-sm text-stone-500">
-        <Link href={legalDocumentPaths[type]} className="font-medium text-brand-800 hover:underline">
-          Постоянная ссылка на документ
-        </Link>
+        <div className="flex flex-wrap gap-4">
+          <Link href={legalDocumentPaths[type]} className="font-medium text-brand-800 hover:underline">
+            Постоянная ссылка на документ
+          </Link>
+          <a
+            href={`/api/v1/legal/documents/${type}/download`}
+            className="font-medium text-brand-800 hover:underline"
+          >
+            Скачать (HTML)
+          </a>
+        </div>
       </footer>
     </div>
   );

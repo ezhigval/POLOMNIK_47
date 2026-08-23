@@ -61,4 +61,5 @@ var (
 	ErrInvalidConsentType         = errors.New("invalid consent type")
 	ErrInvalidAcceptedAt          = errors.New("invalid accepted at")
 	ErrConsentRequired            = errors.New("consent required")
+	ErrInvalidPhotoURL            = errors.New("invalid photo url")
 )

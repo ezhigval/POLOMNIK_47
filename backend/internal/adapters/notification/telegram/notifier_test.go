@@ -30,10 +30,13 @@ func TestFormatNewBookingMessage(t *testing.T) {
 	tour := domain.Tour{Title: "Оптина пустынь"}
 
 	msg := FormatNewBookingMessage(booking, tour, "http://localhost:3000/management/bookings")
-	for _, want := range []string{"Иван", "+79990000000", "Оптина", "30000", "Overbooking", "management"} {
+	for _, want := range []string{"Иван", "**********00", "*@b.c", "Оптина", "30000", "Overbooking", "management"} {
 		if !strings.Contains(msg, want) {
 			t.Fatalf("expected %q in message, got:\n%s", want, msg)
 		}
+	}
+	if strings.Contains(msg, "+79990000000") || strings.Contains(msg, "a@b.c") {
+		t.Fatalf("expected phone/email to be masked, got:\n%s", msg)
 	}
 }
 
