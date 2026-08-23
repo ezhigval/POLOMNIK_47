@@ -11,6 +11,7 @@ type OAuthLoginRequest struct {
 	Subject  string `json:"subject"`
 	Email    string `json:"email"`
 	Name     string `json:"name"`
+	Phone    string `json:"phone"`
 }
 
 type SendSupportMessageRequest struct {

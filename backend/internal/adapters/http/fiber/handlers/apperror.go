@@ -56,6 +56,8 @@ func MapError(err error) *AppError {
 		return &AppError{Status: 409, Code: "DUPLICATE_EMAIL", Message: "Этот email уже зарегистрирован"}
 	case errors.Is(err, domain.ErrDuplicatePhone):
 		return &AppError{Status: 409, Code: "DUPLICATE_PHONE", Message: "Этот телефон уже зарегистрирован"}
+	case errors.Is(err, domain.ErrDuplicateIdentity):
+		return &AppError{Status: 409, Code: "DUPLICATE_IDENTITY", Message: "Этот вход уже привязан к другому аккаунту"}
 	case errors.Is(err, domain.ErrDuplicateSlug):
 		return &AppError{Status: 409, Code: "DUPLICATE_SLUG", Message: "Статья или страница с таким адресом уже есть"}
 	case errors.Is(err, domain.ErrDuplicatePath):

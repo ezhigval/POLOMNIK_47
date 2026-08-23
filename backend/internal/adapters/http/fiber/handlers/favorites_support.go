@@ -16,17 +16,19 @@ func (h *Handler) OAuthLogin(c *fiber.Ctx) error {
 	}
 
 	result, err := h.auth.OAuthLogin(c.Context(), application.OAuthLoginInput{
-		Provider: req.Provider,
-		Subject:  req.Subject,
-		Email:    req.Email,
-		Name:     req.Name,
+		Provider:     req.Provider,
+		Subject:      req.Subject,
+		Email:        req.Email,
+		Name:         req.Name,
+		Phone:        req.Phone,
+		SessionToken: bearerToken(c),
 	})
 	if err != nil {
 		return respondError(c, err, MapError)
 	}
 
 	return c.JSON(dto.DataEnvelope[dto.AuthResponse]{
-		Data: dto.AuthResponse{Token: result.Token, User: dto.ToUserResponse(result.User)},
+		Data: dto.ToOAuthAuthResponse(result.Token, result.User, result.Linked, result.Merged, result.Conflicts),
 	})
 }
 

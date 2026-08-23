@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"strings"
+
 	"github.com/gofiber/fiber/v2"
 
 	"palomnik/internal/adapters/http/fiber/dto"
@@ -236,6 +238,26 @@ func (h *Handler) Me(c *fiber.Ctx) error {
 	})
 }
 
+func (h *Handler) MyIdentities(c *fiber.Ctx) error {
+	userID, ok := appmiddleware.UserIDFromContext(c)
+	if !ok {
+		return writeAppError(c, &AppError{
+			Status:  401,
+			Code:    "UNAUTHORIZED",
+			Message: "Нужно войти в аккаунт",
+		})
+	}
+
+	identities, err := h.auth.ListIdentities(c.Context(), userID)
+	if err != nil {
+		return respondError(c, err, MapError)
+	}
+
+	return c.JSON(dto.DataEnvelope[[]dto.UserIdentityResponse]{
+		Data: dto.ToUserIdentityResponses(identities),
+	})
+}
+
 func (h *Handler) MyBookings(c *fiber.Ctx) error {
 	userID, ok := appmiddleware.UserIDFromContext(c)
 	if !ok {
@@ -255,4 +277,13 @@ func (h *Handler) MyBookings(c *fiber.Ctx) error {
 		Data: dto.ToMyBookingResponses(list.Items),
 		Meta: list.Meta,
 	})
+}
+
+func bearerToken(c *fiber.Ctx) string {
+	header := strings.TrimSpace(c.Get("Authorization"))
+	const prefix = "Bearer "
+	if !strings.HasPrefix(header, prefix) {
+		return ""
+	}
+	return strings.TrimSpace(header[len(prefix):])
 }

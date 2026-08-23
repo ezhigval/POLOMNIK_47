@@ -79,8 +79,11 @@ type PhoneStatusResponse struct {
 }
 
 type AuthResponse struct {
-	Token string       `json:"token"`
-	User  UserResponse `json:"user"`
+	Token      string       `json:"token"`
+	User       UserResponse `json:"user"`
+	Linked     bool         `json:"linked,omitempty"`
+	Merged     bool         `json:"merged,omitempty"`
+	KeptFields []string     `json:"kept_fields,omitempty"`
 }
 
 type UserResponse struct {
@@ -99,6 +102,43 @@ func ToUserResponse(user domain.User) UserResponse {
 		Name:      user.Name,
 		CreatedAt: user.CreatedAt,
 	}
+}
+
+func ToOAuthAuthResponse(token string, user domain.User, linked, merged bool, conflicts []domain.ProfileConflict) AuthResponse {
+	resp := AuthResponse{
+		Token:  token,
+		User:   ToUserResponse(user),
+		Linked: linked,
+		Merged: merged,
+	}
+	if len(conflicts) == 0 {
+		return resp
+	}
+	resp.KeptFields = make([]string, 0, len(conflicts))
+	for _, conflict := range conflicts {
+		if conflict.Field != "" {
+			resp.KeptFields = append(resp.KeptFields, conflict.Field)
+		}
+	}
+	return resp
+}
+
+type UserIdentityResponse struct {
+	Provider  string    `json:"provider"`
+	Subject   string    `json:"subject"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
+func ToUserIdentityResponses(identities []domain.UserIdentity) []UserIdentityResponse {
+	items := make([]UserIdentityResponse, 0, len(identities))
+	for _, identity := range identities {
+		items = append(items, UserIdentityResponse{
+			Provider:  identity.Provider,
+			Subject:   identity.Subject,
+			CreatedAt: identity.CreatedAt,
+		})
+	}
+	return items
 }
 
 type MyBookingResponse struct {

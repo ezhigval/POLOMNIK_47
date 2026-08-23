@@ -10,23 +10,31 @@ function siteOrigin(request: NextRequest): string {
   return process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") || new URL(request.url).origin;
 }
 
-async function completeOAuth(input: {
-  provider: string;
-  subject: string;
-  email?: string;
-  name?: string;
-  phone?: string;
-}): Promise<{ token: string } | { error: string; status: number }> {
+async function completeOAuth(
+  input: {
+    provider: string;
+    subject: string;
+    email?: string;
+    name?: string;
+    phone?: string;
+  },
+  request: NextRequest,
+): Promise<OAuthCompleteResult | { error: string; status: number }> {
   const secret = process.env.INTERNAL_API_SECRET;
   if (!secret) {
     return { error: UNAVAILABLE, status: 503 };
   }
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    "X-Internal-Secret": secret,
+  };
+  const session = request.cookies.get(AUTH_COOKIE)?.value;
+  if (session) {
+    headers.Authorization = `Bearer ${session}`;
+  }
   const response = await fetch(`${getApiBaseUrl()}/auth/oauth`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "X-Internal-Secret": secret,
-    },
+    headers,
     body: JSON.stringify({
       provider: input.provider,
       subject: input.subject,
@@ -50,7 +58,46 @@ async function completeOAuth(input: {
   if (typeof token !== "string" || !token) {
     return { error: "Пустой ответ OAuth", status: 502 };
   }
-  return { token };
+  const kept = Array.isArray(body?.data?.kept_fields)
+    ? (body.data.kept_fields as unknown[]).filter((item): item is string => typeof item === "string")
+    : [];
+  return {
+    token,
+    linked: Boolean(body?.data?.linked),
+    merged: Boolean(body?.data?.merged),
+    kept_fields: kept,
+  };
+}
+
+export type OAuthCompleteResult = {
+  token: string;
+  linked?: boolean;
+  merged?: boolean;
+  kept_fields?: string[];
+};
+
+const KEPT_FIELDS = new Set(["name", "email", "phone"]);
+
+export function redirectAfterOAuth(request: NextRequest, result: OAuthCompleteResult): NextResponse {
+  const target = result.linked
+    ? accountLinkURL(request, result)
+    : new URL("/account/trips", request.url);
+  const response = NextResponse.redirect(target);
+  setSessionCookie(response, result.token);
+  return response;
+}
+
+function accountLinkURL(request: NextRequest, result: OAuthCompleteResult): URL {
+  const url = new URL("/account", request.url);
+  url.searchParams.set("linked", "1");
+  if (result.merged) {
+    url.searchParams.set("merged", "1");
+    const kept = (result.kept_fields ?? []).filter((field) => KEPT_FIELDS.has(field)).join(",");
+    if (kept) {
+      url.searchParams.set("kept", kept);
+    }
+  }
+  return url;
 }
 
 export function setSessionCookie(response: NextResponse, token: string) {
@@ -119,7 +166,7 @@ export async function exchangeYandex(code: string, request: NextRequest) {
     subject: String(info.id),
     email: info.default_email || info.emails?.[0] || "",
     name: info.real_name || info.display_name || info.login || "",
-  });
+  }, request);
 }
 
 export async function exchangeVK(code: string, request: NextRequest) {
@@ -146,7 +193,7 @@ export async function exchangeVK(code: string, request: NextRequest) {
     subject: String(tokenBody.user_id),
     email: tokenBody.email || "",
     name: "",
-  });
+  }, request);
 }
 
 export async function exchangeMax(code: string, request: NextRequest) {
@@ -186,7 +233,7 @@ export async function exchangeMax(code: string, request: NextRequest) {
     subject: String(subject),
     email: info.email || "",
     name: info.name || info.display_name || "",
-  });
+  }, request);
 }
 
 export function verifyTelegramLogin(payload: Record<string, string>): boolean {
@@ -207,6 +254,22 @@ export function verifyTelegramLogin(payload: Record<string, string>): boolean {
   } catch {
     return false;
   }
+}
+
+export async function completeTelegramOAuth(
+  params: Record<string, string>,
+  request: NextRequest,
+): Promise<OAuthCompleteResult | { error: string; status: number }> {
+  return completeOAuth(
+    {
+      provider: "telegram",
+      subject: params.id,
+      name: [params.first_name, params.last_name].filter(Boolean).join(" "),
+      email: "",
+      phone: "",
+    },
+    request,
+  );
 }
 
 export { SOCIAL_AUTH_PATHS };

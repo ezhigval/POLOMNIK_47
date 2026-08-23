@@ -118,6 +118,7 @@ func NewRouter(cfg config.Config, log *slog.Logger, services Services, health He
 
 	me := v1.Group("/me", appmiddleware.RequireUserAuth(services.Auth))
 	me.Get("/", h.Me)
+	me.Get("/identities", h.MyIdentities)
 	me.Get("/bookings", h.MyBookings)
 	me.Get("/favorites", h.ListFavoriteIDs)
 	me.Post("/favorites/:tourId", h.AddFavorite)

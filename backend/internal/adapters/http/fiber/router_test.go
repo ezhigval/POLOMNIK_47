@@ -320,6 +320,182 @@ func TestOAuthRequiresInternalSecret(t *testing.T) {
 	}
 }
 
+func TestOAuthWithBearerMergesAccounts(t *testing.T) {
+	store := memory.NewStore()
+	app := newTestAppWithStore(store, "secret-token")
+	ctx := context.Background()
+
+	registerReq := httptest.NewRequest(http.MethodPost, "/api/v1/auth/register", bytes.NewBufferString(`{
+		"name": "Текущий",
+		"email": "keep@example.com",
+		"phone": "+79001234444",
+		"password": "password1"
+	}`))
+	registerReq.Header.Set("Content-Type", "application/json")
+	registerResp, err := app.Test(registerReq)
+	if err != nil {
+		t.Fatalf("register: %v", err)
+	}
+	if registerResp.StatusCode != http.StatusCreated {
+		t.Fatalf("register status %d", registerResp.StatusCode)
+	}
+	var registered struct {
+		Data struct {
+			Token string `json:"token"`
+			User  struct {
+				ID string `json:"id"`
+			} `json:"user"`
+		} `json:"data"`
+	}
+	if err := json.NewDecoder(registerResp.Body).Decode(&registered); err != nil {
+		t.Fatalf("decode register: %v", err)
+	}
+
+	oauthReq := httptest.NewRequest(http.MethodPost, "/api/v1/auth/oauth", bytes.NewBufferString(`{
+		"provider": "yandex",
+		"subject": "ya-http-merge",
+		"email": "other@example.com",
+		"name": "Другой"
+	}`))
+	oauthReq.Header.Set("Content-Type", "application/json")
+	oauthReq.Header.Set("X-Internal-Secret", config.DefaultInternalAPISecret)
+	oauthResp, err := app.Test(oauthReq)
+	if err != nil {
+		t.Fatalf("oauth create: %v", err)
+	}
+	if oauthResp.StatusCode != http.StatusOK {
+		t.Fatalf("oauth create status %d", oauthResp.StatusCode)
+	}
+	var created struct {
+		Data struct {
+			User struct {
+				ID string `json:"id"`
+			} `json:"user"`
+		} `json:"data"`
+	}
+	if err := json.NewDecoder(oauthResp.Body).Decode(&created); err != nil {
+		t.Fatalf("decode oauth create: %v", err)
+	}
+	otherID, err := uuid.Parse(created.Data.User.ID)
+	if err != nil {
+		t.Fatalf("parse other id: %v", err)
+	}
+
+	tour, err := domain.NewTour(domain.NewTourInput{
+		ID:         uuid.MustParse("33333333-3333-3333-3333-333333333333"),
+		Slug:       "merge-tour",
+		Title:      "Merge Tour",
+		Price:      10000,
+		Currency:   "RUB",
+		DateStart:  time.Now().UTC().AddDate(0, 0, 30),
+		DateEnd:    time.Now().UTC().AddDate(0, 0, 34),
+		SlotsTotal: 10,
+		SlotsLeft:  10,
+		Location:   "Tikhvin",
+		IsActive:   true,
+	})
+	if err != nil {
+		t.Fatalf("new tour: %v", err)
+	}
+	if _, err := store.CreateTour(ctx, tour); err != nil {
+		t.Fatalf("store tour: %v", err)
+	}
+	booking, err := domain.NewBooking(domain.NewBookingInput{
+		ID:          uuid.MustParse("44444444-4444-4444-4444-444444444444"),
+		Tour:        tour,
+		UserID:      &otherID,
+		Name:        "Другой",
+		Phone:       "+79001230099",
+		PeopleCount: 1,
+	})
+	if err != nil {
+		t.Fatalf("new booking: %v", err)
+	}
+	if _, err := store.CreateBooking(ctx, booking); err != nil {
+		t.Fatalf("store booking: %v", err)
+	}
+
+	mergeReq := httptest.NewRequest(http.MethodPost, "/api/v1/auth/oauth", bytes.NewBufferString(`{
+		"provider": "yandex",
+		"subject": "ya-http-merge",
+		"name": "Другой"
+	}`))
+	mergeReq.Header.Set("Content-Type", "application/json")
+	mergeReq.Header.Set("X-Internal-Secret", config.DefaultInternalAPISecret)
+	mergeReq.Header.Set("Authorization", "Bearer "+registered.Data.Token)
+	mergeResp, err := app.Test(mergeReq)
+	if err != nil {
+		t.Fatalf("oauth merge: %v", err)
+	}
+	if mergeResp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(mergeResp.Body)
+		t.Fatalf("oauth merge status %d: %s", mergeResp.StatusCode, body)
+	}
+	var merged struct {
+		Data struct {
+			Linked     bool     `json:"linked"`
+			Merged     bool     `json:"merged"`
+			KeptFields []string `json:"kept_fields"`
+			User       struct {
+				ID    string `json:"id"`
+				Email string `json:"email"`
+			} `json:"user"`
+		} `json:"data"`
+	}
+	if err := json.NewDecoder(mergeResp.Body).Decode(&merged); err != nil {
+		t.Fatalf("decode merge: %v", err)
+	}
+	if !merged.Data.Linked || !merged.Data.Merged {
+		t.Fatalf("expected linked merge, got %+v", merged.Data)
+	}
+	if merged.Data.User.ID != registered.Data.User.ID {
+		t.Fatalf("merge should stay on current user")
+	}
+	if merged.Data.User.Email != "keep@example.com" {
+		t.Fatalf("email overwritten: %q", merged.Data.User.Email)
+	}
+	foundEmail := false
+	for _, field := range merged.Data.KeptFields {
+		if field == "email" {
+			foundEmail = true
+		}
+	}
+	if !foundEmail {
+		t.Fatalf("expected kept_fields to list email, got %v", merged.Data.KeptFields)
+	}
+
+	bookingsReq := httptest.NewRequest(http.MethodGet, "/api/v1/me/bookings", nil)
+	bookingsReq.Header.Set("Authorization", "Bearer "+registered.Data.Token)
+	bookingsResp, err := app.Test(bookingsReq)
+	if err != nil {
+		t.Fatalf("list bookings: %v", err)
+	}
+	if bookingsResp.StatusCode != http.StatusOK {
+		t.Fatalf("bookings status %d", bookingsResp.StatusCode)
+	}
+	var bookings struct {
+		Data []struct {
+			ID string `json:"id"`
+		} `json:"data"`
+	}
+	if err := json.NewDecoder(bookingsResp.Body).Decode(&bookings); err != nil {
+		t.Fatalf("decode bookings: %v", err)
+	}
+	if len(bookings.Data) != 1 || bookings.Data[0].ID != booking.ID.String() {
+		t.Fatalf("expected moved booking, got %+v", bookings.Data)
+	}
+
+	idsReq := httptest.NewRequest(http.MethodGet, "/api/v1/me/identities", nil)
+	idsReq.Header.Set("Authorization", "Bearer "+registered.Data.Token)
+	idsResp, err := app.Test(idsReq)
+	if err != nil {
+		t.Fatalf("identities: %v", err)
+	}
+	if idsResp.StatusCode != http.StatusOK {
+		t.Fatalf("identities status %d", idsResp.StatusCode)
+	}
+}
+
 func TestCreateAndListNews(t *testing.T) {
 	store := memory.NewStore()
 	app := newTestAppWithStore(store, "secret-token")
@@ -504,7 +680,7 @@ func newTestAppWithStore(store *memory.Store, adminToken string) *fiber.App {
 			"",
 			false,
 		),
-		Auth:          application.NewAuthService(store, store, nil, nil, application.SocialAuthConfig{}, config.DefaultJWTSecret, 24*time.Hour, "http://localhost:3000"),
+		Auth:          application.NewAuthService(store, store, nil, nil, application.SocialAuthConfig{}, config.DefaultJWTSecret, 24*time.Hour, "http://localhost:3000", store),
 		Support:       application.NewSupportService(store, notificationnoop.New()),
 		CMS:           application.NewCMSService(store),
 		News:          application.NewNewsService(store, nil),

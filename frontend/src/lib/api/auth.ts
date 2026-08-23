@@ -69,10 +69,39 @@ export async function completePhoneLogin(input: { check_id: string }): Promise<A
   });
 }
 
+export type UserIdentity = {
+  provider: string;
+  subject: string;
+  created_at: string;
+};
+
 export async function fetchCurrentUser(token: string): Promise<User> {
   return authRequest<User>("/me", {
     headers: { Authorization: `Bearer ${token}` },
   });
+}
+
+export async function fetchMyIdentities(token: string): Promise<UserIdentity[]> {
+  return authRequest<UserIdentity[]>("/me/identities", {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
+export type AuthMethodStatus = {
+  available: boolean;
+  message?: string;
+  username?: string;
+};
+
+export type AuthMethods = {
+  yandex?: AuthMethodStatus;
+  vk?: AuthMethodStatus;
+  max?: AuthMethodStatus;
+  telegram?: AuthMethodStatus;
+};
+
+export async function fetchAuthMethods(): Promise<AuthMethods> {
+  return authRequest<AuthMethods>("/auth/methods");
 }
 
 export async function fetchMyBookings(token: string): Promise<MyBooking[]> {

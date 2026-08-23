@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { exchangeVK, setSessionCookie } from "@/lib/auth/social-oauth";
+import { exchangeVK, redirectAfterOAuth } from "@/lib/auth/social-oauth";
 
 export async function GET(request: NextRequest) {
   const code = request.nextUrl.searchParams.get("code");
@@ -12,7 +12,5 @@ export async function GET(request: NextRequest) {
       new URL(`/account/login?error=${encodeURIComponent(result.error)}`, request.url),
     );
   }
-  const response = NextResponse.redirect(new URL("/account/trips", request.url));
-  setSessionCookie(response, result.token);
-  return response;
+  return redirectAfterOAuth(request, result);
 }

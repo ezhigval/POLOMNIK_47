@@ -449,6 +449,29 @@ POST /api/v1/webhooks/bitrix/deal?token={BITRIX_INBOUND_TOKEN}
 
 Bitrix24 outbound webhook sends deal stage changes. Backend resolves `ORIGIN_ID` → booking UUID and updates status using standard stage mapping.
 
+## 8a. Cabinet identities
+
+User session: `Authorization: Bearer`. Internal OAuth completion (Next.js → API) also requires `X-Internal-Secret`.
+
+```text
+GET  /api/v1/me
+GET  /api/v1/me/identities
+GET  /api/v1/me/bookings
+POST /api/v1/auth/oauth
+```
+
+`GET /me/identities` returns `{ "data": [ { "provider", "subject", "created_at" } ] }` for the current user. Providers in product: `yandex`, `vk`, `max`, `telegram`.
+
+`POST /auth/oauth` (internal) body: `provider`, `subject`, `email`, `name`, `phone`. If the request also has a valid user `Authorization: Bearer`:
+
+- unused identity is linked to the current user;
+- identity of the same user is a no-op;
+- identity of another user merges that account **into the current** (bookings, favorites, support threads, admin role assignments). Profile fields that already differ are not overwritten.
+
+Response extra fields (omitted when false/empty): `linked`, `merged`, `kept_fields` (conflict field names only: `name` / `email` / `phone` — no values). Invalid Bearer is ignored and the call is treated as login.
+
+Invalid internal secret → 401, as before.
+
 ## 9. Future APIs
 
 Not in MVP 1 (частично уже есть в коде; этот список устарел — см. ROADMAP):
