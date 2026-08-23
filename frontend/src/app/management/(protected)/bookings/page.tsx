@@ -7,6 +7,9 @@ import {
   ManagementTh,
 } from "@/components/management/management-panel";
 import { StatusBadge, bookingStatusVariant } from "@/components/management/status-badge";
+import { ManagementNoAccess } from "@/components/management/management-no-access";
+import { PERM } from "@/lib/management-access";
+import { canAccessManagementPage } from "@/lib/management-page-access";
 import { listManagementBookings, listManagementTours } from "@/lib/api/management";
 import { formatDateTime, formatManagementBookingStatus, formatPrice } from "@/lib/format";
 import { buildTourTitleMap, tourTitle } from "@/lib/tour-title-map";
@@ -18,6 +21,10 @@ type PageProps = {
 };
 
 export default async function ManagementBookingsPage({ searchParams }: PageProps) {
+  if (!(await canAccessManagementPage([PERM.bookings]))) {
+    return <ManagementNoAccess />;
+  }
+
   const filters = await searchParams;
   const status = BOOKING_STATUSES.includes(filters.status as (typeof BOOKING_STATUSES)[number])
     ? filters.status

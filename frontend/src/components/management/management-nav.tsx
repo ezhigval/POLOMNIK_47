@@ -2,27 +2,23 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { visibleManagementNav } from "@/lib/management-access";
 
-const links = [
-  { href: "/management", label: "Обзор", exact: true },
-  { href: "/management/content", label: "Главная" },
-  { href: "/management/news", label: "Новости" },
-  { href: "/management/tours", label: "Туры" },
-  { href: "/management/bookings", label: "Заявки" },
-  { href: "/management/support", label: "Поддержка" },
-  { href: "/management/reviews", label: "Отзывы" },
-  { href: "/management/integrations", label: "Синхронизация" },
-  { href: "/management/settings", label: "Настройки" },
-];
+type Props = {
+  fullAdmin?: boolean;
+  permissions?: string[];
+};
 
-export function ManagementNav() {
+export function ManagementNav({ fullAdmin = false, permissions = [] }: Props) {
   const pathname = usePathname();
+  const links = visibleManagementNav({ full_admin: fullAdmin, permissions });
 
   return (
     <nav className="flex flex-wrap gap-1 text-sm" aria-label="Навигация управления">
       {links.map((link) => {
-        const active =
-          link.exact ? pathname === link.href : pathname === link.href || pathname.startsWith(`${link.href}/`);
+        const active = link.exact
+          ? pathname === link.href
+          : pathname === link.href || pathname.startsWith(`${link.href}/`);
 
         return (
           <Link

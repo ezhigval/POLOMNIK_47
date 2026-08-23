@@ -1,8 +1,14 @@
 import { redirect } from "next/navigation";
 import { BootstrapHomeButton } from "@/components/management/cms/bootstrap-home-button";
 import { listManagementCmsPagesOrEmpty } from "@/lib/api/management";
+import { ManagementNoAccess } from "@/components/management/management-no-access";
+import { canAccessManagementPage } from "@/lib/management-page-access";
+import { PERM } from "@/lib/management-access";
 
 export default async function ManagementContentPage() {
+  if (!(await canAccessManagementPage([PERM.content]))) {
+    return <ManagementNoAccess />;
+  }
   const { pages, unavailable } = await listManagementCmsPagesOrEmpty();
 
   if (unavailable) {

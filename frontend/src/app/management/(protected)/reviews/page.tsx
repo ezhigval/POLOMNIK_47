@@ -9,9 +9,18 @@ import {
 } from "@/app/management/actions";
 import { listManagementReviews, listManagementTours } from "@/lib/api/management";
 import { buildTourTitleMap, tourTitle } from "@/lib/tour-title-map";
+import { ManagementNoAccess } from "@/components/management/management-no-access";
+import { canAccessManagementPage } from "@/lib/management-page-access";
+import { PERM } from "@/lib/management-access";
 
 export default async function ManagementReviewsPage() {
-  const [reviews, tours] = await Promise.all([listManagementReviews(), listManagementTours()]);
+  if (!(await canAccessManagementPage([PERM.content]))) {
+    return <ManagementNoAccess />;
+  }
+  const [reviews, tours] = await Promise.all([
+    listManagementReviews(),
+    listManagementTours().catch(() => []),
+  ]);
   const tourNames = buildTourTitleMap(tours);
 
   return (

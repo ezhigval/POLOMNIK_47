@@ -38,7 +38,7 @@ OAuth подробно: [OAUTH_SETUP.md](OAUTH_SETUP.md) · реклама: [SEO
 
 ## Дальше: v3 (в работе)
 
-Код линейки v3 начат: этапы **0–1** (порты + платформа) в ветке `cursor/v3-platform-926b`.  
-Этапы 2–10 и v4 не начаты. План: **[V3_PLAN.md](V3_PLAN.md)**. Кратко: [ROADMAP.md](ROADMAP.md).
+Код линейки v3 начат: этапы **0–1** в `main`; этап **2** начат (меню и дашборд админки по правам роли).  
+Этапы 3–10 и v4 не начаты. План: **[V3_PLAN.md](V3_PLAN.md)**. Кратко: [ROADMAP.md](ROADMAP.md).
 
 Без секретов владельца E2E OAuth/SMTP не прогнать — [V2_OWNER_SETUP.md](V2_OWNER_SETUP.md).

@@ -1,10 +1,12 @@
 import { ManagementSettingsForms } from "@/components/management/management-settings-forms";
+import { ManagementNoAccess } from "@/components/management/management-no-access";
 import {
   getManagementNotificationSettings,
   getManagementSession,
   getManagementSiteSettings,
   listManagementRoles,
 } from "@/lib/api/management";
+import { PERM, sessionHasPermission } from "@/lib/management-access";
 
 const permissionOptions = [
   { id: "manage_tours", label: "Туры" },
@@ -33,7 +35,18 @@ const emptySite = {
 };
 
 export default async function ManagementSettingsPage() {
-  let unavailable = false;
+  const session = await getManagementSession().catch(() => null);
+  if (!session) {
+    return <ManagementNoAccess />;
+  }
+
+  const canManageSite = sessionHasPermission(session, PERM.settingsSite);
+  const canManageRecipients = sessionHasPermission(session, PERM.recipients);
+  const canManageRoles = sessionHasPermission(session, PERM.roles);
+  if (!canManageSite && !canManageRecipients && !canManageRoles) {
+    return <ManagementNoAccess />;
+  }
+
   let channels: Array<{ id: string; configured: boolean; label: string }> = [];
   let events: Array<{
     kind: string;
@@ -49,27 +62,34 @@ export default async function ManagementSettingsPage() {
   }> = [];
   let site = emptySite;
   let roles: Array<{ id: string; name: string; permissions: string[] }> = [];
-  let canManageRoles = false;
 
-  try {
-    const [session, notifications, siteSettings] = await Promise.all([
-      getManagementSession(),
-      getManagementNotificationSettings(),
-      getManagementSiteSettings(),
-    ]);
-    canManageRoles = Boolean(session.full_admin || session.permissions?.includes("manage_roles"));
-    channels = notifications.channels ?? [];
-    events = notifications.events ?? [];
-    site = { ...emptySite, ...siteSettings };
-    if (canManageRoles) {
+  if (canManageRecipients) {
+    try {
+      const notifications = await getManagementNotificationSettings();
+      channels = notifications.channels ?? [];
+      events = notifications.events ?? [];
+    } catch {
+      channels = [];
+      events = [];
+    }
+  }
+  if (canManageSite) {
+    try {
+      site = { ...emptySite, ...(await getManagementSiteSettings()) };
+    } catch {
+      site = emptySite;
+    }
+  }
+  if (canManageRoles) {
+    try {
       roles = (await listManagementRoles()).map((role) => ({
         id: role.id,
         name: role.name,
         permissions: role.permissions ?? [],
       }));
+    } catch {
+      roles = [];
     }
-  } catch {
-    unavailable = true;
   }
 
   return (
@@ -77,24 +97,20 @@ export default async function ManagementSettingsPage() {
       <div>
         <h2 className="text-xl font-semibold text-stone-900">Настройки</h2>
         <p className="mt-1 max-w-2xl text-sm leading-6 text-stone-600">
-          Идентичность сайта, получатели уведомлений (канал + адрес) и роли админки для полного
-          администратора.
+          Идентичность сайта, получатели уведомлений (канал + адрес) и роли админки. Разделы зависят
+          от прав текущей роли. Менять роли может только полный админ (`ADMIN_TOKEN`).
         </p>
       </div>
-      {unavailable ? (
-        <p className="rounded-2xl border border-stone-200 bg-white p-5 text-sm text-stone-600">
-          Настройки сейчас недоступны. Проверьте вход и права роли.
-        </p>
-      ) : (
-        <ManagementSettingsForms
-          channels={channels}
-          events={events}
-          site={site}
-          roles={roles}
-          canManageRoles={canManageRoles}
-          permissionOptions={permissionOptions}
-        />
-      )}
+      <ManagementSettingsForms
+        channels={channels}
+        events={events}
+        site={site}
+        roles={roles}
+        canManageRoles={canManageRoles}
+        canManageSite={canManageSite}
+        canManageRecipients={canManageRecipients}
+        permissionOptions={permissionOptions}
+      />
     </div>
   );
 }

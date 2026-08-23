@@ -37,7 +37,7 @@
 
 ## v3 — этапы
 
-Этапы **0–1 в коде** (ветка `cursor/v3-platform-926b`): порты Messenger/Publisher/Captcha/AI/Payment/BackupStorage, кэш туров/новостей с fail-open, Redis rate limit + Retry-After, request_id, webhook HMAC/идемпотентность, honeypot + SmartCaptcha-адаптер без ключа, offsite-бэкап по ключу, срез latency/last backup в system-info.
+Этапы **0–1 в `main`**. Этап **2** начат: меню, дашборд и разделы настроек/синхронизации скрываются по правам роли (backend по-прежнему режет API). Фильтры заявок, CSV и шаблоны ролей — следующие PR.
 
 Остальное — по [V3_PLAN.md](V3_PLAN.md). Код ещё не начат для этапов 2–10. v4 (ИИ-звонки и ИИ-продавец) не начинаем.
 

@@ -11,8 +11,14 @@ import { StatusBadge } from "@/components/management/status-badge";
 import { deleteNewsAction } from "@/app/management/actions";
 import { listManagementNews } from "@/lib/api/management";
 import { formatNewsDate } from "@/lib/news";
+import { ManagementNoAccess } from "@/components/management/management-no-access";
+import { canAccessManagementPage } from "@/lib/management-page-access";
+import { PERM } from "@/lib/management-access";
 
 export default async function ManagementNewsPage() {
+  if (!(await canAccessManagementPage([PERM.content]))) {
+    return <ManagementNoAccess />;
+  }
   const articles = await listManagementNews();
 
   return (
