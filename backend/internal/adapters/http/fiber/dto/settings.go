@@ -11,12 +11,12 @@ type NotificationRecipientDTO struct {
 }
 
 type NotificationRecipientStatusDTO struct {
-	Channel   string `json:"channel"`
-	Address   string `json:"address"`
-	Event     string `json:"event"`
-	Ready     bool   `json:"ready"`
-	Status    string `json:"status"`
-	Label     string `json:"label"`
+	Channel string `json:"channel"`
+	Address string `json:"address"`
+	Event   string `json:"event"`
+	Ready   bool   `json:"ready"`
+	Status  string `json:"status"`
+	Label   string `json:"label"`
 }
 
 type NotificationEventBlockDTO struct {
@@ -88,18 +88,18 @@ func ParseNotificationEvents(req NotificationSettingsUpsertRequest) (map[domain.
 }
 
 type SiteSettingsResponse struct {
-	SiteName            string   `json:"site_name"`
-	FullName            string   `json:"full_name"`
-	Tagline             string   `json:"tagline"`
-	Description         string   `json:"description"`
-	Region              string   `json:"region"`
-	DepartureCity       string   `json:"departure_city"`
-	ParentOrgName       string   `json:"parent_org_name"`
-	ParentOrgURL        string   `json:"parent_org_url"`
-	ContactPhone        string   `json:"contact_phone"`
-	ContactPhoneDisplay string   `json:"contact_phone_display"`
-	ContactEmail        string   `json:"contact_email"`
-	MailForwardTo       string   `json:"mail_forward_to"`
+	SiteName            string `json:"site_name"`
+	FullName            string `json:"full_name"`
+	Tagline             string `json:"tagline"`
+	Description         string `json:"description"`
+	Region              string `json:"region"`
+	DepartureCity       string `json:"departure_city"`
+	ParentOrgName       string `json:"parent_org_name"`
+	ParentOrgURL        string `json:"parent_org_url"`
+	ContactPhone        string `json:"contact_phone"`
+	ContactPhoneDisplay string `json:"contact_phone_display"`
+	ContactEmail        string `json:"contact_email"`
+	MailForwardTo       string `json:"mail_forward_to"`
 }
 
 type SiteSettingsUpsertRequest struct {
@@ -183,6 +183,13 @@ type AdminRoleResponse struct {
 	UpdatedAt   string   `json:"updated_at"`
 }
 
+type AdminRoleTemplateResponse struct {
+	ID          string   `json:"id"`
+	Label       string   `json:"label"`
+	RoleName    string   `json:"role_name"`
+	Permissions []string `json:"permissions"`
+}
+
 type AdminRoleCreateRequest struct {
 	Name        string   `json:"name"`
 	Password    string   `json:"password"`
@@ -215,6 +222,19 @@ func ToAdminRole(role domain.AdminRole) AdminRoleResponse {
 		Permissions: perms,
 		CreatedAt:   role.CreatedAt.UTC().Format("2006-01-02T15:04:05Z07:00"),
 		UpdatedAt:   role.UpdatedAt.UTC().Format("2006-01-02T15:04:05Z07:00"),
+	}
+}
+
+func ToAdminRoleTemplate(template domain.RoleTemplate) AdminRoleTemplateResponse {
+	perms := make([]string, 0, len(template.Permissions))
+	for _, p := range template.Permissions {
+		perms = append(perms, string(p))
+	}
+	return AdminRoleTemplateResponse{
+		ID:          template.ID,
+		Label:       template.Label,
+		RoleName:    template.RoleName,
+		Permissions: perms,
 	}
 }
 

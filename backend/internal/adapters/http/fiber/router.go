@@ -172,6 +172,7 @@ func NewRouter(cfg config.Config, log *slog.Logger, services Services, health He
 	management.Patch("/site-settings", require(domain.PermManageSettingsSite), h.ManagementUpdateSiteSettings)
 
 	management.Get("/roles", require(domain.PermManageRoles), h.ManagementListRoles)
+	management.Get("/roles/templates", require(domain.PermManageRoles), h.ManagementListRoleTemplates)
 	management.Post("/roles", require(domain.PermManageRoles), h.ManagementCreateRole)
 	management.Patch("/roles/:id", require(domain.PermManageRoles), h.ManagementUpdateRole)
 	management.Delete("/roles/:id", require(domain.PermManageRoles), h.ManagementDeleteRole)

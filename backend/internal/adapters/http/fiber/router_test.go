@@ -631,3 +631,58 @@ func TestTelegramSettingsAndWebhook(t *testing.T) {
 		t.Fatalf("expected ezhigval to be bound after /start, got %+v", body.Data.Recipients)
 	}
 }
+
+func TestManagementListRoleTemplates(t *testing.T) {
+	app := newTestAppWithStore(memory.NewStore(), "admin-token")
+
+	unauthorized := httptest.NewRequest("GET", "/api/v1/management/roles/templates", nil)
+	unauthorizedResp, err := app.Test(unauthorized)
+	if err != nil {
+		t.Fatalf("unauthorized request: %v", err)
+	}
+	if unauthorizedResp.StatusCode != http.StatusUnauthorized {
+		t.Fatalf("expected 401, got %d", unauthorizedResp.StatusCode)
+	}
+
+	req := httptest.NewRequest("GET", "/api/v1/management/roles/templates", nil)
+	req.Header.Set("X-Admin-Token", "admin-token")
+	resp, err := app.Test(req)
+	if err != nil {
+		t.Fatalf("request failed: %v", err)
+	}
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+		t.Fatalf("expected 200, got %d %s", resp.StatusCode, body)
+	}
+
+	var body struct {
+		Data []struct {
+			ID          string   `json:"id"`
+			Label       string   `json:"label"`
+			RoleName    string   `json:"role_name"`
+			Permissions []string `json:"permissions"`
+		} `json:"data"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&body); err != nil {
+		t.Fatalf("decode: %v", err)
+	}
+	if len(body.Data) != 5 {
+		t.Fatalf("expected 5 templates, got %d", len(body.Data))
+	}
+	foundAdvertiser := false
+	for _, item := range body.Data {
+		if item.ID != "advertiser" {
+			continue
+		}
+		foundAdvertiser = true
+		if item.RoleName != "advertiser" || item.Label != "Рекламщик" {
+			t.Fatalf("advertiser template: %+v", item)
+		}
+		if len(item.Permissions) != 1 || item.Permissions[0] != "view_stats" {
+			t.Fatalf("advertiser permissions: %v", item.Permissions)
+		}
+	}
+	if !foundAdvertiser {
+		t.Fatal("missing advertiser template")
+	}
+}
