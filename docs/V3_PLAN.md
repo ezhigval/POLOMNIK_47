@@ -138,6 +138,8 @@ WhatsApp — только официальный Cloud API. `ExportPayment` на
 
 Клиент на сайте → тред → менеджерам в каналы из Настроек. Ответ в боте → staff в тот же тред → сайт; дубль в мессенджер клиента, если привязан. Команды: заявки и туры (слоты, цена, вкл/выкл) с теми же Permission, что HTTP.
 
+**Сделано в коде:** тот же webhook и `TELEGRAM_API_BASE` (на проде Worker). `/start` и `/health` не менялись. Реплай на уведомление с id диалога или `/reply <id> текст` пишет staff-сообщение в тот же тред, если username в получателях поддержки **или** у кабинета есть `manage_support` через identity `telegram` + назначение роли. Команды `/bookings`, `/booking`, `/tours`, `/tour` (slots / price / on|off) проверяют те же Permission, что HTTP. Fan-out ответа клиенту — `MessengerPort.Send` на привязанный identity; при `MESSENGER_ADAPTER=noop` это no-op. Телефон в тексте команд маскируется. Уведомления `NOTIFICATION_ADAPTER=telegram` не выключаются.
+
 ---
 
 ## Этап 6 — контент-план

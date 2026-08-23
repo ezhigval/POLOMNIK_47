@@ -22,7 +22,7 @@ export default async function ManagementSupportPage() {
   return (
     <ManagementPanel
       title="Поддержка"
-      description={`Всего ${threads.length}. Отвечайте в диалоге — паломник увидит ответ в чате.`}
+      description={`Всего ${threads.length}. Ответ в этом экране или реплаем в боте попадает в тот же диалог.`}
     >
       <ManagementTable>
         <ManagementTableHead>

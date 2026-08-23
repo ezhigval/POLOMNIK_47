@@ -481,6 +481,19 @@ Response extra fields (omitted when false/empty): `linked`, `merged`, `kept_fiel
 
 Invalid internal secret → 401, as before.
 
+## 8b. Telegram bot (этап 5)
+
+Тот же `POST /api/v1/webhooks/telegram`. `/start` и `/health` без изменений. Новые команды не добавляют HTTP-маршрутов.
+
+| Команда | Кто | Что |
+|---------|-----|-----|
+| реплай на уведомление с id диалога или `/reply <id> текст` | username в получателях поддержки **или** `manage_support` у кабинета с identity `telegram` | staff-сообщение в тот же тред; fan-out клиенту через MessengerPort, если адаптер настроен |
+| `/bookings`, `/booking <id>` | `manage_bookings` | список / карточка; телефон маскируется |
+| `/tours`, `/tour <id\|slug>` | `manage_tours` | список / карточка |
+| `/tour … slots`, `price`, `on`/`off` | `manage_tours` | те же поля, что `PATCH /management/tours/{id}` |
+
+Права — существующие Permission, не новые. `ADMIN_TOKEN` в боте не угадывается: нужна привязка Telegram Login + назначение роли.
+
 ## 9. Future APIs
 
 Not in MVP 1 (частично уже есть в коде; этот список устарел — см. ROADMAP):

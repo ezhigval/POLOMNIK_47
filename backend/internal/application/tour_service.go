@@ -2,6 +2,7 @@ package application
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -149,6 +150,76 @@ func (s *TourService) UpdateTour(ctx context.Context, id uuid.UUID, input Update
 	s.invalidateTourCache(ctx)
 	_, _ = s.crm.SyncTour(ctx, saved)
 	return saved, nil
+}
+
+// TourOpsPatch changes only slots, price or is_active — the same fields HTTP already updates.
+type TourOpsPatch struct {
+	SlotsLeft  *int
+	SlotsTotal *int
+	Price      *int
+	IsActive   *bool
+}
+
+func (s *TourService) FindTour(ctx context.Context, key string) (domain.Tour, error) {
+	key = strings.TrimSpace(key)
+	if key == "" {
+		return domain.Tour{}, domain.ErrNotFound
+	}
+	if id, err := uuid.Parse(key); err == nil {
+		return s.GetTour(ctx, id)
+	}
+	slug := strings.ToLower(key)
+	for page := 1; page <= 50; page++ {
+		list, err := s.ListTours(ctx, ports.TourFilters{}, ports.NormalizePagination(page, 100))
+		if err != nil {
+			return domain.Tour{}, err
+		}
+		for _, tour := range list.Items {
+			if strings.ToLower(tour.Slug) == slug {
+				return tour, nil
+			}
+		}
+		if !list.Meta.HasNext {
+			break
+		}
+	}
+	return domain.Tour{}, domain.ErrNotFound
+}
+
+func (s *TourService) PatchTourOps(ctx context.Context, id uuid.UUID, patch TourOpsPatch) (domain.Tour, error) {
+	existing, err := s.GetTour(ctx, id)
+	if err != nil {
+		return domain.Tour{}, err
+	}
+	input := UpdateTourInput{
+		Slug:               existing.Slug,
+		Title:              existing.Title,
+		Description:        existing.Description,
+		Price:              existing.Price,
+		Currency:           existing.Currency,
+		DateStart:          existing.DateStart,
+		DateEnd:            existing.DateEnd,
+		SlotsTotal:         existing.SlotsTotal,
+		SlotsLeft:          existing.SlotsLeft,
+		Location:           existing.Location,
+		Images:             append([]string(nil), existing.Images...),
+		IsActive:           existing.IsActive,
+		IsHot:              existing.IsHot,
+		OverbookingEnabled: existing.OverbookingEnabled,
+	}
+	if patch.SlotsTotal != nil {
+		input.SlotsTotal = *patch.SlotsTotal
+	}
+	if patch.SlotsLeft != nil {
+		input.SlotsLeft = *patch.SlotsLeft
+	}
+	if patch.Price != nil {
+		input.Price = *patch.Price
+	}
+	if patch.IsActive != nil {
+		input.IsActive = *patch.IsActive
+	}
+	return s.UpdateTour(ctx, id, input)
 }
 
 func (s *TourService) DeleteTour(ctx context.Context, id uuid.UUID) error {

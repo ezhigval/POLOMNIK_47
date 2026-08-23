@@ -62,9 +62,11 @@ func (h *Handler) TelegramWebhook(c *fiber.Ctx) error {
 	}
 
 	err := h.telegram.HandleInboundUpdate(c.Context(), application.TelegramInboundUpdate{
-		Username: req.Message.Username(),
-		ChatID:   req.Message.ChatID(),
-		Text:     req.Message.Text,
+		Username:    req.Message.Username(),
+		UserID:      req.Message.FromID(),
+		ChatID:      req.Message.ChatID(),
+		Text:        req.Message.Text,
+		ReplyToText: req.Message.ReplyToText(),
 	})
 	if err != nil {
 		return respondError(c, err, MapError)

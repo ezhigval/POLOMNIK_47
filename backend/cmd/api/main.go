@@ -99,13 +99,24 @@ func run() int {
 	siteSettings := application.NewSiteSettingsService(siteSettingsRepo, siteDefaults)
 	adminRoles := application.NewAdminRoleService(adminRoleRepo, userRepo, cfg.AdminToken, cfg.JWTSecret)
 	newsService := application.NewNewsService(newsRepo, cache)
+	tourService := application.NewTourService(tourRepo, cache, crm)
+	messengerPort := messenger.New(cfg)
+	supportService := application.NewSupportService(supportRepo, notifier).WithClientMessenger(messengerPort, userRepo)
+	telegramService := application.NewTelegramService(
+		notificationSettings,
+		telegramDeps.Chats,
+		telegramnotify.NewClient(cfg),
+		cfg.TelegramChatID,
+	).WithBot(application.TelegramBotDeps{
+		Support:    supportService,
+		Bookings:   bookingService,
+		Tours:      tourService,
+		AdminRoles: adminRoles,
+		Users:      userRepo,
+	})
 
 	services := fiberhttp.Services{
-		Tours: application.NewTourService(
-			tourRepo,
-			cache,
-			crm,
-		),
+		Tours:    tourService,
 		Bookings: bookingService,
 		Reviews: application.NewReviewService(
 			reviewRepo,
@@ -138,15 +149,15 @@ func run() int {
 		),
 		Favorites:      application.NewFavoriteService(favoriteRepo, tourRepo),
 		Passengers:     application.NewPassengerService(passengerRepo(tourRepo)),
-		Support:        application.NewSupportService(supportRepo, notifier),
+		Support:        supportService,
 		CMS:            application.NewCMSService(cmsRepo),
 		News:           newsService,
-		Telegram:       application.NewTelegramService(notificationSettings, telegramDeps.Chats, telegramnotify.NewClient(cfg), cfg.TelegramChatID),
+		Telegram:       telegramService,
 		Notifications:  notificationSettings,
 		SiteSettings:   siteSettings,
 		AdminRoles:     adminRoles,
 		Captcha:        captcha.New(cfg),
-		Messenger:      messenger.New(cfg),
+		Messenger:      messengerPort,
 		Publisher:      publisher.New(cfg, newsService),
 		AI:             ai.New(cfg),
 		WebhookGuard:   application.NewWebhookGuard(cache),

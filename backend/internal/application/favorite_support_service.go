@@ -38,10 +38,23 @@ func (s *FavoriteService) RemoveFavorite(ctx context.Context, userID, tourID uui
 type SupportService struct {
 	support       ports.SupportRepository
 	notifications ports.NotificationPort
+	messenger     ports.MessengerPort
+	users         ports.UserRepository
 }
 
 func NewSupportService(support ports.SupportRepository, notifications ports.NotificationPort) *SupportService {
 	return &SupportService{support: support, notifications: notifications}
+}
+
+// WithClientMessenger fans a staff reply out to the pilgrim's bound identity
+// through MessengerPort. Noop adapter or missing identity is a no-op.
+func (s *SupportService) WithClientMessenger(messenger ports.MessengerPort, users ports.UserRepository) *SupportService {
+	if s == nil {
+		return s
+	}
+	s.messenger = messenger
+	s.users = users
+	return s
 }
 
 const supportWelcomeMessage = "Здравствуйте! Мы получили ваше сообщение. Менеджер ответит в рабочее время — обычно в течение нескольких часов."
@@ -177,6 +190,20 @@ func (s *SupportService) SendStaffMessage(ctx context.Context, threadID uuid.UUI
 		return domain.SupportThread{}, nil, err
 	}
 	_ = s.support.TouchThread(ctx, thread.ID)
+	s.fanOutStaffReply(ctx, thread, message.Body)
 
 	return s.GetThreadByID(ctx, thread.ID)
+}
+
+func (s *SupportService) fanOutStaffReply(ctx context.Context, thread domain.SupportThread, body string) {
+	if s == nil || s.messenger == nil || !s.messenger.Configured() || s.users == nil {
+		return
+	}
+	identities, err := s.users.ListIdentities(ctx, thread.UserID)
+	if err != nil {
+		return
+	}
+	for _, identity := range identities {
+		_ = s.messenger.Send(ctx, identity.Provider, identity.Subject, body)
+	}
 }

@@ -19,10 +19,35 @@ func TelegramWebhookSecret(internalSecret string) string {
 }
 
 type TelegramService struct {
-	settings *NotificationSettingsService
-	chats    ports.TelegramChatMapRepository
-	sender   ports.TelegramBotSender
-	fallback string
+	settings   *NotificationSettingsService
+	chats      ports.TelegramChatMapRepository
+	sender     ports.TelegramBotSender
+	fallback   string
+	support    *SupportService
+	bookings   *BookingService
+	tours      *TourService
+	adminRoles *AdminRoleService
+	users      ports.UserRepository
+}
+
+type TelegramBotDeps struct {
+	Support    *SupportService
+	Bookings   *BookingService
+	Tours      *TourService
+	AdminRoles *AdminRoleService
+	Users      ports.UserRepository
+}
+
+func (s *TelegramService) WithBot(deps TelegramBotDeps) *TelegramService {
+	if s == nil {
+		return s
+	}
+	s.support = deps.Support
+	s.bookings = deps.Bookings
+	s.tours = deps.Tours
+	s.adminRoles = deps.AdminRoles
+	s.users = deps.Users
+	return s
 }
 
 func NewTelegramService(
@@ -78,9 +103,11 @@ func (s *TelegramService) NotificationSettings() *NotificationSettingsService {
 }
 
 type TelegramInboundUpdate struct {
-	Username string
-	ChatID   string
-	Text     string
+	Username    string
+	UserID      string
+	ChatID      string
+	Text        string
+	ReplyToText string
 }
 
 func (s *TelegramService) HandleInboundUpdate(ctx context.Context, update TelegramInboundUpdate) error {
@@ -104,9 +131,19 @@ func (s *TelegramService) HandleInboundUpdate(ctx context.Context, update Telegr
 		return s.sender.SendMessage(ctx, chatID, "Готово. Бот запомнил ваш аккаунт и сможет присылать уведомления, если вас добавят в настройках.")
 	case "/health":
 		return s.sender.SendMessage(ctx, chatID, s.healthText(ctx))
-	default:
+	case "/help":
+		return s.sender.SendMessage(ctx, chatID, s.helpText(ctx, update))
+	}
+
+	if reply, handled, err := s.handleStaffOrCommand(ctx, update); err != nil {
+		return err
+	} else if handled {
+		if reply != "" {
+			return s.sender.SendMessage(ctx, chatID, reply)
+		}
 		return nil
 	}
+	return nil
 }
 
 func (s *TelegramService) healthText(ctx context.Context) string {

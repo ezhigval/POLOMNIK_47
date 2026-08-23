@@ -49,7 +49,7 @@ export default async function ManagementSupportThreadPage({ params }: PageProps)
 
       <ManagementPanel
         title="Переписка"
-        description={`Пользователь: ${thread.user_id} · обновлено ${formatDateTime(thread.updated_at)}`}
+        description={`Пользователь: ${thread.user_id} · обновлено ${formatDateTime(thread.updated_at)}. Реплай в боте на уведомление с id диалога — то же сообщение.`}
       >
         <div className="space-y-3 px-4 py-4">
           {messages.length === 0 ? (

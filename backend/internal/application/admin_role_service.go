@@ -191,6 +191,55 @@ func (s *AdminRoleService) HasPermission(p ManagementPrincipal, perm domain.Perm
 	return false
 }
 
+// PrincipalForUser unions permissions of every admin role assigned to the cabinet user.
+// Same Permission values as HTTP; no new rights. Empty assignment is forbidden.
+func (s *AdminRoleService) PrincipalForUser(ctx context.Context, userID uuid.UUID) (ManagementPrincipal, error) {
+	if s == nil || s.roles == nil || userID == uuid.Nil {
+		return ManagementPrincipal{}, domain.ErrForbidden
+	}
+	roles, err := s.roles.ListAdminRoles(ctx)
+	if err != nil {
+		return ManagementPrincipal{}, err
+	}
+	seen := make(map[domain.Permission]struct{})
+	var perms []domain.Permission
+	var first domain.AdminRole
+	for _, role := range roles {
+		assignments, err := s.roles.ListRoleAssignments(ctx, role.ID)
+		if err != nil {
+			return ManagementPrincipal{}, err
+		}
+		matched := false
+		for _, item := range assignments {
+			if item.UserID == userID {
+				matched = true
+				break
+			}
+		}
+		if !matched {
+			continue
+		}
+		if first.ID == uuid.Nil {
+			first = role
+		}
+		for _, perm := range role.Permissions {
+			if _, ok := seen[perm]; ok {
+				continue
+			}
+			seen[perm] = struct{}{}
+			perms = append(perms, perm)
+		}
+	}
+	if first.ID == uuid.Nil {
+		return ManagementPrincipal{}, domain.ErrForbidden
+	}
+	return ManagementPrincipal{
+		RoleID:      first.ID,
+		RoleName:    first.Name,
+		Permissions: perms,
+	}, nil
+}
+
 func (s *AdminRoleService) ListRoles(ctx context.Context) ([]domain.AdminRole, error) {
 	if s.roles == nil {
 		return nil, nil

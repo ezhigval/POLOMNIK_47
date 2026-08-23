@@ -12,7 +12,7 @@ v2-секреты (OAuth, smtp, sms.ru, Telegram-уведомления): [V2_OW
 
 ## MessengerPort (этап 4)
 
-Чат на сайте и ответы в боте — этап 5. Сейчас адаптер только отправляет текст, если его вызвать.
+Чат на сайте и ответы в боте — этап 5 (в коде). Адаптер отправляет дубль клиенту только если `MESSENGER_ADAPTER` не noop и у кабинета есть identity этого канала. Без ключа сайт жив, уведомления Telegram не выключаются.
 
 В `.env.production` один из вариантов. Compose (`docker-compose.yml` и `docker-compose.prod.yml`) прокидывает `MESSENGER_ADAPTER` (по умолчанию `noop`), `WHATSAPP_*` и `MAX_BOT_TOKEN` / `MAX_API_BASE` — без ключа контейнер остаётся noop.
 
@@ -80,7 +80,7 @@ IAM-токен на 12 часов не используем — только д�
 | SmartCaptcha | `CAPTCHA_ADAPTER=smartcaptcha`, `SMARTCAPTCHA_SERVER_KEY`, `SMARTCAPTCHA_CLIENT_KEY` |
 | Object Storage | `BACKUP_STORAGE_ADAPTER=s3`, `S3_*` |
 | Telegram уведомления заявок/поддержки | `NOTIFICATION_ADAPTER=telegram` (уже на проде) |
-| MessengerPort | `MESSENGER_ADAPTER` (на проде `noop`) |
+| MessengerPort | `MESSENGER_ADAPTER` (на проде `noop`; чаты/бот работают через webhook уведомлений) |
 | PublisherPort | `PUBLISHER_ADAPTER` (на проде `noop`) |
 | AIPort | `AI_ADAPTER` (пока не на проде) |
 

@@ -170,7 +170,7 @@ Configured()
 Send(channel, address, text)
 ```
 
-Адаптеры: telegram / max / WhatsApp Cloud API. Без ключа `Configured()==false`. Выбор: `MESSENGER_ADAPTER`. Чаты — этап 5.
+Адаптеры: telegram / max / WhatsApp Cloud API. Без ключа `Configured()==false`. Выбор: `MESSENGER_ADAPTER`. Этап 5: входящий webhook пишет staff-сообщение в тред и вызывает `Send` на identity клиента, если адаптер настроен.
 
 ### PublisherPort (v3, этап 4)
 

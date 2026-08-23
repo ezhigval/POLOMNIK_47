@@ -52,13 +52,15 @@ type TelegramUpdateRequest struct {
 }
 
 type TelegramMessage struct {
-	From *TelegramUser `json:"from"`
-	Chat *TelegramChat `json:"chat"`
-	Text string        `json:"text"`
+	From           *TelegramUser    `json:"from"`
+	Chat           *TelegramChat    `json:"chat"`
+	Text           string           `json:"text"`
+	ReplyToMessage *TelegramMessage `json:"reply_to_message"`
 }
 
 type TelegramUser struct {
-	Username string `json:"username"`
+	ID       json.Number `json:"id"`
+	Username string      `json:"username"`
 }
 
 type TelegramChat struct {
@@ -77,4 +79,18 @@ func (m *TelegramMessage) Username() string {
 		return ""
 	}
 	return m.From.Username
+}
+
+func (m *TelegramMessage) FromID() string {
+	if m == nil || m.From == nil {
+		return ""
+	}
+	return m.From.ID.String()
+}
+
+func (m *TelegramMessage) ReplyToText() string {
+	if m == nil || m.ReplyToMessage == nil {
+		return ""
+	}
+	return m.ReplyToMessage.Text
 }
