@@ -14,8 +14,15 @@ test("guest can browse search and submit a booking", async ({ page }) => {
   await bookingForm.scrollIntoViewIfNeeded();
   await bookingForm.getByLabel(/Имя и фамилия/i).fill("E2E Guest");
   await bookingForm.getByLabel(/^Телефон/i).fill("+79991112233");
-  await page.getByRole("dialog", { name: "Настройки cookie" }).getByRole("button", { name: "Только необходимые" }).click().catch(() => undefined);
-  await bookingForm.locator('input[name="consent_personal_data"]').check({ force: true });
+  const cookieBanner = page.getByRole("dialog", { name: "Настройки cookie" });
+  if (await cookieBanner.isVisible().catch(() => false)) {
+    await cookieBanner.getByRole("button", { name: "Только необходимые" }).click();
+    await expect(cookieBanner).toBeHidden();
+  }
+  await bookingForm.locator('input[name="consent_personal_data"]').evaluate((el: HTMLInputElement) => {
+    el.scrollIntoView({ block: "center" });
+    el.click();
+  });
   await bookingForm.getByRole("button", { name: "Отправить заявку" }).click();
 
   await expect(page.getByRole("heading", { name: "Заявка отправлена" })).toBeVisible();

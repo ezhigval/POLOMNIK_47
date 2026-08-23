@@ -1,13 +1,19 @@
 import { expect, test, type Page } from "@playwright/test";
 import { randomUUID } from "node:crypto";
 
-async function acceptRequiredConsents(page: Page) {
+async function dismissCookieBanner(page: Page) {
   const banner = page.getByRole("dialog", { name: "Настройки cookie" });
   if (await banner.isVisible().catch(() => false)) {
     await banner.getByRole("button", { name: "Только необходимые" }).click();
+    await expect(banner).toBeHidden();
   }
-  await page.locator('input[name="consent_personal_data"]').check({ force: true });
-  await page.locator('input[name="consent_terms"]').check({ force: true });
+}
+
+async function acceptRequiredConsents(page: Page) {
+  await dismissCookieBanner(page);
+  const form = page.locator("form").first();
+  await form.locator('input[name="consent_personal_data"]').evaluate((el: HTMLInputElement) => el.click());
+  await form.locator('input[name="consent_terms"]').evaluate((el: HTMLInputElement) => el.click());
 }
 
 function uniqueCredentials() {
