@@ -11,7 +11,8 @@
 | `v1.0.0` | Первый публичный запуск |
 | `v1.2.x` | Настройки, RBAC, callcheck, SEO, синяя палитра |
 | `v1.3.0` / `v2.0.0` | Mailer, OAuth-кнопки, чеклист владельца |
-| `v2.0.1` | Актуальный `main` (hotfix compose + актуальная документация) |
+| `v2.0.1` | Hotfix compose + документация |
+| `v2.1.0` | Freeze v2 code-complete: поддержка в админке, password reset, security P0/P1 |
 
 Откат: `git checkout <тег>` / деплой с известного тега. Не `compose down -v` — данные Postgres сохранять.
 
