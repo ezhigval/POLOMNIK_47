@@ -20,6 +20,7 @@ import { getSessionUser } from "@/lib/auth/session";
 import { toBookingProfile } from "@/lib/auth/user-features";
 import { FavoriteButton } from "@/components/favorite-button";
 import { CompanyReply } from "@/components/testimonial-card";
+import { TourRecommendations } from "@/components/tour-recommendations";
 
 type TourPageProps = {
   params: Promise<{ id: string }>;
@@ -235,6 +236,8 @@ export default async function TourPage({ params }: TourPageProps) {
                 </div>
               )}
             </section>
+
+            <TourRecommendations tourId={tour.id} />
           </section>
 
           <BookingForm tour={tour} profile={profile} />

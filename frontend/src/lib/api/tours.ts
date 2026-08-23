@@ -59,6 +59,10 @@ export function getPopularTours(limit = 10) {
   return apiGet<Tour[]>(`/tours/popular?limit=${limit}`);
 }
 
+export function getTourRecommendations(id: string) {
+  return apiGetList<Tour>(`/tours/${id}/recommendations`);
+}
+
 export function getTourReviews(tourId: string, page = 1, limit = 20) {
   return apiGetList<Review>(
     `/tours/${tourId}/reviews?page=${page}&limit=${limit}`,

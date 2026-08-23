@@ -57,7 +57,7 @@ PUBLISHER_ADAPTER=noop
 
 ## AIPort (этап 4)
 
-Фичи поддержки/рекомендаций/дайджеста — этап 7. Сейчас адаптер только вызывает `Complete(system, user)`, если его вызвать. По умолчанию `noop`.
+Фичи поддержки/рекомендаций/дайджеста/watchdog — этап 7 (в коде). Без ключа `Complete` не вызывается, сайт жив. По умолчанию `noop`. На проде ключа YandexGPT нет — оставлять `AI_ADAPTER=noop`.
 
 ```bash
 AI_ADAPTER=noop
@@ -82,7 +82,7 @@ IAM-токен на 12 часов не используем — только д�
 | Telegram уведомления заявок/поддержки | `NOTIFICATION_ADAPTER=telegram` (уже на проде) |
 | MessengerPort | `MESSENGER_ADAPTER` (на проде `noop`; чаты/бот работают через webhook уведомлений) |
 | PublisherPort | `PUBLISHER_ADAPTER` (на проде `noop`) |
-| AIPort | `AI_ADAPTER` (пока не на проде) |
+| AIPort | `AI_ADAPTER` (на проде `noop`; ключа нет) |
 
 Оплата Сбер/ЮKassa — отдельный PR (этап 8).
 

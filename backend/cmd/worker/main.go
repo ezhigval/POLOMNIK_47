@@ -73,6 +73,23 @@ func run() int {
 		cfg.OutboxWorkerMaxAttempts,
 	)
 
+	diskPath := cfg.UploadDir
+	if diskPath == "" {
+		diskPath = "/"
+	}
+	var pingDB func(context.Context) error
+	if pinger, ok := tourRepo.(interface {
+		Ping(context.Context) error
+	}); ok {
+		pingDB = pinger.Ping
+	}
+	watchdog := &application.Watchdog{
+		Outbox:     outboxRepo,
+		BackupPath: cfg.BackupLastPath,
+		DiskPath:   diskPath,
+		PingDB:     pingDB,
+	}
+
 	log.Info(
 		"outbox worker started",
 		slog.Duration("poll_interval", cfg.OutboxWorkerPollInterval),
@@ -83,8 +100,14 @@ func run() int {
 
 	ticker := time.NewTicker(cfg.OutboxWorkerPollInterval)
 	defer ticker.Stop()
+	var lastWatchdog time.Time
 
 	for {
+		if lastWatchdog.IsZero() || time.Since(lastWatchdog) >= 5*time.Minute {
+			watchdog.Log(ctx, log)
+			lastWatchdog = time.Now()
+		}
+
 		if smm != nil {
 			if n, smmErr := smm.PublishDue(ctx, time.Now().UTC()); smmErr != nil {
 				log.Error("smm due publish failed", slog.Any("error", smmErr))

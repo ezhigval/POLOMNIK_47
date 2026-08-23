@@ -104,6 +104,31 @@ func run() int {
 	tourService := application.NewTourService(tourRepo, cache, crm)
 	messengerPort := messenger.New(cfg)
 	supportService := application.NewSupportService(supportRepo, notifier).WithClientMessenger(messengerPort, userRepo)
+	integrationService := application.NewIntegrationService(integrationRefs, outboxRepo)
+	metrics := appmiddleware.NewRequestMetrics()
+	diskPath := cfg.UploadDir
+	if diskPath == "" {
+		diskPath = "/"
+	}
+	var pingDB func(context.Context) error
+	if pgStore != nil {
+		pingDB = pgStore.Ping
+	}
+	aiPort := ai.New(cfg)
+	aiFeatures := application.NewAIFeaturesService(
+		aiPort,
+		tourService,
+		bookingService,
+		supportService,
+		integrationService,
+		&application.Watchdog{
+			Outbox:     outboxRepo,
+			BackupPath: cfg.BackupLastPath,
+			DiskPath:   diskPath,
+			PingDB:     pingDB,
+			Status5xx:  metrics.Status5xx,
+		},
+	)
 	telegramService := application.NewTelegramService(
 		notificationSettings,
 		telegramDeps.Chats,
@@ -125,7 +150,7 @@ func run() int {
 			tourRepo,
 			crm,
 		),
-		Integrations: application.NewIntegrationService(integrationRefs, outboxRepo),
+		Integrations: integrationService,
 		Webhooks: application.NewWebhookService(
 			bookingService,
 			integration.NewCRMInbound(cfg),
@@ -162,10 +187,11 @@ func run() int {
 		Captcha:        captcha.New(cfg),
 		Messenger:      messengerPort,
 		Publisher:      publisherPort,
-		AI:             ai.New(cfg),
+		AI:             aiPort,
+		AIFeatures:     aiFeatures,
 		WebhookGuard:   application.NewWebhookGuard(cache),
 		RateLimiter:    rateLimiterFromCache(redisCache),
-		Metrics:        appmiddleware.NewRequestMetrics(),
+		Metrics:        metrics,
 		BackupLastPath: cfg.BackupLastPath,
 	}
 

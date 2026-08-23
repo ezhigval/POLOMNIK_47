@@ -33,6 +33,7 @@ import {
   deleteManagementRole,
   assignManagementRoleUser,
   sendManagementSupportMessage,
+  requestManagementSupportDraft,
   type CmsBlockCreateInput,
   type CmsBlockUpdateInput,
   type CmsPageUpdateInput,
@@ -114,6 +115,17 @@ export async function replySupportAction(threadId: string, body: string) {
   await sendManagementSupportMessage(threadId, body);
   revalidatePath("/management/support");
   revalidatePath(`/management/support/${threadId}`);
+}
+
+export async function requestSupportDraftAction(threadId: string) {
+  try {
+    return await requestManagementSupportDraft(threadId);
+  } catch (error) {
+    if (error instanceof ApiError) {
+      throw new Error(error.message);
+    }
+    throw error;
+  }
 }
 
 export async function approveReviewAction(formData: FormData) {

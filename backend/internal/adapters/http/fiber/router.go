@@ -78,7 +78,7 @@ func NewRouter(cfg config.Config, log *slog.Logger, services Services, health He
 		application.TelegramWebhookSecret(cfg.InternalAPISecret),
 		services.Captcha,
 		services.WebhookGuard,
-	)
+	).WithAI(services.AIFeatures)
 
 	ready := handlers.NewReadinessChecker(health.PingDB, health.PingCache, false)
 
@@ -106,6 +106,7 @@ func NewRouter(cfg config.Config, log *slog.Logger, services Services, health He
 
 	v1.Get("/tours/popular", h.ListPopularTours)
 	v1.Get("/tours/:id/reviews", h.ListTourReviews)
+	v1.Get("/tours/:id/recommendations", h.ListTourRecommendations)
 	v1.Get("/tours/:id", h.GetTour)
 	v1.Get("/tours", h.ListTours)
 
@@ -157,7 +158,10 @@ func NewRouter(cfg config.Config, log *slog.Logger, services Services, health He
 
 	management.Get("/support", require(domain.PermManageSupport), h.ManagementListSupportThreads)
 	management.Get("/support/:id", require(domain.PermManageSupport), h.ManagementGetSupportThread)
+	management.Post("/support/:id/draft", require(domain.PermManageSupport), appmiddleware.RateLimit(20, time.Minute), h.ManagementSupportDraft)
 	management.Post("/support/:id/messages", require(domain.PermManageSupport), appmiddleware.RateLimit(60, time.Minute), h.ManagementSendSupportMessage)
+	management.Get("/ai/metrics-digest", require(domain.PermViewStats), h.ManagementMetricsDigest)
+	management.Get("/watchdog", require(domain.PermViewStats), h.ManagementWatchdog)
 
 	management.Get("/reviews", require(domain.PermManageContent), h.ManagementListReviews)
 	management.Post("/reviews", require(domain.PermManageContent), h.ManagementCreateReview)

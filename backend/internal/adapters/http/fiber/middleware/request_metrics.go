@@ -7,11 +7,12 @@ import (
 )
 
 type RequestMetrics struct {
-	mu      sync.Mutex
-	last    time.Duration
-	sum     time.Duration
-	count   uint64
-	samples []time.Duration
+	mu        sync.Mutex
+	last      time.Duration
+	sum       time.Duration
+	count     uint64
+	status5xx uint64
+	samples   []time.Duration
 }
 
 func NewRequestMetrics() *RequestMetrics {
@@ -19,6 +20,10 @@ func NewRequestMetrics() *RequestMetrics {
 }
 
 func (m *RequestMetrics) Observe(d time.Duration) {
+	m.ObserveStatus(d, 0)
+}
+
+func (m *RequestMetrics) ObserveStatus(d time.Duration, status int) {
 	if m == nil {
 		return
 	}
@@ -27,10 +32,20 @@ func (m *RequestMetrics) Observe(d time.Duration) {
 	m.last = d
 	m.sum += d
 	atomic.AddUint64(&m.count, 1)
+	if status >= 500 && status <= 599 {
+		atomic.AddUint64(&m.status5xx, 1)
+	}
 	if len(m.samples) == 64 {
 		m.samples = m.samples[1:]
 	}
 	m.samples = append(m.samples, d)
+}
+
+func (m *RequestMetrics) Status5xx() uint64 {
+	if m == nil {
+		return 0
+	}
+	return atomic.LoadUint64(&m.status5xx)
 }
 
 func (m *RequestMetrics) Snapshot() (last time.Duration, avg time.Duration, count uint64) {

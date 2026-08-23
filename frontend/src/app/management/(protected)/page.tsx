@@ -174,6 +174,9 @@ export default async function ManagementDashboardPage() {
   if (can(PERM.support)) {
     actions.push({ href: "/management/support", label: "Поддержка" });
   }
+  if (can(PERM.stats)) {
+    actions.push({ href: "/management/ai", label: "Дайджест и watchdog" });
+  }
   if (can(PERM.content)) {
     actions.push({ href: "/management/reviews", label: "Модерировать отзывы" });
   }

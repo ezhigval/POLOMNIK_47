@@ -315,6 +315,57 @@ export async function getManagementSupportThread(id: string) {
   return body.data;
 }
 
+export type SupportDraft = {
+  configured: boolean;
+  escalate: boolean;
+  draft: string;
+  note: string;
+};
+
+export async function requestManagementSupportDraft(id: string) {
+  const body = await managementRequest<DataEnvelope<SupportDraft>>(`/support/${id}/draft`, {
+    method: "POST",
+  });
+  return body.data;
+}
+
+export type MetricsDigest = {
+  configured: boolean;
+  bookings_by_status: Record<string, number>;
+  active_tours: number;
+  open_support_threads: number;
+  outbox_pending: number;
+  outbox_failed: number;
+  summary?: string;
+};
+
+export async function getManagementMetricsDigest() {
+  const body = await managementRequest<DataEnvelope<MetricsDigest>>("/ai/metrics-digest");
+  return body.data;
+}
+
+export type WatchdogReport = {
+  configured: boolean;
+  at: string;
+  database: string;
+  disk_path?: string;
+  disk_used_bytes: number;
+  disk_total_bytes: number;
+  disk_percent: number;
+  outbox_pending: number;
+  outbox_failed: number;
+  status_5xx: number;
+  backup_at?: string;
+  backup_overdue: boolean;
+  restart_attempted: boolean;
+  summary?: string;
+};
+
+export async function getManagementWatchdog() {
+  const body = await managementRequest<DataEnvelope<WatchdogReport>>("/watchdog");
+  return body.data;
+}
+
 export async function sendManagementSupportMessage(id: string, bodyText: string) {
   const body = await managementRequest<DataEnvelope<ManagementSupportThread>>(
     `/support/${id}/messages`,

@@ -29,6 +29,7 @@ export const MANAGEMENT_NAV: ManagementNavItem[] = [
   { href: "/management/support", label: "Поддержка", anyOf: [PERM.support] },
   { href: "/management/reviews", label: "Отзывы", anyOf: [PERM.content] },
   { href: "/management/integrations", label: "Синхронизация", anyOf: [PERM.integrations, PERM.stats] },
+  { href: "/management/ai", label: "ИИ и watchdog", anyOf: [PERM.stats] },
   {
     href: "/management/settings",
     label: "Настройки",

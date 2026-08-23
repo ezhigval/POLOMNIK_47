@@ -157,6 +157,8 @@ WhatsApp — только официальный Cloud API. `ExportPayment` на
 - Дайджест метрик директору/рекламщику.
 - Watchdog: health, диск, outbox, 5xx, просроченный бэкап → отчёт, **без** рестарта прода.
 
+**Сделано в коде:** `POST /management/support/:id/draft` — черновик менеджеру, в тред и клиенту не пишется, эскалация человеку всегда. `GET /tours/:id/recommendations` — только `IsActive` туры (неактивные и выдуманные id отбрасываются; без ключа — остальные опубликованные). `GET /management/ai/metrics-digest` (`view_stats`) — заявки по статусам, активные туры, открытые диалоги, outbox; визитов нет. `GET /management/watchdog` и лог worker раз в 5 мин: БД, диск, outbox, 5xx с старта API, бэкап старше 26 ч; `restart_attempted` всегда false. На проде `AI_ADAPTER=noop` — фичи no-op, сайт жив. v4 не начат.
+
 ---
 
 ## Этап 8 — оплата

@@ -27,6 +27,7 @@ type Services struct {
 	Messenger      ports.MessengerPort
 	Publisher      ports.PublisherPort
 	AI             ports.AIPort
+	AIFeatures     *application.AIFeaturesService
 	WebhookGuard   *application.WebhookGuard
 	RateLimiter    ports.RateLimiter
 	Metrics        *middleware.RequestMetrics

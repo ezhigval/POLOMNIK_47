@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ManagementPanel } from "@/components/management/management-panel";
 import { ReplySupportForm } from "@/components/management/reply-support-form";
+import { SupportDraftBox } from "@/components/management/support-draft-box";
 import { StatusBadge } from "@/components/management/status-badge";
 import { ApiError } from "@/lib/api/client";
 import { getManagementSupportThread } from "@/lib/api/management";
@@ -74,7 +75,8 @@ export default async function ManagementSupportThreadPage({ params }: PageProps)
             })
           )}
         </div>
-        <div className="border-t border-stone-100 px-4 py-4">
+        <div className="space-y-4 border-t border-stone-100 px-4 py-4">
+          <SupportDraftBox threadId={thread.id} />
           <ReplySupportForm threadId={thread.id} />
         </div>
       </ManagementPanel>

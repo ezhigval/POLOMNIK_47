@@ -25,6 +25,7 @@ type Handler struct {
 	telegramWebhookSecret string
 	captcha               ports.CaptchaPort
 	webhookGuard          *application.WebhookGuard
+	ai                    *application.AIFeaturesService
 }
 
 func New(
@@ -69,6 +70,13 @@ func New(
 		captcha:               captcha,
 		webhookGuard:          webhookGuard,
 	}
+}
+
+func (h *Handler) WithAI(ai *application.AIFeaturesService) *Handler {
+	if h != nil {
+		h.ai = ai
+	}
+	return h
 }
 
 func (h *Handler) notificationSettings() *application.NotificationSettingsService {

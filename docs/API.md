@@ -507,6 +507,17 @@ DELETE /api/v1/management/smm/:id
 
 `GET /news/:slug` — только `is_published=true`. Management SMM: `manage_content`. Тело поста — `title`, `body`, `url`, `publish_at` (RFC3339), `channels` (`site_news` / `telegram_channel` / `vk_wall` / `max_feed`). Публикация пишет `results[]` по каждому каналу; один канал может упасть.
 
+## 8d. ИИ-фичи (этап 7)
+
+```text
+GET  /api/v1/tours/:id/recommendations
+POST /api/v1/management/support/:id/draft
+GET  /api/v1/management/ai/metrics-digest
+GET  /api/v1/management/watchdog
+```
+
+Рекомендации — только опубликованные (`IsActive`) туры, кроме текущего. Черновик поддержки: `manage_support`, в переписку не пишется, `escalate=true`. Дайджест и watchdog: `view_stats`. Визиты в дайджест не входят. Watchdog `restart_attempted` всегда `false`. Без ключа AIPort все ответы безопасные no-op.
+
 ## 9. Future APIs
 
 Not in MVP 1 (частично уже есть в коде; этот список устарел — см. ROADMAP):

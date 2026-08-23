@@ -38,7 +38,7 @@ OAuth подробно: [OAUTH_SETUP.md](OAUTH_SETUP.md) · реклама: [SEO
 
 ## Дальше: v3 (в работе)
 
-Код линейки v3: этапы **0–5** (чаты/бот на том же Telegram webhook; MessengerPort fan-out `noop`). Этап **6** в коде: контент-план `/management/smm`, `/news/[slug]`; PublisherPort на проде `noop`. Goose **17** после деплоя этапа 6.  
-Этапы 7–10 и v4 не начаты. План: **[V3_PLAN.md](V3_PLAN.md)**. Ключи: [V3_OWNER_SETUP.md](V3_OWNER_SETUP.md).
+Код линейки v3: этапы **0–6** на проде (чаты/бот; SMM `/management/smm` и `/news/[slug]`; goose 17; Publisher/Messenger `noop`). Этап **7** в коде: черновик поддержки, рекомендации из опубликованных туров, дайджест без визитов, watchdog только отчёт. На проде `AI_ADAPTER=noop`.  
+Этапы 8–10 и v4 не начаты. План: **[V3_PLAN.md](V3_PLAN.md)**. Ключи: [V3_OWNER_SETUP.md](V3_OWNER_SETUP.md).
 
 Без секретов владельца E2E OAuth/SMTP не прогнать — [V2_OWNER_SETUP.md](V2_OWNER_SETUP.md).

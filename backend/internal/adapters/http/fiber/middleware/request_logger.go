@@ -15,8 +15,6 @@ func RequestLogger(log *slog.Logger, metrics *RequestMetrics) fiber.Handler {
 		err := c.Next()
 
 		duration := time.Since(startedAt)
-		metrics.Observe(duration)
-
 		status := c.Response().StatusCode()
 		if err != nil {
 			status = fiber.StatusInternalServerError
@@ -24,6 +22,7 @@ func RequestLogger(log *slog.Logger, metrics *RequestMetrics) fiber.Handler {
 				status = fiberErr.Code
 			}
 		}
+		metrics.ObserveStatus(duration, status)
 
 		c.Set("X-Request-ID", requestID(c))
 
