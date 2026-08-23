@@ -30,9 +30,7 @@ export function AccountConsentsPanel() {
   const [marketing, setMarketing] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  async function load() {
-    setLoading(true);
-    const response = await fetch("/api/account/consents", { cache: "no-store" });
+  async function applyList(response: Response) {
     setLoading(false);
     if (!response.ok) {
       setError("Не удалось загрузить историю согласий");
@@ -47,8 +45,23 @@ export function AccountConsentsPanel() {
     setMarketing(latestMarketing?.consent_type === "marketing");
   }
 
+  async function load() {
+    const response = await fetch("/api/account/consents", { cache: "no-store" });
+    await applyList(response);
+  }
+
   useEffect(() => {
-    void load();
+    const controller = new AbortController();
+    fetch("/api/account/consents", { cache: "no-store", signal: controller.signal })
+      .then((response) => applyList(response))
+      .catch((err: unknown) => {
+        if (err instanceof DOMException && err.name === "AbortError") {
+          return;
+        }
+        setLoading(false);
+        setError("Не удалось загрузить историю согласий");
+      });
+    return () => controller.abort();
   }, []);
 
   async function saveMarketing() {

@@ -1,31 +1,34 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import {
   COOKIE_CONSENT_EVENT,
   COOKIE_CONSENT_KEY,
   type CookieConsentChoice,
   getCookieConsent,
   setCookieConsent,
+  subscribeCookieConsent,
 } from "@/lib/cookie-consent";
 
+function subscribeNoop() {
+  return () => {};
+}
+
 export function CookieBanner() {
-  const [visible, setVisible] = useState(false);
+  const isClient = useSyncExternalStore(subscribeNoop, () => true, () => false);
+  const choice = useSyncExternalStore(subscribeCookieConsent, getCookieConsent, () => null);
+  const [forceOpen, setForceOpen] = useState(false);
 
-  useEffect(() => {
-    setVisible(getCookieConsent() === null);
-  }, []);
-
-  function choose(choice: CookieConsentChoice) {
-    setCookieConsent(choice);
-    setVisible(false);
+  function choose(next: CookieConsentChoice) {
+    setCookieConsent(next);
+    setForceOpen(false);
     void fetch("/api/consents", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         consent_type:
-          choice === "all" ? "cookie_all" : choice === "essential" ? "cookie_essential" : "cookie_reject",
+          next === "all" ? "cookie_all" : next === "essential" ? "cookie_essential" : "cookie_reject",
       }),
     }).catch(() => {
       /* best-effort server log */
@@ -34,12 +37,13 @@ export function CookieBanner() {
 
   useEffect(() => {
     function onOpen() {
-      setVisible(true);
+      setForceOpen(true);
     }
     window.addEventListener(COOKIE_CONSENT_EVENT, onOpen);
     return () => window.removeEventListener(COOKIE_CONSENT_EVENT, onOpen);
   }, []);
 
+  const visible = forceOpen || (isClient && choice === null);
   if (!visible) {
     return null;
   }

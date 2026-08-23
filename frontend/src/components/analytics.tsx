@@ -1,22 +1,12 @@
 "use client";
 
 import Script from "next/script";
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import { analyticsConfig, isAnalyticsEnabled } from "@/lib/analytics";
-import { allowsAnalyticsCookies, getCookieConsent, type CookieConsentChoice } from "@/lib/cookie-consent";
+import { allowsAnalyticsCookies, getCookieConsent, subscribeCookieConsent } from "@/lib/cookie-consent";
 
 export function Analytics() {
-  const [choice, setChoice] = useState<CookieConsentChoice | null>(null);
-
-  useEffect(() => {
-    setChoice(getCookieConsent());
-    function onChange(event: Event) {
-      const detail = (event as CustomEvent<CookieConsentChoice>).detail;
-      setChoice(detail ?? getCookieConsent());
-    }
-    window.addEventListener("palomnik:cookie-consent-changed", onChange);
-    return () => window.removeEventListener("palomnik:cookie-consent-changed", onChange);
-  }, []);
+  const choice = useSyncExternalStore(subscribeCookieConsent, getCookieConsent, () => null);
 
   if (!isAnalyticsEnabled() || !allowsAnalyticsCookies(choice)) {
     return null;
