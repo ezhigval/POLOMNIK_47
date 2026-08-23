@@ -9,8 +9,10 @@ API: **https://api.tikhvin-palomnik.ru**
 
 ## Шаги
 
-1. Локально: `docker compose up --build -d`, тесты `go test` / `npm run lint`.
-2. GitHub: https://github.com/ezhigval/POLOMNIK_47 — commit/push только по просьбе владельца.
+`main` соответствует тому, что на проде. Все правки — в отдельной ветке, в `main` только через PR. Одно существенное изменение — один PR (удобный git и откат).
+
+1. Ветка от `main`: правка, `docker compose up --build -d`, тесты `go test` / `npm run lint`.
+2. GitHub: https://github.com/ezhigval/POLOMNIK_47 — PR в `main`, мерж после проверки.
 3. Прод:
 
 ```bash

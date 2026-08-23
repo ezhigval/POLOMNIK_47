@@ -7,6 +7,8 @@ alwaysApply: true
 
 Публичный домен один: **https://tikhvin-palomnik.ru**. Отдельного preview-стенда нет.
 
-Порядок: локально → тесты → GitHub (commit/push только по просьбе) → `make deploy`.
+Порядок: отдельная ветка → тесты → PR в `main` → мерж → `make deploy` (только по просьбе).
+
+`main` = прод. Каждое существенное изменение — своя ветка и свой PR; не смешивать hotfix и фичи.
 
 Не деплой на сервер сам, пока владелец не попросил. Не печатай `.env.production`. Не force-push `main`. Подробности: `AGENTS.md`, `docs/RELEASE.md`.
