@@ -38,7 +38,7 @@ OAuth подробно: [OAUTH_SETUP.md](OAUTH_SETUP.md) · реклама: [SEO
 
 ## Дальше: v3 (в работе)
 
-Код линейки v3: этапы **0–3** на проде (identity, профиль, пассажиры; goose 16). Этап **4**: MessengerPort и PublisherPort на проде в `noop`. AIPort (YandexGPT) в коде, без деплоя, пока не попросите.  
+Код линейки v3: этапы **0–3** на проде (identity, профиль, пассажиры; goose 16). Этап **4**: MessengerPort, PublisherPort и AIPort на проде в `noop`. Compose прокидывает `MESSENGER_ADAPTER` (по умолчанию `noop`) и WhatsApp/Max env — живой мессенджер не включаем.  
 Этапы 5–10 и v4 не начаты. План: **[V3_PLAN.md](V3_PLAN.md)**. Ключи этапа 4: [V3_OWNER_SETUP.md](V3_OWNER_SETUP.md).
 
 Без секретов владельца E2E OAuth/SMTP не прогнать — [V2_OWNER_SETUP.md](V2_OWNER_SETUP.md).

@@ -14,7 +14,7 @@ v2-секреты (OAuth, smtp, sms.ru, Telegram-уведомления): [V2_OW
 
 Чат на сайте и ответы в боте — этап 5. Сейчас адаптер только отправляет текст, если его вызвать.
 
-В `.env.production` один из вариантов:
+В `.env.production` один из вариантов. Compose (`docker-compose.yml` и `docker-compose.prod.yml`) прокидывает `MESSENGER_ADAPTER` (по умолчанию `noop`), `WHATSAPP_*` и `MAX_BOT_TOKEN` / `MAX_API_BASE` — без ключа контейнер остаётся noop.
 
 ```bash
 MESSENGER_ADAPTER=noop
