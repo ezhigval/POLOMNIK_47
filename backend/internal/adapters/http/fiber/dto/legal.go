@@ -1,8 +1,6 @@
 package dto
 
 import (
-	"time"
-
 	"palomnik/internal/domain"
 )
 
@@ -94,8 +92,4 @@ func ToConsentResponse(c domain.Consent) ConsentResponse {
 		resp.RequestID = &s
 	}
 	return resp
-}
-
-func formatTime(t time.Time) string {
-	return t.UTC().Format(time.RFC3339)
 }
