@@ -14,6 +14,7 @@ test("guest can browse search and submit a booking", async ({ page }) => {
   await bookingForm.scrollIntoViewIfNeeded();
   await bookingForm.getByLabel(/Имя и фамилия/i).fill("E2E Guest");
   await bookingForm.getByLabel(/^Телефон/i).fill("+79991112233");
+  await bookingForm.getByRole("checkbox", { name: /согласие на обработку моих персональных данных/i }).check();
   await bookingForm.getByRole("button", { name: "Отправить заявку" }).click();
 
   await expect(page.getByRole("heading", { name: "Заявка отправлена" })).toBeVisible();

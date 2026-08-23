@@ -19,6 +19,8 @@ test("user can register and see empty trips page", async ({ page }) => {
   await page.getByLabel(/^Телефон/i).fill(user.phone);
   await page.getByLabel(/^Email/i).fill(user.email);
   await page.getByLabel(/^Пароль/i).fill(user.password);
+  await page.getByRole("checkbox", { name: /согласие на обработку моих персональных данных/i }).check();
+  await page.getByRole("checkbox", { name: /принимаю условия/i }).check();
   await page.getByRole("button", { name: "Создать аккаунт" }).click();
 
   await expect(page).toHaveURL(/\/account\/trips/);
@@ -34,6 +36,8 @@ test("user can login after registration", async ({ page }) => {
   await page.getByLabel(/^Телефон/i).fill(user.phone);
   await page.getByLabel(/^Email/i).fill(user.email);
   await page.getByLabel(/^Пароль/i).fill(user.password);
+  await page.getByRole("checkbox", { name: /согласие на обработку моих персональных данных/i }).check();
+  await page.getByRole("checkbox", { name: /принимаю условия/i }).check();
   await page.getByRole("button", { name: "Создать аккаунт" }).click();
   await expect(page).toHaveURL(/\/account\/trips/);
 
