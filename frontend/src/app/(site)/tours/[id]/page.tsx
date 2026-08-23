@@ -157,12 +157,16 @@ export default async function TourPage({ params }: TourPageProps) {
                   </div>
                 </div>
 
-                <dl className="mb-8 grid gap-3 rounded-xl bg-stone-50 p-4 sm:grid-cols-3">
+                <dl className="mb-8 grid gap-3 rounded-xl bg-stone-50 p-4 sm:grid-cols-4">
                   <div>
                     <dt className="text-xs font-medium uppercase tracking-wide text-stone-500">Даты</dt>
                     <dd className="mt-1 text-sm font-medium text-stone-900">
                       {formatDateRange(tour.date_start, tour.date_end)}
                     </dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs font-medium uppercase tracking-wide text-stone-500">Длительность</dt>
+                    <dd className="mt-1 text-sm font-medium text-stone-900">{duration || "—"}</dd>
                   </div>
                   <div>
                     <dt className="text-xs font-medium uppercase tracking-wide text-stone-500">Стоимость</dt>
@@ -244,7 +248,13 @@ export default async function TourPage({ params }: TourPageProps) {
         </div>
       </div>
 
-      <MobileBookingCTA disabled={soldOut} price={tour.price} currency={tour.currency} />
+      <MobileBookingCTA
+        disabled={soldOut}
+        price={tour.price}
+        currency={tour.currency}
+        dateStart={tour.date_start}
+        dateEnd={tour.date_end}
+      />
     </>
   );
 }

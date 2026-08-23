@@ -90,6 +90,14 @@ export default async function MyTripsPage() {
                   </div>
                 </dl>
 
+                <div className="mt-4 rounded-xl bg-stone-50 p-3 text-sm text-stone-600">
+                  <p className="font-medium text-stone-800">Оплата</p>
+                  <p className="mt-1">
+                    Сумма заявки: {formatPrice(booking.total_price, tour?.currency ?? "RUB")}.
+                    Онлайн-оплата на сайте не подключена — порядок оплаты уточняет менеджер.
+                  </p>
+                </div>
+
                 <div className="mt-4 flex flex-wrap gap-4">
                   {tour ? (
                     <Link
@@ -99,6 +107,9 @@ export default async function MyTripsPage() {
                       Открыть тур
                     </Link>
                   ) : null}
+                  <Link href="/account/passengers" className="text-sm font-medium text-stone-600 hover:text-brand-800">
+                    Пассажиры
+                  </Link>
                   <Link href="/support/chat" className="text-sm font-medium text-stone-600 hover:text-brand-800">
                     Вопрос по заявке
                   </Link>

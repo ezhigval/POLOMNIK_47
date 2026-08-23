@@ -1,11 +1,12 @@
 import Link from "next/link";
-import { TourCard } from "@/components/tour-card";
-import { getPopularTours, type Tour } from "@/lib/api/tours";
+import { TourSchedule } from "@/components/tour-schedule";
+import { getTours, type Tour } from "@/lib/api/tours";
 
 export async function PopularDestinations() {
   let tours: Tour[] = [];
   try {
-    tours = (await getPopularTours(8)) ?? [];
+    const response = await getTours({ limit: "8" });
+    tours = response.data ?? [];
   } catch {
     return null;
   }
@@ -19,29 +20,24 @@ export async function PopularDestinations() {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h2 className="font-display text-2xl font-semibold text-stone-900 sm:text-3xl">
-            Популярные направления
+            Ближайшие выезды
           </h2>
+          <p className="mt-2 text-sm text-stone-600">
+            Даты, длительность и цена — из карточки тура, по дате выезда.
+          </p>
         </div>
         <Link href="/search" className="btn-secondary text-sm">
-          Все туры
+          Всё расписание
         </Link>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {tours.map((tour) => (
-          <TourCard key={tour.id} tour={tour} featured />
-        ))}
-      </div>
+      <TourSchedule tours={tours} />
     </section>
   );
 }
 
 export function PopularDestinationsSkeleton() {
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3" aria-busy="true">
-      {Array.from({ length: 3 }).map((_, i) => (
-        <div key={i} className="h-64 animate-pulse rounded-2xl bg-stone-200" />
-      ))}
-    </div>
+    <div className="h-64 animate-pulse rounded-2xl bg-stone-200" aria-busy="true" />
   );
 }

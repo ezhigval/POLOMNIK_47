@@ -2,7 +2,13 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { AuthAlert } from "@/components/auth/auth-alert";
 import { ProfileForm } from "@/components/account/profile-form";
-import { fetchAuthMethods, fetchCurrentUser, fetchMyIdentities, type AuthMethods } from "@/lib/api/auth";
+import {
+  fetchAuthMethods,
+  fetchCurrentUser,
+  fetchMyIdentities,
+  fetchMyPassengers,
+  type AuthMethods,
+} from "@/lib/api/auth";
 import { getAuthToken } from "@/lib/auth/session";
 
 export const metadata: Metadata = {
@@ -51,9 +57,10 @@ export default async function AccountProfilePage({ searchParams }: PageProps) {
     redirect("/account/login?returnUrl=%2Faccount");
   }
 
-  const [identities, methods] = await Promise.all([
+  const [identities, methods, passengers] = await Promise.all([
     fetchMyIdentities(token).catch(() => []),
     fetchAuthMethods().catch((): AuthMethods => ({})),
+    fetchMyPassengers(token).catch(() => []),
   ]);
   const linkedProviders = new Set(identities.map((item) => item.provider));
 
@@ -84,6 +91,21 @@ export default async function AccountProfilePage({ searchParams }: PageProps) {
       {notice ? <AuthAlert message={notice} /> : null}
 
       <ProfileForm key={`${user.name}|${user.email}|${user.phone}`} user={user} />
+
+      <section className="grid gap-3 sm:grid-cols-3">
+        <div className="rounded-2xl border border-stone-200 bg-white p-4">
+          <p className="text-xs uppercase tracking-wide text-stone-400">Привязки</p>
+          <p className="mt-1 text-lg font-semibold text-stone-900">{identities.length}</p>
+        </div>
+        <a href="/account/passengers" className="rounded-2xl border border-stone-200 bg-white p-4 hover:border-brand-200">
+          <p className="text-xs uppercase tracking-wide text-stone-400">Пассажиры</p>
+          <p className="mt-1 text-lg font-semibold text-stone-900">{passengers.length}</p>
+        </a>
+        <a href="/account/trips" className="rounded-2xl border border-stone-200 bg-white p-4 hover:border-brand-200">
+          <p className="text-xs uppercase tracking-wide text-stone-400">Оплата</p>
+          <p className="mt-1 text-sm font-medium text-stone-800">на сайте не подключена</p>
+        </a>
+      </section>
 
       <section className="space-y-3 rounded-2xl border border-stone-200 bg-white p-5">
         <h2 className="font-display text-xl font-semibold text-stone-900">Входы</h2>

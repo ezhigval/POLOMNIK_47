@@ -10,7 +10,7 @@ import {
 import { StatusBadge } from "@/components/management/status-badge";
 import { deleteTourAction } from "@/app/management/actions";
 import { listManagementTours } from "@/lib/api/management";
-import { formatDateRange, formatPrice } from "@/lib/format";
+import { formatDateRange, formatPrice, formatTourDuration } from "@/lib/format";
 import { ManagementNoAccess } from "@/components/management/management-no-access";
 import { canAccessManagementPage } from "@/lib/management-page-access";
 import { PERM } from "@/lib/management-access";
@@ -28,6 +28,7 @@ export default async function ManagementToursPage() {
           <ManagementTableHead>
             <ManagementTh>Название</ManagementTh>
             <ManagementTh>Даты</ManagementTh>
+            <ManagementTh>Длительность</ManagementTh>
             <ManagementTh>Места</ManagementTh>
             <ManagementTh>Цена</ManagementTh>
             <ManagementTh>Статус</ManagementTh>
@@ -35,7 +36,7 @@ export default async function ManagementToursPage() {
           </ManagementTableHead>
           <tbody>
             {tours.length === 0 ? (
-              <ManagementEmptyRow colSpan={6}>Туров пока нет.</ManagementEmptyRow>
+              <ManagementEmptyRow colSpan={7}>Туров пока нет.</ManagementEmptyRow>
             ) : (
               tours.map((tour) => (
                 <tr key={tour.id} className="border-b border-stone-100 align-top last:border-0">
@@ -45,6 +46,9 @@ export default async function ManagementToursPage() {
                   </td>
                   <td className="px-4 py-4 whitespace-nowrap">
                     {formatDateRange(tour.date_start, tour.date_end)}
+                  </td>
+                  <td className="px-4 py-4 whitespace-nowrap">
+                    {formatTourDuration(tour.date_start, tour.date_end) || "—"}
                   </td>
                   <td className="px-4 py-4">
                     {tour.slots_left}/{tour.slots_total}

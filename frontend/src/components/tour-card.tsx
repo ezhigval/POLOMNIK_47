@@ -31,17 +31,17 @@ export function TourCard({ tour, featured = false }: TourCardProps) {
         <Link href={`/tours/${tour.id}`} className="relative block">
           <TourImage tour={tour} overlay className="aspect-[16/10] w-full" />
           <div className="absolute left-3 top-3 flex flex-wrap gap-2">
-          {tour.is_hot ? (
-            <span className="rounded-full bg-amber-400/95 px-2.5 py-0.5 text-xs font-semibold text-amber-950 shadow-sm">
-              Хит сезона
-            </span>
-          ) : null}
-          {duration ? (
-            <span className="rounded-full bg-white/90 px-2.5 py-0.5 text-xs font-medium text-stone-800 shadow-sm backdrop-blur-sm">
-              {duration}
-            </span>
-          ) : null}
-        </div>
+            {tour.is_hot ? (
+              <span className="rounded-full bg-amber-400/95 px-2.5 py-0.5 text-xs font-semibold text-amber-950 shadow-sm">
+                Хит сезона
+              </span>
+            ) : null}
+            {duration ? (
+              <span className="rounded-full bg-white/90 px-2.5 py-0.5 text-xs font-medium text-stone-800 shadow-sm backdrop-blur-sm">
+                {duration}
+              </span>
+            ) : null}
+          </div>
         </Link>
         <div className="absolute right-3 top-3 z-10">
           <FavoriteButton tourId={tour.id} compact />
@@ -49,37 +49,37 @@ export function TourCard({ tour, featured = false }: TourCardProps) {
       </div>
 
       <div className="flex flex-1 flex-col p-5">
-        <div className="mb-3 flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <Link href={`/tours/${tour.id}`}>
-              <h2 className="font-display text-xl font-semibold leading-snug text-stone-900 transition group-hover:text-brand-800">
-                {tour.title}
-              </h2>
-            </Link>
-            {tour.location ? (
-              <p className="mt-1 text-sm text-stone-500">{tour.location}</p>
-            ) : null}
+        <Link href={`/tours/${tour.id}`}>
+          <h2 className="font-display text-xl font-semibold leading-snug text-stone-900 transition group-hover:text-brand-800">
+            {tour.title}
+          </h2>
+        </Link>
+        {tour.location ? <p className="mt-1 text-sm text-stone-500">{tour.location}</p> : null}
+
+        <dl className="mt-4 grid flex-1 grid-cols-2 gap-3 border-t border-stone-100 pt-4 text-sm">
+          <div>
+            <dt className="text-xs uppercase tracking-wide text-stone-400">Даты</dt>
+            <dd className="mt-1 text-stone-800">{formatDateRange(tour.date_start, tour.date_end)}</dd>
           </div>
-        </div>
-
-        <p className="mb-4 line-clamp-2 flex-1 text-sm leading-6 text-stone-600">
-          {tour.description?.split("\n")[0] || "Описание появится позже."}
-        </p>
-
-        <div className="mb-4 space-y-2 border-t border-stone-100 pt-4">
-          <p className="text-sm text-stone-600">{formatDateRange(tour.date_start, tour.date_end)}</p>
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <p className="text-xl font-semibold text-stone-900">
-              {formatPrice(tour.price, tour.currency)}
-              <span className="text-sm font-normal text-stone-500"> / чел.</span>
-            </p>
+          <div>
+            <dt className="text-xs uppercase tracking-wide text-stone-400">Длительность</dt>
+            <dd className="mt-1 text-stone-800">{duration || "—"}</dd>
+          </div>
+          <div className="col-span-2 flex flex-wrap items-end justify-between gap-2">
+            <div>
+              <dt className="text-xs uppercase tracking-wide text-stone-400">Стоимость</dt>
+              <dd className="mt-1 text-xl font-semibold text-stone-900">
+                {formatPrice(tour.price, tour.currency)}
+                <span className="text-sm font-normal text-stone-500"> / чел.</span>
+              </dd>
+            </div>
             <SlotsBadge slotsLeft={tour.slots_left} />
           </div>
-        </div>
+        </dl>
 
         <Link
           href={`/tours/${tour.id}`}
-          className={`btn-primary w-full text-center ${soldOut ? "pointer-events-none opacity-50" : ""}`}
+          className={`btn-primary mt-4 w-full text-center ${soldOut ? "pointer-events-none opacity-50" : ""}`}
           aria-disabled={soldOut}
         >
           {soldOut ? "Мест нет" : "Смотреть и записаться"}

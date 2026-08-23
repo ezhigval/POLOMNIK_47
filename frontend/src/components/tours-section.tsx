@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { Pagination } from "@/components/pagination";
 import { TourCard } from "@/components/tour-card";
+import { TourSchedule } from "@/components/tour-schedule";
 import { ActiveFilterChips, TourFilters } from "@/components/tour-filters";
 import { ApiError } from "@/lib/api/client";
 import { getPopularTours, getTours, type Tour } from "@/lib/api/tours";
@@ -96,7 +97,7 @@ async function ToursContent({
       <section>
         <div className="mb-4 flex items-center justify-between gap-3">
           <h2 className="text-xl font-semibold">
-            {hasActiveFilters(filters) ? "Результаты поиска" : "Все туры"}
+            {hasActiveFilters(filters) ? "Результаты поиска" : "Расписание"}
           </h2>
           {toursResponse.data.length > 0 ? (
             <span className="text-sm text-stone-500">Найдено: {toursResponse.meta.total}</span>
@@ -129,11 +130,7 @@ async function ToursContent({
           )
         ) : (
           <>
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {toursResponse.data.map((tour) => (
-                <TourCard key={tour.id} tour={tour} />
-              ))}
-            </div>
+            <TourSchedule tours={toursResponse.data} />
             <Pagination meta={toursResponse.meta} filters={filters} basePath={basePath} />
           </>
         )}
@@ -173,11 +170,7 @@ function ToursSkeleton() {
   return (
     <div className="space-y-4" aria-live="polite" aria-busy="true">
       <div className="h-6 w-40 animate-pulse rounded bg-stone-200" />
-      <div className="grid gap-4 md:grid-cols-2">
-        {Array.from({ length: 4 }).map((_, index) => (
-          <div key={index} className="h-48 animate-pulse rounded-2xl bg-stone-200" />
-        ))}
-      </div>
+      <div className="h-64 animate-pulse rounded-2xl bg-stone-200" />
     </div>
   );
 }

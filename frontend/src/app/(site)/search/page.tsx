@@ -1,17 +1,18 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import type { Metadata } from "next";
+import { CatalogStickyCTA } from "@/components/catalog-sticky-cta";
 import { TripSearchConstructor } from "@/components/trip-search-constructor";
 import { ToursSection } from "@/components/tours-section";
 import { parseTourFilters } from "@/lib/tour-filters";
 
 export const metadata: Metadata = {
-  title: "Туры",
-  description: "Найдите паломнический тур по направлению, датам и количеству участников.",
+  title: "Расписание туров",
+  description: "Расписание паломнических туров: даты, стоимость и длительность.",
   alternates: { canonical: "/search" },
   openGraph: {
-    title: "Туры",
-    description: "Найдите паломнический тур по направлению, датам и количеству участников.",
+    title: "Расписание туров",
+    description: "Расписание паломнических туров: даты, стоимость и длительность.",
     url: "/search",
   },
 };
@@ -25,14 +26,14 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   const filters = parseTourFilters(params);
 
   return (
-    <div className="mx-auto max-w-6xl space-y-8 px-4 py-8 sm:py-10">
+    <div className="mx-auto max-w-6xl space-y-8 px-4 py-8 pb-24 sm:py-10 lg:pb-10">
       <div className="space-y-3">
-        <p className="text-sm font-medium uppercase tracking-widest text-brand-800">Поиск</p>
+        <p className="text-sm font-medium uppercase tracking-widest text-brand-800">Туры</p>
         <h1 className="font-display text-3xl font-semibold text-stone-900 sm:text-4xl">
-          Подбор паломнического тура
+          Расписание
         </h1>
         <p className="max-w-2xl text-sm text-stone-600 sm:text-base">
-          Укажите даты и количество человек — покажем доступные поездки с учётом свободных мест.
+          Даты, стоимость и длительность — из карточки тура. Фильтр по датам и числу мест.
         </p>
       </div>
 
@@ -53,6 +54,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         </Link>
         .
       </div>
+      <CatalogStickyCTA />
     </div>
   );
 }
