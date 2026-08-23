@@ -23,7 +23,8 @@ export const footerNavLinks: NavLink[] = [
   { href: "/#faq", label: "Вопросы и ответы" },
   { href: "/support", label: "Справочник поддержки" },
   { href: "/support/chat", label: "Чат поддержки" },
-  { href: "/privacy", label: "Политика конфиденциальности" },
+  { href: "/legal", label: "Юридические документы" },
+  { href: "/legal/privacy-policy", label: "Политика конфиденциальности" },
 ];
 
 export const accountNavLinks: NavLink[] = [

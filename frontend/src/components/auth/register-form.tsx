@@ -7,6 +7,7 @@ import { PhoneCallVerify } from "@/components/auth/phone-call-verify";
 import { FormError } from "@/components/form-error";
 import { safeReturnUrl } from "@/lib/site-nav";
 import { HoneypotField } from "@/components/honeypot-field";
+import { MarketingConsentCheckbox, PersonalDataConsentCheckbox } from "@/components/consent-checkbox";
 
 type RegisterFormProps = {
   returnUrl?: string;
@@ -18,6 +19,8 @@ export function RegisterForm({ returnUrl = "/account/trips" }: RegisterFormProps
   const [loading, setLoading] = useState(false);
   const [phone, setPhone] = useState("");
   const [phoneCheckId, setPhoneCheckId] = useState<string | null>(null);
+  const [consentPersonalData, setConsentPersonalData] = useState(false);
+  const [consentMarketing, setConsentMarketing] = useState(false);
   const [phoneCallAvailable, setPhoneCallAvailable] = useState(false);
   const destination = safeReturnUrl(returnUrl);
   const loginHref =
@@ -59,6 +62,8 @@ export function RegisterForm({ returnUrl = "/account/trips" }: RegisterFormProps
         password: formData.get("password"),
         phone_check_id: phoneCheckId,
         website: formData.get("website"),
+        consent_personal_data: consentPersonalData,
+        consent_marketing: consentMarketing,
       }),
     });
 
@@ -121,9 +126,20 @@ export function RegisterForm({ returnUrl = "/account/trips" }: RegisterFormProps
 
       <FormError>{error}</FormError>
 
+      <PersonalDataConsentCheckbox
+        checked={consentPersonalData}
+        onChange={setConsentPersonalData}
+        disabled={loading}
+      />
+      <MarketingConsentCheckbox
+        checked={consentMarketing}
+        onChange={setConsentMarketing}
+        disabled={loading}
+      />
+
       <button
         type="submit"
-        disabled={loading || (phoneCallAvailable && !phoneCheckId)}
+        disabled={loading || (phoneCallAvailable && !phoneCheckId) || !consentPersonalData}
         className="btn-primary w-full"
       >
         {loading ? "Создаём…" : "Создать аккаунт"}

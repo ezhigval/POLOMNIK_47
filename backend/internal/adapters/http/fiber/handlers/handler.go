@@ -22,6 +22,8 @@ type Handler struct {
 	notifications         *application.NotificationSettingsService
 	siteSettings          *application.SiteSettingsService
 	adminRoles            *application.AdminRoleService
+	legal                 *application.LegalDocumentService
+	consents              *application.ConsentService
 	telegramWebhookSecret string
 	captcha               ports.CaptchaPort
 	webhookGuard          *application.WebhookGuard
@@ -45,6 +47,8 @@ func New(
 	notifications *application.NotificationSettingsService,
 	siteSettings *application.SiteSettingsService,
 	adminRoles *application.AdminRoleService,
+	legal *application.LegalDocumentService,
+	consents *application.ConsentService,
 	telegramWebhookSecret string,
 	captcha ports.CaptchaPort,
 	webhookGuard *application.WebhookGuard,
@@ -66,6 +70,8 @@ func New(
 		notifications:         notifications,
 		siteSettings:          siteSettings,
 		adminRoles:            adminRoles,
+		legal:                 legal,
+		consents:              consents,
 		telegramWebhookSecret: telegramWebhookSecret,
 		captcha:               captcha,
 		webhookGuard:          webhookGuard,

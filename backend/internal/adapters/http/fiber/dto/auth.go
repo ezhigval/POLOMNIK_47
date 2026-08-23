@@ -9,13 +9,15 @@ import (
 )
 
 type RegisterRequest struct {
-	Email        string `json:"email"`
-	Phone        string `json:"phone"`
-	Name         string `json:"name"`
-	Password     string `json:"password"`
-	PhoneCheckID string `json:"phone_check_id"`
-	Website      string `json:"website"`
-	CaptchaToken string `json:"captcha_token"`
+	Email               string `json:"email"`
+	Phone               string `json:"phone"`
+	Name                string `json:"name"`
+	Password            string `json:"password"`
+	PhoneCheckID        string `json:"phone_check_id"`
+	Website             string `json:"website"`
+	CaptchaToken        string `json:"captcha_token"`
+	ConsentPersonalData bool   `json:"consent_personal_data"`
+	ConsentMarketing    bool   `json:"consent_marketing"`
 }
 
 type LoginRequest struct {

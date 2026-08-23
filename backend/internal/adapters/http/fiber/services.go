@@ -23,6 +23,8 @@ type Services struct {
 	Notifications  *application.NotificationSettingsService
 	SiteSettings   *application.SiteSettingsService
 	AdminRoles     *application.AdminRoleService
+	Legal          *application.LegalDocumentService
+	Consents       *application.ConsentService
 	Captcha        ports.CaptchaPort
 	Messenger      ports.MessengerPort
 	Publisher      ports.PublisherPort

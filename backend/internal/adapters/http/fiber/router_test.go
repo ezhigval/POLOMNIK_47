@@ -22,6 +22,7 @@ import (
 	"palomnik/internal/application"
 	"palomnik/internal/config"
 	"palomnik/internal/domain"
+	"palomnik/internal/legal/operator"
 )
 
 func TestHealthRoutes(t *testing.T) {
@@ -135,7 +136,8 @@ func TestCreateBookingAndListTours(t *testing.T) {
 		"phone": "+79999999999",
 		"email": "mail@test.com",
 		"people_count": 2,
-		"comment": "Please call me"
+		"comment": "Please call me",
+		"consent_personal_data": true
 	}`))
 	bookingReq.Header.Set("Content-Type", "application/json")
 
@@ -330,7 +332,8 @@ func TestOAuthWithBearerMergesAccounts(t *testing.T) {
 		"name": "Текущий",
 		"email": "keep@example.com",
 		"phone": "+79001234444",
-		"password": "password1"
+		"password": "password1",
+		"consent_personal_data": true
 	}`))
 	registerReq.Header.Set("Content-Type", "application/json")
 	registerResp, err := app.Test(registerReq)
@@ -505,7 +508,8 @@ func TestPatchMeUpdatesProfile(t *testing.T) {
 		"name": "Старое Имя",
 		"email": "profile@example.com",
 		"phone": "+79001235555",
-		"password": "password1"
+		"password": "password1",
+		"consent_personal_data": true
 	}`))
 	registerReq.Header.Set("Content-Type", "application/json")
 	registerResp, err := app.Test(registerReq)
@@ -572,7 +576,8 @@ func TestPassengerCabinetCRUD(t *testing.T) {
 		"name": "Хозяин",
 		"email": "pax-http@example.com",
 		"phone": "+79001236666",
-		"password": "password1"
+		"password": "password1",
+		"consent_personal_data": true
 	}`))
 	registerReq.Header.Set("Content-Type", "application/json")
 	registerResp, err := app.Test(registerReq)
@@ -849,6 +854,11 @@ func newTestAppWithStore(store *memory.Store, adminToken string) *fiber.App {
 		notificationnoop.New(),
 		store,
 	)
+	opConfig := operator.Default()
+	legalService := application.NewLegalDocumentService(store, opConfig)
+	consentService := application.NewConsentService(store, store)
+	_ = legalService.BootstrapInitialDocuments(context.Background())
+
 	return NewRouter(config.Config{
 		AppEnv:            "test",
 		HTTPAddr:          ":0",
@@ -884,6 +894,8 @@ func newTestAppWithStore(store *memory.Store, adminToken string) *fiber.App {
 		Notifications: application.NewNotificationSettingsService(store, store, store, false, false),
 		SiteSettings:  application.NewSiteSettingsService(store, domain.SiteSettings{}),
 		AdminRoles:    application.NewAdminRoleService(store, store, adminToken, config.DefaultJWTSecret),
+		Legal:         legalService,
+		Consents:      consentService,
 	}, HealthDeps{})
 }
 

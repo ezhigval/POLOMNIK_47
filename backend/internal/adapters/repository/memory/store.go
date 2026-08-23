@@ -34,6 +34,8 @@ type Store struct {
 	siteSettings        *domain.SiteSettings
 	adminRoles          map[uuid.UUID]domain.AdminRole
 	adminAssignments    []domain.AdminRoleAssignment
+	legalDocuments      map[uuid.UUID]domain.LegalDocument
+	consents            map[uuid.UUID]domain.Consent
 }
 
 func (s *Store) WithinTransaction(ctx context.Context, fn func(context.Context) error) error {
@@ -60,6 +62,8 @@ func NewStore() *Store {
 		telegramChats:    make(map[string]domain.TelegramChatBinding),
 		adminRoles:       make(map[uuid.UUID]domain.AdminRole),
 		adminAssignments: nil,
+		legalDocuments:   make(map[uuid.UUID]domain.LegalDocument),
+		consents:         make(map[uuid.UUID]domain.Consent),
 	}
 }
 

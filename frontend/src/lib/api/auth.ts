@@ -44,6 +44,8 @@ export async function registerUser(input: {
   password: string;
   phone_check_id?: string | null;
   website?: string | null;
+  consent_personal_data: boolean;
+  consent_marketing?: boolean;
 }): Promise<AuthResponse> {
   return authRequest<AuthResponse>("/auth/register", {
     method: "POST",
