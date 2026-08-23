@@ -115,6 +115,55 @@ func TestOutboxWorkerMarksFailedAfterMaxAttempts(t *testing.T) {
 	}
 }
 
+func TestOutboxWorkerRetriesSupportNotification(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	store := memory.NewStore()
+	notifier := &recordingSupportNotifier{}
+	threadID := uuid.New()
+	messageID := uuid.New()
+	userID := uuid.New()
+	payload, _ := json.Marshal(map[string]string{
+		"thread_id":  threadID.String(),
+		"message_id": messageID.String(),
+		"user_id":    userID.String(),
+		"body":       "Нужна помощь",
+	})
+
+	event, err := domain.NewOutboxEvent(domain.NewOutboxEventInput{
+		ID:         uuid.New(),
+		EventType:  domain.OutboxEventNotificationSupport,
+		EntityType: domain.EntityTypeSupportMessage,
+		EntityID:   messageID,
+		Payload:    payload,
+		Status:     domain.OutboxStatusPending,
+		Now:        time.Date(2026, 8, 23, 12, 0, 0, 0, time.UTC),
+	})
+	if err != nil {
+		t.Fatalf("create event: %v", err)
+	}
+	if _, err := store.Enqueue(ctx, event); err != nil {
+		t.Fatalf("enqueue: %v", err)
+	}
+
+	worker := NewOutboxWorker(store, store, store, store, noop.NewCRMAdapter(), noop.NewAccountingAdapter(), notifier, 3)
+	if _, err := worker.ProcessBatch(ctx, 10); err != nil {
+		t.Fatalf("process: %v", err)
+	}
+
+	list, err := store.ListEvents(ctx, ports.OutboxFilters{Status: string(domain.OutboxStatusProcessed)}, ports.Pagination{Page: 1, Limit: 10})
+	if err != nil {
+		t.Fatalf("list: %v", err)
+	}
+	if len(list.Items) != 1 {
+		t.Fatalf("expected processed support event, got %d", len(list.Items))
+	}
+	if len(notifier.notes) != 1 || notifier.notes[0].Body != "Нужна помощь" {
+		t.Fatalf("unexpected notify %+v", notifier.notes)
+	}
+}
+
 func newBitrixSuccessServer(t *testing.T) *httptest.Server {
 	t.Helper()
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

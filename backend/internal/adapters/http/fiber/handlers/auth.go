@@ -17,6 +17,12 @@ func (h *Handler) Register(c *fiber.Ctx) error {
 			Message: "Некорректные данные запроса",
 		})
 	}
+	if err := rejectHoneypot(req.Website); err != nil {
+		return writeAppError(c, err)
+	}
+	if err := h.verifyCaptcha(c, req.CaptchaToken); err != nil {
+		return writeAppError(c, err)
+	}
 
 	result, err := h.auth.Register(c.Context(), application.RegisterInput{
 		Email:        req.Email,
@@ -46,6 +52,12 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 			Message: "Некорректные данные запроса",
 		})
 	}
+	if err := rejectHoneypot(req.Website); err != nil {
+		return writeAppError(c, err)
+	}
+	if err := h.verifyCaptcha(c, req.CaptchaToken); err != nil {
+		return writeAppError(c, err)
+	}
 
 	result, err := h.auth.Login(c.Context(), application.LoginInput{
 		Login:    req.Login,
@@ -71,6 +83,12 @@ func (h *Handler) ForgotPassword(c *fiber.Ctx) error {
 			Code:    "VALIDATION_ERROR",
 			Message: "Некорректные данные запроса",
 		})
+	}
+	if err := rejectHoneypot(req.Website); err != nil {
+		return writeAppError(c, err)
+	}
+	if err := h.verifyCaptcha(c, req.CaptchaToken); err != nil {
+		return writeAppError(c, err)
 	}
 
 	if err := h.auth.RequestPasswordReset(c.Context(), req.Email); err != nil {
@@ -123,10 +141,14 @@ func (h *Handler) AuthMethods(c *fiber.Ctx) error {
 			Max:       status(methods.Max),
 			Telegram:  status(methods.Telegram),
 			Mail:      status(methods.Mail),
+			Captcha: dto.CaptchaStatusResponse{
+				Available: captchaDTO(h).Available,
+				Provider:  captchaDTO(h).Provider,
+				ClientKey: captchaDTO(h).ClientKey,
+			},
 		},
 	})
 }
-
 
 func (h *Handler) StartPhoneVerification(c *fiber.Ctx) error {
 	var req dto.PhoneStartRequest

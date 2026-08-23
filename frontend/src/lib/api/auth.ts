@@ -43,6 +43,7 @@ export async function registerUser(input: {
   phone: string;
   password: string;
   phone_check_id?: string | null;
+  website?: string | null;
 }): Promise<AuthResponse> {
   return authRequest<AuthResponse>("/auth/register", {
     method: "POST",
@@ -53,6 +54,7 @@ export async function registerUser(input: {
 export async function loginUser(input: {
   login: string;
   password: string;
+  website?: string | null;
 }): Promise<AuthResponse> {
   return authRequest<AuthResponse>("/auth/login", {
     method: "POST",

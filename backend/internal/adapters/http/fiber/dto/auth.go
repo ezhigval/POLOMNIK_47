@@ -14,15 +14,21 @@ type RegisterRequest struct {
 	Name         string `json:"name"`
 	Password     string `json:"password"`
 	PhoneCheckID string `json:"phone_check_id"`
+	Website      string `json:"website"`
+	CaptchaToken string `json:"captcha_token"`
 }
 
 type LoginRequest struct {
-	Login    string `json:"login"`
-	Password string `json:"password"`
+	Login        string `json:"login"`
+	Password     string `json:"password"`
+	Website      string `json:"website"`
+	CaptchaToken string `json:"captcha_token"`
 }
 
 type ForgotPasswordRequest struct {
-	Email string `json:"email"`
+	Email        string `json:"email"`
+	Website      string `json:"website"`
+	CaptchaToken string `json:"captcha_token"`
 }
 
 type ResetPasswordRequest struct {
@@ -46,6 +52,13 @@ type AuthMethodsResponse struct {
 	Max       AuthMethodStatusResponse `json:"max"`
 	Telegram  AuthMethodStatusResponse `json:"telegram"`
 	Mail      AuthMethodStatusResponse `json:"mail"`
+	Captcha   CaptchaStatusResponse    `json:"captcha"`
+}
+
+type CaptchaStatusResponse struct {
+	Available bool   `json:"available"`
+	Provider  string `json:"provider"`
+	ClientKey string `json:"client_key,omitempty"`
 }
 
 type AuthMethodStatusResponse struct {
@@ -89,15 +102,15 @@ func ToUserResponse(user domain.User) UserResponse {
 }
 
 type MyBookingResponse struct {
-	ID          string `json:"id"`
-	TourID      string `json:"tour_id"`
-	Name        string `json:"name"`
-	Phone       string `json:"phone"`
-	Email       string `json:"email"`
-	PeopleCount int    `json:"people_count"`
-	Status      string `json:"status"`
-	TotalPrice  int    `json:"total_price"`
-	Comment     string `json:"comment"`
+	ID          string    `json:"id"`
+	TourID      string    `json:"tour_id"`
+	Name        string    `json:"name"`
+	Phone       string    `json:"phone"`
+	Email       string    `json:"email"`
+	PeopleCount int       `json:"people_count"`
+	Status      string    `json:"status"`
+	TotalPrice  int       `json:"total_price"`
+	Comment     string    `json:"comment"`
 	CreatedAt   time.Time `json:"created_at"`
 }
 

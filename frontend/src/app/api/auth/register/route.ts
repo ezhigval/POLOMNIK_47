@@ -11,6 +11,7 @@ export async function POST(request: Request) {
       phone: body.phone,
       password: body.password,
       phone_check_id: body.phone_check_id,
+      website: body.website,
     });
 
     const response = NextResponse.json({ user: result.user });

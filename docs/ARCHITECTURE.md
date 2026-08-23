@@ -59,8 +59,12 @@ Domain must not import application, adapters, Fiber, SQL, Redis, Bitrix24 SDK, 1
 backend/
   go.mod
   go.sum
-  cmd/
+    cmd/
     api/
+      main.go
+    worker/
+      main.go
+    backup-offsite/
       main.go
   internal/
     domain/
@@ -158,6 +162,62 @@ Delete(key)
 ```
 
 Cache must be optional. If Redis is unavailable, public API should continue through repository/service paths.
+
+### MessengerPort (v3, этап 4)
+
+```text
+Configured()
+Send(channel, address, text)
+```
+
+Адаптеры: telegram / max / WhatsApp Cloud API. Без ключа `Configured()==false`.
+
+### PublisherPort (v3, этап 4)
+
+```text
+Configured()
+Publish(channel, content)
+```
+
+Адаптеры: site_news / telegram_channel / vk_wall / max_feed.
+
+### CaptchaPort (v3, этап 1)
+
+```text
+Configured()
+Provider()
+ClientKey()
+Verify(token, ip)
+```
+
+Адаптер `smartcaptcha`. Без ключа — honeypot + Redis/memory rate limit, сайт жив.
+
+### AIPort (v3, этап 4/7)
+
+```text
+Configured()
+Complete(system, user)
+```
+
+Адаптер `yandexgpt` появится на этапе 4. v4 (звонки, ИИ-продавец) сюда не входит.
+
+### PaymentPort (v3, этап 8)
+
+```text
+Configured()
+CreatePayment(booking)  # сумма = booking.TotalPrice
+```
+
+Адаптеры `sber` / `yookassa`, выбор `PAYMENT_ADAPTER`. Возвраты не делаем. Без адаптера форма заявки как в v2 (`NEW`).
+
+### BackupStoragePort (v3, этап 1)
+
+```text
+Configured()
+Upload(name, body)
+```
+
+Адаптер S3-compatible (Yandex Object Storage). Ночной дамп на диск остаётся; offsite — когда есть ключ бакета.
 
 ### CRMPort
 

@@ -196,6 +196,29 @@ func TestManagementRequiresAdminToken(t *testing.T) {
 	}
 }
 
+func TestCreateBookingRejectsHoneypot(t *testing.T) {
+	store := memory.NewStore()
+	app := newTestAppWithStore(store, "secret-token")
+	tour := testTourForHandler(t, store)
+
+	req := httptest.NewRequest(http.MethodPost, "/api/v1/bookings", bytes.NewBufferString(`{
+		"tour_id": "`+tour.ID.String()+`",
+		"name": "Bot",
+		"phone": "+79999999999",
+		"people_count": 1,
+		"website": "https://spam.example"
+	}`))
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := app.Test(req)
+	if err != nil {
+		t.Fatalf("request failed: %v", err)
+	}
+	if resp.StatusCode != http.StatusUnprocessableEntity {
+		t.Fatalf("expected 422, got %d", resp.StatusCode)
+	}
+}
+
 func TestCreateBookingValidationError(t *testing.T) {
 	store := memory.NewStore()
 	app := newTestAppWithStore(store, "secret-token")
@@ -481,11 +504,11 @@ func newTestAppWithStore(store *memory.Store, adminToken string) *fiber.App {
 			"",
 			false,
 		),
-		Auth: application.NewAuthService(store, store, nil, nil, application.SocialAuthConfig{}, config.DefaultJWTSecret, 24*time.Hour, "http://localhost:3000"),
-		Support:  application.NewSupportService(store, notificationnoop.New()),
-		CMS:      application.NewCMSService(store),
-		News:     application.NewNewsService(store),
-		Telegram: application.NewTelegramServiceFromRepos(store, store, nil, ""),
+		Auth:          application.NewAuthService(store, store, nil, nil, application.SocialAuthConfig{}, config.DefaultJWTSecret, 24*time.Hour, "http://localhost:3000"),
+		Support:       application.NewSupportService(store, notificationnoop.New()),
+		CMS:           application.NewCMSService(store),
+		News:          application.NewNewsService(store, nil),
+		Telegram:      application.NewTelegramServiceFromRepos(store, store, nil, ""),
 		Notifications: application.NewNotificationSettingsService(store, store, store, false, false),
 		SiteSettings:  application.NewSiteSettingsService(store, domain.SiteSettings{}),
 		AdminRoles:    application.NewAdminRoleService(store, store, adminToken, config.DefaultJWTSecret),

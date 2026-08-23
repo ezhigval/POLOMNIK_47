@@ -145,6 +145,18 @@ export type ManagementSystemInfo = {
     latest_failed_at?: string;
     latest_failed_error?: string;
   };
+  latency?: {
+    last_ms: number;
+    avg_ms: number;
+    requests: number;
+  };
+  last_backup?: {
+    at?: string;
+    file?: string;
+    bytes?: number;
+    offsite: boolean;
+    offsite_error?: string;
+  };
 };
 
 export async function getManagementSystemInfo() {

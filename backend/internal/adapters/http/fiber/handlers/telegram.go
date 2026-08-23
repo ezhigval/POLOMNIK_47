@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"crypto/subtle"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
@@ -42,7 +41,7 @@ func (h *Handler) TelegramWebhook(c *fiber.Ctx) error {
 	}
 	if secret := strings.TrimSpace(h.telegramWebhookSecret); secret != "" {
 		got := strings.TrimSpace(c.Get("X-Telegram-Bot-Api-Secret-Token"))
-		if subtle.ConstantTimeCompare([]byte(got), []byte(secret)) != 1 {
+		if !application.SecretEqual(got, secret) {
 			return writeAppError(c, &AppError{Status: 401, Code: "UNAUTHORIZED", Message: "Некорректный webhook secret"})
 		}
 	}
@@ -51,7 +50,14 @@ func (h *Handler) TelegramWebhook(c *fiber.Ctx) error {
 	if err := c.BodyParser(&req); err != nil {
 		return writeAppError(c, &AppError{Status: 400, Code: "BAD_REQUEST", Message: "Некорректное обновление Telegram"})
 	}
+	updateID := strings.TrimSpace(req.UpdateID.String())
+	if h.webhookGuard != nil && updateID != "" && h.webhookGuard.AlreadyProcessed(c.Context(), "telegram", updateID) {
+		return c.SendStatus(fiber.StatusOK)
+	}
 	if req.Message == nil {
+		if h.webhookGuard != nil && updateID != "" {
+			h.webhookGuard.Remember(c.Context(), "telegram", updateID)
+		}
 		return c.SendStatus(fiber.StatusOK)
 	}
 
@@ -62,6 +68,9 @@ func (h *Handler) TelegramWebhook(c *fiber.Ctx) error {
 	})
 	if err != nil {
 		return respondError(c, err, MapError)
+	}
+	if h.webhookGuard != nil && updateID != "" {
+		h.webhookGuard.Remember(c.Context(), "telegram", updateID)
 	}
 	return c.SendStatus(fiber.StatusOK)
 }

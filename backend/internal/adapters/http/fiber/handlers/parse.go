@@ -125,15 +125,24 @@ func writeAppError(c *fiber.Ctx, err error) error {
 	if appErr == nil {
 		return c.Status(500).JSON(fiber.Map{
 			"error": fiber.Map{
-				"code":    "INTERNAL_ERROR",
-				"message": "Внутренняя ошибка сервера",
+				"code":       "INTERNAL_ERROR",
+				"message":    "Внутренняя ошибка сервера",
+				"request_id": requestIDFrom(c),
 			},
 		})
 	}
 	return c.Status(appErr.Status).JSON(fiber.Map{
 		"error": fiber.Map{
-			"code":    appErr.Code,
-			"message": appErr.Message,
+			"code":       appErr.Code,
+			"message":    appErr.Message,
+			"request_id": requestIDFrom(c),
 		},
 	})
+}
+
+func requestIDFrom(c *fiber.Ctx) string {
+	if value, ok := c.Locals("requestid").(string); ok && value != "" {
+		return value
+	}
+	return c.Get("X-Request-ID")
 }

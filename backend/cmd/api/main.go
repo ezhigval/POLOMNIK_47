@@ -10,12 +10,15 @@ import (
 
 	cachenoop "palomnik/internal/adapters/cache/noop"
 	rediscache "palomnik/internal/adapters/cache/redis"
+	"palomnik/internal/adapters/captcha"
 	fiberhttp "palomnik/internal/adapters/http/fiber"
+	appmiddleware "palomnik/internal/adapters/http/fiber/middleware"
 	"palomnik/internal/adapters/integration"
+	"palomnik/internal/adapters/mail"
 	"palomnik/internal/adapters/notification"
 	telegramnotify "palomnik/internal/adapters/notification/telegram"
 	"palomnik/internal/adapters/phone"
-	"palomnik/internal/adapters/mail"
+	memorylimit "palomnik/internal/adapters/ratelimit/memory"
 	"palomnik/internal/adapters/repository/memory"
 	"palomnik/internal/adapters/repository/postgres"
 	"palomnik/internal/application"
@@ -128,18 +131,23 @@ func run() int {
 			cfg.JWTTokenTTL,
 			cfg.PublicSiteURL,
 		),
-		Favorites:     application.NewFavoriteService(favoriteRepo, tourRepo),
-		Support:       application.NewSupportService(supportRepo, notifier),
-		CMS:           application.NewCMSService(cmsRepo),
-		News:          application.NewNewsService(newsRepo),
-		Telegram:      application.NewTelegramService(notificationSettings, telegramDeps.Chats, telegramnotify.NewClient(cfg), cfg.TelegramChatID),
-		Notifications: notificationSettings,
-		SiteSettings:  siteSettings,
-		AdminRoles:    adminRoles,
+		Favorites:      application.NewFavoriteService(favoriteRepo, tourRepo),
+		Support:        application.NewSupportService(supportRepo, notifier),
+		CMS:            application.NewCMSService(cmsRepo),
+		News:           application.NewNewsService(newsRepo, cache),
+		Telegram:       application.NewTelegramService(notificationSettings, telegramDeps.Chats, telegramnotify.NewClient(cfg), cfg.TelegramChatID),
+		Notifications:  notificationSettings,
+		SiteSettings:   siteSettings,
+		AdminRoles:     adminRoles,
+		Captcha:        captcha.New(cfg),
+		WebhookGuard:   application.NewWebhookGuard(cache),
+		RateLimiter:    rateLimiterFromCache(redisCache),
+		Metrics:        appmiddleware.NewRequestMetrics(),
+		BackupLastPath: cfg.BackupLastPath,
 	}
 
 	health := fiberhttp.HealthDeps{
-		CacheRequired: cfg.RedisURL != "",
+		CacheRequired: false,
 	}
 	if pgStore != nil {
 		health.PingDB = pgStore.Ping
@@ -216,10 +224,18 @@ func openCache(cfg config.Config, log *slog.Logger) (ports.CachePort, *rediscach
 
 	cache, err := rediscache.New(cfg.RedisURL)
 	if err != nil {
-		return nil, nil, func() {}, err
+		log.Warn("redis unavailable, continuing without cache", slog.Any("error", err))
+		return cachenoop.New(), nil, func() {}, nil
 	}
 
 	return cache, cache, func() { _ = cache.Close() }, nil
+}
+
+func rateLimiterFromCache(redisCache *rediscache.Cache) ports.RateLimiter {
+	if redisCache != nil {
+		return redisCache
+	}
+	return memorylimit.New()
 }
 
 func txManager(repo ports.TourRepository) ports.TransactionManager {

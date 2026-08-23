@@ -47,7 +47,8 @@ func ToTelegramSettings(view application.TelegramSettingsView) TelegramSettingsR
 }
 
 type TelegramUpdateRequest struct {
-	Message *TelegramMessage `json:"message"`
+	UpdateID json.Number      `json:"update_id"`
+	Message  *TelegramMessage `json:"message"`
 }
 
 type TelegramMessage struct {

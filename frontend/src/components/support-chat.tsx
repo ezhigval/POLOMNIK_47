@@ -4,6 +4,7 @@ import Link from "next/link";
 import { FormEvent, useEffect, useRef, useState } from "react";
 import type { SupportMessage, SupportThread } from "@/lib/auth/user-features";
 import { FormError } from "@/components/form-error";
+import { HoneypotField } from "@/components/honeypot-field";
 
 type SupportChatProps = {
   initialThread: SupportThread | null;
@@ -32,7 +33,10 @@ export function SupportChat({ initialThread, isAuthenticated }: SupportChatProps
     const response = await fetch("/api/support", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ body: message.trim() }),
+      body: JSON.stringify({
+        body: message.trim(),
+        website: String(new FormData(event.currentTarget).get("website") ?? ""),
+      }),
     });
 
     setLoading(false);
@@ -82,7 +86,8 @@ export function SupportChat({ initialThread, isAuthenticated }: SupportChatProps
         <div ref={bottomRef} />
       </div>
 
-      <form onSubmit={onSubmit} className="border-t border-stone-100 p-4">
+      <form onSubmit={onSubmit} className="relative border-t border-stone-100 p-4">
+        <HoneypotField />
         <div className="flex gap-2">
           <input
             value={message}

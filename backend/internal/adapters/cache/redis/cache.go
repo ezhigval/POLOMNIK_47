@@ -59,3 +59,36 @@ func (c *Cache) Ping(ctx context.Context) error {
 	}
 	return c.client.Ping(ctx).Err()
 }
+
+func (c *Cache) Allow(ctx context.Context, key string, max int, window time.Duration) (ports.RateLimitResult, error) {
+	if c == nil || c.client == nil {
+		return ports.RateLimitResult{}, fmt.Errorf("cache is not configured")
+	}
+	if max < 1 {
+		max = 1
+	}
+	if window <= 0 {
+		window = time.Minute
+	}
+
+	redisKey := "rl:" + key
+	count, err := c.client.Incr(ctx, redisKey).Result()
+	if err != nil {
+		return ports.RateLimitResult{}, err
+	}
+	if count == 1 {
+		if err := c.client.Expire(ctx, redisKey, window).Err(); err != nil {
+			return ports.RateLimitResult{}, err
+		}
+	}
+
+	if count <= int64(max) {
+		return ports.RateLimitResult{Allowed: true}, nil
+	}
+
+	ttl, err := c.client.TTL(ctx, redisKey).Result()
+	if err != nil || ttl <= 0 {
+		ttl = window
+	}
+	return ports.RateLimitResult{Allowed: false, RetryAfter: ttl}, nil
+}

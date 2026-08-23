@@ -36,8 +36,9 @@
 Единый чеклист: **[V2_OWNER_SETUP.md](V2_OWNER_SETUP.md)**  
 OAuth подробно: [OAUTH_SETUP.md](OAUTH_SETUP.md) · реклама: [SEO_ADS.md](SEO_ADS.md) · Telegram: [TELEGRAM_SETUP.md](TELEGRAM_SETUP.md)
 
-## Дальше: v3 (план)
+## Дальше: v3 (в работе)
 
-Код v3 ещё не начат. Этапы, инфра ВМ/DNS и список «не входит»: **[V3_PLAN.md](V3_PLAN.md)**. Кратко: [ROADMAP.md](ROADMAP.md).
+Код линейки v3 начат: этапы **0–1** (порты + платформа) в ветке `cursor/v3-platform-926b`.  
+Этапы 2–10 и v4 не начаты. План: **[V3_PLAN.md](V3_PLAN.md)**. Кратко: [ROADMAP.md](ROADMAP.md).
 
 Без секретов владельца E2E OAuth/SMTP не прогнать — [V2_OWNER_SETUP.md](V2_OWNER_SETUP.md).

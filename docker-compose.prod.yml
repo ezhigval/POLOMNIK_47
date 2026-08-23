@@ -81,6 +81,17 @@ services:
       MAX_OAUTH_USERINFO_URL: ${MAX_OAUTH_USERINFO_URL:-}
       PUBLIC_SITE_URL: ${PUBLIC_SITE_URL:-https://tikhvin-palomnik.ru}
       MANAGEMENT_BASE_URL: ${MANAGEMENT_BASE_URL:-https://tikhvin-palomnik.ru/management/bookings}
+      CAPTCHA_ADAPTER: ${CAPTCHA_ADAPTER:-noop}
+      SMARTCAPTCHA_SERVER_KEY: ${SMARTCAPTCHA_SERVER_KEY:-}
+      SMARTCAPTCHA_CLIENT_KEY: ${SMARTCAPTCHA_CLIENT_KEY:-}
+      BACKUP_STORAGE_ADAPTER: ${BACKUP_STORAGE_ADAPTER:-noop}
+      S3_ENDPOINT: ${S3_ENDPOINT:-https://storage.yandexcloud.net}
+      S3_REGION: ${S3_REGION:-ru-central1}
+      S3_BUCKET: ${S3_BUCKET:-}
+      S3_ACCESS_KEY: ${S3_ACCESS_KEY:-}
+      S3_SECRET_KEY: ${S3_SECRET_KEY:-}
+      S3_PREFIX: ${S3_PREFIX:-polomnik-backups}
+      BACKUP_LAST_PATH: ${BACKUP_LAST_PATH:-/tmp/polomnik-last-backup.json}
     volumes:
       - uploads_data:/data/uploads
     ports: !override []

@@ -8,7 +8,7 @@ import (
 )
 
 func (h *Handler) ListPublicNews(c *fiber.Ctx) error {
-	list, err := h.news.ListPublicNews(c.Context(), parsePagination(c))
+	list, err := h.news.ListPublicNewsCached(c.Context(), parsePagination(c))
 	if err != nil {
 		return respondError(c, err, MapError)
 	}

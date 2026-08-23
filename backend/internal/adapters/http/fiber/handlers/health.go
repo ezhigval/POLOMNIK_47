@@ -49,16 +49,14 @@ func HealthReady(deps readinessChecker) fiber.Handler {
 			}
 		}
 
-		if deps.cacheRequired {
-			if deps.pingCache == nil {
-				checks["cache"] = "error"
-				ready = false
-			} else if err := deps.pingCache(ctx); err != nil {
-				checks["cache"] = "error"
-				ready = false
+		if deps.pingCache != nil {
+			if err := deps.pingCache(ctx); err != nil {
+				checks["cache"] = "degraded"
 			} else {
 				checks["cache"] = "ok"
 			}
+		} else if deps.cacheRequired {
+			checks["cache"] = "skipped"
 		}
 
 		status := "ok"

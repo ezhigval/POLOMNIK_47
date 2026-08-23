@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
 import { FormError } from "@/components/form-error";
+import { HoneypotField } from "@/components/honeypot-field";
 
 type MailMethod = {
   available: boolean;
@@ -52,7 +53,7 @@ export function ForgotPasswordForm() {
     const response = await fetch("/api/auth/forgot-password", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: formData.get("email") }),
+      body: JSON.stringify({ email: formData.get("email"), website: formData.get("website") }),
     });
     setLoading(false);
     if (!response.ok) {
@@ -80,7 +81,8 @@ export function ForgotPasswordForm() {
   const unavailable = mail !== null && !mail.available;
 
   return (
-    <form onSubmit={onSubmit} className="space-y-4 rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
+    <form onSubmit={onSubmit} className="relative space-y-4 rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
+      <HoneypotField />
       <div>
         <h2 className="font-display text-xl font-semibold text-stone-900">Восстановление пароля</h2>
         <p className="mt-1 text-sm text-stone-600">Укажите email, указанный при регистрации.</p>
