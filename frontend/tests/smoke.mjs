@@ -54,9 +54,14 @@ async function main() {
       email: `smoke-${suffix}@example.com`,
       phone: `+7999${String(suffix).slice(-7)}`,
       password: "smokepassword123",
+      consent_personal_data: true,
+      consent_terms: true,
     }),
   });
-  assert(register.response.status === 201, "register user failed");
+  assert(
+    register.response.status === 201,
+    `register user failed: ${register.response.status} ${JSON.stringify(register.body)}`,
+  );
 
   const authToken = register.body.data.token;
   assert(authToken, "register response must include token");
@@ -121,9 +126,13 @@ async function main() {
       name: "Smoke Tester",
       phone: "+79990000000",
       people_count: 2,
+      consent_personal_data: true,
     }),
   });
-  assert(booking.response.status === 201, "create booking failed");
+  assert(
+    booking.response.status === 201,
+    `create booking failed: ${booking.response.status} ${JSON.stringify(booking.body)}`,
+  );
   assert(
     booking.body.data.integration_status === "not_configured",
     "expected not_configured integration status",
@@ -184,6 +193,8 @@ async function main() {
       subject: `google-smoke-${suffix}`,
       email: `google-${suffix}@example.com`,
       name: "Google Smoke",
+      consent_personal_data: true,
+      consent_terms: true,
     }),
   });
   assert(oauthAllowed.response.status === 200, "oauth with internal secret failed");

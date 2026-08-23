@@ -50,9 +50,13 @@ async function main() {
       email: `integration-${suffix}@example.com`,
       people_count: 2,
       comment: "integration smoke",
+      consent_personal_data: true,
     }),
   });
-  assert(booking.response.status === 201, "create booking failed");
+  assert(
+    booking.response.status === 201,
+    `create booking failed: ${booking.response.status} ${JSON.stringify(booking.body)}`,
+  );
   assert(
     booking.body.data.integration_status === "synced",
     `expected bitrix synced, got ${booking.body.data.integration_status}`,
