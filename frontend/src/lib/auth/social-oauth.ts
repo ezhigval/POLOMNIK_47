@@ -1,19 +1,13 @@
 import { createHash, createHmac, timingSafeEqual } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
+import { getApiBaseUrl } from "@/lib/api/base-url";
 import { AUTH_COOKIE } from "@/lib/auth/session";
 import { SOCIAL_AUTH_PATHS, socialRedirectURI } from "@/lib/auth/social-paths";
 
-const UNAVAILABLE = "Пока что недоступно, используйте другой вариант.";
+export const UNAVAILABLE = "Пока что недоступно, используйте другой вариант.";
 
 function siteOrigin(request: NextRequest): string {
   return process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") || new URL(request.url).origin;
-}
-
-function getApiBase(): string {
-  return (process.env.API_BASE_URL || process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080").replace(
-    /\/$/,
-    "",
-  );
 }
 
 async function completeOAuth(input: {
@@ -27,7 +21,7 @@ async function completeOAuth(input: {
   if (!secret) {
     return { error: UNAVAILABLE, status: 503 };
   }
-  const response = await fetch(`${getApiBase()}/api/v1/auth/oauth`, {
+  const response = await fetch(`${getApiBaseUrl()}/auth/oauth`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -215,4 +209,4 @@ export function verifyTelegramLogin(payload: Record<string, string>): boolean {
   }
 }
 
-export { SOCIAL_AUTH_PATHS, UNAVAILABLE };
+export { SOCIAL_AUTH_PATHS };

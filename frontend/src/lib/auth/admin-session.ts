@@ -1,5 +1,6 @@
 import { createHash, timingSafeEqual } from "crypto";
 import { cookies } from "next/headers";
+import { apiUrl } from "@/lib/api/client";
 
 export const ADMIN_SESSION_COOKIE = "polomnik_admin_session";
 
@@ -44,13 +45,26 @@ export async function getAdminSessionCookie(): Promise<string | null> {
   return cookieStore.get(ADMIN_SESSION_COOKIE)?.value ?? null;
 }
 
+async function verifyManagementJwtSession(session: string): Promise<boolean> {
+  try {
+    const response = await fetch(apiUrl("/management/session"), {
+      method: "GET",
+      headers: { "X-Admin-Session": session },
+      cache: "no-store",
+    });
+    return response.ok;
+  } catch {
+    return false;
+  }
+}
+
 export async function isAdminAuthenticated(): Promise<boolean> {
   const session = await getAdminSessionCookie();
   if (!session) {
     return false;
   }
   if (isManagementJwt(session)) {
-    return true;
+    return verifyManagementJwtSession(session);
   }
   const adminToken = process.env.ADMIN_TOKEN;
   if (!adminToken) {

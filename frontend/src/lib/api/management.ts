@@ -67,17 +67,17 @@ export function isManagementConfigured(): boolean {
 async function managementAuthHeaders(): Promise<Record<string, string>> {
   const cookieStore = await cookies();
   const session = cookieStore.get(ADMIN_SESSION_COOKIE)?.value;
-  if (session && isManagementJwt(session)) {
+  if (!session) {
+    throw new ApiError(401, "UNAUTHORIZED", "Нужна авторизация администратора");
+  }
+  if (isManagementJwt(session)) {
     return { "X-Admin-Session": session };
   }
   const adminToken = process.env.ADMIN_TOKEN;
-  if (adminToken && session && verifyAdminSessionValue(session, adminToken)) {
+  if (adminToken && verifyAdminSessionValue(session, adminToken)) {
     return { "X-Admin-Token": adminToken };
   }
-  if (adminToken) {
-    return { "X-Admin-Token": adminToken };
-  }
-  throw new ApiError(503, "SERVICE_UNAVAILABLE", "Management API is not configured");
+  throw new ApiError(401, "UNAUTHORIZED", "Нужна авторизация администратора");
 }
 
 async function managementRequest<T>(path: string, init?: RequestInit): Promise<T> {
@@ -285,13 +285,6 @@ export async function deleteManagementReview(id: string) {
   await managementRequest<void>(`/reviews/${id}`, { method: "DELETE" });
 }
 
-export type CmsPageCreateInput = {
-  slug: string;
-  title: string;
-  path: string;
-  is_published: boolean;
-};
-
 export type CmsPageUpdateInput = {
   title?: string;
   path?: string;
@@ -333,14 +326,6 @@ export async function getManagementCmsPage(id: string) {
   return body.data;
 }
 
-export async function createManagementCmsPage(input: CmsPageCreateInput) {
-  const body = await managementRequest<DataEnvelope<CmsPage>>("/cms/pages", {
-    method: "POST",
-    body: JSON.stringify(input),
-  });
-  return body.data;
-}
-
 export async function bootstrapManagementHomePage() {
   const body = await managementRequest<DataEnvelope<CmsPage>>("/cms/pages/bootstrap-home", {
     method: "POST",
@@ -354,10 +339,6 @@ export async function updateManagementCmsPage(id: string, input: CmsPageUpdateIn
     body: JSON.stringify(input),
   });
   return body.data;
-}
-
-export async function deleteManagementCmsPage(id: string) {
-  await managementRequest<void>(`/cms/pages/${id}`, { method: "DELETE" });
 }
 
 export async function listManagementCmsTemplates() {

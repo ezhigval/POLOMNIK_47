@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { NewsFeed } from "@/components/news-feed";
 import { PageIntro } from "@/components/page-intro";
 import { listPublicNews } from "@/lib/api/news";
-import { newsArticles, toFeedArticle } from "@/lib/news";
+import { toFeedArticle } from "@/lib/news";
 import { siteConfig } from "@/lib/site-config";
 
 export const metadata: Metadata = {
@@ -18,12 +18,12 @@ export const metadata: Metadata = {
 };
 
 export default async function NewsPage() {
-  let articles = newsArticles;
+  let articles: ReturnType<typeof toFeedArticle>[] = [];
   try {
     const published = await listPublicNews();
     articles = published.map(toFeedArticle);
   } catch {
-    articles = newsArticles;
+    articles = [];
   }
 
   return (

@@ -4,12 +4,10 @@ import { revalidatePath } from "next/cache";
 import {
   approveManagementReview,
   createManagementCmsBlock,
-  createManagementCmsPage,
   bootstrapManagementHomePage,
   createManagementReview,
   createManagementTour,
   deleteManagementCmsBlock,
-  deleteManagementCmsPage,
   deleteManagementReview,
   deleteManagementTour,
   rejectManagementReview,
@@ -32,7 +30,6 @@ import {
   assignManagementRoleUser,
   type CmsBlockCreateInput,
   type CmsBlockUpdateInput,
-  type CmsPageCreateInput,
   type CmsPageUpdateInput,
   type NewsUpsertInput,
   type SiteSettings,
@@ -138,13 +135,6 @@ function revalidateReviewPages() {
   revalidatePath("/tours", "layout");
 }
 
-export async function createCmsPageAction(input: CmsPageCreateInput) {
-  const page = await createManagementCmsPage(input);
-  revalidateCmsPaths(page.slug);
-  revalidatePath(`/management/content/${page.id}`);
-  return page;
-}
-
 export async function bootstrapHomePageAction() {
   const page = await bootstrapManagementHomePage();
   revalidateCmsPaths(page.slug);
@@ -158,13 +148,6 @@ export async function updateCmsPageAction(id: string, input: CmsPageUpdateInput,
   revalidateCmsPaths(slug ?? page.slug);
   revalidatePath(`/management/content/${id}`);
   return page;
-}
-
-export async function deleteCmsPageAction(formData: FormData) {
-  const id = String(formData.get("id") ?? "");
-  const slug = String(formData.get("slug") ?? "");
-  await deleteManagementCmsPage(id);
-  revalidateCmsPaths(slug);
 }
 
 export async function createCmsBlockAction(pageId: string, input: CmsBlockCreateInput, slug?: string) {

@@ -70,27 +70,6 @@ func (h *Handler) ManagementBootstrapHomeCMSPage(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusCreated).JSON(dto.DataEnvelope[dto.CMSPageResponse]{Data: dto.ToCMSPageResponse(page)})
 }
 
-func (h *Handler) ManagementCreateCMSPage(c *fiber.Ctx) error {
-	var req dto.CMSPageCreateRequest
-	if err := c.BodyParser(&req); err != nil {
-		return writeAppError(c, &AppError{Status: 422, Code: "VALIDATION_ERROR", Message: "Некорректные данные запроса"})
-	}
-	published := true
-	if req.IsPublished != nil {
-		published = *req.IsPublished
-	}
-	page, err := h.cms.CreatePage(c.Context(), application.CreatePageInput{
-		Slug:        req.Slug,
-		Title:       req.Title,
-		Path:        req.Path,
-		IsPublished: published,
-	})
-	if err != nil {
-		return respondError(c, err, MapError)
-	}
-	return c.Status(fiber.StatusCreated).JSON(dto.DataEnvelope[dto.CMSPageResponse]{Data: dto.ToCMSPageResponse(page)})
-}
-
 func (h *Handler) ManagementUpdateCMSPage(c *fiber.Ctx) error {
 	id, err := parseUUID(c.Params("id"))
 	if err != nil {
@@ -111,17 +90,6 @@ func (h *Handler) ManagementUpdateCMSPage(c *fiber.Ctx) error {
 		return respondError(c, err, MapError)
 	}
 	return c.JSON(dto.DataEnvelope[dto.CMSPageResponse]{Data: dto.ToCMSPageResponse(page)})
-}
-
-func (h *Handler) ManagementDeleteCMSPage(c *fiber.Ctx) error {
-	id, err := parseUUID(c.Params("id"))
-	if err != nil {
-		return writeAppError(c, err)
-	}
-	if err := h.cms.DeletePage(c.Context(), id); err != nil {
-		return respondError(c, err, MapError)
-	}
-	return c.SendStatus(fiber.StatusNoContent)
 }
 
 func (h *Handler) ManagementListCMSTemplates(c *fiber.Ctx) error {

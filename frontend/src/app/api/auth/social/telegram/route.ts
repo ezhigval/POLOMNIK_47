@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getApiBaseUrl } from "@/lib/api/base-url";
 import { setSessionCookie, UNAVAILABLE, verifyTelegramLogin } from "@/lib/auth/social-oauth";
 
 export async function GET(request: NextRequest) {
@@ -11,12 +12,11 @@ export async function GET(request: NextRequest) {
   }
 
   const secret = process.env.INTERNAL_API_SECRET;
-  const apiBase = (process.env.API_BASE_URL || "http://localhost:8080").replace(/\/$/, "");
   if (!secret) {
     return NextResponse.redirect(new URL(`/account/login?error=${encodeURIComponent(UNAVAILABLE)}`, request.url));
   }
 
-  const response = await fetch(`${apiBase}/api/v1/auth/oauth`, {
+  const response = await fetch(`${getApiBaseUrl()}/auth/oauth`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
