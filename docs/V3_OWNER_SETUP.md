@@ -84,7 +84,18 @@ IAM-токен на 12 часов не используем — только д�
 | PublisherPort | `PUBLISHER_ADAPTER` (на проде `noop`) |
 | AIPort | `AI_ADAPTER` (на проде `noop`; ключа нет) |
 
-Оплата Сбер/ЮKassa — отдельный PR (этап 8).
+Оплата Сбер/ЮKassa — этап 8 в коде, на проде `PAYMENT_ADAPTER=noop`. Живой эквайринг не включать, пока владелец не подтвердит статусы `AWAITING_PAYMENT` / `PAID` (их ещё нет в domain).
+
+```bash
+PAYMENT_ADAPTER=noop
+```
+
+| Адаптер | Env | Сумма |
+|---------|-----|--------|
+| `sber` | `SBER_USERNAME`, `SBER_PASSWORD`; опц. `SBER_API_BASE` (`https://securepayments.sberbank.ru`) | `booking.TotalPrice` × 100 (копейки), `register.do` |
+| `yookassa` | `YOOKASSA_SHOP_ID`, `YOOKASSA_SECRET_KEY`; опц. `YOOKASSA_API_BASE` | `booking.TotalPrice` рубли, `POST /v3/payments` |
+
+Return URL: `PAYMENT_RETURN_URL` или `{PUBLIC_SITE_URL}/account/trips`. Номера договоров не выдумываем. Возвратов нет. Чеклист: вписать ключ только после решения по статусам.
 
 ---
 

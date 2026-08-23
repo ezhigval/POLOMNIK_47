@@ -109,6 +109,14 @@ type Config struct {
 	YandexGPTFolderID        string
 	YandexGPTModel           string
 	YandexGPTAPIBase         string
+	PaymentAdapter           string
+	SberUserName             string
+	SberPassword             string
+	SberAPIBase              string
+	YooKassaShopID           string
+	YooKassaSecretKey        string
+	YooKassaAPIBase          string
+	PaymentReturnURL         string
 }
 
 func Load() Config {
@@ -214,6 +222,14 @@ func Load() Config {
 		YandexGPTFolderID:        os.Getenv("YANDEXGPT_FOLDER_ID"),
 		YandexGPTModel:           envString("YANDEXGPT_MODEL", "yandexgpt-lite"),
 		YandexGPTAPIBase:         envString("YANDEXGPT_API_BASE", "https://llm.api.cloud.yandex.net"),
+		PaymentAdapter:           envString("PAYMENT_ADAPTER", "noop"),
+		SberUserName:             os.Getenv("SBER_USERNAME"),
+		SberPassword:             os.Getenv("SBER_PASSWORD"),
+		SberAPIBase:              envString("SBER_API_BASE", "https://securepayments.sberbank.ru"),
+		YooKassaShopID:           os.Getenv("YOOKASSA_SHOP_ID"),
+		YooKassaSecretKey:        os.Getenv("YOOKASSA_SECRET_KEY"),
+		YooKassaAPIBase:          envString("YOOKASSA_API_BASE", "https://api.yookassa.ru"),
+		PaymentReturnURL:         os.Getenv("PAYMENT_RETURN_URL"),
 	}
 }
 

@@ -71,7 +71,7 @@ COMPLETED
 CANCELLED
 ```
 
-Future statuses:
+Future statuses (не в коде; этап 8 адаптеры оплаты их не вводил — ждём владельца):
 
 ```text
 AWAITING_PAYMENT

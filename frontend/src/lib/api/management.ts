@@ -137,10 +137,12 @@ export type ManagementSystemInfo = {
   messenger_adapter?: string;
   publisher_adapter?: string;
   ai_adapter?: string;
+  payment_adapter?: string;
   telegram_configured: boolean;
   messenger_configured?: boolean;
   publisher_configured?: boolean;
   ai_configured?: boolean;
+  payment_configured?: boolean;
   bitrix_configured: boolean;
   onec_configured: boolean;
   outbox: {

@@ -208,7 +208,7 @@ Configured()
 CreatePayment(booking)  # сумма = booking.TotalPrice
 ```
 
-Адаптеры `sber` / `yookassa`, выбор `PAYMENT_ADAPTER`. Возвраты не делаем. Без адаптера форма заявки как в v2 (`NEW`).
+Адаптеры `sber` / `yookassa`, выбор `PAYMENT_ADAPTER` (по умолчанию `noop`). Возвраты не делаем. `CreatePayment` не меняет статус заявки: в domain по-прежнему только `NEW` / `CONTACTED` / `CONFIRMED` / `COMPLETED` / `CANCELLED`. `AWAITING_PAYMENT` / `PAID` — только в плане, ждут подтверждения владельца. Без ключа `Configured()==false`.
 
 ### BackupStoragePort (v3, этап 1)
 

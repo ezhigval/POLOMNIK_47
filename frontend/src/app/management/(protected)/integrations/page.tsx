@@ -46,6 +46,7 @@ export default async function ManagementIntegrationsPage() {
     messenger_adapter: "",
     publisher_adapter: "",
     ai_adapter: "",
+    payment_adapter: "",
     telegram_configured: false,
     messenger_configured: false,
     publisher_configured: false,
@@ -107,6 +108,12 @@ export default async function ManagementIntegrationsPage() {
             <p className="text-sm font-medium text-stone-900">AIPort</p>
             <div className="mt-2">
               {adapterBadge(systemInfo.ai_adapter ?? "noop", Boolean(systemInfo.ai_configured))}
+            </div>
+          </div>
+          <div className="rounded-xl border border-stone-200 bg-stone-50 p-4">
+            <p className="text-sm font-medium text-stone-900">PaymentPort</p>
+            <div className="mt-2">
+              {adapterBadge(systemInfo.payment_adapter ?? "noop", Boolean(systemInfo.payment_configured))}
             </div>
           </div>
         </div>

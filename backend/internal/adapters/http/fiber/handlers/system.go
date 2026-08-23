@@ -13,7 +13,7 @@ import (
 	"palomnik/internal/ports"
 )
 
-func SystemInfo(cfg config.Config, integrations *application.IntegrationService, metrics *appmiddleware.RequestMetrics, backupLastPath string, messenger ports.MessengerPort, publisher ports.PublisherPort, ai ports.AIPort) fiber.Handler {
+func SystemInfo(cfg config.Config, integrations *application.IntegrationService, metrics *appmiddleware.RequestMetrics, backupLastPath string, messenger ports.MessengerPort, publisher ports.PublisherPort, ai ports.AIPort, payment ports.PaymentPort) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		info := dto.SystemInfo{
 			CRMAdapter:          cfg.CRMAdapter,
@@ -22,10 +22,12 @@ func SystemInfo(cfg config.Config, integrations *application.IntegrationService,
 			MessengerAdapter:    cfg.MessengerAdapter,
 			PublisherAdapter:    cfg.PublisherAdapter,
 			AIAdapter:           cfg.AIAdapter,
+			PaymentAdapter:      cfg.PaymentAdapter,
 			TelegramConfigured:  strings.TrimSpace(cfg.TelegramBotToken) != "",
 			MessengerConfigured: messenger != nil && messenger.Configured(),
 			PublisherConfigured: publisher != nil && publisher.Configured(),
 			AIConfigured:        ai != nil && ai.Configured(),
+			PaymentConfigured:   payment != nil && payment.Configured(),
 			BitrixConfigured:    strings.TrimSpace(cfg.BitrixWebhookURL) != "",
 			OneCConfigured:      strings.TrimSpace(cfg.OneCBaseURL) != "",
 		}
@@ -46,6 +48,9 @@ func SystemInfo(cfg config.Config, integrations *application.IntegrationService,
 		}
 		if info.AIAdapter == "" {
 			info.AIAdapter = "noop"
+		}
+		if info.PaymentAdapter == "" {
+			info.PaymentAdapter = "noop"
 		}
 
 		if integrations != nil {

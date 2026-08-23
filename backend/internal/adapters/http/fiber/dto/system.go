@@ -30,10 +30,12 @@ type SystemInfo struct {
 	MessengerAdapter    string        `json:"messenger_adapter"`
 	PublisherAdapter    string        `json:"publisher_adapter"`
 	AIAdapter           string        `json:"ai_adapter"`
+	PaymentAdapter      string        `json:"payment_adapter"`
 	TelegramConfigured  bool          `json:"telegram_configured"`
 	MessengerConfigured bool          `json:"messenger_configured"`
 	PublisherConfigured bool          `json:"publisher_configured"`
 	AIConfigured        bool          `json:"ai_configured"`
+	PaymentConfigured   bool          `json:"payment_configured"`
 	BitrixConfigured    bool          `json:"bitrix_configured"`
 	OneCConfigured      bool          `json:"onec_configured"`
 	Outbox              OutboxSummary `json:"outbox"`

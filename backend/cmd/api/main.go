@@ -19,6 +19,7 @@ import (
 	"palomnik/internal/adapters/messenger"
 	"palomnik/internal/adapters/notification"
 	telegramnotify "palomnik/internal/adapters/notification/telegram"
+	"palomnik/internal/adapters/payment"
 	"palomnik/internal/adapters/phone"
 	"palomnik/internal/adapters/publisher"
 	memorylimit "palomnik/internal/adapters/ratelimit/memory"
@@ -188,6 +189,7 @@ func run() int {
 		Messenger:      messengerPort,
 		Publisher:      publisherPort,
 		AI:             aiPort,
+		Payment:        payment.New(cfg),
 		AIFeatures:     aiFeatures,
 		WebhookGuard:   application.NewWebhookGuard(cache),
 		RateLimiter:    rateLimiterFromCache(redisCache),

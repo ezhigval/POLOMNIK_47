@@ -167,6 +167,8 @@ WhatsApp — только официальный Cloud API. `ExportPayment` на
 
 `AWAITING_PAYMENT` → `PAID` / `CANCELLED` (слоты назад) → `CONTACTED` → `CONFIRMED` → `COMPLETED`. Уведомление «новая заявка» на `PAID`. Без адаптера форма как в v2 (`NEW`).
 
+**Сделано в коде (адаптеры, без живого эквайринга):** `PAYMENT_ADAPTER=noop` по умолчанию; `sber` (официальный `register.do`) и `yookassa` (`POST /v3/payments`). Сумма только `booking.TotalPrice`. Возвратов нет. **Статусы `AWAITING_PAYMENT` / `PAID` в domain нет** — живая машина статусов ждёт подтверждения владельца, в код их не добавляли. Checkout заявки не переключает статус. На проде ключей нет, оставлять noop.
+
 ---
 
 ## Этап 9 — UX

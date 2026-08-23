@@ -201,7 +201,7 @@ func NewRouter(cfg config.Config, log *slog.Logger, services Services, health He
 
 	management.Get("/integration-references", require(domain.PermManageIntegrations), h.ManagementListIntegrationReferences)
 	management.Get("/outbox-events", require(domain.PermManageIntegrations), h.ManagementListOutboxEvents)
-	management.Get("/system-info", require(domain.PermViewStats), handlers.SystemInfo(cfg, services.Integrations, metrics, services.BackupLastPath, services.Messenger, services.Publisher, services.AI))
+	management.Get("/system-info", require(domain.PermViewStats), handlers.SystemInfo(cfg, services.Integrations, metrics, services.BackupLastPath, services.Messenger, services.Publisher, services.AI, services.Payment))
 
 	management.Get("/cms/templates", require(domain.PermManageContent), h.ManagementListCMSTemplates)
 	management.Get("/cms/pages", require(domain.PermManageContent), h.ManagementListCMSPages)

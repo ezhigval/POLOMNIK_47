@@ -518,6 +518,10 @@ GET  /api/v1/management/watchdog
 
 Рекомендации — только опубликованные (`IsActive`) туры, кроме текущего. Черновик поддержки: `manage_support`, в переписку не пишется, `escalate=true`. Дайджест и watchdog: `view_stats`. Визиты в дайджест не входят. Watchdog `restart_attempted` всегда `false`. Без ключа AIPort все ответы безопасные no-op.
 
+## 8e. Оплата (этап 8, код)
+
+`PAYMENT_ADAPTER=noop` / `sber` / `yookassa`. HTTP checkout заявки **не** меняет статус: `AWAITING_PAYMENT` и `PAID` в API нет, пока владелец не подтвердит машину статусов. `CreatePayment` есть только как порт адаптера (сумма = `total_price`, без возвратов).
+
 ## 9. Future APIs
 
 Not in MVP 1 (частично уже есть в коде; этот список устарел — см. ROADMAP):

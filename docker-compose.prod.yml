@@ -110,6 +110,14 @@ services:
       YANDEXGPT_FOLDER_ID: ${YANDEXGPT_FOLDER_ID:-}
       YANDEXGPT_MODEL: ${YANDEXGPT_MODEL:-yandexgpt-lite}
       YANDEXGPT_API_BASE: ${YANDEXGPT_API_BASE:-https://llm.api.cloud.yandex.net}
+      PAYMENT_ADAPTER: ${PAYMENT_ADAPTER:-noop}
+      SBER_USERNAME: ${SBER_USERNAME:-}
+      SBER_PASSWORD: ${SBER_PASSWORD:-}
+      SBER_API_BASE: ${SBER_API_BASE:-https://securepayments.sberbank.ru}
+      YOOKASSA_SHOP_ID: ${YOOKASSA_SHOP_ID:-}
+      YOOKASSA_SECRET_KEY: ${YOOKASSA_SECRET_KEY:-}
+      YOOKASSA_API_BASE: ${YOOKASSA_API_BASE:-https://api.yookassa.ru}
+      PAYMENT_RETURN_URL: ${PAYMENT_RETURN_URL:-}
     volumes:
       - uploads_data:/data/uploads
     ports: !override []
