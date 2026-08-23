@@ -9,6 +9,7 @@
 | [../AGENTS.md](../AGENTS.md) | Правила агентов и прод |
 | [ROADMAP.md](ROADMAP.md) | Freeze v2 и указатель на v3 |
 | [V3_PLAN.md](V3_PLAN.md) | Этапы линейки v3, инфра ВМ/DNS |
+| [V3_OWNER_SETUP.md](V3_OWNER_SETUP.md) | Чеклист ключей этапа 4 (MessengerPort и др.) |
 | [DECISIONS.md](DECISIONS.md) | Решения владельца |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | Гексагон backend |
 | [CONVENTIONS.md](CONVENTIONS.md) | Кодстайл |

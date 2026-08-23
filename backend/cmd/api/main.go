@@ -15,6 +15,7 @@ import (
 	appmiddleware "palomnik/internal/adapters/http/fiber/middleware"
 	"palomnik/internal/adapters/integration"
 	"palomnik/internal/adapters/mail"
+	"palomnik/internal/adapters/messenger"
 	"palomnik/internal/adapters/notification"
 	telegramnotify "palomnik/internal/adapters/notification/telegram"
 	"palomnik/internal/adapters/phone"
@@ -142,6 +143,7 @@ func run() int {
 		SiteSettings:   siteSettings,
 		AdminRoles:     adminRoles,
 		Captcha:        captcha.New(cfg),
+		Messenger:      messenger.New(cfg),
 		WebhookGuard:   application.NewWebhookGuard(cache),
 		RateLimiter:    rateLimiterFromCache(redisCache),
 		Metrics:        appmiddleware.NewRequestMetrics(),

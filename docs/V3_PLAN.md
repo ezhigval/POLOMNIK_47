@@ -109,6 +109,8 @@ DNS (REG.RU), тот же A `93.77.165.81`: `@`, `www`, `api` уже есть. M
 
 **Сделано в коде (пассажиры):** таблица `passengers` (ФИО, телефон, ДР, паспорт; СНИЛС нет). CRUD `/me/passengers`, кабинет `/account/passengers`, автозаполнение имени и телефона из профиля. В мессенджеры — маска телефона, паспорта и ДР. Слияние кабинета переносит пассажиров.
 
+Политика ПД — только текст юриста (ещё нет).
+
 ---
 
 ## Этап 4 — адаптеры «вписать ключ»
@@ -123,6 +125,8 @@ DNS (REG.RU), тот же A `93.77.165.81`: `@`, `www`, `api` уже есть. M
 | Phone / Mailer | уже в v2 | sms.ru / SMTP |
 
 WhatsApp — только официальный Cloud API. `ExportPayment` на AccountingPort — заготовка, 1С live нет.
+
+**Сделано в коде (MessengerPort):** `MESSENGER_ADAPTER=telegram` / `max` / `whatsapp` (по умолчанию `noop`). Без ключа — noop, сайт жив. Telegram ходит в тот же Bot API / Worker, что уведомления. Max — `POST https://platform-api2.max.ru/messages`. WhatsApp — Graph Cloud API. Чаты и бот-команды не включены (этап 5). Чеклист: [V3_OWNER_SETUP.md](V3_OWNER_SETUP.md).
 
 ---
 
@@ -164,7 +168,7 @@ WhatsApp — только официальный Cloud API. `ExportPayment` на
 ## Этап 10 — документы
 
 Обновить STATUS, DECISIONS §12, DATA_MODEL, API, ARCHITECTURE.  
-Чеклист ключей: [V3_OWNER_SETUP.md](V3_OWNER_SETUP.md) (появится при реализации этапа 4).
+Чеклист ключей: [V3_OWNER_SETUP.md](V3_OWNER_SETUP.md).
 
 Проверки этапа: `go test ./...`, `go vet`, `npm run lint` / `build`. Прод — `make deploy` по просьбе.
 

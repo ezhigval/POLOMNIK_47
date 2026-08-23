@@ -23,6 +23,7 @@ type Services struct {
 	SiteSettings   *application.SiteSettingsService
 	AdminRoles     *application.AdminRoleService
 	Captcha        ports.CaptchaPort
+	Messenger      ports.MessengerPort
 	WebhookGuard   *application.WebhookGuard
 	RateLimiter    ports.RateLimiter
 	Metrics        *middleware.RequestMetrics
