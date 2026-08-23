@@ -229,9 +229,46 @@ export async function deleteManagementTour(id: string) {
   await managementRequest<void>(`/tours/${id}`, { method: "DELETE" });
 }
 
-export async function listManagementBookings() {
-  const body = await managementRequest<ListEnvelope<ManagementBooking>>("/bookings");
+export async function listManagementBookings(params?: {
+  status?: string;
+  date_from?: string;
+  date_to?: string;
+  tour_id?: string;
+  page?: number;
+  limit?: number;
+}) {
+  const search = new URLSearchParams();
+  if (params?.status) search.set("status", params.status);
+  if (params?.date_from) search.set("date_from", params.date_from);
+  if (params?.date_to) search.set("date_to", params.date_to);
+  if (params?.tour_id) search.set("tour_id", params.tour_id);
+  if (params?.page) search.set("page", String(params.page));
+  if (params?.limit) search.set("limit", String(params.limit));
+  const query = search.toString();
+  const body = await managementRequest<ListEnvelope<ManagementBooking>>(
+    `/bookings${query ? `?${query}` : ""}`,
+  );
   return body.data;
+}
+
+export async function exportManagementBookingsCSV(params: {
+  status?: string;
+  date_from?: string;
+  date_to?: string;
+  tour_id?: string;
+}) {
+  const auth = await managementAuthHeaders();
+  const search = new URLSearchParams();
+  search.set("format", "csv");
+  if (params.status) search.set("status", params.status);
+  if (params.date_from) search.set("date_from", params.date_from);
+  if (params.date_to) search.set("date_to", params.date_to);
+  if (params.tour_id) search.set("tour_id", params.tour_id);
+  const response = await fetch(apiUrl(`/management/bookings?${search.toString()}`), {
+    headers: auth,
+    cache: "no-store",
+  });
+  return response;
 }
 
 export async function updateManagementBookingStatus(id: string, status: string) {

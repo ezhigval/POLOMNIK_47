@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"strings"
+
 	"github.com/gofiber/fiber/v2"
 
 	"palomnik/internal/adapters/http/fiber/dto"
@@ -149,7 +151,26 @@ func (h *Handler) ManagementDeleteTour(c *fiber.Ctx) error {
 }
 
 func (h *Handler) ManagementListBookings(c *fiber.Ctx) error {
-	list, err := h.bookings.ListBookings(c.Context(), ports.BookingFilters{}, parsePagination(c))
+	filters, err := parseManagementBookingFilters(c)
+	if err != nil {
+		return writeAppError(c, err)
+	}
+
+	if strings.EqualFold(strings.TrimSpace(c.Query("format")), "csv") {
+		items, err := h.bookings.ListAllBookings(c.Context(), filters)
+		if err != nil {
+			return respondError(c, err, MapError)
+		}
+		body, err := managementBookingsCSV(items)
+		if err != nil {
+			return err
+		}
+		c.Set("Content-Type", "text/csv; charset=utf-8")
+		c.Set("Content-Disposition", `attachment; filename="bookings.csv"`)
+		return c.Send(body)
+	}
+
+	list, err := h.bookings.ListBookings(c.Context(), filters, parsePagination(c))
 	if err != nil {
 		return respondError(c, err, MapError)
 	}

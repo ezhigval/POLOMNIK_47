@@ -10,6 +10,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 
+	"palomnik/internal/domain"
 	"palomnik/internal/ports"
 )
 
@@ -17,6 +18,47 @@ func parsePagination(c *fiber.Ctx) ports.Pagination {
 	page, _ := strconv.Atoi(c.Query("page"))
 	limit, _ := strconv.Atoi(c.Query("limit"))
 	return ports.NormalizePagination(page, limit)
+}
+
+func parseManagementBookingFilters(c *fiber.Ctx) (ports.BookingFilters, error) {
+	var filters ports.BookingFilters
+
+	if raw := strings.TrimSpace(c.Query("tour_id")); raw != "" {
+		id, err := parseUUID(raw)
+		if err != nil {
+			return ports.BookingFilters{}, err
+		}
+		filters.TourID = &id
+	}
+
+	if raw := strings.TrimSpace(c.Query("status")); raw != "" {
+		status := domain.BookingStatus(raw)
+		if !status.Valid() {
+			return ports.BookingFilters{}, &AppError{
+				Status:  422,
+				Code:    "VALIDATION_ERROR",
+				Message: "Некорректный статус заявки",
+			}
+		}
+		filters.Status = &status
+	}
+
+	from, err := parseOptionalDate(c.Query("date_from"))
+	if err != nil {
+		return ports.BookingFilters{}, err
+	}
+	filters.From = from
+
+	to, err := parseOptionalDate(c.Query("date_to"))
+	if err != nil {
+		return ports.BookingFilters{}, err
+	}
+	if to != nil {
+		end := to.Add(24*time.Hour - time.Nanosecond)
+		filters.To = &end
+	}
+
+	return filters, nil
 }
 
 func parseOptionalDate(value string) (*time.Time, error) {

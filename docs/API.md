@@ -301,6 +301,8 @@ GET   /api/v1/management/bookings/{id}
 PATCH /api/v1/management/bookings/{id}/status
 ```
 
+`GET /bookings` query (optional): `status` (`NEW` / `CONTACTED` / `CONFIRMED` / `COMPLETED` / `CANCELLED`), `date_from`, `date_to` (`ГГГГ-ММ-ДД`, `date_to` inclusive), `tour_id`, `page`, `limit`. `format=csv` — UTF-8 CSV тех же полей заявки, без выдуманных колонок; выгрузка всех совпадений фильтра, не только текущей страницы.
+
 Status update request:
 
 ```json

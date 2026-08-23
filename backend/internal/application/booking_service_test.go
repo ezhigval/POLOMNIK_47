@@ -180,3 +180,44 @@ func TestBookingServiceUpdateBookingStatusFollowsDomainRules(t *testing.T) {
 		t.Fatalf("expected invalid transition, got %v", err)
 	}
 }
+
+func TestBookingServiceListAllBookingsFiltersByStatus(t *testing.T) {
+	ctx := context.Background()
+	store := memory.NewStore()
+	service := newBookingService(store)
+
+	tour := testTour()
+	if _, err := store.CreateTour(ctx, tour); err != nil {
+		t.Fatalf("create tour: %v", err)
+	}
+
+	first, err := service.CreateBooking(ctx, CreateBookingInput{
+		TourID:      tour.ID,
+		Name:        "Андрей",
+		Phone:       "+79990000001",
+		PeopleCount: 1,
+	})
+	if err != nil {
+		t.Fatalf("create first: %v", err)
+	}
+	if _, err := service.CreateBooking(ctx, CreateBookingInput{
+		TourID:      tour.ID,
+		Name:        "Борис",
+		Phone:       "+79990000002",
+		PeopleCount: 1,
+	}); err != nil {
+		t.Fatalf("create second: %v", err)
+	}
+	if _, err := service.UpdateBookingStatus(ctx, first.Booking.ID, domain.BookingStatusContacted); err != nil {
+		t.Fatalf("contact first: %v", err)
+	}
+
+	status := domain.BookingStatusNew
+	got, err := service.ListAllBookings(ctx, ports.BookingFilters{Status: &status})
+	if err != nil {
+		t.Fatalf("list: %v", err)
+	}
+	if len(got) != 1 || got[0].Name != "Борис" {
+		t.Fatalf("expected only NEW booking Борис, got %+v", got)
+	}
+}
