@@ -8,6 +8,7 @@ import (
 	"strings"
 	"syscall"
 
+	"palomnik/internal/adapters/ai"
 	cachenoop "palomnik/internal/adapters/cache/noop"
 	rediscache "palomnik/internal/adapters/cache/redis"
 	"palomnik/internal/adapters/captcha"
@@ -147,6 +148,7 @@ func run() int {
 		Captcha:        captcha.New(cfg),
 		Messenger:      messenger.New(cfg),
 		Publisher:      publisher.New(cfg, newsService),
+		AI:             ai.New(cfg),
 		WebhookGuard:   application.NewWebhookGuard(cache),
 		RateLimiter:    rateLimiterFromCache(redisCache),
 		Metrics:        appmiddleware.NewRequestMetrics(),

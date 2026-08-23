@@ -55,6 +55,24 @@ PUBLISHER_ADAPTER=noop
 
 ---
 
+## AIPort (этап 4)
+
+Фичи поддержки/рекомендаций/дайджеста — этап 7. Сейчас адаптер только вызывает `Complete(system, user)`, если его вызвать. По умолчанию `noop`.
+
+```bash
+AI_ADAPTER=noop
+```
+
+| Адаптер | Env |
+|---------|-----|
+| `yandexgpt` | `YANDEXGPT_API_KEY` (ключ сервисного аккаунта, заголовок `Api-Key`) + `YANDEXGPT_FOLDER_ID`. Опц. `YANDEXGPT_MODEL` (по умолчанию `yandexgpt-lite`) или полный `modelUri` `gpt://…`. Опц. `YANDEXGPT_API_BASE` (`https://llm.api.cloud.yandex.net`) |
+
+IAM-токен на 12 часов не используем — только долгоживущий API-ключ. Промпты продукта не зашиты: system/user приходят от вызывающего кода этапа 7. Цены и богословие адаптер сам не дописывает.
+
+Проверка: `/management/integrations` → карточка AIPort.
+
+---
+
 ## Уже в коде (ключи по желанию)
 
 | Порт | Env |
@@ -64,8 +82,10 @@ PUBLISHER_ADAPTER=noop
 | Telegram уведомления заявок/поддержки | `NOTIFICATION_ADAPTER=telegram` (уже на проде) |
 | MessengerPort | `MESSENGER_ADAPTER` (на проде `noop`) |
 | PublisherPort | `PUBLISHER_ADAPTER` (на проде `noop`) |
+| AIPort | `AI_ADAPTER` (пока не на проде) |
 
-YandexGPT, оплата Сбер/ЮKassa — отдельные PR.
+Оплата Сбер/ЮKassa — отдельный PR (этап 8).
+
 ---
 
 ## Инфра перед живым ботом / ИИ (этапы 5–7)

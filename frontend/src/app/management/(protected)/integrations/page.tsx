@@ -45,9 +45,11 @@ export default async function ManagementIntegrationsPage() {
     notification_adapter: "",
     messenger_adapter: "",
     publisher_adapter: "",
+    ai_adapter: "",
     telegram_configured: false,
     messenger_configured: false,
     publisher_configured: false,
+    ai_configured: false,
     bitrix_configured: false,
     onec_configured: false,
     outbox: { pending: 0, failed: 0, processed: 0 },
@@ -99,6 +101,12 @@ export default async function ManagementIntegrationsPage() {
             <p className="text-sm font-medium text-stone-900">PublisherPort</p>
             <div className="mt-2">
               {adapterBadge(systemInfo.publisher_adapter ?? "noop", Boolean(systemInfo.publisher_configured))}
+            </div>
+          </div>
+          <div className="rounded-xl border border-stone-200 bg-stone-50 p-4">
+            <p className="text-sm font-medium text-stone-900">AIPort</p>
+            <div className="mt-2">
+              {adapterBadge(systemInfo.ai_adapter ?? "noop", Boolean(systemInfo.ai_configured))}
             </div>
           </div>
         </div>

@@ -104,6 +104,11 @@ type Config struct {
 	VKAPIBase                string
 	VKAPIVersion             string
 	MaxFeedChatID            string
+	AIAdapter                string
+	YandexGPTAPIKey          string
+	YandexGPTFolderID        string
+	YandexGPTModel           string
+	YandexGPTAPIBase         string
 }
 
 func Load() Config {
@@ -204,6 +209,11 @@ func Load() Config {
 		VKAPIBase:                envString("VK_API_BASE", "https://api.vk.com"),
 		VKAPIVersion:             envString("VK_API_VERSION", "5.199"),
 		MaxFeedChatID:            os.Getenv("MAX_FEED_CHAT_ID"),
+		AIAdapter:                envString("AI_ADAPTER", "noop"),
+		YandexGPTAPIKey:          os.Getenv("YANDEXGPT_API_KEY"),
+		YandexGPTFolderID:        os.Getenv("YANDEXGPT_FOLDER_ID"),
+		YandexGPTModel:           envString("YANDEXGPT_MODEL", "yandexgpt-lite"),
+		YandexGPTAPIBase:         envString("YANDEXGPT_API_BASE", "https://llm.api.cloud.yandex.net"),
 	}
 }
 

@@ -25,6 +25,7 @@ type Services struct {
 	Captcha        ports.CaptchaPort
 	Messenger      ports.MessengerPort
 	Publisher      ports.PublisherPort
+	AI             ports.AIPort
 	WebhookGuard   *application.WebhookGuard
 	RateLimiter    ports.RateLimiter
 	Metrics        *middleware.RequestMetrics

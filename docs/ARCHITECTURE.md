@@ -199,7 +199,7 @@ Configured()
 Complete(system, user)
 ```
 
-Адаптер `yandexgpt` появится на этапе 4. v4 (звонки, ИИ-продавец) сюда не входит.
+Адаптер `yandexgpt`: `AI_ADAPTER=noop` (по умолчанию) или `yandexgpt`. Без ключа `Configured()==false`. Фичи этапа 7 не включены. v4 (звонки, ИИ-продавец) сюда не входит.
 
 ### PaymentPort (v3, этап 8)
 
