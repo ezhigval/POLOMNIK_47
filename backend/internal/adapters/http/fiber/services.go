@@ -24,6 +24,7 @@ type Services struct {
 	AdminRoles     *application.AdminRoleService
 	Captcha        ports.CaptchaPort
 	Messenger      ports.MessengerPort
+	Publisher      ports.PublisherPort
 	WebhookGuard   *application.WebhookGuard
 	RateLimiter    ports.RateLimiter
 	Metrics        *middleware.RequestMetrics

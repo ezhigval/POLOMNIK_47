@@ -19,6 +19,7 @@ import (
 	"palomnik/internal/adapters/notification"
 	telegramnotify "palomnik/internal/adapters/notification/telegram"
 	"palomnik/internal/adapters/phone"
+	"palomnik/internal/adapters/publisher"
 	memorylimit "palomnik/internal/adapters/ratelimit/memory"
 	"palomnik/internal/adapters/repository/memory"
 	"palomnik/internal/adapters/repository/postgres"
@@ -96,6 +97,7 @@ func run() int {
 	siteDefaults := domain.SiteSettings{}
 	siteSettings := application.NewSiteSettingsService(siteSettingsRepo, siteDefaults)
 	adminRoles := application.NewAdminRoleService(adminRoleRepo, userRepo, cfg.AdminToken, cfg.JWTSecret)
+	newsService := application.NewNewsService(newsRepo, cache)
 
 	services := fiberhttp.Services{
 		Tours: application.NewTourService(
@@ -137,13 +139,14 @@ func run() int {
 		Passengers:     application.NewPassengerService(passengerRepo(tourRepo)),
 		Support:        application.NewSupportService(supportRepo, notifier),
 		CMS:            application.NewCMSService(cmsRepo),
-		News:           application.NewNewsService(newsRepo, cache),
+		News:           newsService,
 		Telegram:       application.NewTelegramService(notificationSettings, telegramDeps.Chats, telegramnotify.NewClient(cfg), cfg.TelegramChatID),
 		Notifications:  notificationSettings,
 		SiteSettings:   siteSettings,
 		AdminRoles:     adminRoles,
 		Captcha:        captcha.New(cfg),
 		Messenger:      messenger.New(cfg),
+		Publisher:      publisher.New(cfg, newsService),
 		WebhookGuard:   application.NewWebhookGuard(cache),
 		RateLimiter:    rateLimiterFromCache(redisCache),
 		Metrics:        appmiddleware.NewRequestMetrics(),

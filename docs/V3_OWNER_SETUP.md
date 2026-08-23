@@ -32,6 +32,29 @@ WhatsApp — только Cloud API. Неофициальные клиенты �
 
 ---
 
+## PublisherPort (этап 4)
+
+Календарь SMM — этап 6. Сейчас адаптер только публикует, если его вызвать. По умолчанию `noop`: в эфир ничего не уходит.
+
+```bash
+PUBLISHER_ADAPTER=noop
+```
+
+`PUBLISHER_ADAPTER=live` включает те каналы, у которых уже есть ключ и id. Можно указать один канал: `site_news` / `telegram_channel` / `vk_wall` / `max_feed`.
+
+| Канал в Publish | Env | Куда пишет |
+|-----------------|-----|------------|
+| `site_news` | достаточно `PUBLISHER_ADAPTER=live` или `site_news` (своя БД) | новость на сайте, `is_published=true`; slug/excerpt из title/body |
+| `telegram_channel` | `TELEGRAM_BOT_TOKEN` + `TELEGRAM_CHANNEL_ID`; в проде `TELEGRAM_API_BASE` = Worker | канал Telegram. Бот должен быть админом канала; webhook сам не ставится |
+| `vk_wall` | `VK_WALL_TOKEN` + `VK_WALL_OWNER_ID` (id сообщества **со знаком минус**, например `-123456`) | официальный `wall.post`. Не путать с `VK_OAUTH_*` для входа |
+| `max_feed` | `MAX_BOT_TOKEN` + `MAX_FEED_CHAT_ID`; опц. `MAX_API_BASE` | `POST https://platform-api2.max.ru/messages?chat_id=` |
+
+Текст поста = title + body + URL из вызова, без дописанных слоганов.
+
+Проверка: `/management/integrations` → карточка PublisherPort.
+
+---
+
 ## Уже в коде (ключи по желанию)
 
 | Порт | Env |
@@ -39,9 +62,10 @@ WhatsApp — только Cloud API. Неофициальные клиенты �
 | SmartCaptcha | `CAPTCHA_ADAPTER=smartcaptcha`, `SMARTCAPTCHA_SERVER_KEY`, `SMARTCAPTCHA_CLIENT_KEY` |
 | Object Storage | `BACKUP_STORAGE_ADAPTER=s3`, `S3_*` |
 | Telegram уведомления заявок/поддержки | `NOTIFICATION_ADAPTER=telegram` (уже на проде) |
+| MessengerPort | `MESSENGER_ADAPTER` (на проде `noop`) |
+| PublisherPort | `PUBLISHER_ADAPTER` (на проде `noop`) |
 
-PublisherPort, YandexGPT, оплата Сбер/ЮKassa — отдельные PR.
-
+YandexGPT, оплата Сбер/ЮKassa — отдельные PR.
 ---
 
 ## Инфра перед живым ботом / ИИ (этапы 5–7)

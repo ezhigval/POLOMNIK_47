@@ -28,8 +28,10 @@ type SystemInfo struct {
 	AccountingAdapter   string        `json:"accounting_adapter"`
 	NotificationAdapter string        `json:"notification_adapter"`
 	MessengerAdapter    string        `json:"messenger_adapter"`
+	PublisherAdapter    string        `json:"publisher_adapter"`
 	TelegramConfigured  bool          `json:"telegram_configured"`
 	MessengerConfigured bool          `json:"messenger_configured"`
+	PublisherConfigured bool          `json:"publisher_configured"`
 	BitrixConfigured    bool          `json:"bitrix_configured"`
 	OneCConfigured      bool          `json:"onec_configured"`
 	Outbox              OutboxSummary `json:"outbox"`
