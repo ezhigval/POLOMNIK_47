@@ -85,6 +85,7 @@ type UserRepository interface {
 	GetUserByPhone(ctx context.Context, phone string) (domain.User, error)
 	GetUserByOAuth(ctx context.Context, provider, subject string) (domain.User, error)
 	UpdateUserProfile(ctx context.Context, user domain.User) (domain.User, error)
+	UpdateUserPassword(ctx context.Context, userID uuid.UUID, passwordHash string) error
 }
 
 type FavoriteRepository interface {
@@ -96,6 +97,8 @@ type FavoriteRepository interface {
 
 type SupportRepository interface {
 	GetOpenThread(ctx context.Context, userID uuid.UUID) (domain.SupportThread, error)
+	GetThreadByID(ctx context.Context, threadID uuid.UUID) (domain.SupportThread, error)
+	ListThreads(ctx context.Context) ([]domain.SupportThread, error)
 	CreateThread(ctx context.Context, thread domain.SupportThread) (domain.SupportThread, error)
 	ListMessages(ctx context.Context, threadID uuid.UUID) ([]domain.SupportMessage, error)
 	AddMessage(ctx context.Context, message domain.SupportMessage) (domain.SupportMessage, error)

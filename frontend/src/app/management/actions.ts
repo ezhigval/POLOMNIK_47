@@ -28,6 +28,7 @@ import {
   updateManagementRole,
   deleteManagementRole,
   assignManagementRoleUser,
+  sendManagementSupportMessage,
   type CmsBlockCreateInput,
   type CmsBlockUpdateInput,
   type CmsPageUpdateInput,
@@ -103,6 +104,12 @@ export async function deleteTourAction(formData: FormData) {
 export async function updateBookingStatusAction(id: string, status: string) {
   await updateManagementBookingStatus(id, status);
   revalidatePath("/management/bookings");
+}
+
+export async function replySupportAction(threadId: string, body: string) {
+  await sendManagementSupportMessage(threadId, body);
+  revalidatePath("/management/support");
+  revalidatePath(`/management/support/${threadId}`);
 }
 
 export async function approveReviewAction(formData: FormData) {

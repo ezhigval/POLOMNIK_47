@@ -6,6 +6,7 @@ import {
   listManagementNews,
   listManagementOutboxEvents,
   listManagementReviews,
+  listManagementSupportThreads,
   listManagementTours,
 } from "@/lib/api/management";
 
@@ -39,20 +40,30 @@ function settledList<T>(result: PromiseSettledResult<T[]>, fallback: T[] = []): 
 }
 
 export default async function ManagementDashboardPage() {
-  const [toursResult, bookingsResult, reviewsResult, integrationRefsResult, outboxEventsResult, cmsResult, newsResult] =
-    await Promise.allSettled([
-      listManagementTours(),
-      listManagementBookings(),
-      listManagementReviews(),
-      listManagementIntegrationReferences(),
-      listManagementOutboxEvents({ status: "pending" }),
-      listManagementCmsPagesOrEmpty(),
-      listManagementNews(),
-    ]);
+  const [
+    toursResult,
+    bookingsResult,
+    reviewsResult,
+    supportResult,
+    integrationRefsResult,
+    outboxEventsResult,
+    cmsResult,
+    newsResult,
+  ] = await Promise.allSettled([
+    listManagementTours(),
+    listManagementBookings(),
+    listManagementReviews(),
+    listManagementSupportThreads(),
+    listManagementIntegrationReferences(),
+    listManagementOutboxEvents({ status: "pending" }),
+    listManagementCmsPagesOrEmpty(),
+    listManagementNews(),
+  ]);
 
   const tours = settledList(toursResult);
   const bookings = settledList(bookingsResult);
   const reviews = settledList(reviewsResult);
+  const supportThreads = settledList(supportResult);
   const integrationRefs = settledList(integrationRefsResult);
   const outboxEvents = settledList(outboxEventsResult);
   const news = settledList(newsResult);
@@ -62,6 +73,7 @@ export default async function ManagementDashboardPage() {
 
   const newBookings = bookings.filter((booking) => booking.status === "NEW").length;
   const pendingReviews = reviews.filter((review) => !review.is_approved).length;
+  const openSupport = supportThreads.filter((thread) => thread.status === "open").length;
   const failedSync = integrationRefs.filter((ref) => ref.sync_status === "failed").length;
   const pendingOutbox = outboxEvents.length;
 
@@ -95,6 +107,13 @@ export default async function ManagementDashboardPage() {
       hint: `из ${bookings.length} всего`,
       href: "/management/bookings",
       accent: newBookings > 0,
+    },
+    {
+      title: "Поддержка",
+      value: openSupport,
+      hint: `из ${supportThreads.length} всего`,
+      href: "/management/support",
+      accent: openSupport > 0,
     },
     {
       title: "Отзывы на модерации",
@@ -162,6 +181,9 @@ export default async function ManagementDashboardPage() {
           </Link>
           <Link href="/management/bookings" className="btn-secondary">
             Обработать заявки
+          </Link>
+          <Link href="/management/support" className="btn-secondary">
+            Поддержка
           </Link>
           <Link href="/management/reviews" className="btn-secondary">
             Модерировать отзывы

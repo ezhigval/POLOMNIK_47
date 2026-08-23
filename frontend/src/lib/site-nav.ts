@@ -34,10 +34,10 @@ export const accountNavLinks: NavLink[] = [
 ];
 
 export const oauthErrorMessages: Record<string, string> = {
-  oauth_not_configured: "Вход через Google пока не настроен. Используйте email или телефон.",
-  oauth_cancelled: "Вход через Google отменён. Попробуйте снова или войдите по паролю.",
-  oauth_failed: "Не удалось авторизоваться через Google. Попробуйте позже.",
-  oauth_profile: "Google не передал профиль. Попробуйте другой способ входа.",
+  oauth_not_configured: "Вход через соцсеть пока не настроен. Используйте email или телефон.",
+  oauth_cancelled: "Вход через соцсеть отменён. Попробуйте снова или войдите по паролю.",
+  oauth_failed: "Не удалось авторизоваться через соцсеть. Попробуйте позже.",
+  oauth_profile: "Соцсеть не передала профиль. Попробуйте другой способ входа.",
   oauth_backend: "Сервер не смог создать аккаунт. Попробуйте регистрацию вручную.",
 };
 

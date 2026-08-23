@@ -63,6 +63,48 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 	})
 }
 
+func (h *Handler) ForgotPassword(c *fiber.Ctx) error {
+	var req dto.ForgotPasswordRequest
+	if err := c.BodyParser(&req); err != nil {
+		return writeAppError(c, &AppError{
+			Status:  422,
+			Code:    "VALIDATION_ERROR",
+			Message: "Некорректные данные запроса",
+		})
+	}
+
+	if err := h.auth.RequestPasswordReset(c.Context(), req.Email); err != nil {
+		return respondError(c, err, MapError)
+	}
+
+	return c.JSON(dto.DataEnvelope[map[string]string]{
+		Data: map[string]string{
+			"message": "Если аккаунт с таким email есть, мы отправили ссылку для восстановления.",
+		},
+	})
+}
+
+func (h *Handler) ResetPassword(c *fiber.Ctx) error {
+	var req dto.ResetPasswordRequest
+	if err := c.BodyParser(&req); err != nil {
+		return writeAppError(c, &AppError{
+			Status:  422,
+			Code:    "VALIDATION_ERROR",
+			Message: "Некорректные данные запроса",
+		})
+	}
+
+	if err := h.auth.ResetPassword(c.Context(), req.Token, req.NewPassword); err != nil {
+		return respondError(c, err, MapError)
+	}
+
+	return c.JSON(dto.DataEnvelope[map[string]string]{
+		Data: map[string]string{
+			"message": "Пароль обновлён. Войдите с новым паролем.",
+		},
+	})
+}
+
 func (h *Handler) AuthMethods(c *fiber.Ctx) error {
 	methods := h.auth.AuthMethods()
 	status := func(s application.AuthMethodStatus) dto.AuthMethodStatusResponse {

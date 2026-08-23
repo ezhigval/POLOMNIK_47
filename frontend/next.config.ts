@@ -14,12 +14,6 @@ function lanDevHosts(): string[] {
   return [...hosts];
 }
 
-const googleOAuthOrigins = [
-  "https://accounts.google.com",
-  "https://oauth2.googleapis.com",
-  "https://www.googleapis.com",
-];
-
 function buildContentSecurityPolicy(): string {
   return [
     "default-src 'self'",
@@ -37,10 +31,9 @@ function buildContentSecurityPolicy(): string {
       "https://www.google-analytics.com",
       "https://region1.google-analytics.com",
       "https://www.googletagmanager.com",
-      ...googleOAuthOrigins,
     ].join(" "),
-    `form-action 'self' ${googleOAuthOrigins[0]}`,
-    `frame-src 'self' ${googleOAuthOrigins[0]} https://mc.yandex.ru https://mc.yandex.com`,
+    "form-action 'self'",
+    "frame-src 'self' https://mc.yandex.ru https://mc.yandex.com",
     "frame-ancestors 'self'",
     "base-uri 'self'",
   ].join("; ");

@@ -80,6 +80,26 @@ RETURNING `+userSelectColumns+`
 	return scanUser(row)
 }
 
+func (s *Store) UpdateUserPassword(ctx context.Context, userID uuid.UUID, passwordHash string) error {
+	res, err := s.db.ExecContext(ctx, `
+UPDATE users
+SET password_hash = $2,
+    updated_at = NOW()
+WHERE id = $1
+`, userID, passwordHash)
+	if err != nil {
+		return fmt.Errorf("update user password: %w", err)
+	}
+	n, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if n == 0 {
+		return domain.ErrNotFound
+	}
+	return nil
+}
+
 func scanUser(row scanner) (domain.User, error) {
 	var user domain.User
 	var phone sql.NullString

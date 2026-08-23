@@ -9,6 +9,7 @@ const links = [
   { href: "/management/news", label: "Новости" },
   { href: "/management/tours", label: "Туры" },
   { href: "/management/bookings", label: "Заявки" },
+  { href: "/management/support", label: "Поддержка" },
   { href: "/management/reviews", label: "Отзывы" },
   { href: "/management/integrations", label: "Синхронизация" },
   { href: "/management/settings", label: "Настройки" },

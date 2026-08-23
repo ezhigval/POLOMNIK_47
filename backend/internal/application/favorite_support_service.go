@@ -140,3 +140,43 @@ func (s *SupportService) GetThread(ctx context.Context, userID uuid.UUID) (domai
 	}
 	return thread, messages, nil
 }
+
+func (s *SupportService) ListThreads(ctx context.Context) ([]domain.SupportThread, error) {
+	return s.support.ListThreads(ctx)
+}
+
+func (s *SupportService) GetThreadByID(ctx context.Context, threadID uuid.UUID) (domain.SupportThread, []domain.SupportMessage, error) {
+	thread, err := s.support.GetThreadByID(ctx, threadID)
+	if err != nil {
+		return domain.SupportThread{}, nil, err
+	}
+	messages, err := s.support.ListMessages(ctx, threadID)
+	if err != nil {
+		return domain.SupportThread{}, nil, err
+	}
+	return thread, messages, nil
+}
+
+func (s *SupportService) SendStaffMessage(ctx context.Context, threadID uuid.UUID, body string) (domain.SupportThread, []domain.SupportMessage, error) {
+	thread, err := s.support.GetThreadByID(ctx, threadID)
+	if err != nil {
+		return domain.SupportThread{}, nil, err
+	}
+
+	message, err := domain.NewSupportMessage(domain.SupportMessage{
+		ID:         uuid.New(),
+		ThreadID:   thread.ID,
+		SenderType: domain.SupportSenderStaff,
+		Body:       body,
+	})
+	if err != nil {
+		return domain.SupportThread{}, nil, err
+	}
+
+	if _, err := s.support.AddMessage(ctx, message); err != nil {
+		return domain.SupportThread{}, nil, err
+	}
+	_ = s.support.TouchThread(ctx, thread.ID)
+
+	return s.GetThreadByID(ctx, thread.ID)
+}

@@ -186,9 +186,8 @@ func formatSupportMessage(note domain.SupportNotification, mgmtBase string) stri
 	if note.ThreadID != uuid.Nil {
 		b.WriteString(fmt.Sprintf("Диалог: <code>%s</code>\n", note.ThreadID.String()))
 	}
-	b.WriteString("Ответ — в кабинете клиента (отдельного экрана поддержки в админке нет).")
-	if mgmtBase != "" {
-		b.WriteString(fmt.Sprintf("\n<a href=\"%s\">Кабинет управления</a>", strings.TrimSuffix(mgmtBase, "/bookings")))
+	if link := ManagementSupportThreadURL(mgmtBase, note.ThreadID); link != "" {
+		b.WriteString(fmt.Sprintf(`<a href="%s">Открыть в админке</a>`, link))
 	}
 	return b.String()
 }

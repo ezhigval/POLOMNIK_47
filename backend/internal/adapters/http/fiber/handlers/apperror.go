@@ -46,6 +46,10 @@ func MapError(err error) *AppError {
 		return &AppError{Status: 422, Code: "PHONE_NOT_CONFIRMED", Message: "Звонок ещё не подтверждён или время истекло"}
 	case errors.Is(err, application.ErrPhoneUserNotFound):
 		return &AppError{Status: 404, Code: "PHONE_USER_NOT_FOUND", Message: "Аккаунт с этим телефоном не найден. Зарегистрируйтесь."}
+	case errors.Is(err, application.ErrPasswordResetUnavailable):
+		return &AppError{Status: 503, Code: "MAIL_UNAVAILABLE", Message: "Пока что недоступно, используйте другой вариант."}
+	case errors.Is(err, application.ErrInvalidPasswordResetToken):
+		return &AppError{Status: 422, Code: "INVALID_RESET_TOKEN", Message: "Ссылка для восстановления недействительна или устарела"}
 	case errors.Is(err, ports.ErrPhoneChallengeFailed):
 		return &AppError{Status: 502, Code: "PHONE_PROVIDER_ERROR", Message: "Не удалось начать проверку телефона. Попробуйте позже."}
 	case errors.Is(err, domain.ErrDuplicateEmail):

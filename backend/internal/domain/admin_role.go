@@ -14,6 +14,7 @@ const (
 	PermManageTours         Permission = "manage_tours"
 	PermManageBookings      Permission = "manage_bookings"
 	PermManageContent       Permission = "manage_content"
+	PermManageSupport       Permission = "manage_support"
 	PermManageSettingsSite  Permission = "manage_settings_site"
 	PermManageRecipients    Permission = "manage_recipients"
 	PermManageRoles         Permission = "manage_roles"
@@ -26,6 +27,7 @@ func AllPermissions() []Permission {
 		PermManageTours,
 		PermManageBookings,
 		PermManageContent,
+		PermManageSupport,
 		PermManageSettingsSite,
 		PermManageRecipients,
 		PermManageRoles,

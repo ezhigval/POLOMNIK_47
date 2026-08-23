@@ -3,6 +3,7 @@ package memory
 import (
 	"context"
 	"strings"
+	"time"
 
 	"github.com/google/uuid"
 
@@ -93,4 +94,18 @@ func (s *Store) UpdateUserProfile(_ context.Context, user domain.User) (domain.U
 	existing.Phone = user.Phone
 	s.users[user.ID] = existing
 	return existing, nil
+}
+
+func (s *Store) UpdateUserPassword(_ context.Context, userID uuid.UUID, passwordHash string) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	existing, ok := s.users[userID]
+	if !ok {
+		return domain.ErrNotFound
+	}
+	existing.PasswordHash = passwordHash
+	existing.UpdatedAt = time.Now().UTC()
+	s.users[userID] = existing
+	return nil
 }

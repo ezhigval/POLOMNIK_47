@@ -233,6 +233,44 @@ export async function updateManagementBookingStatus(id: string, status: string) 
   return body.data;
 }
 
+export type ManagementSupportMessage = {
+  id: string;
+  sender_type: string;
+  body: string;
+  created_at: string;
+};
+
+export type ManagementSupportThread = {
+  id: string;
+  user_id: string;
+  subject: string;
+  status: string;
+  messages?: ManagementSupportMessage[];
+  created_at?: string;
+  updated_at: string;
+};
+
+export async function listManagementSupportThreads() {
+  const body = await managementRequest<ListEnvelope<ManagementSupportThread>>("/support");
+  return body.data;
+}
+
+export async function getManagementSupportThread(id: string) {
+  const body = await managementRequest<DataEnvelope<ManagementSupportThread>>(`/support/${id}`);
+  return body.data;
+}
+
+export async function sendManagementSupportMessage(id: string, bodyText: string) {
+  const body = await managementRequest<DataEnvelope<ManagementSupportThread>>(
+    `/support/${id}/messages`,
+    {
+      method: "POST",
+      body: JSON.stringify({ body: bodyText }),
+    },
+  );
+  return body.data;
+}
+
 export type CreateReviewInput = {
   tour_id: string;
   client_name: string;

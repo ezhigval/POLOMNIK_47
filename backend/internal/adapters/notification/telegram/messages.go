@@ -2,6 +2,7 @@ package telegram
 
 import (
 	"fmt"
+	"net/url"
 	"strings"
 
 	"github.com/google/uuid"
@@ -45,11 +46,36 @@ func FormatSupportMessage(note domain.SupportNotification, mgmtBase string) stri
 	if note.ThreadID != uuid.Nil {
 		b.WriteString(fmt.Sprintf("Диалог: <code>%s</code>\n", note.ThreadID.String()))
 	}
-	b.WriteString("Ответ — в кабинете клиента (отдельного экрана поддержки в админке нет).")
-	if mgmtBase != "" {
-		b.WriteString(fmt.Sprintf("\n<a href=\"%s\">Кабинет управления</a>", strings.TrimSuffix(mgmtBase, "/bookings")))
+	if link := supportThreadURL(mgmtBase, note.ThreadID); link != "" {
+		b.WriteString(fmt.Sprintf(`<a href="%s">Открыть в админке</a>`, link))
 	}
 	return b.String()
+}
+
+func supportThreadURL(mgmtBase string, threadID uuid.UUID) string {
+	origin := managementOrigin(mgmtBase)
+	if origin == "" || threadID == uuid.Nil {
+		return ""
+	}
+	return fmt.Sprintf("%s/management/support/%s", origin, threadID.String())
+}
+
+func managementOrigin(mgmtBase string) string {
+	raw := strings.TrimSpace(mgmtBase)
+	if raw == "" {
+		return ""
+	}
+	if !strings.Contains(raw, "://") {
+		raw = "https://" + raw
+	}
+	u, err := url.Parse(raw)
+	if err != nil || u.Scheme == "" || u.Host == "" {
+		trimmed := strings.TrimRight(strings.TrimSpace(mgmtBase), "/")
+		trimmed = strings.TrimSuffix(trimmed, "/bookings")
+		trimmed = strings.TrimSuffix(trimmed, "/management")
+		return strings.TrimRight(trimmed, "/")
+	}
+	return strings.TrimRight(u.Scheme+"://"+u.Host, "/")
 }
 
 func appendBookingDetails(b *strings.Builder, booking domain.Booking, tour domain.Tour) {

@@ -2,7 +2,10 @@ package application
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"errors"
+	"net/url"
 	"strings"
 	"sync"
 	"time"
@@ -16,17 +19,20 @@ import (
 )
 
 const phoneChallengeTTL = 5 * time.Minute
+const passwordResetTTL = time.Hour
+const passwordResetPurpose = "password_reset"
 
 const unavailableMessage = "Пока что недоступно, используйте другой вариант."
 
 type AuthService struct {
-	users     ports.UserRepository
-	bookings  ports.BookingRepository
-	phones    ports.PhoneVerifier
-	mailer    ports.Mailer
-	social    SocialAuthConfig
-	jwtSecret []byte
-	tokenTTL  time.Duration
+	users         ports.UserRepository
+	bookings      ports.BookingRepository
+	phones        ports.PhoneVerifier
+	mailer        ports.Mailer
+	social        SocialAuthConfig
+	jwtSecret     []byte
+	tokenTTL      time.Duration
+	publicSiteURL string
 
 	mu         sync.Mutex
 	challenges map[string]phoneChallengeRecord
@@ -53,6 +59,7 @@ func NewAuthService(
 	social SocialAuthConfig,
 	jwtSecret string,
 	tokenTTL time.Duration,
+	publicSiteURL string,
 ) *AuthService {
 	if tokenTTL <= 0 {
 		tokenTTL = 7 * 24 * time.Hour
@@ -64,14 +71,15 @@ func NewAuthService(
 		mailer = unavailableMailer{}
 	}
 	return &AuthService{
-		users:      users,
-		bookings:   bookings,
-		phones:     phones,
-		mailer:     mailer,
-		social:     social,
-		jwtSecret:  []byte(jwtSecret),
-		tokenTTL:   tokenTTL,
-		challenges: make(map[string]phoneChallengeRecord),
+		users:         users,
+		bookings:      bookings,
+		phones:        phones,
+		mailer:        mailer,
+		social:        social,
+		jwtSecret:     []byte(jwtSecret),
+		tokenTTL:      tokenTTL,
+		publicSiteURL: strings.TrimRight(strings.TrimSpace(publicSiteURL), "/"),
+		challenges:    make(map[string]phoneChallengeRecord),
 	}
 }
 
@@ -113,6 +121,13 @@ type AuthResult struct {
 
 type AuthClaims struct {
 	UserID uuid.UUID `json:"uid"`
+	jwt.RegisteredClaims
+}
+
+type passwordResetClaims struct {
+	UserID      uuid.UUID `json:"uid"`
+	Purpose     string    `json:"purpose"`
+	Fingerprint string    `json:"fp"`
 	jwt.RegisteredClaims
 }
 
@@ -322,6 +337,115 @@ func (s *AuthService) sendRegistrationMail(ctx context.Context, user domain.User
 		Subject: "Регистрация на сайте паломнической службы",
 		Text:    "Здравствуйте, " + user.Name + "!\n\nВаш аккаунт создан. Войти можно на сайте в разделе «Кабинет».\n",
 	})
+}
+
+// RequestPasswordReset sends a reset link when mailer is configured and the email
+// matches a password-based account. Always succeeds for unknown emails (no enumeration).
+func (s *AuthService) RequestPasswordReset(ctx context.Context, email string) error {
+	if s.mailer == nil || !s.mailer.Configured() {
+		return ErrPasswordResetUnavailable
+	}
+	normalized := strings.TrimSpace(strings.ToLower(email))
+	if normalized == "" || !strings.Contains(normalized, "@") {
+		return domain.ErrInvalidEmail
+	}
+
+	user, err := s.users.GetUserByEmail(ctx, normalized)
+	if err != nil {
+		if errors.Is(err, domain.ErrNotFound) {
+			return nil
+		}
+		return err
+	}
+	if strings.TrimSpace(user.PasswordHash) == "" {
+		return nil
+	}
+
+	token, err := s.issuePasswordResetToken(user)
+	if err != nil {
+		return err
+	}
+	link := s.publicSiteURL + "/account/reset-password?token=" + url.QueryEscape(token)
+	_ = s.mailer.Send(ctx, ports.MailMessage{
+		To:      []string{user.Email},
+		Subject: "Восстановление пароля",
+		Text: "Здравствуйте" + nameSuffix(user.Name) + "!\n\n" +
+			"Чтобы задать новый пароль, откройте ссылку (действует около часа):\n" +
+			link + "\n\nЕсли вы не запрашивали восстановление, просто проигнорируйте это письмо.\n",
+	})
+	return nil
+}
+
+func (s *AuthService) ResetPassword(ctx context.Context, token, newPassword string) error {
+	if err := domain.ValidatePassword(newPassword); err != nil {
+		return err
+	}
+	claims, err := s.parsePasswordResetToken(token)
+	if err != nil {
+		return err
+	}
+	user, err := s.users.GetUserByID(ctx, claims.UserID)
+	if err != nil {
+		return ErrInvalidPasswordResetToken
+	}
+	if passwordFingerprint(user.PasswordHash) != claims.Fingerprint {
+		return ErrInvalidPasswordResetToken
+	}
+
+	hash, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+	return s.users.UpdateUserPassword(ctx, user.ID, string(hash))
+}
+
+func nameSuffix(name string) string {
+	name = strings.TrimSpace(name)
+	if name == "" {
+		return ""
+	}
+	return ", " + name
+}
+
+func passwordFingerprint(passwordHash string) string {
+	sum := sha256.Sum256([]byte(passwordHash))
+	return hex.EncodeToString(sum[:8])
+}
+
+func (s *AuthService) issuePasswordResetToken(user domain.User) (string, error) {
+	now := time.Now().UTC()
+	claims := passwordResetClaims{
+		UserID:      user.ID,
+		Purpose:     passwordResetPurpose,
+		Fingerprint: passwordFingerprint(user.PasswordHash),
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(now.Add(passwordResetTTL)),
+			IssuedAt:  jwt.NewNumericDate(now),
+			Subject:   user.ID.String(),
+		},
+	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	return token.SignedString(s.jwtSecret)
+}
+
+func (s *AuthService) parsePasswordResetToken(token string) (passwordResetClaims, error) {
+	if strings.TrimSpace(token) == "" {
+		return passwordResetClaims{}, ErrInvalidPasswordResetToken
+	}
+	parsed, err := jwt.ParseWithClaims(token, &passwordResetClaims{}, func(t *jwt.Token) (any, error) {
+		if t.Method != jwt.SigningMethodHS256 {
+			return nil, ErrInvalidPasswordResetToken
+		}
+		return s.jwtSecret, nil
+	})
+	if err != nil {
+		return passwordResetClaims{}, ErrInvalidPasswordResetToken
+	}
+	claims, ok := parsed.Claims.(*passwordResetClaims)
+	if !ok || !parsed.Valid || claims.UserID == uuid.Nil || claims.Purpose != passwordResetPurpose {
+		return passwordResetClaims{}, ErrInvalidPasswordResetToken
+	}
+	return *claims, nil
 }
 
 func (s *AuthService) Login(ctx context.Context, input LoginInput) (AuthResult, error) {

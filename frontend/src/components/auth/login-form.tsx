@@ -94,6 +94,12 @@ export function LoginForm({ returnUrl = "/account/trips" }: LoginFormProps) {
           <input required type="password" name="password" className="input-field" minLength={8} />
         </label>
 
+        <p className="text-right text-sm">
+          <Link href="/account/forgot-password" className="font-medium text-brand-800 hover:underline">
+            Забыли пароль?
+          </Link>
+        </p>
+
         <FormError>{error}</FormError>
 
         <button type="submit" disabled={loading} className="btn-primary w-full">

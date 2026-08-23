@@ -10,4 +10,6 @@ var (
 	ErrPhoneVerificationRequired      = errors.New("phone verification required")
 	ErrPhoneVerificationNotConfirmed  = errors.New("phone verification not confirmed")
 	ErrPhoneUserNotFound              = errors.New("phone user not found")
+	ErrPasswordResetUnavailable       = errors.New("password reset unavailable")
+	ErrInvalidPasswordResetToken      = errors.New("invalid password reset token")
 )

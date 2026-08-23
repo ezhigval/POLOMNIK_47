@@ -9,6 +9,7 @@ import {
 const permissionOptions = [
   { id: "manage_tours", label: "Туры" },
   { id: "manage_bookings", label: "Заявки" },
+  { id: "manage_support", label: "Поддержка" },
   { id: "manage_content", label: "Контент" },
   { id: "manage_settings_site", label: "Сайт" },
   { id: "manage_recipients", label: "Получатели" },

@@ -6,6 +6,7 @@ import (
 	"polomnik/internal/adapters/http/fiber/dto"
 	appmiddleware "polomnik/internal/adapters/http/fiber/middleware"
 	"polomnik/internal/application"
+	"polomnik/internal/ports"
 )
 
 func (h *Handler) OAuthLogin(c *fiber.Ctx) error {
@@ -118,5 +119,59 @@ func (h *Handler) SendSupportMessage(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusCreated).JSON(dto.DataEnvelope[dto.SupportThreadResponse]{
 		Data: dto.ToSupportThreadResponse(thread, messages),
+	})
+}
+
+func (h *Handler) ManagementListSupportThreads(c *fiber.Ctx) error {
+	threads, err := h.support.ListThreads(c.Context())
+	if err != nil {
+		return respondError(c, err, MapError)
+	}
+
+	items := make([]dto.SupportThreadResponse, 0, len(threads))
+	for _, thread := range threads {
+		items = append(items, dto.ToManagementSupportThreadSummary(thread))
+	}
+
+	return c.JSON(dto.ListEnvelope[dto.SupportThreadResponse]{
+		Data: items,
+		Meta: ports.PageMeta{Page: 1, Limit: len(items), Total: len(items), HasNext: false},
+	})
+}
+
+func (h *Handler) ManagementGetSupportThread(c *fiber.Ctx) error {
+	id, err := parseUUID(c.Params("id"))
+	if err != nil {
+		return writeAppError(c, err)
+	}
+
+	thread, messages, err := h.support.GetThreadByID(c.Context(), id)
+	if err != nil {
+		return respondError(c, err, MapError)
+	}
+
+	return c.JSON(dto.DataEnvelope[dto.SupportThreadResponse]{
+		Data: dto.ToManagementSupportThreadResponse(thread, messages),
+	})
+}
+
+func (h *Handler) ManagementSendSupportMessage(c *fiber.Ctx) error {
+	id, err := parseUUID(c.Params("id"))
+	if err != nil {
+		return writeAppError(c, err)
+	}
+
+	var req dto.SendSupportMessageRequest
+	if err := c.BodyParser(&req); err != nil {
+		return writeAppError(c, &AppError{Status: 422, Code: "VALIDATION_ERROR", Message: "Некорректные данные запроса"})
+	}
+
+	thread, messages, err := h.support.SendStaffMessage(c.Context(), id, req.Body)
+	if err != nil {
+		return respondError(c, err, MapError)
+	}
+
+	return c.Status(fiber.StatusCreated).JSON(dto.DataEnvelope[dto.SupportThreadResponse]{
+		Data: dto.ToManagementSupportThreadResponse(thread, messages),
 	})
 }

@@ -83,6 +83,8 @@ func NewRouter(cfg config.Config, log *slog.Logger, services Services, health He
 	v1.Get("/auth/methods", h.AuthMethods)
 	v1.Post("/auth/register", authLimiter, h.Register)
 	v1.Post("/auth/login", authLimiter, h.Login)
+	v1.Post("/auth/forgot-password", authLimiter, h.ForgotPassword)
+	v1.Post("/auth/reset-password", authLimiter, h.ResetPassword)
 	v1.Post("/auth/phone/start", authLimiter, h.StartPhoneVerification)
 	v1.Get("/auth/phone/status", authLimiter, h.PhoneVerificationStatus)
 	v1.Post("/auth/phone/complete", authLimiter, h.CompletePhoneLogin)
@@ -131,6 +133,10 @@ func NewRouter(cfg config.Config, log *slog.Logger, services Services, health He
 	management.Get("/bookings", require(domain.PermManageBookings), h.ManagementListBookings)
 	management.Get("/bookings/:id", require(domain.PermManageBookings), h.ManagementGetBooking)
 	management.Patch("/bookings/:id/status", require(domain.PermManageBookings), h.ManagementUpdateBookingStatus)
+
+	management.Get("/support", require(domain.PermManageSupport), h.ManagementListSupportThreads)
+	management.Get("/support/:id", require(domain.PermManageSupport), h.ManagementGetSupportThread)
+	management.Post("/support/:id/messages", require(domain.PermManageSupport), appmiddleware.RateLimit(60, time.Minute), h.ManagementSendSupportMessage)
 
 	management.Get("/reviews", require(domain.PermManageContent), h.ManagementListReviews)
 	management.Post("/reviews", require(domain.PermManageContent), h.ManagementCreateReview)

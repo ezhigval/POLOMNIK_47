@@ -2,6 +2,7 @@ package memory
 
 import (
 	"context"
+	"sort"
 	"time"
 
 	"github.com/google/uuid"
@@ -61,6 +62,29 @@ func (s *Store) GetOpenThread(_ context.Context, userID uuid.UUID) (domain.Suppo
 	return domain.SupportThread{}, domain.ErrNotFound
 }
 
+func (s *Store) GetThreadByID(_ context.Context, threadID uuid.UUID) (domain.SupportThread, error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	thread, ok := s.supportThreads[threadID]
+	if !ok {
+		return domain.SupportThread{}, domain.ErrNotFound
+	}
+	return thread, nil
+}
+
+func (s *Store) ListThreads(_ context.Context) ([]domain.SupportThread, error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	threads := make([]domain.SupportThread, 0, len(s.supportThreads))
+	for _, thread := range s.supportThreads {
+		threads = append(threads, thread)
+	}
+	sort.Slice(threads, func(i, j int) bool {
+		return threads[i].UpdatedAt.After(threads[j].UpdatedAt)
+	})
+	return threads, nil
+}
+
 func (s *Store) CreateThread(_ context.Context, thread domain.SupportThread) (domain.SupportThread, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -77,6 +101,9 @@ func (s *Store) ListMessages(_ context.Context, threadID uuid.UUID) ([]domain.Su
 			messages = append(messages, message)
 		}
 	}
+	sort.Slice(messages, func(i, j int) bool {
+		return messages[i].CreatedAt.Before(messages[j].CreatedAt)
+	})
 	return messages, nil
 }
 

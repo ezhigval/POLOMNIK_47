@@ -76,6 +76,37 @@ LIMIT 1
 	return scanSupportThread(row)
 }
 
+func (s *Store) GetThreadByID(ctx context.Context, threadID uuid.UUID) (domain.SupportThread, error) {
+	row := s.db.QueryRowContext(ctx, `
+SELECT id, user_id, subject, status, created_at, updated_at
+FROM support_threads
+WHERE id = $1
+`, threadID)
+	return scanSupportThread(row)
+}
+
+func (s *Store) ListThreads(ctx context.Context) ([]domain.SupportThread, error) {
+	rows, err := s.db.QueryContext(ctx, `
+SELECT id, user_id, subject, status, created_at, updated_at
+FROM support_threads
+ORDER BY updated_at DESC
+`)
+	if err != nil {
+		return nil, fmt.Errorf("list support threads: %w", err)
+	}
+	defer rows.Close()
+
+	var threads []domain.SupportThread
+	for rows.Next() {
+		thread, err := scanSupportThread(rows)
+		if err != nil {
+			return nil, err
+		}
+		threads = append(threads, thread)
+	}
+	return threads, rows.Err()
+}
+
 func (s *Store) CreateThread(ctx context.Context, thread domain.SupportThread) (domain.SupportThread, error) {
 	row := s.db.QueryRowContext(ctx, `
 INSERT INTO support_threads (id, user_id, subject, status, created_at, updated_at)

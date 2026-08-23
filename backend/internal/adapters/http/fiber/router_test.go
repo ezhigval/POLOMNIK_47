@@ -481,7 +481,7 @@ func newTestAppWithStore(store *memory.Store, adminToken string) *fiber.App {
 			"",
 			false,
 		),
-		Auth: application.NewAuthService(store, store, nil, nil, application.SocialAuthConfig{}, config.DefaultJWTSecret, 24*time.Hour),
+		Auth: application.NewAuthService(store, store, nil, nil, application.SocialAuthConfig{}, config.DefaultJWTSecret, 24*time.Hour, "http://localhost:3000"),
 		Support:  application.NewSupportService(store, notificationnoop.New()),
 		CMS:      application.NewCMSService(store),
 		News:     application.NewNewsService(store),
