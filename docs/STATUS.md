@@ -36,6 +36,8 @@
 Единый чеклист: **[V2_OWNER_SETUP.md](V2_OWNER_SETUP.md)**  
 OAuth подробно: [OAUTH_SETUP.md](OAUTH_SETUP.md) · реклама: [SEO_ADS.md](SEO_ADS.md) · Telegram: [TELEGRAM_SETUP.md](TELEGRAM_SETUP.md)
 
-## Бэклог после v2
+## Дальше: v3 (план)
 
-См. [ROADMAP.md](ROADMAP.md) — что ещё может понадобиться позже (фильтры заявок, live Bitrix/1С, оплата, текст ПД от юриста). Без секретов владельца E2E OAuth/SMTP не прогнать.
+Код v3 ещё не начат. Этапы, инфра ВМ/DNS и список «не входит»: **[V3_PLAN.md](V3_PLAN.md)**. Кратко: [ROADMAP.md](ROADMAP.md).
+
+Без секретов владельца E2E OAuth/SMTP не прогнать — [V2_OWNER_SETUP.md](V2_OWNER_SETUP.md).
