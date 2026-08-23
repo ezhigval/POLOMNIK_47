@@ -130,6 +130,8 @@ WhatsApp — только официальный Cloud API. `ExportPayment` на
 
 **Сделано в коде (PublisherPort):** `PUBLISHER_ADAPTER=noop` (по умолчанию) или `live` / один канал `site_news` / `telegram_channel` / `vk_wall` / `max_feed`. Без ключа — noop. `live` вызывает только настроенные каналы. Telegram-канал — тот же бот и Worker; бот должен быть админом, webhook не трогаем. VK — официальный `wall.post`, `owner_id` сообщества отрицательный. Max — `POST /messages?chat_id=`. SMM-календарь не включён (этап 6). Чеклист: [V3_OWNER_SETUP.md](V3_OWNER_SETUP.md).
 
+**Сделано в коде (AIPort):** `AI_ADAPTER=noop` (по умолчанию) или `yandexgpt`. Без ключа — noop. Официальный `POST https://llm.api.cloud.yandex.net/foundationModels/v1/completion`, заголовок `Authorization: Api-Key`. Нужны `YANDEXGPT_API_KEY` и `YANDEXGPT_FOLDER_ID`. Фичи поддержки/рекомендаций/watchdog не включены (этап 7). v4 (звонки, ИИ-продавец) сюда не входит. Чеклист: [V3_OWNER_SETUP.md](V3_OWNER_SETUP.md).
+
 ---
 
 ## Этап 5 — чаты и бот
