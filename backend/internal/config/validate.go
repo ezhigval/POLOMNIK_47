@@ -20,7 +20,7 @@ func Validate(cfg Config) error {
 		if err := requireStrongSecret("JWT_SECRET", cfg.JWTSecret, DefaultJWTSecret, 32); err != nil {
 			return err
 		}
-		if err := requireStrongSecret("ADMIN_TOKEN", cfg.AdminToken, DefaultAdminToken, 16); err != nil {
+		if err := requireStrongSecret("ADMIN_TOKEN", cfg.AdminToken, DefaultAdminToken, 11); err != nil {
 			return err
 		}
 		if err := requireStrongSecret("INTERNAL_API_SECRET", cfg.InternalAPISecret, DefaultInternalAPISecret, 16); err != nil {

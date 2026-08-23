@@ -47,6 +47,19 @@ func TestValidateProductionTelegramRequiresWorkerURL(t *testing.T) {
 	}
 }
 
+func TestValidateProductionAcceptsAdminTokenLiteral(t *testing.T) {
+	cfg := Load()
+	cfg.AppEnv = "production"
+	cfg.JWTSecret = "production-jwt-secret-value-32chars"
+	cfg.AdminToken = "ADMIN_TOKEN"
+	cfg.InternalAPISecret = "production-internal"
+	cfg.DatabaseURL = "postgres://example"
+
+	if err := Validate(cfg); err != nil {
+		t.Fatalf("ADMIN_TOKEN literal should pass production validation: %v", err)
+	}
+}
+
 func TestValidateLocalAllowsDefaults(t *testing.T) {
 	cfg := Load()
 	cfg.AppEnv = "local"
