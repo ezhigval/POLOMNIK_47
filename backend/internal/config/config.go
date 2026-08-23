@@ -97,6 +97,13 @@ type Config struct {
 	WhatsAppToken            string
 	WhatsAppPhoneNumberID    string
 	WhatsAppGraphBase        string
+	PublisherAdapter         string
+	TelegramChannelID        string
+	VKWallToken              string
+	VKWallOwnerID            string
+	VKAPIBase                string
+	VKAPIVersion             string
+	MaxFeedChatID            string
 }
 
 func Load() Config {
@@ -190,6 +197,13 @@ func Load() Config {
 		WhatsAppToken:            os.Getenv("WHATSAPP_TOKEN"),
 		WhatsAppPhoneNumberID:    os.Getenv("WHATSAPP_PHONE_NUMBER_ID"),
 		WhatsAppGraphBase:        envString("WHATSAPP_GRAPH_BASE", "https://graph.facebook.com/v21.0"),
+		PublisherAdapter:         envString("PUBLISHER_ADAPTER", "noop"),
+		TelegramChannelID:        os.Getenv("TELEGRAM_CHANNEL_ID"),
+		VKWallToken:              os.Getenv("VK_WALL_TOKEN"),
+		VKWallOwnerID:            os.Getenv("VK_WALL_OWNER_ID"),
+		VKAPIBase:                envString("VK_API_BASE", "https://api.vk.com"),
+		VKAPIVersion:             envString("VK_API_VERSION", "5.199"),
+		MaxFeedChatID:            os.Getenv("MAX_FEED_CHAT_ID"),
 	}
 }
 

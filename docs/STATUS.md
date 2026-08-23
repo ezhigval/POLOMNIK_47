@@ -38,7 +38,7 @@ OAuth подробно: [OAUTH_SETUP.md](OAUTH_SETUP.md) · реклама: [SEO
 
 ## Дальше: v3 (в работе)
 
-Код линейки v3: этапы **0–3** на проде (identity, профиль, пассажиры; goose 16). Этап **4** начат: MessengerPort (telegram / max / WhatsApp Cloud), без чатов.  
+Код линейки v3: этапы **0–3** на проде (identity, профиль, пассажиры; goose 16). Этап **4** начат: MessengerPort на проде в `noop`; PublisherPort в коде (не на проде, пока не попросите деплой).  
 Этапы 5–10 и v4 не начаты. План: **[V3_PLAN.md](V3_PLAN.md)**. Ключи этапа 4: [V3_OWNER_SETUP.md](V3_OWNER_SETUP.md).
 
 Без секретов владельца E2E OAuth/SMTP не прогнать — [V2_OWNER_SETUP.md](V2_OWNER_SETUP.md).

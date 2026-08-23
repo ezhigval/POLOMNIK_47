@@ -51,6 +51,15 @@ func TestValidateProductionTelegramRequiresWorkerURL(t *testing.T) {
 	if err := Validate(cfg); err != nil {
 		t.Fatalf("worker url should pass: %v", err)
 	}
+
+	cfg.MessengerAdapter = "noop"
+	cfg.TelegramAPIBase = "https://api.telegram.org"
+	cfg.PublisherAdapter = "telegram_channel"
+	cfg.TelegramBotToken = "token"
+	cfg.TelegramChannelID = "@channel"
+	if err := Validate(cfg); err == nil {
+		t.Fatal("expected official Telegram API host to fail for telegram_channel publisher")
+	}
 }
 
 func TestValidateProductionAcceptsAdminTokenLiteral(t *testing.T) {

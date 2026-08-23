@@ -13,15 +13,17 @@ import (
 	"palomnik/internal/ports"
 )
 
-func SystemInfo(cfg config.Config, integrations *application.IntegrationService, metrics *appmiddleware.RequestMetrics, backupLastPath string, messenger ports.MessengerPort) fiber.Handler {
+func SystemInfo(cfg config.Config, integrations *application.IntegrationService, metrics *appmiddleware.RequestMetrics, backupLastPath string, messenger ports.MessengerPort, publisher ports.PublisherPort) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		info := dto.SystemInfo{
 			CRMAdapter:          cfg.CRMAdapter,
 			AccountingAdapter:   cfg.AccountingAdapter,
 			NotificationAdapter: cfg.NotificationAdapter,
 			MessengerAdapter:    cfg.MessengerAdapter,
+			PublisherAdapter:    cfg.PublisherAdapter,
 			TelegramConfigured:  strings.TrimSpace(cfg.TelegramBotToken) != "",
 			MessengerConfigured: messenger != nil && messenger.Configured(),
+			PublisherConfigured: publisher != nil && publisher.Configured(),
 			BitrixConfigured:    strings.TrimSpace(cfg.BitrixWebhookURL) != "",
 			OneCConfigured:      strings.TrimSpace(cfg.OneCBaseURL) != "",
 		}
@@ -36,6 +38,9 @@ func SystemInfo(cfg config.Config, integrations *application.IntegrationService,
 		}
 		if info.MessengerAdapter == "" {
 			info.MessengerAdapter = "noop"
+		}
+		if info.PublisherAdapter == "" {
+			info.PublisherAdapter = "noop"
 		}
 
 		if integrations != nil {

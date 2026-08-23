@@ -128,6 +128,8 @@ WhatsApp — только официальный Cloud API. `ExportPayment` на
 
 **Сделано в коде (MessengerPort):** `MESSENGER_ADAPTER=telegram` / `max` / `whatsapp` (по умолчанию `noop`). Без ключа — noop, сайт жив. Telegram ходит в тот же Bot API / Worker, что уведомления. Max — `POST https://platform-api2.max.ru/messages`. WhatsApp — Graph Cloud API. Чаты и бот-команды не включены (этап 5). Чеклист: [V3_OWNER_SETUP.md](V3_OWNER_SETUP.md).
 
+**Сделано в коде (PublisherPort):** `PUBLISHER_ADAPTER=noop` (по умолчанию) или `live` / один канал `site_news` / `telegram_channel` / `vk_wall` / `max_feed`. Без ключа — noop. `live` вызывает только настроенные каналы. Telegram-канал — тот же бот и Worker; бот должен быть админом, webhook не трогаем. VK — официальный `wall.post`, `owner_id` сообщества отрицательный. Max — `POST /messages?chat_id=`. SMM-календарь не включён (этап 6). Чеклист: [V3_OWNER_SETUP.md](V3_OWNER_SETUP.md).
+
 ---
 
 ## Этап 5 — чаты и бот

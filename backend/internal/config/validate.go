@@ -35,12 +35,20 @@ func Validate(cfg Config) error {
 		return fmt.Errorf("BITRIX_INBOUND_TOKEN is required when CRM_ADAPTER=bitrix")
 	}
 
-	telegramLive := strings.EqualFold(cfg.NotificationAdapter, "telegram") || strings.EqualFold(cfg.MessengerAdapter, "telegram")
+	telegramLive := strings.EqualFold(cfg.NotificationAdapter, "telegram") || strings.EqualFold(cfg.MessengerAdapter, "telegram") || publisherUsesTelegram(cfg)
 	if cfg.IsProduction() && telegramLive && cfg.TelegramAPIHostIsOfficial() {
-		return fmt.Errorf("TELEGRAM_API_BASE must be the outbound Worker URL when NOTIFICATION_ADAPTER=telegram or MESSENGER_ADAPTER=telegram in production")
+		return fmt.Errorf("TELEGRAM_API_BASE must be the outbound Worker URL when Telegram notifications, messenger, or telegram_channel publisher are live in production")
 	}
 
 	return nil
+}
+
+func publisherUsesTelegram(cfg Config) bool {
+	adapter := strings.ToLower(strings.TrimSpace(cfg.PublisherAdapter))
+	if adapter != "live" && adapter != "telegram_channel" {
+		return false
+	}
+	return strings.TrimSpace(cfg.TelegramBotToken) != "" && strings.TrimSpace(cfg.TelegramChannelID) != ""
 }
 
 func requireStrongSecret(name, value, forbiddenDefault string, minLen int) error {

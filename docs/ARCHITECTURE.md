@@ -179,7 +179,7 @@ Configured()
 Publish(channel, content)
 ```
 
-Адаптеры: site_news / telegram_channel / vk_wall / max_feed.
+Адаптеры: site_news / telegram_channel / vk_wall / max_feed. Выбор: `PUBLISHER_ADAPTER=noop` (по умолчанию) или `live` / имя одного канала. Без ключа `Configured()==false`. SMM-календарь — этап 6.
 
 ### CaptchaPort (v3, этап 1)
 
