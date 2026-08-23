@@ -8,6 +8,7 @@ export async function POST(request: Request) {
     const result = await loginUser({
       login: body.login,
       password: body.password,
+      website: body.website,
     });
 
     const response = NextResponse.json({ user: result.user });

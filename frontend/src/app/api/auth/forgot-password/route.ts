@@ -7,7 +7,7 @@ export async function POST(request: Request) {
     const result = await requestJson<{ data?: { message?: string } }>(apiUrl("/auth/forgot-password"), {
       method: "POST",
       cache: "no-store",
-      body: JSON.stringify({ email: body.email }),
+      body: JSON.stringify({ email: body.email, website: body.website }),
     });
     return NextResponse.json({ message: result.data?.message ?? "OK" });
   } catch (error) {

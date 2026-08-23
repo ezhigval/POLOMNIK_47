@@ -35,14 +35,20 @@ func NewRouter(cfg config.Config, log *slog.Logger, services Services, health He
 		BodyLimit:    bodyLimit,
 	})
 
+	metrics := services.Metrics
+	if metrics == nil {
+		metrics = appmiddleware.NewRequestMetrics()
+	}
+
 	app.Use(requestid.New())
 	app.Use(recover.New())
 	app.Use(cors.New(cors.Config{
-		AllowOrigins: cfg.CORSAllowOrigins,
-		AllowHeaders: "Origin, Content-Type, Accept, Authorization, X-Admin-Token, X-Admin-Session, X-Internal-Secret",
-		AllowMethods: "GET,POST,PATCH,DELETE,OPTIONS",
+		AllowOrigins:  cfg.CORSAllowOrigins,
+		AllowHeaders:  "Origin, Content-Type, Accept, Authorization, X-Admin-Token, X-Admin-Session, X-Internal-Secret",
+		AllowMethods:  "GET,POST,PATCH,DELETE,OPTIONS",
+		ExposeHeaders: "X-Request-ID, Retry-After",
 	}))
-	app.Use(appmiddleware.RequestLogger(log))
+	app.Use(appmiddleware.RequestLogger(log, metrics))
 
 	if cfg.UploadDir != "" {
 		if err := os.MkdirAll(cfg.UploadDir, 0o755); err != nil {
@@ -68,9 +74,11 @@ func NewRouter(cfg config.Config, log *slog.Logger, services Services, health He
 		services.SiteSettings,
 		services.AdminRoles,
 		application.TelegramWebhookSecret(cfg.InternalAPISecret),
+		services.Captcha,
+		services.WebhookGuard,
 	)
 
-	ready := handlers.NewReadinessChecker(health.PingDB, health.PingCache, health.CacheRequired)
+	ready := handlers.NewReadinessChecker(health.PingDB, health.PingCache, false)
 
 	app.Get("/health", handlers.Health)
 	app.Get("/health/ready", handlers.HealthReady(ready))
@@ -79,7 +87,11 @@ func NewRouter(cfg config.Config, log *slog.Logger, services Services, health He
 	v1.Get("/health", handlers.Health)
 	v1.Get("/health/ready", handlers.HealthReady(ready))
 
-	authLimiter := appmiddleware.RateLimit(20, time.Minute)
+	authLimiter := appmiddleware.RateLimitWithStore(services.RateLimiter, 20, time.Minute)
+	bookingLimiter := appmiddleware.RateLimitWithStore(services.RateLimiter, 30, time.Minute)
+	supportLimiter := appmiddleware.RateLimitWithStore(services.RateLimiter, 30, time.Minute)
+	webhookLimiter := appmiddleware.RateLimitWithStore(services.RateLimiter, 60, time.Minute)
+	telegramLimiter := appmiddleware.RateLimitWithStore(services.RateLimiter, 120, time.Minute)
 	v1.Get("/auth/methods", h.AuthMethods)
 	v1.Post("/auth/register", authLimiter, h.Register)
 	v1.Post("/auth/login", authLimiter, h.Login)
@@ -100,9 +112,9 @@ func NewRouter(cfg config.Config, log *slog.Logger, services Services, health He
 	v1.Get("/pages", h.ListPublicCMSPages)
 	v1.Get("/pages/:slug", h.GetPublicCMSPage)
 	v1.Get("/site-settings", h.GetPublicSiteSettings)
-	v1.Post("/bookings", appmiddleware.RateLimit(30, time.Minute), appmiddleware.OptionalUserAuth(services.Auth), h.CreateBooking)
-	v1.Post("/webhooks/bitrix/deal", appmiddleware.RateLimit(60, time.Minute), h.BitrixDealWebhook)
-	v1.Post("/webhooks/telegram", appmiddleware.RateLimit(120, time.Minute), h.TelegramWebhook)
+	v1.Post("/bookings", bookingLimiter, appmiddleware.OptionalUserAuth(services.Auth), h.CreateBooking)
+	v1.Post("/webhooks/bitrix/deal", webhookLimiter, h.BitrixDealWebhook)
+	v1.Post("/webhooks/telegram", telegramLimiter, h.TelegramWebhook)
 
 	me := v1.Group("/me", appmiddleware.RequireUserAuth(services.Auth))
 	me.Get("/", h.Me)
@@ -111,7 +123,7 @@ func NewRouter(cfg config.Config, log *slog.Logger, services Services, health He
 	me.Post("/favorites/:tourId", h.AddFavorite)
 	me.Delete("/favorites/:tourId", h.RemoveFavorite)
 	me.Get("/support", h.GetSupportThread)
-	me.Post("/support/messages", appmiddleware.RateLimit(30, time.Minute), h.SendSupportMessage)
+	me.Post("/support/messages", supportLimiter, h.SendSupportMessage)
 
 	adminAuth := appmiddleware.AdminAuth(services.AdminRoles, cfg.AdminToken)
 	require := func(perm domain.Permission) fiber.Handler {
@@ -169,7 +181,7 @@ func NewRouter(cfg config.Config, log *slog.Logger, services Services, health He
 
 	management.Get("/integration-references", require(domain.PermManageIntegrations), h.ManagementListIntegrationReferences)
 	management.Get("/outbox-events", require(domain.PermManageIntegrations), h.ManagementListOutboxEvents)
-	management.Get("/system-info", require(domain.PermViewStats), handlers.SystemInfo(cfg, services.Integrations))
+	management.Get("/system-info", require(domain.PermViewStats), handlers.SystemInfo(cfg, services.Integrations, metrics, services.BackupLastPath))
 
 	management.Get("/cms/templates", require(domain.PermManageContent), h.ManagementListCMSTemplates)
 	management.Get("/cms/pages", require(domain.PermManageContent), h.ManagementListCMSPages)
@@ -219,16 +231,24 @@ func errorHandler(log *slog.Logger) fiber.ErrorHandler {
 		}
 
 		if status >= fiber.StatusInternalServerError {
-			log.Error("http error", slog.Int("status", status), slog.Any("error", err))
+			log.Error("http error", slog.Int("status", status), slog.String("request_id", requestIDFrom(c)), slog.Any("error", err))
 		}
 
 		return c.Status(status).JSON(dto.ErrorEnvelope{
 			Error: dto.ErrorBody{
-				Code:    code,
-				Message: message,
+				Code:      code,
+				Message:   message,
+				RequestID: requestIDFrom(c),
 			},
 		})
 	}
+}
+
+func requestIDFrom(c *fiber.Ctx) string {
+	if value, ok := c.Locals("requestid").(string); ok && value != "" {
+		return value
+	}
+	return c.Get("X-Request-ID")
 }
 
 func errorCodeForStatus(status int) string {

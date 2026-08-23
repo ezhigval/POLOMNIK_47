@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"palomnik/internal/application"
+	"palomnik/internal/ports"
 )
 
 type Handler struct {
@@ -20,6 +21,8 @@ type Handler struct {
 	siteSettings          *application.SiteSettingsService
 	adminRoles            *application.AdminRoleService
 	telegramWebhookSecret string
+	captcha               ports.CaptchaPort
+	webhookGuard          *application.WebhookGuard
 }
 
 func New(
@@ -38,6 +41,8 @@ func New(
 	siteSettings *application.SiteSettingsService,
 	adminRoles *application.AdminRoleService,
 	telegramWebhookSecret string,
+	captcha ports.CaptchaPort,
+	webhookGuard *application.WebhookGuard,
 ) *Handler {
 	return &Handler{
 		tours:                 tours,
@@ -55,6 +60,8 @@ func New(
 		siteSettings:          siteSettings,
 		adminRoles:            adminRoles,
 		telegramWebhookSecret: telegramWebhookSecret,
+		captcha:               captcha,
+		webhookGuard:          webhookGuard,
 	}
 }
 

@@ -8,12 +8,14 @@ import (
 )
 
 type CreateBookingRequest struct {
-	TourID      string `json:"tour_id"`
-	Name        string `json:"name"`
-	Phone       string `json:"phone"`
-	Email       string `json:"email"`
-	PeopleCount int    `json:"people_count"`
-	Comment     string `json:"comment"`
+	TourID       string `json:"tour_id"`
+	Name         string `json:"name"`
+	Phone        string `json:"phone"`
+	Email        string `json:"email"`
+	PeopleCount  int    `json:"people_count"`
+	Comment      string `json:"comment"`
+	Website      string `json:"website"`
+	CaptchaToken string `json:"captcha_token"`
 }
 
 type CreateBookingResponse struct {

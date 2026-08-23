@@ -53,14 +53,18 @@ Returns API health inside versioned API.
 
 ### GET /health/ready and GET /api/v1/health/ready
 
-Readiness probe: PostgreSQL (+ Redis when configured). Use for uptime monitors and load balancer checks.
+Readiness probe: PostgreSQL. Redis is optional: if it is down the site stays up and ready still returns 200 (`checks.cache` may be `degraded`). Use for uptime monitors and load balancer checks.
+
+Responses include `X-Request-ID`. Error bodies may include `request_id`. Rate-limited responses send `Retry-After`.
+
+Public write forms (`/bookings`, auth, support) accept a hidden honeypot field `website`. If filled, API returns a generic 422. Captcha token is verified only when `CAPTCHA_ADAPTER=smartcaptcha` and keys exist; availability is in `GET /auth/methods` → `captcha`.
 
 Outbox worker has no HTTP health endpoint. Docker healthcheck uses heartbeat file
 `WORKER_HEARTBEAT_PATH` (default `/tmp/palomnik-worker-heartbeat`), refreshed after each successful poll.
 
 ### GET /api/v1/management/system-info
 
-Admin-only ops snapshot: adapter modes + outbox counts (`pending` / `failed` / `processed`).
+Admin-only ops snapshot: adapter modes, outbox counts (`pending` / `failed` / `processed`), request latency, last backup marker (`last_backup`). Not a public pprof.
 
 ## 4. Public Tours API
 

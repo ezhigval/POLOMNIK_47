@@ -106,6 +106,9 @@ func (h *Handler) SendSupportMessage(c *fiber.Ctx) error {
 	if err := c.BodyParser(&req); err != nil {
 		return writeAppError(c, &AppError{Status: 422, Code: "VALIDATION_ERROR", Message: "Некорректные данные запроса"})
 	}
+	if err := rejectHoneypot(req.Website); err != nil {
+		return writeAppError(c, err)
+	}
 
 	messages, err := h.support.SendUserMessage(c.Context(), userID, req.Body)
 	if err != nil {

@@ -34,6 +34,8 @@ export type CreateBookingInput = {
   email?: string;
   people_count: number;
   comment?: string;
+  website?: string;
+  captcha_token?: string;
 };
 
 export type CreateBookingResult = {

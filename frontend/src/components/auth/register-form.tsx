@@ -6,6 +6,7 @@ import { FormEvent, useCallback, useState } from "react";
 import { PhoneCallVerify } from "@/components/auth/phone-call-verify";
 import { FormError } from "@/components/form-error";
 import { safeReturnUrl } from "@/lib/site-nav";
+import { HoneypotField } from "@/components/honeypot-field";
 
 type RegisterFormProps = {
   returnUrl?: string;
@@ -57,6 +58,7 @@ export function RegisterForm({ returnUrl = "/account/trips" }: RegisterFormProps
         phone: formData.get("phone"),
         password: formData.get("password"),
         phone_check_id: phoneCheckId,
+        website: formData.get("website"),
       }),
     });
 
@@ -72,7 +74,8 @@ export function RegisterForm({ returnUrl = "/account/trips" }: RegisterFormProps
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-4 rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
+    <form onSubmit={onSubmit} className="relative space-y-4 rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
+      <HoneypotField />
       <div>
         <h2 className="font-display text-xl font-semibold text-stone-900">Данные аккаунта</h2>
         <p className="mt-1 text-sm text-stone-600">После регистрации откроется личный кабинет.</p>

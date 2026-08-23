@@ -11,11 +11,12 @@ import (
 )
 
 type NewsService struct {
-	news ports.NewsRepository
+	news  ports.NewsRepository
+	cache ports.CachePort
 }
 
-func NewNewsService(news ports.NewsRepository) *NewsService {
-	return &NewsService{news: news}
+func NewNewsService(news ports.NewsRepository, cache ports.CachePort) *NewsService {
+	return &NewsService{news: news, cache: cache}
 }
 
 type NewsArticleInput struct {
@@ -31,6 +32,29 @@ type NewsArticleInput struct {
 
 func (s *NewsService) ListPublicNews(ctx context.Context, pagination ports.Pagination) (ports.NewsList, error) {
 	return s.news.ListNews(ctx, ports.NewsFilters{PublishedOnly: true}, pagination)
+}
+
+func (s *NewsService) ListPublicNewsCached(ctx context.Context, pagination ports.Pagination) (ports.NewsList, error) {
+	if s.cache == nil {
+		return s.ListPublicNews(ctx, pagination)
+	}
+
+	key, err := s.cacheKey(ctx, "list:public", newsListCacheID(pagination))
+	if err != nil {
+		return s.ListPublicNews(ctx, pagination)
+	}
+
+	var cached ports.NewsList
+	if ok, _ := s.readCache(ctx, key, &cached); ok {
+		return cached, nil
+	}
+
+	list, err := s.ListPublicNews(ctx, pagination)
+	if err != nil {
+		return ports.NewsList{}, err
+	}
+	_ = s.writeCache(ctx, key, list)
+	return list, nil
 }
 
 func (s *NewsService) ListNews(ctx context.Context, pagination ports.Pagination) (ports.NewsList, error) {
@@ -56,7 +80,12 @@ func (s *NewsService) CreateNews(ctx context.Context, input NewsArticleInput) (d
 	if err != nil {
 		return domain.NewsArticle{}, err
 	}
-	return s.news.CreateNews(ctx, article)
+	created, err := s.news.CreateNews(ctx, article)
+	if err != nil {
+		return domain.NewsArticle{}, err
+	}
+	s.invalidateNewsCache(ctx)
+	return created, nil
 }
 
 func (s *NewsService) UpdateNews(ctx context.Context, id uuid.UUID, input NewsArticleInput) (domain.NewsArticle, error) {
@@ -82,9 +111,18 @@ func (s *NewsService) UpdateNews(ctx context.Context, id uuid.UUID, input NewsAr
 	}
 	updated.CreatedAt = existing.CreatedAt
 	updated.UpdatedAt = time.Now().UTC()
-	return s.news.UpdateNews(ctx, updated)
+	saved, err := s.news.UpdateNews(ctx, updated)
+	if err != nil {
+		return domain.NewsArticle{}, err
+	}
+	s.invalidateNewsCache(ctx)
+	return saved, nil
 }
 
 func (s *NewsService) DeleteNews(ctx context.Context, id uuid.UUID) error {
-	return s.news.DeleteNews(ctx, id)
+	if err := s.news.DeleteNews(ctx, id); err != nil {
+		return err
+	}
+	s.invalidateNewsCache(ctx)
+	return nil
 }

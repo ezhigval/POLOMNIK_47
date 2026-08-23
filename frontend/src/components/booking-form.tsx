@@ -7,6 +7,7 @@ import { formatBookingStatus, formatPrice, getSlotsAvailability } from "@/lib/fo
 import { createBooking, type CreateBookingResult, type Tour } from "@/lib/api/tours";
 import { trackBeginCheckout, trackBookingSubmit } from "@/lib/analytics";
 import type { BookingProfile } from "@/lib/auth/user-features";
+import { HoneypotField } from "@/components/honeypot-field";
 
 type BookingFormProps = {
   tour: Tour;
@@ -48,6 +49,7 @@ export function BookingForm({ tour, profile = null }: BookingFormProps) {
         email: String(formData.get("email") ?? ""),
         people_count: Number(formData.get("people_count") ?? 1),
         comment: String(formData.get("comment") ?? ""),
+        website: String(formData.get("website") ?? ""),
       });
       setSuccess(result);
       trackBookingSubmit(tour.id, peopleCount);
@@ -122,7 +124,7 @@ export function BookingForm({ tour, profile = null }: BookingFormProps) {
       id="booking-form"
       onSubmit={onSubmit}
       onFocus={onFormFocus}
-      className="space-y-4 rounded-2xl border border-stone-200 bg-white p-5 shadow-md ring-1 ring-stone-100 lg:sticky lg:top-24"
+      className="relative space-y-4 rounded-2xl border border-stone-200 bg-white p-5 shadow-md ring-1 ring-stone-100 lg:sticky lg:top-24"
     >
       <div>
         <h3 className="font-display text-xl font-semibold text-stone-900">Оставить заявку</h3>
@@ -157,6 +159,8 @@ export function BookingForm({ tour, profile = null }: BookingFormProps) {
           К сожалению, мест на этот тур больше нет. Выберите другую дату или тур.
         </p>
       ) : null}
+
+      <HoneypotField />
 
       <label className="block text-sm">
         <span className="mb-1.5 block font-medium text-stone-700">Имя и фамилия</span>

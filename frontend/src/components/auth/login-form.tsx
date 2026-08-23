@@ -7,6 +7,7 @@ import { PhoneCallVerify } from "@/components/auth/phone-call-verify";
 import { SocialAuthButtons } from "@/components/auth/social-auth-buttons";
 import { FormError } from "@/components/form-error";
 import { safeReturnUrl } from "@/lib/site-nav";
+import { HoneypotField } from "@/components/honeypot-field";
 
 type LoginFormProps = {
   returnUrl?: string;
@@ -44,6 +45,7 @@ export function LoginForm({ returnUrl = "/account/trips" }: LoginFormProps) {
       body: JSON.stringify({
         login: formData.get("login"),
         password: formData.get("password"),
+        website: formData.get("website"),
       }),
     });
 
@@ -78,7 +80,8 @@ export function LoginForm({ returnUrl = "/account/trips" }: LoginFormProps) {
 
   return (
     <div className="space-y-6">
-      <form onSubmit={onSubmit} className="space-y-4 rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
+      <form onSubmit={onSubmit} className="relative space-y-4 rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
+        <HoneypotField />
         <div>
           <h2 className="font-display text-xl font-semibold text-stone-900">Телефон или email</h2>
           <p className="mt-1 text-sm text-stone-600">Введите данные, указанные при регистрации.</p>

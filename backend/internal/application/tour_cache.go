@@ -31,9 +31,7 @@ func (s *TourService) ListPublicToursCached(ctx context.Context, filters ports.T
 	}
 
 	var cached ports.TourList
-	if ok, err := s.readCache(ctx, key, &cached); err != nil {
-		return ports.TourList{}, err
-	} else if ok {
+	if ok, _ := s.readCache(ctx, key, &cached); ok {
 		return cached, nil
 	}
 
@@ -57,9 +55,7 @@ func (s *TourService) GetPublicTourCached(ctx context.Context, id uuid.UUID) (do
 	}
 
 	var cached domain.Tour
-	if ok, err := s.readCache(ctx, key, &cached); err != nil {
-		return domain.Tour{}, err
-	} else if ok {
+	if ok, _ := s.readCache(ctx, key, &cached); ok {
 		return cached, nil
 	}
 
@@ -83,9 +79,7 @@ func (s *TourService) ListPopularToursCached(ctx context.Context, limit int) ([]
 	}
 
 	var cached []domain.Tour
-	if ok, err := s.readCache(ctx, key, &cached); err != nil {
-		return nil, err
-	} else if ok {
+	if ok, _ := s.readCache(ctx, key, &cached); ok {
 		return cached, nil
 	}
 
@@ -107,15 +101,15 @@ func (s *TourService) invalidateTourCache(ctx context.Context) {
 
 func (s *TourService) cacheNamespace(ctx context.Context) (string, error) {
 	value, err := s.cache.Get(ctx, toursNamespaceKey)
-	if errors.Is(err, ports.ErrCacheMiss) {
-		namespace := uuid.NewString()
-		_ = s.cache.Set(ctx, toursNamespaceKey, []byte(namespace), defaultCacheTTL)
-		return namespace, nil
+	if err == nil {
+		return string(value), nil
 	}
-	if err != nil {
+	if err != nil && !errors.Is(err, ports.ErrCacheMiss) {
 		return "", err
 	}
-	return string(value), nil
+	namespace := uuid.NewString()
+	_ = s.cache.Set(ctx, toursNamespaceKey, []byte(namespace), defaultCacheTTL)
+	return namespace, nil
 }
 
 func (s *TourService) cacheKey(ctx context.Context, parts ...string) (string, error) {
@@ -146,11 +140,8 @@ func tourListCacheID(filters ports.TourFilters, pagination ports.Pagination) str
 
 func (s *TourService) readCache(ctx context.Context, key string, target any) (bool, error) {
 	value, err := s.cache.Get(ctx, key)
-	if errors.Is(err, ports.ErrCacheMiss) {
-		return false, nil
-	}
 	if err != nil {
-		return false, err
+		return false, nil
 	}
 	if err := json.Unmarshal(value, target); err != nil {
 		return false, nil

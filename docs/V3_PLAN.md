@@ -60,7 +60,9 @@ DNS (REG.RU), тот же A `93.77.165.81`: `@`, `www`, `api` уже есть. M
 
 ## Этап 0 — подготовка
 
-Ветка `v3` от `main`. В [ARCHITECTURE.md](ARCHITECTURE.md) порты: Cache, Messenger, Publisher, Captcha, AI, Payment, BackupStorage.
+Ветка работы: `cursor/v3-platform-926b` от `main` (облачное имя; канон плана «ветка v3» сохранён по смыслу). В [ARCHITECTURE.md](ARCHITECTURE.md) порты: Cache, Messenger, Publisher, Captcha, AI, Payment, BackupStorage.
+
+**Сделано в коде:** порты + noop; SmartCaptcha и S3-адаптеры с `Configured()==false` без ключа.
 
 ---
 
@@ -75,6 +77,8 @@ DNS (REG.RU), тот же A `93.77.165.81`: `@`, `www`, `api` уже есть. M
 - `CaptchaPort` + Яндекс SmartCaptcha + honeypot. Без ключа — honeypot+лимит.
 - `BackupStoragePort` + Object Storage; nightly dump + offsite когда ключ есть.
 - Срез для разработчика: outbox, latency, last backup. Не публичный pprof.
+
+**Сделано в коде этапа 1** (без деплоя, без live-ключей): Redis down не валит сайт и `/health/ready`; публичный кэш туров/новостей; лимиты auth/заявка/чат/сброс через Redis с fallback в память и `Retry-After`; `X-Request-ID` + `request_id` в ошибках; webhook secret constant-time + идемпотентность; honeypot на публичных формах; SmartCaptcha только если есть ключ; `cmd/backup-offsite` + отметка last-backup; system-info показывает latency и бэкап.
 
 ---
 

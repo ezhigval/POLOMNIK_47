@@ -81,6 +81,17 @@ type Config struct {
 	UploadMaxBytes           int
 	WorkerHeartbeatPath      string
 	WorkerHeartbeatMaxAge    time.Duration
+	CaptchaAdapter           string
+	SmartCaptchaServerKey    string
+	SmartCaptchaClientKey    string
+	BackupStorageAdapter     string
+	S3Endpoint               string
+	S3Region                 string
+	S3Bucket                 string
+	S3AccessKey              string
+	S3SecretKey              string
+	S3Prefix                 string
+	BackupLastPath           string
 }
 
 func Load() Config {
@@ -158,6 +169,17 @@ func Load() Config {
 		UploadMaxBytes:           envInt("UPLOAD_MAX_BYTES", 5*1024*1024),
 		WorkerHeartbeatPath:      envString("WORKER_HEARTBEAT_PATH", "/tmp/palomnik-worker-heartbeat"),
 		WorkerHeartbeatMaxAge:    envDuration("WORKER_HEARTBEAT_MAX_AGE", 2*time.Minute),
+		CaptchaAdapter:           envString("CAPTCHA_ADAPTER", "noop"),
+		SmartCaptchaServerKey:    os.Getenv("SMARTCAPTCHA_SERVER_KEY"),
+		SmartCaptchaClientKey:    os.Getenv("SMARTCAPTCHA_CLIENT_KEY"),
+		BackupStorageAdapter:     envString("BACKUP_STORAGE_ADAPTER", "noop"),
+		S3Endpoint:               envString("S3_ENDPOINT", "https://storage.yandexcloud.net"),
+		S3Region:                 envString("S3_REGION", "ru-central1"),
+		S3Bucket:                 os.Getenv("S3_BUCKET"),
+		S3AccessKey:              os.Getenv("S3_ACCESS_KEY"),
+		S3SecretKey:              os.Getenv("S3_SECRET_KEY"),
+		S3Prefix:                 envString("S3_PREFIX", "palomnik-backups"),
+		BackupLastPath:           envString("BACKUP_LAST_PATH", "./backups/last-backup.json"),
 	}
 }
 

@@ -26,6 +26,12 @@ func (h *Handler) CreateBooking(c *fiber.Ctx) error {
 	if err := validateEmail(req.Email); err != nil {
 		return writeAppError(c, err)
 	}
+	if err := rejectHoneypot(req.Website); err != nil {
+		return writeAppError(c, err)
+	}
+	if err := h.verifyCaptcha(c, req.CaptchaToken); err != nil {
+		return writeAppError(c, err)
+	}
 
 	result, err := h.bookings.CreateBooking(c.Context(), application.CreateBookingInput{
 		TourID:      tourID,

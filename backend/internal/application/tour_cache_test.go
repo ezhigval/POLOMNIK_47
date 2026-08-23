@@ -2,6 +2,7 @@ package application
 
 import (
 	"context"
+	"errors"
 	"sync"
 	"testing"
 	"time"
@@ -84,6 +85,39 @@ func TestTourServiceCacheHitAndInvalidation(t *testing.T) {
 	}
 	if len(second.Items) != 2 {
 		t.Fatalf("expected cache invalidation to return 2 tours, got %d", len(second.Items))
+	}
+}
+
+type failingCache struct{}
+
+func (failingCache) Get(context.Context, string) ([]byte, error) {
+	return nil, errors.New("redis down")
+}
+
+func (failingCache) Set(context.Context, string, []byte, time.Duration) error {
+	return errors.New("redis down")
+}
+
+func (failingCache) Delete(context.Context, string) error {
+	return errors.New("redis down")
+}
+
+func TestTourServiceCacheFailureFallsBackToRepository(t *testing.T) {
+	ctx := context.Background()
+	store := memory.NewStore()
+	service := NewTourService(store, failingCache{}, noop.NewCRMAdapter())
+
+	tour := testTour()
+	if _, err := store.CreateTour(ctx, tour); err != nil {
+		t.Fatalf("create tour: %v", err)
+	}
+
+	list, err := service.ListPublicToursCached(ctx, ports.TourFilters{}, ports.Pagination{Page: 1, Limit: 20})
+	if err != nil {
+		t.Fatalf("list should not fail when cache is down: %v", err)
+	}
+	if len(list.Items) != 1 {
+		t.Fatalf("expected 1 tour, got %d", len(list.Items))
 	}
 }
 

@@ -7,12 +7,13 @@ import (
 	"github.com/gofiber/fiber/v2"
 
 	"palomnik/internal/adapters/http/fiber/dto"
+	appmiddleware "palomnik/internal/adapters/http/fiber/middleware"
 	"palomnik/internal/application"
 	"palomnik/internal/config"
 	"palomnik/internal/ports"
 )
 
-func SystemInfo(cfg config.Config, integrations *application.IntegrationService) fiber.Handler {
+func SystemInfo(cfg config.Config, integrations *application.IntegrationService, metrics *appmiddleware.RequestMetrics, backupLastPath string) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		info := dto.SystemInfo{
 			CRMAdapter:          cfg.CRMAdapter,
@@ -38,6 +39,25 @@ func SystemInfo(cfg config.Config, integrations *application.IntegrationService)
 				return respondError(c, err, MapError)
 			}
 			info.Outbox = toOutboxSummaryDTO(summary)
+		}
+
+		last, avg, count := metrics.Snapshot()
+		info.Latency = dto.LatencyInfo{
+			LastMS:   last.Milliseconds(),
+			AvgMS:    avg.Milliseconds(),
+			Requests: count,
+		}
+
+		backup := application.ReadBackupStatus(backupLastPath)
+		info.LastBackup = dto.BackupInfo{
+			File:         backup.File,
+			Bytes:        backup.Bytes,
+			Offsite:      backup.Offsite,
+			OffsiteError: backup.OffsiteError,
+		}
+		if backup.At != nil {
+			value := backup.At.UTC().Format(time.RFC3339)
+			info.LastBackup.At = &value
 		}
 
 		return c.Status(fiber.StatusOK).JSON(dto.DataEnvelope[dto.SystemInfo]{Data: info})

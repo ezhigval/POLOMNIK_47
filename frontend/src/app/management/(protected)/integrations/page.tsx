@@ -90,6 +90,33 @@ export default async function ManagementIntegrationsPage() {
       </ManagementPanel>
 
       <ManagementPanel
+        title="Платформа"
+        description="Срез для разработчика: задержки API и последний ночной дамп. Не публичный pprof."
+      >
+        <div className="grid gap-4 px-5 pb-5 sm:grid-cols-2">
+          <div className="rounded-xl border border-stone-200 bg-stone-50 p-4">
+            <p className="text-sm text-stone-500">Latency</p>
+            <p className="mt-1 text-2xl font-semibold text-stone-900">
+              {systemInfo.latency?.last_ms ?? 0} мс
+            </p>
+            <p className="mt-1 text-xs text-stone-500">
+              среднее {systemInfo.latency?.avg_ms ?? 0} мс · {systemInfo.latency?.requests ?? 0} запросов
+            </p>
+          </div>
+          <div className="rounded-xl border border-stone-200 bg-stone-50 p-4">
+            <p className="text-sm text-stone-500">Последний бэкап</p>
+            <p className="mt-1 text-lg font-semibold text-stone-900">
+              {systemInfo.last_backup?.at ? formatDateTime(systemInfo.last_backup.at) : "ещё нет отметки"}
+            </p>
+            <p className="mt-1 text-xs text-stone-500">
+              {systemInfo.last_backup?.offsite ? "offsite загружен" : "только диск ВМ"}
+              {systemInfo.last_backup?.file ? ` · ${systemInfo.last_backup.file}` : ""}
+            </p>
+          </div>
+        </div>
+      </ManagementPanel>
+
+      <ManagementPanel
         title="Синхронизация CRM / 1С"
         description="Записи появляются при CRM_ADAPTER=bitrix или ACCOUNTING_ADAPTER=onec. В noop таблицы пустые — это нормально."
       >

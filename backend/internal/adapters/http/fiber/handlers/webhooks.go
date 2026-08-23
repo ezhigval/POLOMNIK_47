@@ -29,6 +29,11 @@ func (h *Handler) BitrixDealWebhook(c *fiber.Ctx) error {
 		dealID = strings.TrimSpace(c.Query("deal_id"))
 	}
 
+	idempotencyKey := dealID + ":" + body.Event + ":" + body.Data.FIELDS.STAGEID
+	if h.webhookGuard != nil && dealID != "" && h.webhookGuard.AlreadyProcessed(c.Context(), "bitrix", idempotencyKey) {
+		return c.SendStatus(fiber.StatusNoContent)
+	}
+
 	err := h.webhooks.HandleBitrixDealUpdate(c.Context(), application.BitrixDealWebhookInput{
 		Event:  body.Event,
 		DealID: dealID,
@@ -36,6 +41,9 @@ func (h *Handler) BitrixDealWebhook(c *fiber.Ctx) error {
 	})
 	if err != nil {
 		return err
+	}
+	if h.webhookGuard != nil && dealID != "" {
+		h.webhookGuard.Remember(c.Context(), "bitrix", idempotencyKey)
 	}
 
 	return c.SendStatus(fiber.StatusNoContent)

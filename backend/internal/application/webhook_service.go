@@ -63,7 +63,7 @@ func (s *WebhookService) validateInboundToken(token string) error {
 		}
 		return nil
 	}
-	if token != expected {
+	if !SecretEqual(token, expected) {
 		return ErrUnauthorized
 	}
 	return nil

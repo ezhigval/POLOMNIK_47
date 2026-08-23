@@ -14,7 +14,8 @@ type OAuthLoginRequest struct {
 }
 
 type SendSupportMessageRequest struct {
-	Body string `json:"body"`
+	Body    string `json:"body"`
+	Website string `json:"website"`
 }
 
 type SupportMessageResponse struct {
