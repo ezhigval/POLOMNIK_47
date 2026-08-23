@@ -216,6 +216,9 @@ ON CONFLICT (role_id, user_id) DO NOTHING
 	if _, err := conn.ExecContext(ctx, `UPDATE user_identities SET user_id = $1 WHERE user_id = $2`, targetID, sourceID); err != nil {
 		return fmt.Errorf("merge identities: %w", err)
 	}
+	if _, err := conn.ExecContext(ctx, `UPDATE passengers SET user_id = $1, updated_at = NOW() WHERE user_id = $2`, targetID, sourceID); err != nil {
+		return fmt.Errorf("merge passengers: %w", err)
+	}
 	if _, err := conn.ExecContext(ctx, `DELETE FROM users WHERE id = $1`, sourceID); err != nil {
 		return fmt.Errorf("merge delete source user: %w", err)
 	}

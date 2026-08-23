@@ -133,6 +133,7 @@ func run() int {
 			txManager(tourRepo),
 		),
 		Favorites:      application.NewFavoriteService(favoriteRepo, tourRepo),
+		Passengers:     application.NewPassengerService(passengerRepo(tourRepo)),
 		Support:        application.NewSupportService(supportRepo, notifier),
 		CMS:            application.NewCMSService(cmsRepo),
 		News:           application.NewNewsService(newsRepo, cache),
@@ -242,6 +243,13 @@ func rateLimiterFromCache(redisCache *rediscache.Cache) ports.RateLimiter {
 func txManager(repo ports.TourRepository) ports.TransactionManager {
 	if tx, ok := repo.(ports.TransactionManager); ok {
 		return tx
+	}
+	return nil
+}
+
+func passengerRepo(repo ports.TourRepository) ports.PassengerRepository {
+	if passengers, ok := repo.(ports.PassengerRepository); ok {
+		return passengers
 	}
 	return nil
 }

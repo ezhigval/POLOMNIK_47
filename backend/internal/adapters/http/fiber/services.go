@@ -14,6 +14,7 @@ type Services struct {
 	Webhooks       *application.WebhookService
 	Auth           *application.AuthService
 	Favorites      *application.FavoriteService
+	Passengers     *application.PassengerService
 	Support        *application.SupportService
 	CMS            *application.CMSService
 	News           *application.NewsService

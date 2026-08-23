@@ -28,6 +28,7 @@ export const footerNavLinks: NavLink[] = [
 
 export const accountNavLinks: NavLink[] = [
   { href: "/account", label: "Профиль" },
+  { href: "/account/passengers", label: "Пассажиры" },
   { href: "/account/trips", label: "Мои поездки" },
   { href: "/account/favorites", label: "Избранное" },
   { href: "/support/chat", label: "Чат поддержки" },

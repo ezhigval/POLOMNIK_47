@@ -66,6 +66,7 @@ func NewRouter(cfg config.Config, log *slog.Logger, services Services, health He
 		services.Webhooks,
 		services.Auth,
 		services.Favorites,
+		services.Passengers,
 		services.Support,
 		services.CMS,
 		services.News,
@@ -120,6 +121,10 @@ func NewRouter(cfg config.Config, log *slog.Logger, services Services, health He
 	me.Get("/", h.Me)
 	me.Patch("/", authLimiter, h.UpdateMe)
 	me.Get("/identities", h.MyIdentities)
+	me.Get("/passengers", h.ListMyPassengers)
+	me.Post("/passengers", authLimiter, h.CreateMyPassenger)
+	me.Patch("/passengers/:id", authLimiter, h.UpdateMyPassenger)
+	me.Delete("/passengers/:id", h.DeleteMyPassenger)
 	me.Get("/bookings", h.MyBookings)
 	me.Get("/favorites", h.ListFavoriteIDs)
 	me.Post("/favorites/:tourId", h.AddFavorite)
