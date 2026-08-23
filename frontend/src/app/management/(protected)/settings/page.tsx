@@ -5,6 +5,7 @@ import {
   getManagementSession,
   getManagementSiteSettings,
   listManagementRoles,
+  listManagementRoleTemplates,
 } from "@/lib/api/management";
 import { PERM, sessionHasPermission } from "@/lib/management-access";
 
@@ -62,6 +63,7 @@ export default async function ManagementSettingsPage() {
   }> = [];
   let site = emptySite;
   let roles: Array<{ id: string; name: string; permissions: string[] }> = [];
+  let roleTemplates: Array<{ id: string; label: string; role_name: string; permissions: string[] }> = [];
 
   if (canManageRecipients) {
     try {
@@ -82,13 +84,19 @@ export default async function ManagementSettingsPage() {
   }
   if (canManageRoles) {
     try {
-      roles = (await listManagementRoles()).map((role) => ({
+      const [listed, templates] = await Promise.all([
+        listManagementRoles(),
+        listManagementRoleTemplates(),
+      ]);
+      roles = listed.map((role) => ({
         id: role.id,
         name: role.name,
         permissions: role.permissions ?? [],
       }));
+      roleTemplates = templates;
     } catch {
       roles = [];
+      roleTemplates = [];
     }
   }
 
@@ -106,6 +114,7 @@ export default async function ManagementSettingsPage() {
         events={events}
         site={site}
         roles={roles}
+        roleTemplates={roleTemplates}
         canManageRoles={canManageRoles}
         canManageSite={canManageSite}
         canManageRecipients={canManageRecipients}

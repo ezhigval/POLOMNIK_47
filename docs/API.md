@@ -321,6 +321,29 @@ COMPLETED
 CANCELLED
 ```
 
+### Roles management
+
+```text
+GET    /api/v1/management/roles
+GET    /api/v1/management/roles/templates
+POST   /api/v1/management/roles
+PATCH  /api/v1/management/roles/{id}
+DELETE /api/v1/management/roles/{id}
+GET    /api/v1/management/roles/{id}/assignments
+POST   /api/v1/management/roles/{id}/assignments
+DELETE /api/v1/management/roles/{id}/assignments/{userId}
+```
+
+`GET /roles/templates` — именованные пресеты формы создания роли (этап 2). Не создают строку в БД. `manage_roles` в набор не входит.
+
+| id | Имя в UI | Права |
+|----|----------|--------|
+| `booking_manager` | Менеджер заявок | `manage_bookings`, `manage_support` |
+| `advertiser` | Рекламщик | `view_stats` |
+| `smm` | Сммщик | `manage_content` |
+| `director` | Директор | все, кроме `manage_roles` |
+| `developer` | Разработчик | `manage_integrations`, `view_stats` |
+
 ### Reviews management
 
 ```text

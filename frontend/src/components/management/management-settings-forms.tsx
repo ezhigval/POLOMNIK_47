@@ -45,6 +45,12 @@ export type AdminRoleFormData = {
   permissions: string[];
 };
 export type PermissionOption = { id: string; label: string };
+export type AdminRoleTemplateOption = {
+  id: string;
+  label: string;
+  role_name: string;
+  permissions: string[];
+};
 
 const EVENT_KINDS = [
   { kind: "booking_created", title: "Новые заявки" },
@@ -59,6 +65,7 @@ type Props = {
   events: SettingsEvent[];
   site: SiteSettingsFormData;
   roles: AdminRoleFormData[];
+  roleTemplates: AdminRoleTemplateOption[];
   canManageRoles: boolean;
   canManageSite: boolean;
   canManageRecipients: boolean;
@@ -82,6 +89,7 @@ export function ManagementSettingsForms({
   events,
   site,
   roles,
+  roleTemplates,
   canManageRoles,
   canManageSite,
   canManageRecipients,
@@ -92,6 +100,8 @@ export function ManagementSettingsForms({
   const [loading, setLoading] = useState(false);
   const [drafts, setDrafts] = useState(() => draftsFromEvents(events));
   const [roleList, setRoleList] = useState(roles);
+  const [createName, setCreateName] = useState("");
+  const [createPerms, setCreatePerms] = useState<string[]>([]);
 
   const channelOptions = useMemo(
     () =>
@@ -180,17 +190,17 @@ export function ManagementSettingsForms({
     setError(null);
     setSaved(null);
     const form = new FormData(event.currentTarget);
-    const permissions = permissionOptions
-      .map((p) => p.id)
-      .filter((id) => form.get(`perm_${id}`) === "on");
+    const permissions = permissionOptions.map((p) => p.id).filter((id) => createPerms.includes(id));
     try {
       const created = await createAdminRoleAction({
-        name: String(form.get("name") ?? ""),
+        name: createName,
         password: String(form.get("password") ?? ""),
         permissions,
       });
       setRoleList((prev) => [...prev, created]);
       event.currentTarget.reset();
+      setCreateName("");
+      setCreatePerms([]);
       setSaved("Роль создана.");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Не удалось создать роль");
@@ -329,11 +339,43 @@ export function ManagementSettingsForms({
             </p>
           </div>
 
+          {roleTemplates.length > 0 ? (
+            <div className="space-y-2">
+              <p className="text-sm font-medium text-stone-800">Шаблоны</p>
+              <p className="text-sm text-stone-600">
+                Подставляют имя и права в форму. Пароль задаёте вы; роль в БД появится после «Создать
+                роль».
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {roleTemplates.map((template) => (
+                  <button
+                    key={template.id}
+                    type="button"
+                    className="btn-secondary"
+                    onClick={() => {
+                      setCreateName(template.role_name);
+                      setCreatePerms(template.permissions);
+                    }}
+                  >
+                    {template.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : null}
+
           <form onSubmit={onCreateRole} className="space-y-3 border-b border-stone-100 pb-6">
             <div className="grid gap-3 sm:grid-cols-2">
               <label className="block text-sm">
                 <span className="mb-1 block font-medium">Имя роли</span>
-                <input name="name" required className="input-field" placeholder="manager" />
+                <input
+                  name="name"
+                  required
+                  className="input-field"
+                  placeholder="manager"
+                  value={createName}
+                  onChange={(e) => setCreateName(e.target.value)}
+                />
               </label>
               <label className="block text-sm">
                 <span className="mb-1 block font-medium">Пароль (мин. 8)</span>
@@ -343,7 +385,16 @@ export function ManagementSettingsForms({
             <div className="flex flex-wrap gap-3">
               {permissionOptions.map((perm) => (
                 <label key={perm.id} className="flex items-center gap-2 text-sm text-stone-700">
-                  <input type="checkbox" name={`perm_${perm.id}`} />
+                  <input
+                    type="checkbox"
+                    name={`perm_${perm.id}`}
+                    checked={createPerms.includes(perm.id)}
+                    onChange={(e) => {
+                      setCreatePerms((prev) =>
+                        e.target.checked ? [...prev, perm.id] : prev.filter((id) => id !== perm.id),
+                      );
+                    }}
+                  />
                   {perm.label}
                 </label>
               ))}

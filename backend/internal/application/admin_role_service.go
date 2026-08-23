@@ -206,6 +206,10 @@ func (s *AdminRoleService) ListRoles(ctx context.Context) ([]domain.AdminRole, e
 	return out, nil
 }
 
+func (s *AdminRoleService) ListRoleTemplates() []domain.RoleTemplate {
+	return domain.RoleTemplates()
+}
+
 func (s *AdminRoleService) CreateRole(ctx context.Context, name, password string, permissions []domain.Permission) (domain.AdminRole, error) {
 	if s.roles == nil {
 		return domain.AdminRole{}, domain.ErrForbidden

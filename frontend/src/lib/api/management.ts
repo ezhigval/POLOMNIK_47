@@ -604,6 +604,13 @@ export type AdminRole = {
   updated_at?: string;
 };
 
+export type AdminRoleTemplate = {
+  id: string;
+  label: string;
+  role_name: string;
+  permissions: string[];
+};
+
 export type ManagementSession = {
   full_admin: boolean;
   role_id?: string;
@@ -646,6 +653,11 @@ export async function updateManagementSiteSettings(input: SiteSettings) {
 
 export async function listManagementRoles() {
   const body = await managementRequest<DataEnvelope<AdminRole[]>>("/roles");
+  return body.data ?? [];
+}
+
+export async function listManagementRoleTemplates() {
+  const body = await managementRequest<DataEnvelope<AdminRoleTemplate[]>>("/roles/templates");
   return body.data ?? [];
 }
 

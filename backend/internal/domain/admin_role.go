@@ -11,15 +11,15 @@ import (
 type Permission string
 
 const (
-	PermManageTours         Permission = "manage_tours"
-	PermManageBookings      Permission = "manage_bookings"
-	PermManageContent       Permission = "manage_content"
-	PermManageSupport       Permission = "manage_support"
-	PermManageSettingsSite  Permission = "manage_settings_site"
-	PermManageRecipients    Permission = "manage_recipients"
-	PermManageRoles         Permission = "manage_roles"
-	PermViewStats           Permission = "view_stats"
-	PermManageIntegrations  Permission = "manage_integrations"
+	PermManageTours        Permission = "manage_tours"
+	PermManageBookings     Permission = "manage_bookings"
+	PermManageContent      Permission = "manage_content"
+	PermManageSupport      Permission = "manage_support"
+	PermManageSettingsSite Permission = "manage_settings_site"
+	PermManageRecipients   Permission = "manage_recipients"
+	PermManageRoles        Permission = "manage_roles"
+	PermViewStats          Permission = "view_stats"
+	PermManageIntegrations Permission = "manage_integrations"
 )
 
 func AllPermissions() []Permission {
@@ -43,6 +43,63 @@ func ValidPermission(p Permission) bool {
 		}
 	}
 	return false
+}
+
+// AssignablePermissions are rights a DB role may hold. manage_roles stays on ADMIN_TOKEN only.
+func AssignablePermissions() []Permission {
+	out := make([]Permission, 0, len(AllPermissions())-1)
+	for _, p := range AllPermissions() {
+		if p == PermManageRoles {
+			continue
+		}
+		out = append(out, p)
+	}
+	return out
+}
+
+// RoleTemplate is a named preset for the create-role form. It does not insert a row.
+type RoleTemplate struct {
+	ID          string
+	Label       string
+	RoleName    string
+	Permissions []Permission
+}
+
+// RoleTemplates are the stage-2 names from V3_PLAN. Permission sets are the
+// existing rights those jobs already use in the admin UI (not new business rules).
+func RoleTemplates() []RoleTemplate {
+	return []RoleTemplate{
+		{
+			ID:          "booking_manager",
+			Label:       "Менеджер заявок",
+			RoleName:    "booking_manager",
+			Permissions: []Permission{PermManageBookings, PermManageSupport},
+		},
+		{
+			ID:          "advertiser",
+			Label:       "Рекламщик",
+			RoleName:    "advertiser",
+			Permissions: []Permission{PermViewStats},
+		},
+		{
+			ID:          "smm",
+			Label:       "Сммщик",
+			RoleName:    "smm",
+			Permissions: []Permission{PermManageContent},
+		},
+		{
+			ID:          "director",
+			Label:       "Директор",
+			RoleName:    "director",
+			Permissions: AssignablePermissions(),
+		},
+		{
+			ID:          "developer",
+			Label:       "Разработчик",
+			RoleName:    "developer",
+			Permissions: []Permission{PermManageIntegrations, PermViewStats},
+		},
+	}
 }
 
 type AdminRole struct {

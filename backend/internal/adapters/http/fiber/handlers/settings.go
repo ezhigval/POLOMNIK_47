@@ -120,6 +120,18 @@ func (h *Handler) ManagementListRoles(c *fiber.Ctx) error {
 	return c.JSON(dto.DataEnvelope[[]dto.AdminRoleResponse]{Data: out})
 }
 
+func (h *Handler) ManagementListRoleTemplates(c *fiber.Ctx) error {
+	if h.adminRoles == nil {
+		return writeAppError(c, &AppError{Status: 503, Code: "SERVICE_UNAVAILABLE", Message: "Роли недоступны"})
+	}
+	templates := h.adminRoles.ListRoleTemplates()
+	out := make([]dto.AdminRoleTemplateResponse, 0, len(templates))
+	for _, item := range templates {
+		out = append(out, dto.ToAdminRoleTemplate(item))
+	}
+	return c.JSON(dto.DataEnvelope[[]dto.AdminRoleTemplateResponse]{Data: out})
+}
+
 func (h *Handler) ManagementCreateRole(c *fiber.Ctx) error {
 	if h.adminRoles == nil {
 		return writeAppError(c, &AppError{Status: 503, Code: "SERVICE_UNAVAILABLE", Message: "Роли недоступны"})
