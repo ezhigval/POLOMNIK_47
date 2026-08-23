@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"polomnik/internal/domain"
+	"palomnik/internal/domain"
 )
 
 var ErrPaymentNotConfigured = errors.New("payment adapter not configured")

@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	"polomnik/internal/ports"
+	"palomnik/internal/ports"
 )
 
 type counter struct {

@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	"polomnik/internal/ports"
+	"palomnik/internal/ports"
 )
 
 func TestStorageNotConfiguredWithoutKeys(t *testing.T) {
@@ -29,7 +29,7 @@ func TestStorageUploadsWithSigV4(t *testing.T) {
 		if r.Method != http.MethodPut {
 			t.Fatalf("method %s", r.Method)
 		}
-		if !strings.Contains(r.URL.Path, "/polomnik/nightly/dump.sql.gz") {
+		if !strings.Contains(r.URL.Path, "/palomnik/nightly/dump.sql.gz") {
 			t.Fatalf("path %s", r.URL.Path)
 		}
 		gotAuth = r.Header.Get("Authorization")
@@ -41,7 +41,7 @@ func TestStorageUploadsWithSigV4(t *testing.T) {
 	}))
 	defer server.Close()
 
-	store := New(server.URL, "ru-central1", "polomnik", "key", "secret", "nightly", time.Second)
+	store := New(server.URL, "ru-central1", "palomnik", "key", "secret", "nightly", time.Second)
 	if !store.Configured() {
 		t.Fatal("expected configured storage")
 	}

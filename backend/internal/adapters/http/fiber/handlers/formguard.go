@@ -3,7 +3,7 @@ package handlers
 import (
 	"github.com/gofiber/fiber/v2"
 
-	"polomnik/internal/application"
+	"palomnik/internal/application"
 )
 
 func rejectHoneypot(value string) error {

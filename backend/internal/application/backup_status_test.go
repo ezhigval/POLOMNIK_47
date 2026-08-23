@@ -11,7 +11,7 @@ func TestWriteAndReadBackupStatus(t *testing.T) {
 	at := time.Date(2026, 8, 23, 3, 0, 0, 0, time.UTC)
 	if err := WriteBackupStatus(path, BackupStatus{
 		At:      &at,
-		File:    "polomnik-20260823.sql.gz",
+		File:    "palomnik-20260823.sql.gz",
 		Bytes:   12,
 		Offsite: true,
 	}); err != nil {
@@ -19,7 +19,7 @@ func TestWriteAndReadBackupStatus(t *testing.T) {
 	}
 
 	got := ReadBackupStatus(path)
-	if got.File != "polomnik-20260823.sql.gz" || !got.Offsite || got.Bytes != 12 {
+	if got.File != "palomnik-20260823.sql.gz" || !got.Offsite || got.Bytes != 12 {
 		t.Fatalf("unexpected status %+v", got)
 	}
 	if got.At == nil || !got.At.Equal(at) {

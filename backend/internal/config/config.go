@@ -178,7 +178,7 @@ func Load() Config {
 		S3Bucket:                 os.Getenv("S3_BUCKET"),
 		S3AccessKey:              os.Getenv("S3_ACCESS_KEY"),
 		S3SecretKey:              os.Getenv("S3_SECRET_KEY"),
-		S3Prefix:                 envString("S3_PREFIX", "polomnik-backups"),
+		S3Prefix:                 envString("S3_PREFIX", "palomnik-backups"),
 		BackupLastPath:           envString("BACKUP_LAST_PATH", "./backups/last-backup.json"),
 	}
 }

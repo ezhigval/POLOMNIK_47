@@ -3,10 +3,10 @@ package backup
 import (
 	"strings"
 
-	"polomnik/internal/adapters/backup/noop"
-	"polomnik/internal/adapters/backup/s3"
-	"polomnik/internal/config"
-	"polomnik/internal/ports"
+	"palomnik/internal/adapters/backup/noop"
+	"palomnik/internal/adapters/backup/s3"
+	"palomnik/internal/config"
+	"palomnik/internal/ports"
 )
 
 func New(cfg config.Config) ports.BackupStoragePort {

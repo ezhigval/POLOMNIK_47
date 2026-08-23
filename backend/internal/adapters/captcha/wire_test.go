@@ -3,7 +3,7 @@ package captcha
 import (
 	"testing"
 
-	"polomnik/internal/config"
+	"palomnik/internal/config"
 )
 
 func TestNewFallsBackToNoopWithoutKeys(t *testing.T) {

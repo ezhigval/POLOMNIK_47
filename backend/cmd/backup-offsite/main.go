@@ -7,11 +7,11 @@ import (
 	"path/filepath"
 	"time"
 
-	"polomnik/internal/adapters/backup"
-	"polomnik/internal/application"
-	"polomnik/internal/config"
-	"polomnik/internal/logger"
-	"polomnik/internal/ports"
+	"palomnik/internal/adapters/backup"
+	"palomnik/internal/application"
+	"palomnik/internal/config"
+	"palomnik/internal/logger"
+	"palomnik/internal/ports"
 )
 
 func main() {

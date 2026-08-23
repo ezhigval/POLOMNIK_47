@@ -9,7 +9,7 @@ import (
 
 	"github.com/google/uuid"
 
-	"polomnik/internal/ports"
+	"palomnik/internal/ports"
 )
 
 const newsNamespaceKey = "news:namespace"

@@ -3,10 +3,10 @@ package captcha
 import (
 	"strings"
 
-	"polomnik/internal/adapters/captcha/noop"
-	"polomnik/internal/adapters/captcha/smartcaptcha"
-	"polomnik/internal/config"
-	"polomnik/internal/ports"
+	"palomnik/internal/adapters/captcha/noop"
+	"palomnik/internal/adapters/captcha/smartcaptcha"
+	"palomnik/internal/config"
+	"palomnik/internal/ports"
 )
 
 func New(cfg config.Config) ports.CaptchaPort {

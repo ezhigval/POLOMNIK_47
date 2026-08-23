@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"polomnik/internal/ports"
+	"palomnik/internal/ports"
 )
 
 const webhookIdempotencyTTL = 24 * time.Hour

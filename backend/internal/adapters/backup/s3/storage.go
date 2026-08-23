@@ -14,7 +14,7 @@ import (
 	"strings"
 	"time"
 
-	"polomnik/internal/ports"
+	"palomnik/internal/ports"
 )
 
 type Storage struct {

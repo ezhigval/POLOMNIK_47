@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"polomnik/internal/adapters/repository/memory"
-	"polomnik/internal/ports"
+	"palomnik/internal/adapters/repository/memory"
+	"palomnik/internal/ports"
 )
 
 func TestNewsServiceCacheHitAndInvalidation(t *testing.T) {

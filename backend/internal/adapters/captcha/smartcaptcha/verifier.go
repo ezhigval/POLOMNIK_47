@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"polomnik/internal/ports"
+	"palomnik/internal/ports"
 )
 
 const defaultValidateURL = "https://smartcaptcha.yandexcloud.net/validate"

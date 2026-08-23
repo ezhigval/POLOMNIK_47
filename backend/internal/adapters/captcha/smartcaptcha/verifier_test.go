@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"polomnik/internal/ports"
+	"palomnik/internal/ports"
 )
 
 func TestVerifierNotConfiguredWithoutKeys(t *testing.T) {

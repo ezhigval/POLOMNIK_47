@@ -6,8 +6,8 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 
-	memorylimit "polomnik/internal/adapters/ratelimit/memory"
-	"polomnik/internal/ports"
+	memorylimit "palomnik/internal/adapters/ratelimit/memory"
+	"palomnik/internal/ports"
 )
 
 func RateLimit(max int, window time.Duration) fiber.Handler {

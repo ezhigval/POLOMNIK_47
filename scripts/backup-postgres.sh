@@ -51,7 +51,7 @@ fi
 
 if [[ -n "$API_CONTAINER" ]]; then
   docker_bin cp "$OUTPUT" "$API_CONTAINER:/tmp/$(basename "$OUTPUT")"
-  if docker_bin exec "$API_CONTAINER" /app/polomnik-backup-offsite "/tmp/$(basename "$OUTPUT")"; then
+  if docker_bin exec "$API_CONTAINER" /app/palomnik-backup-offsite "/tmp/$(basename "$OUTPUT")"; then
     echo "Backup status recorded (offsite if S3 keys are set)"
   else
     echo "Offsite/status step failed (local dump is kept)" >&2
