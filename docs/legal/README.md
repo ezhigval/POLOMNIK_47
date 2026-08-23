@@ -32,3 +32,5 @@
 | `distribution` | Согласие на распространение ПД | `/legal/distribution-consent` |
 | `marketing` | Согласие на рекламу | `/legal/marketing-consent` |
 | `cookie` | Cookie Policy | `/legal/cookie-policy` |
+| `terms` | Пользовательское соглашение | `/legal/terms` |
+| `offer` | Публичная оферта | `/legal/offer` |

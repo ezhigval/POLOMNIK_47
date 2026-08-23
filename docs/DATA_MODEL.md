@@ -256,3 +256,49 @@ smm_posts
 
 Новых таблиц нет. Черновик поддержки не пишется в `support_messages`. Рекомендации читают только туры с `is_active=true`. Watchdog и дайджест считают существующие заявки, outbox и файл last-backup.
 
+## 11. Юридические документы и согласия (#22, goose 18–20)
+
+Таблицы добавлены владельцем вместе с #22. Тела документов — в `legal_documents.content` и bootstrap `backend/internal/legal/content/`; этот файл их не копирует. Подробности типов: [legal/LEGAL-ARCHITECTURE.md](legal/LEGAL-ARCHITECTURE.md).
+
+```text
+legal_documents
+  id UUID
+  type TEXT            # privacy_policy / personal_data / distribution / marketing / cookie / terms / offer
+  version TEXT
+  title TEXT
+  content TEXT
+  published_at TIMESTAMPTZ
+  updated_at TIMESTAMPTZ
+  is_active BOOLEAN    # одна активная версия на type
+  UNIQUE (type, version)
+
+consents
+  id UUID
+  user_id UUID         # FK users ON DELETE SET NULL, nullable
+  request_id UUID      # FK bookings ON DELETE SET NULL, nullable
+  consent_type TEXT    # personal_data / marketing / marketing_revoked / distribution / distribution_revoked /
+                       # cookie_all / cookie_essential / cookie_reject / terms
+  document_id UUID     # FK legal_documents ON DELETE RESTRICT
+  document_version TEXT
+  accepted_at TIMESTAMPTZ
+  ip TEXT
+  user_agent TEXT
+
+user_photos
+  id UUID
+  user_id UUID         # FK users ON DELETE CASCADE
+  url TEXT
+  caption TEXT
+  allow_distribution BOOLEAN
+  created_at TIMESTAMPTZ
+  updated_at TIMESTAMPTZ
+```
+
+`reviews.allow_distribution` (goose 19) — флаг отзыва, не отдельная таблица.
+
+Версия и `accepted_at` пишутся сервером. Клиент не присылает `document_version`.
+
+## 12. UX расписания (v3 этап 9)
+
+Новых таблиц и колонок нет. Длительность тура считается на frontend из уже существующих `date_start` и `date_end` (`date_end − date_start + 1` календарный день). Публичный список туров по-прежнему `ORDER BY date_start ASC, id ASC`.
+

@@ -192,7 +192,9 @@ Request:
   "phone": "+79999999999",
   "email": "mail@test.com",
   "people_count": 2,
-  "comment": "string"
+  "comment": "string",
+  "consent_personal_data": true,
+  "consent_marketing": false
 }
 ```
 
@@ -204,9 +206,11 @@ Rules:
 - `email` is optional but must be valid if present;
 - `people_count` must be greater than 0;
 - `comment` is optional;
+- `consent_personal_data` is required (`true`); otherwise `422 CONSENT_REQUIRED`;
+- `consent_marketing` is optional; if `true`, a marketing consent row is stored for this booking;
 - client does not send `use_overbooking`;
-- client does not send `payment_method` in MVP 1;
-- payment response fields are not returned in MVP 1.
+- client does not send `payment_method`;
+- payment response fields are not returned. Checkout does not change `booking_status` (still `NEW`).
 
 Success response:
 
@@ -520,7 +524,52 @@ GET  /api/v1/management/watchdog
 
 ## 8e. Оплата (этап 8, код)
 
-`PAYMENT_ADAPTER=noop` / `sber` / `yookassa`. HTTP checkout заявки **не** меняет статус: `AWAITING_PAYMENT` и `PAID` в API нет, пока владелец не подтвердит машину статусов. `CreatePayment` есть только как порт адаптера (сумма = `total_price`, без возвратов).
+`PAYMENT_ADAPTER=noop` / `sber` / `yookassa`. HTTP checkout заявки **не** меняет статус: `AWAITING_PAYMENT` и `PAID` в API нет, пока владелец не подтвердит машину статусов. `CreatePayment` есть только как порт адаптера (сумма = `total_price`, без возвратов). На проде оставлять `noop`.
+
+## 8f. UX расписания (этап 9)
+
+Новых HTTP-маршрутов нет. Каталог и главная читают существующий `GET /tours` (`ORDER BY date_start ASC`). Длительность считается на сайте из `date_start` / `date_end`. Sticky CTA и заглушка оплаты в кабинете — только frontend.
+
+## 8g. Юридические документы и согласия (#22)
+
+Типы документов: `privacy_policy`, `personal_data`, `distribution`, `marketing`, `cookie`, `terms`, `offer`.  
+Типы согласий: `personal_data`, `marketing`, `marketing_revoked`, `distribution`, `distribution_revoked`, `cookie_all`, `cookie_essential`, `cookie_reject`, `terms`. Тела документов этот файл не повторяет.
+
+```text
+GET    /api/v1/legal/documents
+GET    /api/v1/legal/documents/:type
+GET    /api/v1/legal/documents/:type/download
+GET    /api/v1/legal/documents/:type/versions/:version
+POST   /api/v1/consents
+GET    /api/v1/me/consents
+GET    /api/v1/me/photos
+POST   /api/v1/me/photos
+DELETE /api/v1/me/photos/:id
+POST   /api/v1/me/uploads
+GET    /api/v1/management/legal/documents
+POST   /api/v1/management/legal/documents
+GET    /api/v1/management/consents
+```
+
+Публичный список — только `is_active=true` (без `content` в summary). `GET …/:type` и версия отдают `content`. Download — HTML attachment `text/html`, имя `{type}-v{version}.html`.
+
+`POST /consents` (сессия необязательна): `{ "consent_type", "request_id"? }`. Версию документа и `accepted_at` ставит сервер. IP и User-Agent пишутся с запроса.
+
+`GET /me/consents` — сессия, пагинация.  
+`POST /me/photos`: `url`, `caption`, `allow_distribution`, обязательный `consent_personal_data`.  
+`POST /me/uploads` — загрузка файла в существующий `/uploads` (лимит 30/мин).
+
+Админка (`manage_content`): список всех версий (`?type=`), публикация `{ type, version, title, content }`, журнал согласий `?user_id=` / `?consent_type=`.
+
+Обязательные флаги на существующих write-формах (иначе `422 CONSENT_REQUIRED`):
+
+| Запрос | Обязательно | Опционально |
+|--------|-------------|-------------|
+| `POST /auth/register` | `consent_personal_data`, `consent_terms` | `consent_marketing` |
+| `POST /bookings` | `consent_personal_data` | `consent_marketing` |
+| отзыв, пассажир, фото, сообщение поддержки | `consent_personal_data` | распространение — где форма отдаёт `allow_distribution` |
+
+Сайт: `/legal`, `/legal/{slug}`, `/account/consents`, `/account/photos`, cookie-баннер, `/management/legal`.
 
 ## 9. Future APIs
 

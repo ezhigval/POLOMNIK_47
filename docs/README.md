@@ -4,12 +4,13 @@
 
 | Файл | Зачем |
 |------|--------|
-| [STATUS.md](STATUS.md) | Что на проде и в git **сейчас** (v2.1.0) |
+| [STATUS.md](STATUS.md) | Что на проде и в git **сейчас** (v2.1.0 + v3 0–10) |
 | [V2_OWNER_SETUP.md](V2_OWNER_SETUP.md) | Чеклист владельца: OAuth, почта, sms.ru, Метрика |
 | [../AGENTS.md](../AGENTS.md) | Правила агентов и прод |
 | [ROADMAP.md](ROADMAP.md) | Freeze v2 и указатель на v3 |
 | [V3_PLAN.md](V3_PLAN.md) | Этапы линейки v3, инфра ВМ/DNS |
-| [V3_OWNER_SETUP.md](V3_OWNER_SETUP.md) | Чеклист ключей этапа 4 (MessengerPort, PublisherPort, AIPort и др.) |
+| [V3_OWNER_SETUP.md](V3_OWNER_SETUP.md) | Чеклист ключей v3 (адаптеры, оплата noop, реквизиты оператора) |
+| [legal/README.md](legal/README.md) | Система согласий (#22); тексты не сертифицированы юристом |
 | [DECISIONS.md](DECISIONS.md) | Решения владельца |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | Гексагон backend |
 | [CONVENTIONS.md](CONVENTIONS.md) | Кодстайл |

@@ -208,7 +208,15 @@ Configured()
 CreatePayment(booking)  # сумма = booking.TotalPrice
 ```
 
-Адаптеры `sber` / `yookassa`, выбор `PAYMENT_ADAPTER` (по умолчанию `noop`). Возвраты не делаем. `CreatePayment` не меняет статус заявки: в domain по-прежнему только `NEW` / `CONTACTED` / `CONFIRMED` / `COMPLETED` / `CANCELLED`. `AWAITING_PAYMENT` / `PAID` — только в плане, ждут подтверждения владельца. Без ключа `Configured()==false`.
+Адаптеры `sber` / `yookassa`, выбор `PAYMENT_ADAPTER` (по умолчанию `noop`). Возвраты не делаем. `CreatePayment` не меняет статус заявки: в domain по-прежнему только `NEW` / `CONTACTED` / `CONFIRMED` / `COMPLETED` / `CANCELLED`. `AWAITING_PAYMENT` / `PAID` — только в плане, ждут подтверждения владельца. Без ключа `Configured()==false`. На проде `PAYMENT_ADAPTER=noop`. HTTP checkout заявки нет.
+
+### UX каталога (v3, этап 9)
+
+Нового порта нет. Расписание, sticky CTA и заглушка оплаты — frontend: те же `GET /tours` и поля тура. Длительность не хранится в БД.
+
+### Согласия и юрдокументы (#22)
+
+Отдельного integration-порта нет. Application-сервисы документов и согласий пишут в PostgreSQL (`legal_documents`, `consents`, `user_photos`). Fiber только парсит флаги и вызывает сервисы. Тексты документов не живут во frontend. Реквизиты оператора — `OPERATOR_*` / зеркало `NEXT_PUBLIC_OPERATOR_*`, placeholders до решения владельца. Подробности: [legal/LEGAL-ARCHITECTURE.md](legal/LEGAL-ARCHITECTURE.md).
 
 ### BackupStoragePort (v3, этап 1)
 
