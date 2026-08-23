@@ -6,10 +6,10 @@ import (
 	"testing"
 	"time"
 
-	"polomnik/internal/adapters/integration/noop"
-	"polomnik/internal/adapters/repository/memory"
-	"polomnik/internal/domain"
-	"polomnik/internal/ports"
+	"palomnik/internal/adapters/integration/noop"
+	"palomnik/internal/adapters/repository/memory"
+	"palomnik/internal/domain"
+	"palomnik/internal/ports"
 )
 
 type memoryCache struct {

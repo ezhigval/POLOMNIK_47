@@ -6,7 +6,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 
-	"polomnik/internal/adapters/http/fiber/dto"
+	"palomnik/internal/adapters/http/fiber/dto"
 )
 
 type HealthResponse struct {
@@ -20,7 +20,7 @@ func Health(c *fiber.Ctx) error {
 	return c.JSON(dto.DataEnvelope[HealthResponse]{
 		Data: HealthResponse{
 			Status:    "ok",
-			Service:   "polomnik-api",
+			Service:   "palomnik-api",
 			Timestamp: time.Now().UTC().Format(time.RFC3339),
 		},
 	})
@@ -71,7 +71,7 @@ func HealthReady(deps readinessChecker) fiber.Handler {
 		return c.Status(statusCode).JSON(dto.DataEnvelope[HealthResponse]{
 			Data: HealthResponse{
 				Status:    status,
-				Service:   "polomnik-api",
+				Service:   "palomnik-api",
 				Timestamp: time.Now().UTC().Format(time.RFC3339),
 				Checks:    checks,
 			},

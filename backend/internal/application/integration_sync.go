@@ -3,8 +3,8 @@ package application
 import (
 	"context"
 
-	"polomnik/internal/domain"
-	"polomnik/internal/ports"
+	"palomnik/internal/domain"
+	"palomnik/internal/ports"
 )
 
 func resolveIntegrationStatus(result ports.IntegrationResult, err error) ports.IntegrationStatus {

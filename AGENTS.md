@@ -6,7 +6,7 @@
 
 Единственный публичный сайт: **https://tikhvin-palomnik.ru**  
 API: **https://api.tikhvin-palomnik.ru**  
-Старый домен `tikhvin-polomnik.ru` только редиректит на palomnik (301). Отдельного preview-стенда нет.
+Отдельного preview-стенда нет.
 
 ## Конвейер
 

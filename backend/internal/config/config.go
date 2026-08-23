@@ -94,7 +94,7 @@ func Load() Config {
 		CRMAdapter:               envString("CRM_ADAPTER", "noop"),
 		AccountingAdapter:        envString("ACCOUNTING_ADAPTER", "noop"),
 		BitrixWebhookURL:         os.Getenv("BITRIX_WEBHOOK_URL"),
-		BitrixOriginatorID:       envString("BITRIX_ORIGINATOR_ID", "polomnik"),
+		BitrixOriginatorID:       envString("BITRIX_ORIGINATOR_ID", "palomnik"),
 		BitrixDealCategoryID:     envInt("BITRIX_DEAL_CATEGORY_ID", 0),
 		BitrixStageNew:           envString("BITRIX_STAGE_NEW", ""),
 		BitrixStageContacted:     envString("BITRIX_STAGE_CONTACTED", ""),
@@ -109,8 +109,8 @@ func Load() Config {
 		OneCODataPath:            envString("ONEC_ODATA_PATH", "/odata/standard.odata"),
 		OneCODataCounterparty:    envString("ONEC_ODATA_COUNTERPARTY", "Catalog_Контрагенты"),
 		OneCODataSalesOrder:      envString("ONEC_ODATA_SALES_ORDER", "Document_ЗаказКлиента"),
-		OneCExportBookingPath:    envString("ONEC_EXPORT_BOOKING_PATH", "/hs/polomnik/booking"),
-		OneCCounterpartyPath:     envString("ONEC_COUNTERPARTY_PATH", "/hs/polomnik/counterparty"),
+		OneCExportBookingPath:    envString("ONEC_EXPORT_BOOKING_PATH", "/hs/palomnik/booking"),
+		OneCCounterpartyPath:     envString("ONEC_COUNTERPARTY_PATH", "/hs/palomnik/counterparty"),
 		OneCUsername:             os.Getenv("ONEC_USERNAME"),
 		OneCPassword:             os.Getenv("ONEC_PASSWORD"),
 		OneCAPIKey:               os.Getenv("ONEC_API_KEY"),
@@ -156,7 +156,7 @@ func Load() Config {
 		UploadDir:                envString("UPLOAD_DIR", "./data/uploads"),
 		UploadPublicBaseURL:      envString("UPLOAD_PUBLIC_BASE_URL", "http://localhost:8080"),
 		UploadMaxBytes:           envInt("UPLOAD_MAX_BYTES", 5*1024*1024),
-		WorkerHeartbeatPath:      envString("WORKER_HEARTBEAT_PATH", "/tmp/polomnik-worker-heartbeat"),
+		WorkerHeartbeatPath:      envString("WORKER_HEARTBEAT_PATH", "/tmp/palomnik-worker-heartbeat"),
 		WorkerHeartbeatMaxAge:    envDuration("WORKER_HEARTBEAT_MAX_AGE", 2*time.Minute),
 	}
 }

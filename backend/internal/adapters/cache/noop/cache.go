@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"polomnik/internal/ports"
+	"palomnik/internal/ports"
 )
 
 type Cache struct{}

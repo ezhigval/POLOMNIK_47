@@ -12,12 +12,12 @@ import (
 
 func TestDomainDoesNotImportOuterLayers(t *testing.T) {
 	forbiddenImports := []string{
-		"polomnik/internal/application",
-		"polomnik/internal/ports",
-		"polomnik/internal/adapters",
-		"polomnik/internal/config",
-		"polomnik/internal/logger",
-		"polomnik/internal/validation",
+		"palomnik/internal/application",
+		"palomnik/internal/ports",
+		"palomnik/internal/adapters",
+		"palomnik/internal/config",
+		"palomnik/internal/logger",
+		"palomnik/internal/validation",
 		"github.com/gofiber/fiber",
 		"database/sql",
 		"github.com/redis",

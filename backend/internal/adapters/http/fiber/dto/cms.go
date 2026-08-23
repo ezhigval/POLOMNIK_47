@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"time"
 
-	"polomnik/internal/domain"
+	"palomnik/internal/domain"
 )
 
 type CMSPageResponse struct {

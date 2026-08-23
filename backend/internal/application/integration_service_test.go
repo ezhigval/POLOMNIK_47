@@ -7,9 +7,9 @@ import (
 
 	"github.com/google/uuid"
 
-	"polomnik/internal/adapters/repository/memory"
-	"polomnik/internal/domain"
-	"polomnik/internal/ports"
+	"palomnik/internal/adapters/repository/memory"
+	"palomnik/internal/domain"
+	"palomnik/internal/ports"
 )
 
 func TestIntegrationServiceListReferences(t *testing.T) {

@@ -3,7 +3,7 @@ package application
 import (
 	"encoding/json"
 
-	"polomnik/internal/domain"
+	"palomnik/internal/domain"
 )
 
 type homeBlockSpec struct {

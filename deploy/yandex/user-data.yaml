@@ -9,5 +9,5 @@ runcmd:
   - curl -fsSL https://get.docker.com | sh
   - systemctl enable --now docker
   - usermod -aG docker yc-user
-  - mkdir -p /opt/polomnik
-  - chown yc-user:yc-user /opt/polomnik
+  - mkdir -p /opt/palomnik
+  - chown yc-user:yc-user /opt/palomnik

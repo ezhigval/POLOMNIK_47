@@ -11,14 +11,14 @@ import (
 
 	"github.com/google/uuid"
 
-	"polomnik/internal/adapters/integration/bitrix"
-	"polomnik/internal/adapters/integration/noop"
-	"polomnik/internal/adapters/integration/recording"
-	notificationnoop "polomnik/internal/adapters/notification/noop"
-	"polomnik/internal/adapters/repository/memory"
-	"polomnik/internal/config"
-	"polomnik/internal/domain"
-	"polomnik/internal/ports"
+	"palomnik/internal/adapters/integration/bitrix"
+	"palomnik/internal/adapters/integration/noop"
+	"palomnik/internal/adapters/integration/recording"
+	notificationnoop "palomnik/internal/adapters/notification/noop"
+	"palomnik/internal/adapters/repository/memory"
+	"palomnik/internal/config"
+	"palomnik/internal/domain"
+	"palomnik/internal/ports"
 )
 
 func TestOutboxWorkerMarksProcessedWhenSynced(t *testing.T) {

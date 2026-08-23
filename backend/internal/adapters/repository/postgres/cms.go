@@ -10,8 +10,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/lib/pq"
 
-	"polomnik/internal/domain"
-	"polomnik/internal/ports"
+	"palomnik/internal/domain"
+	"palomnik/internal/ports"
 )
 
 func (s *Store) ListPages(ctx context.Context, filters ports.CMSPageFilters) ([]domain.Page, error) {

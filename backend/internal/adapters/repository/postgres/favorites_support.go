@@ -8,7 +8,7 @@ import (
 
 	"github.com/google/uuid"
 
-	"polomnik/internal/domain"
+	"palomnik/internal/domain"
 )
 
 func (s *Store) AddFavorite(ctx context.Context, userID, tourID uuid.UUID) error {

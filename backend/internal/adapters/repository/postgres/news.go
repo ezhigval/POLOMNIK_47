@@ -9,8 +9,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/lib/pq"
 
-	"polomnik/internal/domain"
-	"polomnik/internal/ports"
+	"palomnik/internal/domain"
+	"palomnik/internal/ports"
 )
 
 func (s *Store) ListNews(ctx context.Context, filters ports.NewsFilters, pagination ports.Pagination) (ports.NewsList, error) {

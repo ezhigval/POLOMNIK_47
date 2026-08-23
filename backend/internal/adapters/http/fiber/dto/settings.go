@@ -1,8 +1,8 @@
 package dto
 
 import (
-	"polomnik/internal/application"
-	"polomnik/internal/domain"
+	"palomnik/internal/application"
+	"palomnik/internal/domain"
 )
 
 type NotificationRecipientDTO struct {

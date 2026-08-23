@@ -3,10 +3,10 @@ package handlers
 import (
 	"github.com/gofiber/fiber/v2"
 
-	"polomnik/internal/adapters/http/fiber/dto"
-	"polomnik/internal/application"
-	"polomnik/internal/domain"
-	"polomnik/internal/ports"
+	"palomnik/internal/adapters/http/fiber/dto"
+	"palomnik/internal/application"
+	"palomnik/internal/domain"
+	"palomnik/internal/ports"
 )
 
 func (h *Handler) ManagementListTours(c *fiber.Ctx) error {

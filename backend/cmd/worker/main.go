@@ -9,14 +9,14 @@ import (
 	"syscall"
 	"time"
 
-	"polomnik/internal/adapters/integration"
-	"polomnik/internal/adapters/notification"
-	"polomnik/internal/adapters/repository/memory"
-	"polomnik/internal/adapters/repository/postgres"
-	"polomnik/internal/application"
-	"polomnik/internal/config"
-	"polomnik/internal/logger"
-	"polomnik/internal/ports"
+	"palomnik/internal/adapters/integration"
+	"palomnik/internal/adapters/notification"
+	"palomnik/internal/adapters/repository/memory"
+	"palomnik/internal/adapters/repository/postgres"
+	"palomnik/internal/application"
+	"palomnik/internal/config"
+	"palomnik/internal/logger"
+	"palomnik/internal/ports"
 )
 
 func main() {

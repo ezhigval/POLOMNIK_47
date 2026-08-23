@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"polomnik/internal/application"
+	"palomnik/internal/application"
 )
 
 type Handler struct {

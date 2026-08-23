@@ -6,8 +6,8 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 
-	"polomnik/internal/adapters/http/fiber/dto"
-	"polomnik/internal/application"
+	"palomnik/internal/adapters/http/fiber/dto"
+	"palomnik/internal/application"
 )
 
 const UserIDLocalKey = "userID"

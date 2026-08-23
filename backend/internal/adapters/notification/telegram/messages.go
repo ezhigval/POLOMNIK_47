@@ -7,7 +7,7 @@ import (
 
 	"github.com/google/uuid"
 
-	"polomnik/internal/domain"
+	"palomnik/internal/domain"
 )
 
 func FormatNewBookingMessage(booking domain.Booking, tour domain.Tour, mgmtBase string) string {

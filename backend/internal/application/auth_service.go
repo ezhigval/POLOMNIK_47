@@ -14,8 +14,8 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 
-	"polomnik/internal/domain"
-	"polomnik/internal/ports"
+	"palomnik/internal/domain"
+	"palomnik/internal/ports"
 )
 
 const phoneChallengeTTL = 5 * time.Minute

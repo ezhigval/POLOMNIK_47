@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"polomnik/internal/domain"
+	"palomnik/internal/domain"
 )
 
 var ErrNotificationNotConfigured = errors.New("notification adapter not configured")

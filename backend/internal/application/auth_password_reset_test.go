@@ -7,8 +7,8 @@ import (
 	"testing"
 	"time"
 
-	"polomnik/internal/adapters/repository/memory"
-	"polomnik/internal/ports"
+	"palomnik/internal/adapters/repository/memory"
+	"palomnik/internal/ports"
 )
 
 type recordingMailer struct {

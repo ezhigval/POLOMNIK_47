@@ -12,8 +12,8 @@ import (
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/lib/pq"
 
-	"polomnik/internal/domain"
-	"polomnik/internal/ports"
+	"palomnik/internal/domain"
+	"palomnik/internal/ports"
 )
 
 type Store struct {

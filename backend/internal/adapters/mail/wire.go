@@ -3,10 +3,10 @@ package mail
 import (
 	"strings"
 
-	smtpmail "polomnik/internal/adapters/mail/smtp"
-	"polomnik/internal/adapters/mail/noop"
-	"polomnik/internal/config"
-	"polomnik/internal/ports"
+	smtpmail "palomnik/internal/adapters/mail/smtp"
+	"palomnik/internal/adapters/mail/noop"
+	"palomnik/internal/config"
+	"palomnik/internal/ports"
 )
 
 func New(cfg config.Config) ports.Mailer {

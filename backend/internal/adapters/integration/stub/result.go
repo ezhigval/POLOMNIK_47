@@ -1,6 +1,6 @@
 package stub
 
-import "polomnik/internal/ports"
+import "palomnik/internal/ports"
 
 func NotConfigured(system string) ports.IntegrationResult {
 	return ports.IntegrationResult{

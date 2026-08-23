@@ -5,7 +5,7 @@ import (
 
 	"github.com/google/uuid"
 
-	"polomnik/internal/domain"
+	"palomnik/internal/domain"
 )
 
 func testUUID(value string) uuid.UUID {

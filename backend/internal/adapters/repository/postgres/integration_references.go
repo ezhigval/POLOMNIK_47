@@ -6,8 +6,8 @@ import (
 	"errors"
 	"fmt"
 
-	"polomnik/internal/domain"
-	"polomnik/internal/ports"
+	"palomnik/internal/domain"
+	"palomnik/internal/ports"
 )
 
 func (s *Store) UpsertReference(ctx context.Context, ref domain.IntegrationReference) (domain.IntegrationReference, error) {

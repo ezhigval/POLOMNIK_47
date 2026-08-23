@@ -9,9 +9,9 @@ import (
 
 	"github.com/google/uuid"
 
-	"polomnik/internal/config"
-	"polomnik/internal/domain"
-	"polomnik/internal/ports"
+	"palomnik/internal/config"
+	"palomnik/internal/domain"
+	"palomnik/internal/ports"
 )
 
 func TestAccountingAdapterReturnsNotConfiguredWithoutBaseURL(t *testing.T) {
@@ -31,7 +31,7 @@ func TestAccountingAdapterExportBooking(t *testing.T) {
 	t.Parallel()
 
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path != "/hs/polomnik/booking" {
+		if r.URL.Path != "/hs/palomnik/booking" {
 			t.Fatalf("unexpected path: %s", r.URL.Path)
 		}
 		var payload bookingPayload
@@ -71,7 +71,7 @@ func TestAccountingAdapterSyncCounterparty(t *testing.T) {
 	t.Parallel()
 
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path != "/hs/polomnik/counterparty" {
+		if r.URL.Path != "/hs/palomnik/counterparty" {
 			t.Fatalf("unexpected path: %s", r.URL.Path)
 		}
 		_ = json.NewEncoder(w).Encode(exchangeResponse{

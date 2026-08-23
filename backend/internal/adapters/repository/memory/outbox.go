@@ -7,8 +7,8 @@ import (
 
 	"github.com/google/uuid"
 
-	"polomnik/internal/domain"
-	"polomnik/internal/ports"
+	"palomnik/internal/domain"
+	"palomnik/internal/ports"
 )
 
 func (s *Store) Enqueue(_ context.Context, event domain.OutboxEvent) (domain.OutboxEvent, error) {

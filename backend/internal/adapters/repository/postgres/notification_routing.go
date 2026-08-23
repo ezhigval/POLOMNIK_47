@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"time"
 
-	"polomnik/internal/domain"
+	"palomnik/internal/domain"
 )
 
 type notificationRoutesDTO map[string][]notificationRecipientDTO

@@ -11,8 +11,8 @@ if [[ -f "$ROOT_DIR/.env.production" ]]; then
   POSTGRES_DB="$(grep -E '^POSTGRES_DB=' "$ROOT_DIR/.env.production" | tail -1 | cut -d= -f2-)"
 fi
 
-POSTGRES_USER="${POSTGRES_USER:-polomnik}"
-POSTGRES_DB="${POSTGRES_DB:-polomnik}"
+POSTGRES_USER="${POSTGRES_USER:-palomnik}"
+POSTGRES_DB="${POSTGRES_DB:-palomnik}"
 
 docker_bin() {
   if docker info >/dev/null 2>&1; then
@@ -37,11 +37,11 @@ if [[ -z "$CONTAINER" ]]; then
 fi
 
 mkdir -p "$BACKUP_DIR"
-OUTPUT="$BACKUP_DIR/polomnik-${TIMESTAMP}.sql.gz"
+OUTPUT="$BACKUP_DIR/palomnik-${TIMESTAMP}.sql.gz"
 
 echo "Creating backup from $CONTAINER: $OUTPUT"
 docker_bin exec "$CONTAINER" pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" --no-owner --no-acl | gzip > "$OUTPUT"
 
-find "$BACKUP_DIR" -name 'polomnik-*.sql.gz' -mtime +"$RETENTION_DAYS" -delete 2>/dev/null || true
+find "$BACKUP_DIR" -name '*.sql.gz' -mtime +"$RETENTION_DAYS" -delete 2>/dev/null || true
 
 echo "Backup complete ($(du -h "$OUTPUT" | cut -f1))"

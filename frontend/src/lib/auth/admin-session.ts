@@ -2,7 +2,7 @@ import { createHash, timingSafeEqual } from "crypto";
 import { cookies } from "next/headers";
 import { apiUrl } from "@/lib/api/client";
 
-export const ADMIN_SESSION_COOKIE = "polomnik_admin_session";
+export const ADMIN_SESSION_COOKIE = "palomnik_admin_session";
 
 export function adminSessionToken(adminToken: string): string {
   return createHash("sha256").update(`admin:${adminToken}`).digest("hex");

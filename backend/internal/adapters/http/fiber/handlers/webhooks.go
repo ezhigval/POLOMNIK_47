@@ -5,7 +5,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 
-	"polomnik/internal/application"
+	"palomnik/internal/application"
 )
 
 type bitrixWebhookRequest struct {

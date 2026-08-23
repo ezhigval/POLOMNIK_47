@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	"polomnik/internal/ports"
+	"palomnik/internal/ports"
 )
 
 func TestVerifierUnavailableWithoutAPIID(t *testing.T) {

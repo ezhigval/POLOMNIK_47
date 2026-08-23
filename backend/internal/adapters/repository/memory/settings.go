@@ -3,7 +3,7 @@ package memory
 import (
 	"context"
 
-	"polomnik/internal/domain"
+	"palomnik/internal/domain"
 )
 
 func (s *Store) GetNotificationRouting(_ context.Context) (domain.NotificationRouting, error) {

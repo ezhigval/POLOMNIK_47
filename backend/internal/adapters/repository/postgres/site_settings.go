@@ -6,7 +6,7 @@ import (
 	"errors"
 	"fmt"
 
-	"polomnik/internal/domain"
+	"palomnik/internal/domain"
 )
 
 func (s *Store) GetSiteSettings(ctx context.Context) (domain.SiteSettings, error) {

@@ -3,7 +3,7 @@
 Публичный сайт: **https://tikhvin-palomnik.ru**  
 API: **https://api.tikhvin-palomnik.ru**
 
-`tikhvin-polomnik.ru` и `www` редиректят 301 на palomnik. Отдельного preview-окружения нет.
+Отдельного preview-окружения нет.
 
 Актуальный статус и теги: [STATUS.md](STATUS.md).
 
@@ -17,7 +17,7 @@ API: **https://api.tikhvin-palomnik.ru**
 make deploy
 ```
 
-SSH: `ssh polomnik-yc` (`smailikin70@93.77.165.81`, `/opt/polomnik`).  
+SSH: `ssh smailikin70@93.77.165.81` (каталог `/opt/palomnik`, либо `DEPLOY_DIR`).  
 Не `compose down -v` — не сбрасывать Postgres.
 
 ## Теги
@@ -35,5 +35,5 @@ SSH: `ssh polomnik-yc` (`smailikin70@93.77.165.81`, `/opt/polomnik`).
 
 ## Cron на ВМ
 
-- `0 3 * * *` — `scripts/backup-postgres.sh` (контейнер `polomnik-postgres-1`)
+- `0 3 * * *` — `scripts/backup-postgres.sh` (контейнер Postgres из `docker compose ps`)
 - `*/10 * * * *` — health API через `docker exec`

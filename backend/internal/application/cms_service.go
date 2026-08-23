@@ -9,8 +9,8 @@ import (
 
 	"github.com/google/uuid"
 
-	"polomnik/internal/domain"
-	"polomnik/internal/ports"
+	"palomnik/internal/domain"
+	"palomnik/internal/ports"
 )
 
 type CMSService struct {

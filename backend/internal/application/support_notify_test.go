@@ -9,8 +9,8 @@ import (
 
 	"github.com/google/uuid"
 
-	"polomnik/internal/adapters/repository/memory"
-	"polomnik/internal/domain"
+	"palomnik/internal/adapters/repository/memory"
+	"palomnik/internal/domain"
 )
 
 type recordingSupportNotifier struct {

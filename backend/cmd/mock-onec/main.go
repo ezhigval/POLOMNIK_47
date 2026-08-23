@@ -18,8 +18,8 @@ func main() {
 	password := os.Getenv("MOCK_ONEC_PASSWORD")
 
 	store := &docStore{
-		bookingPath:       basePath + "/hs/polomnik/booking",
-		counterpartyPath:  basePath + "/hs/polomnik/counterparty",
+		bookingPath:       basePath + "/hs/palomnik/booking",
+		counterpartyPath:  basePath + "/hs/palomnik/counterparty",
 		nextBookingDoc:    1,
 		nextCounterparty:  1,
 		bookings:          make(map[string]exchangeResponse),

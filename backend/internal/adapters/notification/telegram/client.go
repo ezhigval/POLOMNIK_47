@@ -8,8 +8,8 @@ import (
 	"net/url"
 	"strings"
 
-	"polomnik/internal/config"
-	"polomnik/internal/ports"
+	"palomnik/internal/config"
+	"palomnik/internal/ports"
 )
 
 type Client struct {

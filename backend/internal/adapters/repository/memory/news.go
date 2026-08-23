@@ -6,8 +6,8 @@ import (
 
 	"github.com/google/uuid"
 
-	"polomnik/internal/domain"
-	"polomnik/internal/ports"
+	"palomnik/internal/domain"
+	"palomnik/internal/ports"
 )
 
 func (s *Store) ListNews(_ context.Context, filters ports.NewsFilters, pagination ports.Pagination) (ports.NewsList, error) {

@@ -23,7 +23,7 @@ ONEC_PASSWORD=...
 ## Endpoint 1: экспорт заявки
 
 ```http
-POST /hs/polomnik/booking
+POST /hs/palomnik/booking
 Content-Type: application/json
 ```
 
@@ -66,7 +66,7 @@ HTTP 200, JSON:
 ## Endpoint 2: контрагент
 
 ```http
-POST /hs/polomnik/counterparty
+POST /hs/palomnik/counterparty
 Content-Type: application/json
 ```
 

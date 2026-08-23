@@ -3,7 +3,7 @@ package noop
 import (
 	"context"
 
-	"polomnik/internal/ports"
+	"palomnik/internal/ports"
 )
 
 type Mailer struct{}

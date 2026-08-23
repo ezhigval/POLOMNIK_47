@@ -11,11 +11,11 @@ import (
 
 	"github.com/google/uuid"
 
-	"polomnik/internal/adapters/integration/bitrix"
-	"polomnik/internal/adapters/repository/memory"
-	"polomnik/internal/config"
-	"polomnik/internal/domain"
-	"polomnik/internal/ports"
+	"palomnik/internal/adapters/integration/bitrix"
+	"palomnik/internal/adapters/repository/memory"
+	"palomnik/internal/config"
+	"palomnik/internal/domain"
+	"palomnik/internal/ports"
 )
 
 func TestRecordingCRMPersistsBookingSyncReference(t *testing.T) {

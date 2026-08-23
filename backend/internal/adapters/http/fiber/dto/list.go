@@ -1,6 +1,6 @@
 package dto
 
-import "polomnik/internal/ports"
+import "palomnik/internal/ports"
 
 type ListEnvelope[T any] struct {
 	Data []T          `json:"data"`

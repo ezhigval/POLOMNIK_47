@@ -1,13 +1,13 @@
 package integration
 
 import (
-	"polomnik/internal/adapters/integration/bitrix"
-	"polomnik/internal/adapters/integration/noop"
-	"polomnik/internal/adapters/integration/onec"
-	"polomnik/internal/adapters/integration/recording"
-	"polomnik/internal/config"
-	"polomnik/internal/domain"
-	"polomnik/internal/ports"
+	"palomnik/internal/adapters/integration/bitrix"
+	"palomnik/internal/adapters/integration/noop"
+	"palomnik/internal/adapters/integration/onec"
+	"palomnik/internal/adapters/integration/recording"
+	"palomnik/internal/config"
+	"palomnik/internal/domain"
+	"palomnik/internal/ports"
 )
 
 func NewCRM(cfg config.Config, refs ports.IntegrationReferenceRepository, outbox ports.OutboxRepository) ports.CRMPort {

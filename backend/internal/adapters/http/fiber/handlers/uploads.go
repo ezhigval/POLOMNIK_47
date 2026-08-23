@@ -13,8 +13,8 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 
-	"polomnik/internal/adapters/http/fiber/dto"
-	"polomnik/internal/config"
+	"palomnik/internal/adapters/http/fiber/dto"
+	"palomnik/internal/config"
 )
 
 var allowedImageMIME = map[string]string{

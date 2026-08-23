@@ -4,10 +4,22 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 REMOTE="${DEPLOY_REMOTE:-smailikin70@93.77.165.81}"
-SSH_KEY="${SSH_KEY:-${HOME}/.ssh/polomnik_yc}"
-SSH_OPTS=(-o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o IdentitiesOnly=yes)
-if [[ -f "$SSH_KEY" ]]; then
-  SSH_OPTS+=(-i "$SSH_KEY")
+DEPLOY_DIR="${DEPLOY_DIR:-/opt/palomnik}"
+SSH_KEY="${SSH_KEY:-}"
+if [[ -z "$SSH_KEY" ]]; then
+  shopt -s nullglob
+  yc_keys=("${HOME}/.ssh/palomnik_yc" "${HOME}"/.ssh/*_yc)
+  shopt -u nullglob
+  for candidate in "${yc_keys[@]}" "${HOME}/.ssh/id_ed25519" "${HOME}/.ssh/id_rsa"; do
+    if [[ -n "$candidate" && -f "$candidate" ]]; then
+      SSH_KEY="$candidate"
+      break
+    fi
+  done
+fi
+SSH_OPTS=(-o StrictHostKeyChecking=accept-new -o ConnectTimeout=15)
+if [[ -n "$SSH_KEY" && -f "$SSH_KEY" ]]; then
+  SSH_OPTS+=(-o IdentitiesOnly=yes -i "$SSH_KEY")
 fi
 
 COMPOSE="sudo docker compose --env-file .env.production -f docker-compose.yml -f docker-compose.prod.yml"
@@ -33,6 +45,19 @@ if [[ "$ok" != "1" ]]; then
   exit 1
 fi
 
+if ! ssh "${SSH_OPTS[@]}" "$REMOTE" "test -d '${DEPLOY_DIR}'"; then
+  detected="$(ssh "${SSH_OPTS[@]}" "$REMOTE" "ls -d /opt/*/docker-compose.yml 2>/dev/null | sed 's|/docker-compose.yml||' | head -1" || true)"
+  detected="${detected//$'\r'/}"
+  detected="$(echo "$detected" | tr -d '\n')"
+  if [[ -n "$detected" ]]; then
+    echo "Using existing remote directory: $detected (set DEPLOY_DIR to override)"
+    DEPLOY_DIR="$detected"
+  else
+    echo "Remote directory ${DEPLOY_DIR} is missing. Create it or set DEPLOY_DIR."
+    exit 1
+  fi
+fi
+
 echo "Syncing..."
 rsync -az --delete \
   -e "ssh ${SSH_OPTS[*]}" \
@@ -45,12 +70,12 @@ rsync -az --delete \
   --exclude frontend/.env.local \
   --exclude "data/uploads" \
   --exclude "backend/data/uploads" \
-  "$ROOT_DIR/" "${REMOTE}:/opt/polomnik/"
+  "$ROOT_DIR/" "${REMOTE}:${DEPLOY_DIR}/"
 
 # Never `compose down -v` — the named Postgres volume must survive.
 # Disk is tight: rebuild frontend only; recreate api/worker from existing images + updated env.
 echo "Rebuilding frontend + api/worker, then recreating stack (no postgres wipe)..."
-ssh "${SSH_OPTS[@]}" "$REMOTE" "cd /opt/polomnik && \
+ssh "${SSH_OPTS[@]}" "$REMOTE" "cd '${DEPLOY_DIR}' && \
   $COMPOSE build frontend api worker && \
   $COMPOSE up -d --no-deps frontend && \
   $COMPOSE up -d && \

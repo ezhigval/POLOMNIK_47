@@ -6,10 +6,10 @@ import (
 	"strings"
 	"time"
 
-	"polomnik/internal/adapters/integration/stub"
-	"polomnik/internal/config"
-	"polomnik/internal/domain"
-	"polomnik/internal/ports"
+	"palomnik/internal/adapters/integration/stub"
+	"palomnik/internal/config"
+	"palomnik/internal/domain"
+	"palomnik/internal/ports"
 )
 
 type ODataAccountingAdapter struct {

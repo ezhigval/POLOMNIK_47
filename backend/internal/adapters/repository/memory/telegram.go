@@ -4,7 +4,7 @@ import (
 	"context"
 	"strings"
 
-	"polomnik/internal/domain"
+	"palomnik/internal/domain"
 )
 
 func (s *Store) GetTelegramRecipients(_ context.Context) (domain.TelegramRecipients, error) {

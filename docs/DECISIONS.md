@@ -6,7 +6,7 @@
 
 - Backend пишется на Go.
 - HTTP framework для backend: Fiber.
-- Go module: `polomnik`.
+- Go module: `palomnik`.
 - Frontend: Next.js, TypeScript, TailwindCSS.
 - База данных MVP: PostgreSQL.
 - Migration tool: goose-compatible SQL migrations.

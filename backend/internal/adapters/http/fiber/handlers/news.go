@@ -3,8 +3,8 @@ package handlers
 import (
 	"github.com/gofiber/fiber/v2"
 
-	"polomnik/internal/adapters/http/fiber/dto"
-	"polomnik/internal/application"
+	"palomnik/internal/adapters/http/fiber/dto"
+	"palomnik/internal/application"
 )
 
 func (h *Handler) ListPublicNews(c *fiber.Ctx) error {

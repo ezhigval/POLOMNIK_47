@@ -6,9 +6,9 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 
-	"polomnik/internal/adapters/http/fiber/dto"
-	"polomnik/internal/application"
-	"polomnik/internal/ports"
+	"palomnik/internal/adapters/http/fiber/dto"
+	"palomnik/internal/application"
+	"palomnik/internal/ports"
 )
 
 func (h *Handler) ListPublicCMSPages(c *fiber.Ctx) error {

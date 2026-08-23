@@ -96,5 +96,5 @@ POST https://YOUR-API/api/v1/webhooks/bitrix/deal?token=YOUR_BITRIX_INBOUND_TOKE
 |---------|---------|
 | `not_configured` | Пустой `BITRIX_WEBHOOK_URL` |
 | Outbox `failed` | Смотри `last_error` в management; проверь права вебхука |
-| Сделка не находится при update | Проверь `BITRIX_ORIGINATOR_ID=polomnik` (дефолт) |
+| Сделка не находится при update | Проверь `BITRIX_ORIGINATOR_ID=palomnik` (дефолт) |
 | HTTP timeout | Увеличь `INTEGRATION_HTTP_TIMEOUT=30s` |

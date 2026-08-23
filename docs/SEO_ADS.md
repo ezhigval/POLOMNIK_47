@@ -1,6 +1,6 @@
 # SEO и реклама (паломник)
 
-Канон: **https://tikhvin-palomnik.ru** (старый `tikhvin-polomnik.ru` только 301).  
+Канон: **https://tikhvin-palomnik.ru**.  
 API: `https://api.tikhvin-palomnik.ru`.
 
 ## 1. Счётчики на сайте

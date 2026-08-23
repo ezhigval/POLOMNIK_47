@@ -7,9 +7,9 @@ import (
 	"testing"
 	"time"
 
-	"polomnik/internal/config"
-	"polomnik/internal/domain"
-	"polomnik/internal/ports"
+	"palomnik/internal/config"
+	"palomnik/internal/domain"
+	"palomnik/internal/ports"
 )
 
 func TestODataAccountingAdapterExportBooking(t *testing.T) {

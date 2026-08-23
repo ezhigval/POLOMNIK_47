@@ -10,7 +10,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 
-	"polomnik/internal/ports"
+	"palomnik/internal/ports"
 )
 
 func parsePagination(c *fiber.Ctx) ports.Pagination {

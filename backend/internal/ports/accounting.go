@@ -3,7 +3,7 @@ package ports
 import (
 	"context"
 
-	"polomnik/internal/domain"
+	"palomnik/internal/domain"
 )
 
 type AccountingPort interface {

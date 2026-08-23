@@ -7,25 +7,25 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 COPY . .
-RUN CGO_ENABLED=0 GOOS=linux go build -o /bin/polomnik-api ./cmd/api && \
-    CGO_ENABLED=0 GOOS=linux go build -o /bin/polomnik-worker ./cmd/worker
+RUN CGO_ENABLED=0 GOOS=linux go build -o /bin/palomnik-api ./cmd/api && \
+    CGO_ENABLED=0 GOOS=linux go build -o /bin/palomnik-worker ./cmd/worker
 
 FROM alpine:3.21
 
 RUN apk add --no-cache ca-certificates wget && \
-    addgroup -S polomnik && \
-    adduser -S polomnik -G polomnik -u 10001
+    addgroup -S palomnik && \
+    adduser -S palomnik -G palomnik -u 10001
 
 WORKDIR /app
 
-COPY --from=builder /bin/polomnik-api /app/polomnik-api
-COPY --from=builder /bin/polomnik-worker /app/polomnik-worker
+COPY --from=builder /bin/palomnik-api /app/palomnik-api
+COPY --from=builder /bin/palomnik-worker /app/palomnik-worker
 COPY migrations ./migrations
 COPY seeds ./seeds
 
-RUN mkdir -p /data/uploads && chown -R polomnik:polomnik /app /data/uploads
+RUN mkdir -p /data/uploads && chown -R palomnik:palomnik /app /data/uploads
 
-USER polomnik
+USER palomnik
 
 EXPOSE 8080
-ENTRYPOINT ["/app/polomnik-api"]
+ENTRYPOINT ["/app/palomnik-api"]

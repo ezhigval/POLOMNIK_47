@@ -9,7 +9,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/lib/pq"
 
-	"polomnik/internal/domain"
+	"palomnik/internal/domain"
 )
 
 func (s *Store) ListAdminRoles(ctx context.Context) ([]domain.AdminRole, error) {

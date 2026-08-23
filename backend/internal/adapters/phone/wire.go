@@ -3,10 +3,10 @@ package phone
 import (
 	"strings"
 
-	"polomnik/internal/adapters/phone/noop"
-	"polomnik/internal/adapters/phone/smsru"
-	"polomnik/internal/config"
-	"polomnik/internal/ports"
+	"palomnik/internal/adapters/phone/noop"
+	"palomnik/internal/adapters/phone/smsru"
+	"palomnik/internal/config"
+	"palomnik/internal/ports"
 )
 
 // New builds a PhoneVerifier. PHONE_ADAPTER=smsru uses sms.ru callcheck (not SMS).

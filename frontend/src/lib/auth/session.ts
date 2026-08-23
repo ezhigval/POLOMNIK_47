@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { fetchCurrentUser, type User } from "@/lib/api/auth";
 
-export const AUTH_COOKIE = "polomnik_token";
+export const AUTH_COOKIE = "palomnik_token";
 
 export async function getSessionUser(): Promise<User | null> {
   const cookieStore = await cookies();

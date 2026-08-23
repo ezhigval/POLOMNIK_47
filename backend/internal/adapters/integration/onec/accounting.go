@@ -4,10 +4,10 @@ import (
 	"context"
 	"strings"
 
-	"polomnik/internal/adapters/integration/stub"
-	"polomnik/internal/config"
-	"polomnik/internal/domain"
-	"polomnik/internal/ports"
+	"palomnik/internal/adapters/integration/stub"
+	"palomnik/internal/config"
+	"palomnik/internal/domain"
+	"palomnik/internal/ports"
 )
 
 type bookingPayload struct {
@@ -84,14 +84,14 @@ func (a HTTPAccountingAdapter) exportPath() string {
 	if path := strings.TrimSpace(a.cfg.OneCExportBookingPath); path != "" {
 		return path
 	}
-	return "/hs/polomnik/booking"
+	return "/hs/palomnik/booking"
 }
 
 func (a HTTPAccountingAdapter) counterpartyPath() string {
 	if path := strings.TrimSpace(a.cfg.OneCCounterpartyPath); path != "" {
 		return path
 	}
-	return "/hs/polomnik/counterparty"
+	return "/hs/palomnik/counterparty"
 }
 
 func (a HTTPAccountingAdapter) ExportBooking(ctx context.Context, booking domain.Booking) (ports.IntegrationResult, error) {

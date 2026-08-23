@@ -8,10 +8,10 @@ import (
 
 	"github.com/google/uuid"
 
-	"polomnik/internal/adapters/integration/stub"
-	"polomnik/internal/config"
-	"polomnik/internal/domain"
-	"polomnik/internal/ports"
+	"palomnik/internal/adapters/integration/stub"
+	"palomnik/internal/config"
+	"palomnik/internal/domain"
+	"palomnik/internal/ports"
 )
 
 // CRMAdapter implements ports.CRMPort and ports.CRMInboundPort via Bitrix24 REST API.
@@ -40,7 +40,7 @@ func (a CRMAdapter) originatorID() string {
 	if id := strings.TrimSpace(a.cfg.BitrixOriginatorID); id != "" {
 		return id
 	}
-	return "polomnik"
+	return "palomnik"
 }
 
 func (a CRMAdapter) SyncTour(ctx context.Context, tour domain.Tour) (ports.IntegrationResult, error) {

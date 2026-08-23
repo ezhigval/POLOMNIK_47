@@ -3,10 +3,10 @@ package handlers
 import (
 	"github.com/gofiber/fiber/v2"
 
-	"polomnik/internal/adapters/http/fiber/dto"
-	appmiddleware "polomnik/internal/adapters/http/fiber/middleware"
-	"polomnik/internal/application"
-	"polomnik/internal/ports"
+	"palomnik/internal/adapters/http/fiber/dto"
+	appmiddleware "palomnik/internal/adapters/http/fiber/middleware"
+	"palomnik/internal/application"
+	"palomnik/internal/ports"
 )
 
 func (h *Handler) OAuthLogin(c *fiber.Ctx) error {

@@ -64,19 +64,19 @@ go install github.com/pressly/goose/v3/cmd/goose@v3.27.1
 Run migrations:
 
 ```bash
-DATABASE_URL=postgres://polomnik:polomnik@localhost:5432/polomnik?sslmode=disable make migrate-up
+DATABASE_URL=postgres://palomnik:palomnik@localhost:5432/palomnik?sslmode=disable make migrate-up
 ```
 
 Check status:
 
 ```bash
-DATABASE_URL=postgres://polomnik:polomnik@localhost:5432/polomnik?sslmode=disable make migrate-status
+DATABASE_URL=postgres://palomnik:palomnik@localhost:5432/palomnik?sslmode=disable make migrate-status
 ```
 
 Seed local dev data:
 
 ```bash
-DATABASE_URL=postgres://polomnik:polomnik@localhost:5432/polomnik?sslmode=disable make seed-dev
+DATABASE_URL=postgres://palomnik:palomnik@localhost:5432/palomnik?sslmode=disable make seed-dev
 ```
 
 ## PostgreSQL Integration Tests
@@ -84,5 +84,5 @@ DATABASE_URL=postgres://polomnik:polomnik@localhost:5432/polomnik?sslmode=disabl
 Repository integration tests are skipped unless `TEST_DATABASE_URL` is set:
 
 ```bash
-TEST_DATABASE_URL=postgres://polomnik:polomnik@localhost:5432/polomnik_test?sslmode=disable go test ./internal/adapters/repository/postgres
+TEST_DATABASE_URL=postgres://palomnik:palomnik@localhost:5432/palomnik_test?sslmode=disable go test ./internal/adapters/repository/postgres
 ```

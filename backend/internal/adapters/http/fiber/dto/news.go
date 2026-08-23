@@ -1,7 +1,7 @@
 package dto
 
 import (
-	"polomnik/internal/domain"
+	"palomnik/internal/domain"
 )
 
 type NewsArticleResponse struct {

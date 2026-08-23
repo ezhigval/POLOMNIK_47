@@ -8,7 +8,7 @@
 make deploy
 ```
 
-Публичный сайт: `https://tikhvin-palomnik.ru`. API: `https://api.tikhvin-palomnik.ru`. `tikhvin-polomnik.ru` — только 301 на palomnik.
+Публичный сайт: `https://tikhvin-palomnik.ru`. API: `https://api.tikhvin-palomnik.ru`.
 
 ## 1. Сервер
 
@@ -21,6 +21,7 @@ export PATH="$HOME/yandex-cloud/bin:$PATH"
 yc init   # один раз, логин в браузере
 ./deploy/yandex/provision.sh          # VPC + VM + IP
 ./deploy/yandex/deploy.sh             # rsync + docker compose prod
+# каталог по умолчанию /opt/palomnik; иначе DEPLOY_DIR=...
 ```
 
 DNS на REG.RU (A-записи → публичный IP VM) для зоны **tikhvin-palomnik.ru**:
@@ -30,8 +31,6 @@ DNS на REG.RU (A-записи → публичный IP VM) для зоны **
 | `@` | A | IP сервера |
 | `www` | A | IP сервера |
 | `api` | A | IP сервера |
-
-Старый `tikhvin-polomnik.ru` может указывать на тот же IP — Caddy отдаст 301.
 
 - Docker + Docker Compose v2.
 - Порты 22 / 80 / 443 открыты в security group.
@@ -49,7 +48,7 @@ cp .env.production.example .env.production
 | `SITE_DOMAIN` | `tikhvin-palomnik.ru` |
 | `API_DOMAIN` | `api.tikhvin-palomnik.ru` |
 | `ACME_EMAIL` | Email для Let's Encrypt (Caddy) |
-| `POSTGRES_PASSWORD` | Сильный пароль БД (не `polomnik`) |
+| `POSTGRES_PASSWORD` | Сильный пароль БД (не дефолт из local compose) |
 | `ADMIN_TOKEN` | Пароль для `/management/login` и management API |
 | `JWT_SECRET` | ≥32 символов, для пользовательских сессий |
 | `INTERNAL_API_SECRET` | ≥16 символов, для Google OAuth → API |
@@ -119,14 +118,15 @@ make backup-db
 Дампы в `backups/`, хранятся 7 дней. Cron:
 
 ```cron
-0 3 * * * cd /opt/polomnik && ./scripts/backup-postgres.sh
+0 3 * * * cd /opt/palomnik && ./scripts/backup-postgres.sh
 ```
 
-Восстановление:
+Восстановление (имя контейнера — из `docker compose ps`; пользователь и БД — из `.env.production`):
 
 ```bash
-gunzip -c backups/polomnik-YYYYMMDD-HHMMSS.sql.gz | \
-  docker exec -i polomnik-postgres-1 psql -U polomnik -d polomnik
+gunzip -c backups/palomnik-YYYYMMDD-HHMMSS.sql.gz | \
+  docker exec -i "$(docker ps --format '{{.Names}}' | grep postgres-1 | head -1)" \
+    psql -U "$POSTGRES_USER" -d "$POSTGRES_DB"
 ```
 
 ## 5.1 Мониторинг
@@ -140,7 +140,7 @@ Worker:
 - Management → Integrations: блок «Outbox здоровье»
 
 ```cron
-*/10 * * * * cd /opt/polomnik && API_VIA_DOCKER=1 ./scripts/check-ops.sh
+*/10 * * * * cd /opt/palomnik && API_VIA_DOCKER=1 ./scripts/check-ops.sh
 ```
 
 `ADMIN_TOKEN` скрипт читает из `.env.production`, в crontab его писать не нужно.
