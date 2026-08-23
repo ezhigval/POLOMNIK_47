@@ -4,7 +4,7 @@ const BITRIX_INBOUND_TOKEN = process.env.BITRIX_INBOUND_TOKEN ?? "dev-bitrix-inb
 const MOCK_BITRIX_URL = process.env.MOCK_BITRIX_URL ?? "http://localhost:8091";
 const MOCK_ONEC_URL = process.env.MOCK_ONEC_URL ?? "http://localhost:8092";
 
-// Seed tour with future dates (backend/seeds/dev.sql)
+// Seed tour with future dates (Валаам, октябрь 2026 — backend/seeds/dev.sql)
 const SEED_TOUR_ID = "33333333-4444-4444-4444-444444444444";
 
 const adminHeaders = {
