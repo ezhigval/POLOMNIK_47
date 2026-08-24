@@ -98,6 +98,11 @@ func run() int {
 		cfg.MaxBotToken != "",
 	)
 	siteDefaults := domain.SiteSettings{}
+	if forwards, err := domain.ParseMailForwardList(cfg.MailForwardToFallback); err != nil {
+		log.Warn("ignore invalid MAIL_FORWARD_TO", slog.Any("error", err))
+	} else {
+		siteDefaults.MailForwardTo = forwards
+	}
 	siteSettings := application.NewSiteSettingsService(siteSettingsRepo, siteDefaults)
 	adminRoles := application.NewAdminRoleService(adminRoleRepo, userRepo, cfg.AdminToken, cfg.JWTSecret)
 	newsService := application.NewNewsService(newsRepo, cache)

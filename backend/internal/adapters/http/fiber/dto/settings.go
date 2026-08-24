@@ -99,7 +99,7 @@ type SiteSettingsResponse struct {
 	ContactPhone        string `json:"contact_phone"`
 	ContactPhoneDisplay string `json:"contact_phone_display"`
 	ContactEmail        string `json:"contact_email"`
-	MailForwardTo       string `json:"mail_forward_to"`
+	MailForwardTo       string `json:"mail_forward_to,omitempty"`
 }
 
 type SiteSettingsUpsertRequest struct {
@@ -132,6 +132,12 @@ func ToSiteSettings(settings domain.SiteSettings) SiteSettingsResponse {
 		ContactEmail:        settings.ContactEmail,
 		MailForwardTo:       domain.FormatMailForwardList(settings.MailForwardTo),
 	}
+}
+
+func ToPublicSiteSettings(settings domain.SiteSettings) SiteSettingsResponse {
+	out := ToSiteSettings(settings)
+	out.MailForwardTo = ""
+	return out
 }
 
 func SiteSettingsFromRequest(req SiteSettingsUpsertRequest) (domain.SiteSettings, error) {

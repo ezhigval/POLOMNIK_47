@@ -70,22 +70,22 @@ SMSRU_API_ID=...
 
 Сейчас MX у вас: **mail.tikhvin-palomnik.ru** — оставьте как решите с Яндекс 360 / reg.ru (MX, SPF, DKIM).
 
-1. Ящик исходящих, например `info@tikhvin-palomnik.ru`.
+1. Майлер исходящих: `info@piter-jaluzi.ru` (логин SMTP — тот же ящик).
 2. В `.env.production`:
 
 ```bash
 MAIL_ADAPTER=smtp
 SMTP_HOST=smtp.yandex.ru
 SMTP_PORT=587
-SMTP_USERNAME=info@tikhvin-palomnik.ru
+SMTP_USERNAME=info@piter-jaluzi.ru
 SMTP_PASSWORD=...
-SMTP_FROM=info@tikhvin-palomnik.ru
-# запасной список пересылки (если не задан в админке «Настройки»):
-MAIL_FORWARD_TO=smailikin70@yandex.ru
+SMTP_FROM=info@piter-jaluzi.ru
+# запасной список, только если в админке поле пересылки пустое:
+MAIL_FORWARD_TO=
 ```
 
-3. В админке **Настройки** → поле «Пересылка почты» (не-секретные адреса).
-4. Входящая пересылка на личные ящики обычно настраивается **в Яндекс 360 / панели DNS**, не в коде сайта.
+3. В админке **Настройки** → «Получатели пересылки с info@piter-jaluzi.ru»: все личные ящики (один на строку). После выкладки туда уже добавлен `tikhvin-palomnik@yandex.ru`; остальные адреса допишите и сохраните.
+4. Саму входящую пересылку с `info@piter-jaluzi.ru` на этот список включают в кабинете почты (Яндекс 360 / панель ящика), не в DNS.
 5. Без SMTP: регистрация работает, письмо подтверждения не уходит; «Забыли пароль?» показывает «пока недоступно» (это норма).
 6. С SMTP: `/account/forgot-password` шлёт ссылку на `/account/reset-password`.
 

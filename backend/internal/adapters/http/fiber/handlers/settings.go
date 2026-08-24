@@ -102,7 +102,7 @@ func (h *Handler) GetPublicSiteSettings(c *fiber.Ctx) error {
 	if err != nil {
 		return respondError(c, err, MapError)
 	}
-	return c.JSON(dto.DataEnvelope[dto.SiteSettingsResponse]{Data: dto.ToSiteSettings(settings)})
+	return c.JSON(dto.DataEnvelope[dto.SiteSettingsResponse]{Data: dto.ToPublicSiteSettings(settings)})
 }
 
 func (h *Handler) ManagementListRoles(c *fiber.Ctx) error {

@@ -244,16 +244,24 @@ export function ManagementSettingsForms({
           <span className="mb-1 block font-medium">Описание</span>
           <textarea name="description" rows={3} defaultValue={site.description} className="input-field" />
         </label>
-        <label className="block text-sm">
-          <span className="mb-1 block font-medium">Пересылка почты (через запятую)</span>
-          <textarea
-            name="mail_forward_to"
-            rows={2}
-            defaultValue={site.mail_forward_to}
-            className="input-field"
-            placeholder="smailikin70@yandex.ru"
-          />
-        </label>
+        <div className="space-y-2 rounded-xl border border-stone-100 bg-stone-50 p-4">
+          <label className="block text-sm">
+            <span className="mb-1 block font-medium">Получатели пересылки с info@piter-jaluzi.ru</span>
+            <p className="mb-2 text-sm text-stone-600">
+              Все личные ящики, на которые уходит пересылка писем с майлера{" "}
+              <span className="whitespace-nowrap">info@piter-jaluzi.ru</span>. Один адрес на строку
+              или через запятую. Список на сайте должен совпадать с пересылкой в кабинете почты.
+            </p>
+            <textarea
+              name="mail_forward_to"
+              rows={4}
+              defaultValue={site.mail_forward_to}
+              className="input-field"
+              placeholder="tikhvin-palomnik@yandex.ru"
+              autoComplete="off"
+            />
+          </label>
+        </div>
         <button type="submit" className="btn-primary" disabled={loading}>
           Сохранить сайт
         </button>
