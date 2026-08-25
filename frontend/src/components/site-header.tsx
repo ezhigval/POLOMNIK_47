@@ -18,7 +18,7 @@ export function SiteHeader({ user }: SiteHeaderProps) {
         <Link href="/" className="group flex items-center gap-3" aria-label={siteConfig.fullName}>
           <BrandMark />
           <span className="flex min-w-0 flex-col">
-            <span className="text-base font-semibold leading-tight tracking-tight text-stone-900 group-hover:text-brand-800 sm:text-lg">
+            <span className="max-w-[11.5rem] text-[13px] font-semibold leading-snug tracking-tight text-stone-900 group-hover:text-brand-800 sm:max-w-[16rem] sm:text-sm lg:max-w-[18rem] lg:text-base">
               {siteConfig.name}
             </span>
             <span className="text-[11px] leading-tight text-stone-500 sm:text-xs">{siteConfig.tagline}</span>

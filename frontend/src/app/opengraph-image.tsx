@@ -34,7 +34,7 @@ export default function OpenGraphImage() {
           {siteConfig.tagline}
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-          <div style={{ display: "flex", fontSize: 72, fontWeight: 700, lineHeight: 1.05 }}>
+          <div style={{ display: "flex", fontSize: 44, fontWeight: 700, lineHeight: 1.15, maxWidth: 1040 }}>
             {siteConfig.name}
           </div>
           <div
