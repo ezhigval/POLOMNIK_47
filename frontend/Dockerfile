@@ -12,7 +12,7 @@ COPY . .
 
 ARG NEXT_PUBLIC_API_URL=http://localhost:8080/api/v1
 ARG NEXT_PUBLIC_SITE_URL=http://localhost:3000
-ARG NEXT_PUBLIC_SITE_NAME=Тихвинский путь
+ARG NEXT_PUBLIC_SITE_NAME="Под Покровом Божией Матери \"Тихвинская\""
 ARG NEXT_PUBLIC_SITE_FULL_NAME=РПЦ Тихвинская Епархия. Паломническая служба «Под покровом Божией Матери «Тихвинская»»
 ARG NEXT_PUBLIC_SITE_TAGLINE=Паломническая служба
 ARG NEXT_PUBLIC_SITE_DESCRIPTION=Паломнические поездки в монастыри и святые места России. Сопровождение духовника, комфортный транспорт, прозрачная стоимость.

@@ -46,11 +46,11 @@ export default async function TourOpenGraphImage({ params }: OgImageProps) {
       >
         <div
           style={{
-            fontSize: 24,
-            letterSpacing: 4,
-            textTransform: "uppercase",
+            fontSize: 22,
+            lineHeight: 1.25,
             opacity: 0.85,
             marginBottom: 16,
+            maxWidth: 980,
           }}
         >
           {siteConfig.name}

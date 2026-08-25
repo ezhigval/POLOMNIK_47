@@ -12,7 +12,7 @@ export const operatorConfig = {
   phone: process.env.NEXT_PUBLIC_OPERATOR_PHONE ?? process.env.NEXT_PUBLIC_CONTACT_PHONE_DISPLAY ?? "+7 966 933-43-21",
   website: process.env.NEXT_PUBLIC_SITE_URL ?? "https://tikhvin-palomnik.ru",
   regions: ["Санкт-Петербург", "Ленинградская область", "иные регионы РФ по мере необходимости"],
-  publicSiteName: process.env.NEXT_PUBLIC_SITE_NAME ?? "Тихвинский путь",
+  publicSiteName: process.env.NEXT_PUBLIC_SITE_NAME ?? 'Под Покровом Божией Матери "Тихвинская"',
   publicSiteFull:
     process.env.NEXT_PUBLIC_SITE_FULL_NAME ??
     "РПЦ Тихвинская Епархия. Паломническая служба «Под покровом Божией Матери «Тихвинская»»",

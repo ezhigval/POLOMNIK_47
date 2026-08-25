@@ -1,5 +1,5 @@
 export const siteConfig = {
-  name: process.env.NEXT_PUBLIC_SITE_NAME ?? "Тихвинский путь",
+  name: process.env.NEXT_PUBLIC_SITE_NAME ?? 'Под Покровом Божией Матери "Тихвинская"',
   fullName:
     process.env.NEXT_PUBLIC_SITE_FULL_NAME ??
     "РПЦ Тихвинская Епархия. Паломническая служба «Под покровом Божией Матери «Тихвинская»»",
