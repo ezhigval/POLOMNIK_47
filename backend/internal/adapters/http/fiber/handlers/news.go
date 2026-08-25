@@ -130,6 +130,7 @@ func parseNewsArticleInput(c *fiber.Ctx) (application.NewsArticleInput, *AppErro
 		ImageURL:    req.ImageURL,
 		PublishedAt: publishedAt,
 		IsPublished: req.IsPublished,
+		IsPinned:    req.IsPinned,
 		SortOrder:   req.SortOrder,
 	}, nil
 }

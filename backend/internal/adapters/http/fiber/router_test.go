@@ -742,6 +742,128 @@ func TestCreateAndListNews(t *testing.T) {
 	}
 }
 
+func TestPublicNewsListsPinnedFirst(t *testing.T) {
+	store := memory.NewStore()
+	app := newTestAppWithStore(store, "secret-token")
+
+	create := func(payload string) {
+		t.Helper()
+		req := httptest.NewRequest(http.MethodPost, "/api/v1/management/news", bytes.NewBufferString(payload))
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("X-Admin-Token", "secret-token")
+		resp, err := app.Test(req)
+		if err != nil {
+			t.Fatalf("create news: %v", err)
+		}
+		if resp.StatusCode != http.StatusCreated {
+			body, _ := io.ReadAll(resp.Body)
+			t.Fatalf("expected 201, got %d %s", resp.StatusCode, body)
+		}
+	}
+
+	create(`{
+		"slug": "fresh",
+		"title": "Свежая",
+		"excerpt": "Анонс",
+		"body": "Текст.",
+		"published_at": "2026-08-21",
+		"is_published": true
+	}`)
+	create(`{
+		"slug": "pinned",
+		"title": "Закреплённая",
+		"excerpt": "Анонс",
+		"body": "Текст.",
+		"published_at": "2026-01-02",
+		"is_published": true,
+		"is_pinned": true,
+		"sort_order": 1
+	}`)
+
+	listReq := httptest.NewRequest(http.MethodGet, "/api/v1/news", nil)
+	listResp, err := app.Test(listReq)
+	if err != nil {
+		t.Fatalf("list news: %v", err)
+	}
+	if listResp.StatusCode != http.StatusOK {
+		t.Fatalf("expected 200, got %d", listResp.StatusCode)
+	}
+	var body struct {
+		Data []struct {
+			Slug     string `json:"slug"`
+			IsPinned bool   `json:"is_pinned"`
+		} `json:"data"`
+	}
+	if err := json.NewDecoder(listResp.Body).Decode(&body); err != nil {
+		t.Fatalf("decode: %v", err)
+	}
+	if len(body.Data) != 2 || body.Data[0].Slug != "pinned" || !body.Data[0].IsPinned || body.Data[1].Slug != "fresh" {
+		t.Fatalf("expected pinned first, got %+v", body.Data)
+	}
+}
+
+func TestManagementRejectsFourthPinnedNews(t *testing.T) {
+	store := memory.NewStore()
+	app := newTestAppWithStore(store, "secret-token")
+
+	create := func(payload string) *http.Response {
+		t.Helper()
+		req := httptest.NewRequest(http.MethodPost, "/api/v1/management/news", bytes.NewBufferString(payload))
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("X-Admin-Token", "secret-token")
+		resp, err := app.Test(req)
+		if err != nil {
+			t.Fatalf("create news: %v", err)
+		}
+		return resp
+	}
+
+	for i, slug := range []string{"pin-a", "pin-b", "pin-c"} {
+		payload := fmt.Sprintf(`{
+			"slug": %q,
+			"title": "Закреплённая",
+			"excerpt": "Анонс",
+			"body": "Текст.",
+			"published_at": "2026-08-0%d",
+			"is_published": true,
+			"is_pinned": true,
+			"sort_order": %d
+		}`, slug, i+1, i+1)
+		resp := create(payload)
+		if resp.StatusCode != http.StatusCreated {
+			body, _ := io.ReadAll(resp.Body)
+			t.Fatalf("pin %s: expected 201, got %d %s", slug, resp.StatusCode, body)
+		}
+	}
+
+	resp := create(`{
+		"slug": "pin-d",
+		"title": "Четвёртая",
+		"excerpt": "Анонс",
+		"body": "Текст.",
+		"published_at": "2026-08-04",
+		"is_published": true,
+		"is_pinned": true,
+		"sort_order": 4
+	}`)
+	if resp.StatusCode != http.StatusUnprocessableEntity {
+		body, _ := io.ReadAll(resp.Body)
+		t.Fatalf("expected 422, got %d %s", resp.StatusCode, body)
+	}
+	var errBody struct {
+		Error struct {
+			Code    string `json:"code"`
+			Message string `json:"message"`
+		} `json:"error"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&errBody); err != nil {
+		t.Fatalf("decode: %v", err)
+	}
+	if errBody.Error.Code != "TOO_MANY_PINNED_NEWS" {
+		t.Fatalf("expected TOO_MANY_PINNED_NEWS, got %+v", errBody)
+	}
+}
+
 func TestSetCompanyReplyOnReview(t *testing.T) {
 	store := memory.NewStore()
 	app := newTestAppWithStore(store, "secret-token")
@@ -884,12 +1006,12 @@ func newTestAppWithStore(store *memory.Store, adminToken string) *fiber.App {
 			"",
 			false,
 		),
-		Auth:          application.NewAuthService(store, store, nil, nil, application.SocialAuthConfig{}, config.DefaultJWTSecret, 24*time.Hour, "http://localhost:3000", store),
-		Passengers:    application.NewPassengerService(store),
-		Support:       application.NewSupportService(store, notificationnoop.New()),
-		CMS:           application.NewCMSService(store),
-		News:          application.NewNewsService(store, nil),
-		SMM:           application.NewSMMService(store, publishernoop.New()),
+		Auth:       application.NewAuthService(store, store, nil, nil, application.SocialAuthConfig{}, config.DefaultJWTSecret, 24*time.Hour, "http://localhost:3000", store),
+		Passengers: application.NewPassengerService(store),
+		Support:    application.NewSupportService(store, notificationnoop.New()),
+		CMS:        application.NewCMSService(store),
+		News:       application.NewNewsService(store, nil),
+		SMM:        application.NewSMMService(store, publishernoop.New()),
 		AIFeatures: application.NewAIFeaturesService(
 			nil,
 			application.NewTourService(store, nil, noop.NewCRMAdapter()),

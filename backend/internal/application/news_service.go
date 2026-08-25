@@ -27,6 +27,7 @@ type NewsArticleInput struct {
 	ImageURL    string
 	PublishedAt time.Time
 	IsPublished bool
+	IsPinned    bool
 	SortOrder   int
 }
 
@@ -86,9 +87,13 @@ func (s *NewsService) CreateNews(ctx context.Context, input NewsArticleInput) (d
 		ImageURL:    input.ImageURL,
 		PublishedAt: input.PublishedAt,
 		IsPublished: input.IsPublished,
+		IsPinned:    input.IsPinned,
 		SortOrder:   input.SortOrder,
 	})
 	if err != nil {
+		return domain.NewsArticle{}, err
+	}
+	if err := s.ensurePinnedLimit(ctx, uuid.Nil, article.IsPinned); err != nil {
 		return domain.NewsArticle{}, err
 	}
 	created, err := s.news.CreateNews(ctx, article)
@@ -114,10 +119,14 @@ func (s *NewsService) UpdateNews(ctx context.Context, id uuid.UUID, input NewsAr
 		ImageURL:    input.ImageURL,
 		PublishedAt: input.PublishedAt,
 		IsPublished: input.IsPublished,
+		IsPinned:    input.IsPinned,
 		SortOrder:   input.SortOrder,
 		Now:         existing.CreatedAt,
 	})
 	if err != nil {
+		return domain.NewsArticle{}, err
+	}
+	if err := s.ensurePinnedLimit(ctx, existing.ID, updated.IsPinned); err != nil {
 		return domain.NewsArticle{}, err
 	}
 	updated.CreatedAt = existing.CreatedAt
@@ -135,5 +144,25 @@ func (s *NewsService) DeleteNews(ctx context.Context, id uuid.UUID) error {
 		return err
 	}
 	s.invalidateNewsCache(ctx)
+	return nil
+}
+
+func (s *NewsService) ensurePinnedLimit(ctx context.Context, except uuid.UUID, pinning bool) error {
+	if !pinning {
+		return nil
+	}
+	list, err := s.news.ListNews(ctx, ports.NewsFilters{}, ports.Pagination{Page: 1, Limit: 100})
+	if err != nil {
+		return err
+	}
+	count := 0
+	for _, article := range list.Items {
+		if article.IsPinned && article.ID != except {
+			count++
+		}
+	}
+	if count >= domain.MaxPinnedNews {
+		return domain.ErrTooManyPinnedNews
+	}
 	return nil
 }
