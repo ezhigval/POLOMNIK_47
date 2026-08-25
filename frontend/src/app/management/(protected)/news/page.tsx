@@ -43,9 +43,14 @@ export default async function ManagementNewsPage() {
                   </td>
                   <td className="px-4 py-4 whitespace-nowrap">{formatNewsDate(article.published_at)}</td>
                   <td className="px-4 py-4">
-                    <StatusBadge variant={article.is_published ? "success" : "neutral"}>
-                      {article.is_published ? "Опубликована" : "Черновик"}
-                    </StatusBadge>
+                    <div className="flex flex-col gap-1">
+                      <StatusBadge variant={article.is_published ? "success" : "neutral"}>
+                        {article.is_published ? "Опубликована" : "Черновик"}
+                      </StatusBadge>
+                      {article.is_pinned ? (
+                        <StatusBadge variant="warning">Закреплена</StatusBadge>
+                      ) : null}
+                    </div>
                   </td>
                   <td className="px-4 py-4">
                     <div className="space-y-2">

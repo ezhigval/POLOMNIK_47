@@ -5,6 +5,7 @@ import { CtaSection } from "@/components/cta-section";
 import { FaqSection } from "@/components/faq-section";
 import { FeaturedRouteSection } from "@/components/featured-route-section";
 import { HeroSection } from "@/components/hero-section";
+import { HomeNewsSection, HomeNewsSkeleton } from "@/components/home-news-section";
 import { HowItWorksSection } from "@/components/how-it-works";
 import { PopularDestinations, PopularDestinationsSkeleton } from "@/components/popular-destinations";
 import { TestimonialsSection } from "@/components/testimonials-section";
@@ -41,7 +42,16 @@ export default async function HomePage() {
   const cmsPage = await getPublishedPage("home").catch(() => null);
 
   if (cmsPage && cmsPage.blocks.length > 0) {
-    return <CmsPageRenderer blocks={cmsPage.blocks} />;
+    return (
+      <CmsPageRenderer
+        blocks={cmsPage.blocks}
+        afterHero={
+          <Suspense fallback={<HomeNewsSkeleton />}>
+            <HomeNewsSection />
+          </Suspense>
+        }
+      />
+    );
   }
 
   return (
@@ -52,6 +62,9 @@ export default async function HomePage() {
 
       <div className="mx-auto max-w-6xl space-y-20 px-4 py-8 sm:space-y-24 sm:py-12">
         <FeaturedRouteSection />
+        <Suspense fallback={<HomeNewsSkeleton />}>
+          <HomeNewsSection />
+        </Suspense>
         <Suspense fallback={<PopularDestinationsSkeleton />}>
           <PopularDestinations />
         </Suspense>

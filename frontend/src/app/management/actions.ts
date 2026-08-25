@@ -216,6 +216,7 @@ export async function reorderCmsBlocksAction(pageId: string, blockIds: string[],
 }
 
 function revalidateNewsPaths() {
+  revalidatePath("/");
   revalidatePath("/news");
   revalidatePath("/management/news");
 }
@@ -239,6 +240,7 @@ export async function deleteNewsAction(formData: FormData) {
 function revalidateSMMPaths() {
   revalidatePath("/management/smm");
   revalidatePath("/news");
+  revalidatePath("/");
 }
 
 export async function createSMMPostAction(input: SMMPostCreateInput) {

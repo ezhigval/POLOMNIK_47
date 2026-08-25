@@ -14,6 +14,8 @@ import (
 	"palomnik/internal/ports"
 )
 
+const newsSelectColumns = `id, slug, title, excerpt, body, image_url, published_at, is_published, is_pinned, sort_order, created_at, updated_at`
+
 func (s *Store) ListNews(ctx context.Context, filters ports.NewsFilters, pagination ports.Pagination) (ports.NewsList, error) {
 	pagination = ports.NormalizePagination(pagination.Page, pagination.Limit)
 	publishedOnly := false
@@ -30,10 +32,14 @@ WHERE ($1::boolean = FALSE OR is_published = TRUE)
 	}
 
 	rows, err := s.db.QueryContext(ctx, `
-SELECT id, slug, title, excerpt, body, image_url, published_at, is_published, sort_order, created_at, updated_at
+SELECT `+newsSelectColumns+`
 FROM news_articles
 WHERE ($1::boolean = FALSE OR is_published = TRUE)
-ORDER BY published_at DESC, sort_order ASC, created_at DESC
+ORDER BY is_pinned DESC,
+         CASE WHEN is_pinned THEN sort_order END ASC,
+         published_at DESC,
+         sort_order ASC,
+         created_at DESC
 LIMIT $2 OFFSET $3
 `, publishedOnly, pagination.Limit, offset(pagination))
 	if err != nil {
@@ -51,7 +57,7 @@ LIMIT $2 OFFSET $3
 
 func (s *Store) GetNewsBySlug(ctx context.Context, slug string) (domain.NewsArticle, error) {
 	row := s.db.QueryRowContext(ctx, `
-SELECT id, slug, title, excerpt, body, image_url, published_at, is_published, sort_order, created_at, updated_at
+SELECT `+newsSelectColumns+`
 FROM news_articles
 WHERE slug = $1
 `, strings.TrimSpace(slug))
@@ -60,7 +66,7 @@ WHERE slug = $1
 
 func (s *Store) GetNews(ctx context.Context, id uuid.UUID) (domain.NewsArticle, error) {
 	row := s.db.QueryRowContext(ctx, `
-SELECT id, slug, title, excerpt, body, image_url, published_at, is_published, sort_order, created_at, updated_at
+SELECT `+newsSelectColumns+`
 FROM news_articles
 WHERE id = $1
 `, id)
@@ -70,13 +76,13 @@ WHERE id = $1
 func (s *Store) CreateNews(ctx context.Context, article domain.NewsArticle) (domain.NewsArticle, error) {
 	row := s.db.QueryRowContext(ctx, `
 INSERT INTO news_articles (
-    id, slug, title, excerpt, body, image_url, published_at, is_published, sort_order, created_at, updated_at
+    id, slug, title, excerpt, body, image_url, published_at, is_published, is_pinned, sort_order, created_at, updated_at
 ) VALUES (
-    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11
+    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12
 )
-RETURNING id, slug, title, excerpt, body, image_url, published_at, is_published, sort_order, created_at, updated_at
+RETURNING `+newsSelectColumns+`
 `, article.ID, article.Slug, article.Title, article.Excerpt, article.Body, article.ImageURL,
-		article.PublishedAt, article.IsPublished, article.SortOrder, article.CreatedAt, article.UpdatedAt)
+		article.PublishedAt, article.IsPublished, article.IsPinned, article.SortOrder, article.CreatedAt, article.UpdatedAt)
 	article, err := scanNewsArticle(row)
 	if err != nil {
 		return domain.NewsArticle{}, mapNewsWriteError(err)
@@ -94,12 +100,13 @@ SET slug = $2,
     image_url = $6,
     published_at = $7,
     is_published = $8,
-    sort_order = $9,
-    updated_at = $10
+    is_pinned = $9,
+    sort_order = $10,
+    updated_at = $11
 WHERE id = $1
-RETURNING id, slug, title, excerpt, body, image_url, published_at, is_published, sort_order, created_at, updated_at
+RETURNING `+newsSelectColumns+`
 `, article.ID, article.Slug, article.Title, article.Excerpt, article.Body, article.ImageURL,
-		article.PublishedAt, article.IsPublished, article.SortOrder, article.UpdatedAt)
+		article.PublishedAt, article.IsPublished, article.IsPinned, article.SortOrder, article.UpdatedAt)
 	article, err := scanNewsArticle(row)
 	if err != nil {
 		return domain.NewsArticle{}, mapNewsWriteError(err)
@@ -126,6 +133,7 @@ func scanNewsArticle(row scanner) (domain.NewsArticle, error) {
 		&article.ImageURL,
 		&article.PublishedAt,
 		&article.IsPublished,
+		&article.IsPinned,
 		&article.SortOrder,
 		&article.CreatedAt,
 		&article.UpdatedAt,

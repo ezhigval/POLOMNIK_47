@@ -48,13 +48,14 @@ export default async function NewsPage() {
 
 function NewsFeedSkeleton() {
   return (
-    <div className="grid gap-5 sm:grid-cols-2" aria-hidden="true">
-      {Array.from({ length: 4 }).map((_, index) => (
-        <div
-          key={index}
-          className={`h-72 animate-pulse rounded-3xl bg-stone-200 ${index === 0 ? "sm:col-span-2" : ""}`}
-        />
-      ))}
+    <div className="space-y-5" aria-hidden="true">
+      <div className="grid gap-5 lg:grid-cols-3">
+        <div className="h-80 animate-pulse rounded-3xl bg-stone-200 lg:col-span-2" />
+        <div className="grid gap-5">
+          <div className="h-36 animate-pulse rounded-3xl bg-stone-200" />
+          <div className="h-36 animate-pulse rounded-3xl bg-stone-200" />
+        </div>
+      </div>
     </div>
   );
 }

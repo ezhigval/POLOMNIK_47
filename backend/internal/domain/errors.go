@@ -39,6 +39,7 @@ var (
 	ErrInvalidExcerpt             = errors.New("invalid excerpt")
 	ErrInvalidArticleBody         = errors.New("invalid article body")
 	ErrInvalidPublishedAt         = errors.New("invalid published at")
+	ErrTooManyPinnedNews          = errors.New("too many pinned news")
 	ErrDuplicateSlug              = errors.New("duplicate slug")
 	ErrDuplicatePath              = errors.New("duplicate path")
 	ErrInsufficientSlots          = errors.New("insufficient slots")

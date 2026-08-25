@@ -7,6 +7,7 @@ export type NewsArticle = {
   excerpt: string;
   image: string;
   paragraphs: string[];
+  pinned?: boolean;
 };
 
 export const newsArticles: NewsArticle[] = [
@@ -87,6 +88,7 @@ export function toFeedArticle(article: {
   body: string;
   image_url: string;
   published_at: string;
+  is_pinned?: boolean;
 }): NewsArticle {
   return {
     slug: article.slug,
@@ -95,5 +97,14 @@ export function toFeedArticle(article: {
     excerpt: article.excerpt,
     image: article.image_url,
     paragraphs: paragraphsFromBody(article.body),
+    pinned: Boolean(article.is_pinned),
+  };
+}
+
+export function splitNewsLayout(articles: NewsArticle[]) {
+  return {
+    featured: articles[0] ?? null,
+    side: articles.slice(1, 3),
+    rest: articles.slice(3),
   };
 }
