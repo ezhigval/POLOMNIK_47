@@ -37,4 +37,5 @@ type Services struct {
 	RateLimiter    ports.RateLimiter
 	Metrics        *middleware.RequestMetrics
 	BackupLastPath string
+	TourCatalog    application.TourCatalog
 }

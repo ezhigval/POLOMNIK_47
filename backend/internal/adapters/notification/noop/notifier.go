@@ -26,3 +26,7 @@ func (Notifier) NotifyBookingStatusChanged(context.Context, domain.Booking, doma
 func (Notifier) NotifySupportMessage(context.Context, domain.SupportNotification) error {
 	return ports.ErrNotificationNotConfigured
 }
+
+func (Notifier) NotifyTourHidden(context.Context, domain.Tour) error {
+	return ports.ErrNotificationNotConfigured
+}

@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { FavoriteButton } from "@/components/favorite-button";
 import { SlotsBadge } from "@/components/slots-badge";
+import { BurningTourBadge, TourPrice } from "@/components/tour-price";
 import { TourImage } from "@/components/tour-image";
 import {
   formatDateRange,
-  formatPrice,
   formatTourDuration,
 } from "@/lib/format";
 import { isRegularTour, isTourSoldOut, tourShowsPrice, type Tour } from "@/lib/api/tours";
@@ -21,19 +21,23 @@ export function TourCard({ tour, featured = false }: TourCardProps) {
   const showPrice = tourShowsPrice(tour);
   const duration = regular ? "" : formatTourDuration(tour.date_start, tour.date_end);
   const highlighted = featured || tour.is_hot;
+  const burningHighlight = tour.is_burning;
 
   return (
     <article
       className={`group flex flex-col overflow-hidden rounded-2xl border bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg ${
-        highlighted
-          ? "border-amber-200/80 ring-1 ring-amber-100"
-          : "border-stone-200/80 hover:border-brand-200"
+        burningHighlight
+          ? "border-red-200/80 ring-1 ring-red-100"
+          : highlighted
+            ? "border-amber-200/80 ring-1 ring-amber-100"
+            : "border-stone-200/80 hover:border-brand-200"
       }`}
     >
       <div className="relative">
         <Link href={tourPath(tour)} className="relative block">
           <TourImage tour={tour} overlay className="aspect-[16/10] w-full" />
           <div className="absolute left-3 top-3 flex flex-wrap gap-2">
+            {tour.is_burning ? <BurningTourBadge compact /> : null}
             {tour.is_hot ? (
               <span className="rounded-full bg-amber-400/95 px-2.5 py-0.5 text-xs font-semibold text-amber-950 shadow-sm">
                 Популярный
@@ -87,8 +91,11 @@ export function TourCard({ tour, featured = false }: TourCardProps) {
                 <div>
                   <dt className="text-xs uppercase tracking-wide text-stone-400">Стоимость</dt>
                   <dd className="mt-1 text-xl font-semibold text-stone-900">
-                    {formatPrice(tour.price, tour.currency)}
-                    <span className="text-sm font-normal text-stone-500"> / чел.</span>
+                    <TourPrice
+                      price={tour.price}
+                      originalPrice={tour.original_price}
+                      currency={tour.currency}
+                    />
                   </dd>
                 </div>
                 <SlotsBadge slotsLeft={tour.slots_left} />

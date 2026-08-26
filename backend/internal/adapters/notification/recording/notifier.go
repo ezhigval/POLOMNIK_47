@@ -60,6 +60,12 @@ func (n Notifier) NotifySupportMessage(ctx context.Context, note domain.SupportN
 	return nil
 }
 
+func (n Notifier) NotifyTourHidden(ctx context.Context, tour domain.Tour) error {
+	err := n.inner.NotifyTourHidden(ctx, tour)
+	n.recordTyped(ctx, domain.OutboxEventNotificationTourHidden, domain.EntityTypeTour, tour.ID, json.RawMessage(`{}`), err)
+	return nil
+}
+
 func (n Notifier) record(ctx context.Context, eventType string, entityID uuid.UUID, callErr error) {
 	n.recordTyped(ctx, eventType, domain.EntityTypeBooking, entityID, json.RawMessage(`{}`), callErr)
 }

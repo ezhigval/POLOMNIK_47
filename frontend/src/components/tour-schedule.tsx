@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { SlotsBadge } from "@/components/slots-badge";
+import { BurningTourBadge, TourPrice } from "@/components/tour-price";
 import {
   formatDateRange,
-  formatPrice,
   formatTourDuration,
 } from "@/lib/format";
 import { isRegularTour, isTourSoldOut, tourShowsPrice, type Tour } from "@/lib/api/tours";
@@ -59,6 +59,11 @@ function ScheduleRow({ tour }: { tour: Tour }) {
         <Link href={tourPath(tour)} className="font-medium text-stone-900 hover:text-brand-800">
           {tour.title}
         </Link>
+        {tour.is_burning ? (
+          <span className="ml-2 inline-flex">
+            <BurningTourBadge compact />
+          </span>
+        ) : null}
         {tour.is_hot ? (
           <span className="ml-2 inline-flex rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-900">
             Популярный
@@ -69,8 +74,12 @@ function ScheduleRow({ tour }: { tour: Tour }) {
       <td className="whitespace-nowrap px-4 py-4 font-medium text-stone-900">
         {showPrice ? (
           <>
-            {formatPrice(tour.price, tour.currency)}
-            <span className="ml-1 text-xs font-normal text-stone-500">/ чел.</span>
+            <TourPrice
+              price={tour.price}
+              originalPrice={tour.original_price}
+              currency={tour.currency}
+              suffix=" / чел."
+            />
           </>
         ) : (
           "—"
@@ -105,7 +114,12 @@ function ScheduleCard({ tour }: { tour: Tour }) {
           <Link href={tourPath(tour)} className="font-medium text-stone-900 hover:text-brand-800">
             {tour.title}
           </Link>
-          {tour.is_hot ? (
+          {tour.is_burning ? (
+          <span className="ml-2 inline-flex">
+            <BurningTourBadge compact />
+          </span>
+        ) : null}
+        {tour.is_hot ? (
             <span className="mt-1 inline-flex rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-900">
               Популярный
             </span>
@@ -134,8 +148,12 @@ function ScheduleCard({ tour }: { tour: Tour }) {
             <div className="col-span-2">
               <dt className="text-xs uppercase tracking-wide text-stone-400">Стоимость</dt>
               <dd className="font-medium text-stone-900">
-                {formatPrice(tour.price, tour.currency)}
-                <span className="ml-1 text-xs font-normal text-stone-500">/ чел.</span>
+                <TourPrice
+                  price={tour.price}
+                  originalPrice={tour.original_price}
+                  currency={tour.currency}
+                  suffix=" / чел."
+                />
               </dd>
             </div>
           ) : regular ? (

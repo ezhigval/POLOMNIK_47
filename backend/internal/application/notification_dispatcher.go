@@ -68,6 +68,10 @@ func (d *NotificationDispatcher) NotifySupportMessage(ctx context.Context, note 
 	return d.dispatch(ctx, domain.NotificationEventSupportMessage, formatSupportMessage(note, d.mgmtBase))
 }
 
+func (d *NotificationDispatcher) NotifyTourHidden(ctx context.Context, tour domain.Tour) error {
+	return d.dispatch(ctx, domain.NotificationEventTourHidden, formatTourHiddenMessage(tour, d.mgmtBase))
+}
+
 func (d *NotificationDispatcher) dispatch(ctx context.Context, kind domain.NotificationEventKind, text string) error {
 	routing, err := d.loadRouting(ctx)
 	if err != nil {
@@ -188,6 +192,20 @@ func formatSupportMessage(note domain.SupportNotification, mgmtBase string) stri
 	}
 	if link := ManagementSupportThreadURL(mgmtBase, note.ThreadID); link != "" {
 		b.WriteString(fmt.Sprintf(`<a href="%s">Открыть в админке</a>`, link))
+	}
+	return b.String()
+}
+
+func formatTourHiddenMessage(tour domain.Tour, mgmtBase string) string {
+	var b strings.Builder
+	b.WriteString("<b>Тур скрыт</b>\n")
+	b.WriteString(fmt.Sprintf("Тур: %s\n", escapeHTML(tour.Title)))
+	if !tour.DateEnd.IsZero() {
+		b.WriteString(fmt.Sprintf("Дата окончания: %s\n", tour.DateEnd.UTC().Format("2006-01-02")))
+	}
+	b.WriteString(fmt.Sprintf("ID: <code>%s</code>", tour.ID.String()))
+	if mgmtBase != "" {
+		b.WriteString(fmt.Sprintf("\n<a href=\"%s\">Открыть туры</a>", mgmtBase))
 	}
 	return b.String()
 }

@@ -46,8 +46,9 @@ func (h *Handler) ListTours(c *fiber.Ctx) error {
 	}
 
 	items := make([]dto.TourResponse, 0, len(list.Items))
+	catalog := h.publicTourCatalog()
 	for _, tour := range list.Items {
-		items = append(items, dto.ToTourResponse(tour))
+		items = append(items, dto.ToPublicTourResponse(tour, catalog))
 	}
 
 	return c.JSON(dto.ListEnvelope[dto.TourResponse]{
@@ -63,7 +64,7 @@ func (h *Handler) GetTour(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(dto.DataEnvelope[dto.TourResponse]{
-		Data: dto.ToTourResponse(tour),
+		Data: dto.ToPublicTourResponse(tour, h.publicTourCatalog()),
 	})
 }
 
@@ -79,8 +80,9 @@ func (h *Handler) ListPopularTours(c *fiber.Ctx) error {
 	}
 
 	response := make([]dto.TourResponse, 0, len(items))
+	catalog := h.publicTourCatalog()
 	for _, tour := range items {
-		response = append(response, dto.ToTourResponse(tour))
+		response = append(response, dto.ToPublicTourResponse(tour, catalog))
 	}
 
 	return c.JSON(dto.DataEnvelope[[]dto.TourResponse]{

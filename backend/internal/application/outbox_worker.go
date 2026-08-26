@@ -83,7 +83,7 @@ func (w *OutboxWorker) ProcessOne(ctx context.Context, event domain.OutboxEvent)
 
 func isNotificationEvent(eventType string) bool {
 	switch eventType {
-	case domain.OutboxEventNotificationBookingCreated, domain.OutboxEventNotificationBookingStatus, domain.OutboxEventNotificationSupport:
+	case domain.OutboxEventNotificationBookingCreated, domain.OutboxEventNotificationBookingStatus, domain.OutboxEventNotificationSupport, domain.OutboxEventNotificationTourHidden:
 		return true
 	default:
 		return false
@@ -93,6 +93,13 @@ func isNotificationEvent(eventType string) bool {
 func (w *OutboxWorker) dispatchNotification(ctx context.Context, event domain.OutboxEvent) error {
 	if event.EventType == domain.OutboxEventNotificationSupport {
 		return w.dispatchSupportNotification(ctx, event)
+	}
+	if event.EventType == domain.OutboxEventNotificationTourHidden {
+		tour, err := w.tours.GetTour(ctx, event.EntityID)
+		if err != nil {
+			return err
+		}
+		return w.notifications.NotifyTourHidden(ctx, tour)
 	}
 
 	booking, err := w.bookings.GetBooking(ctx, event.EntityID)

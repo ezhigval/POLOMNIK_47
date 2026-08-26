@@ -117,10 +117,7 @@ func (t Tour) HasPublicSchedule() bool {
 }
 
 func (t Tour) BookingTotal(peopleCount int) int {
-	if peopleCount <= 0 || t.Price <= 0 {
-		return 0
-	}
-	return t.Price * peopleCount
+	return t.BookingTotalIn(peopleCount, TourCatalogContext{})
 }
 
 func (t Tour) HasPublicPrice() bool {

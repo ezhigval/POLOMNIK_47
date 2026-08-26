@@ -14,8 +14,10 @@ export type Tour = {
   location: string;
   images: string[];
   is_hot: boolean;
+  is_burning: boolean;
   is_regular: boolean;
   overbooking_enabled: boolean;
+  original_price?: number | null;
 };
 
 export function isRegularTour(tour: { is_regular?: boolean }): boolean {

@@ -1,7 +1,10 @@
 package handlers
 
 import (
+	"time"
+
 	"palomnik/internal/application"
+	"palomnik/internal/domain"
 	"palomnik/internal/ports"
 )
 
@@ -30,6 +33,7 @@ type Handler struct {
 	webhookGuard          *application.WebhookGuard
 	ai                    *application.AIFeaturesService
 	newsEngagement        *application.NewsEngagementService
+	tourCatalog           application.TourCatalog
 }
 
 func New(
@@ -94,6 +98,20 @@ func (h *Handler) WithNewsEngagement(service *application.NewsEngagementService)
 		h.newsEngagement = service
 	}
 	return h
+}
+
+func (h *Handler) WithTourCatalog(catalog application.TourCatalog) *Handler {
+	if h != nil {
+		h.tourCatalog = catalog
+	}
+	return h
+}
+
+func (h *Handler) publicTourCatalog() domain.TourCatalogContext {
+	if h == nil {
+		return domain.TourCatalogContext{Today: time.Now().UTC()}
+	}
+	return h.tourCatalog.Context(time.Now().UTC())
 }
 
 func (h *Handler) notificationSettings() *application.NotificationSettingsService {

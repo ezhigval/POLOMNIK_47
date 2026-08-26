@@ -15,7 +15,7 @@ import (
 func TestBookingServiceCreateBookingWithNoopCRMIntegration(t *testing.T) {
 	ctx := context.Background()
 	store := memory.NewStore()
-	service := NewBookingService(store, store, noop.NewCRMAdapter(), noop.NewAccountingAdapter(), notificationnoop.New(), store)
+	service := NewBookingService(store, store, noop.NewCRMAdapter(), noop.NewAccountingAdapter(), notificationnoop.New(), store, 0)
 
 	tour := testTour()
 	if _, err := store.CreateTour(ctx, tour); err != nil {
@@ -37,7 +37,7 @@ func TestBookingServiceCreateBookingWithNoopCRMIntegration(t *testing.T) {
 }
 
 func newBookingService(store *memory.Store) *BookingService {
-	return NewBookingService(store, store, noop.NewCRMAdapter(), noop.NewAccountingAdapter(), notificationnoop.New(), store)
+	return NewBookingService(store, store, noop.NewCRMAdapter(), noop.NewAccountingAdapter(), notificationnoop.New(), store, 0)
 }
 
 func TestBookingServiceCreateBookingReservesSlots(t *testing.T) {

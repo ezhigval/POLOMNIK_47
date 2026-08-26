@@ -2,12 +2,12 @@ import { notFound, permanentRedirect } from "next/navigation";
 import { BookingForm } from "@/components/booking-form";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { MobileBookingCTA } from "@/components/mobile-booking-cta";
+import { BurningTourBadge, TourPrice } from "@/components/tour-price";
 import { SlotsBadge } from "@/components/slots-badge";
 import { TourImage } from "@/components/tour-image";
 import { ApiError } from "@/lib/api/client";
 import {
   formatDateRange,
-  formatPrice,
   formatReviewCount,
   formatTourDuration,
 } from "@/lib/format";
@@ -121,7 +121,11 @@ export default async function TourPage({ params }: TourPageProps) {
           <section className="space-y-6">
             <div
               className={`overflow-hidden rounded-2xl border bg-white shadow-sm ${
-                tour.is_hot ? "border-amber-200/80 ring-1 ring-amber-100" : "border-stone-200"
+                tour.is_burning
+                  ? "border-red-200/80 ring-1 ring-red-100"
+                  : tour.is_hot
+                    ? "border-amber-200/80 ring-1 ring-amber-100"
+                    : "border-stone-200"
               }`}
             >
               <div className="relative">
@@ -163,6 +167,7 @@ export default async function TourPage({ params }: TourPageProps) {
                         {duration}
                       </span>
                     ) : null}
+                    {tour.is_burning ? <BurningTourBadge /> : null}
                     {tour.is_hot ? (
                       <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-900">
                         Популярный
@@ -189,7 +194,12 @@ export default async function TourPage({ params }: TourPageProps) {
                         <div>
                           <dt className="text-xs font-medium uppercase tracking-wide text-stone-500">Стоимость</dt>
                           <dd className="mt-1 text-sm font-medium text-stone-900">
-                            {formatPrice(tour.price, tour.currency)} / чел.
+                            <TourPrice
+                              price={tour.price}
+                              originalPrice={tour.original_price}
+                              currency={tour.currency}
+                              suffix=" / чел."
+                            />
                           </dd>
                         </div>
                       ) : null}
@@ -199,7 +209,12 @@ export default async function TourPage({ params }: TourPageProps) {
                     <div>
                       <dt className="text-xs font-medium uppercase tracking-wide text-stone-500">Стоимость</dt>
                       <dd className="mt-1 text-sm font-medium text-stone-900">
-                        {formatPrice(tour.price, tour.currency)} / чел.
+                        <TourPrice
+                          price={tour.price}
+                          originalPrice={tour.original_price}
+                          currency={tour.currency}
+                          suffix=" / чел."
+                        />
                       </dd>
                     </div>
                   ) : null}

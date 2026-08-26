@@ -1284,6 +1284,7 @@ func newTestAppWithStore(store *memory.Store, adminToken string) *fiber.App {
 		noop.NewAccountingAdapter(),
 		notificationnoop.New(),
 		store,
+		0,
 	)
 	opConfig := operator.Default()
 	legalService := application.NewLegalDocumentService(store, opConfig)

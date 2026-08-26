@@ -81,7 +81,7 @@ func NewRouter(cfg config.Config, log *slog.Logger, services Services, health He
 		application.TelegramWebhookSecret(cfg.InternalAPISecret),
 		services.Captcha,
 		services.WebhookGuard,
-	).WithAI(services.AIFeatures).WithNewsEngagement(services.NewsEngagement)
+	).WithAI(services.AIFeatures).WithNewsEngagement(services.NewsEngagement).WithTourCatalog(services.TourCatalog)
 
 	ready := handlers.NewReadinessChecker(health.PingDB, health.PingCache, false)
 

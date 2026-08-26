@@ -95,6 +95,39 @@ func TestToTourResponseIncludesOverbookingFlag(t *testing.T) {
 	}
 }
 
+func TestToPublicTourResponseBurningDiscount(t *testing.T) {
+	today := time.Date(2026, 8, 26, 0, 0, 0, 0, time.UTC)
+	tour, err := domain.NewTour(domain.NewTourInput{
+		ID:         uuid.MustParse("55555555-5555-5555-5555-555555555555"),
+		Slug:       "burning",
+		Title:      "Burning",
+		Price:      10000,
+		Currency:   "RUB",
+		DateStart:  today,
+		DateEnd:    time.Date(2026, 8, 28, 0, 0, 0, 0, time.UTC),
+		SlotsTotal: 10,
+		SlotsLeft:  10,
+		IsActive:   true,
+	})
+	if err != nil {
+		t.Fatalf("create tour: %v", err)
+	}
+
+	resp := ToPublicTourResponse(tour, domain.TourCatalogContext{
+		Today:                  today,
+		HotTourDiscountPercent: 10,
+	})
+	if !resp.IsBurning {
+		t.Fatal("expected is_burning true")
+	}
+	if resp.Price == nil || *resp.Price != 9000 {
+		t.Fatalf("expected discounted price 9000, got %#v", resp.Price)
+	}
+	if resp.OriginalPrice == nil || *resp.OriginalPrice != 10000 {
+		t.Fatalf("expected original price 10000, got %#v", resp.OriginalPrice)
+	}
+}
+
 func TestToTourResponseKeepsPriceAndDatesForDated(t *testing.T) {
 	tour, err := domain.NewTour(domain.NewTourInput{
 		ID:         uuid.MustParse("22222222-2222-2222-2222-222222222222"),

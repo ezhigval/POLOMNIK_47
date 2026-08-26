@@ -26,16 +26,17 @@ type Booking struct {
 }
 
 type NewBookingInput struct {
-	ID          uuid.UUID
-	Tour        Tour
-	UserID      *uuid.UUID
-	Name        string
-	Phone       string
-	Email       string
-	PeopleCount int
-	Comment     string
-	Source      string
-	Now         time.Time
+	ID                     uuid.UUID
+	Tour                   Tour
+	UserID                 *uuid.UUID
+	Name                   string
+	Phone                  string
+	Email                  string
+	PeopleCount            int
+	Comment                string
+	Source                 string
+	HotTourDiscountPercent int
+	Now                    time.Time
 }
 
 func NewBooking(input NewBookingInput) (Booking, error) {
@@ -58,14 +59,18 @@ func NewBooking(input NewBookingInput) (Booking, error) {
 		return Booking{}, ErrInsufficientSlots
 	}
 
-	totalPrice := input.Tour.BookingTotal(input.PeopleCount)
-	if totalPrice < 0 {
-		return Booking{}, ErrInvalidTotalPrice
-	}
-
 	now := input.Now
 	if now.IsZero() {
 		now = time.Now().UTC()
+	}
+
+	catalog := TourCatalogContext{
+		Today:                  now,
+		HotTourDiscountPercent: input.HotTourDiscountPercent,
+	}
+	totalPrice := input.Tour.BookingTotalIn(input.PeopleCount, catalog)
+	if totalPrice < 0 {
+		return Booking{}, ErrInvalidTotalPrice
 	}
 
 	return Booking{
