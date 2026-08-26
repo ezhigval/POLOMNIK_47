@@ -10,7 +10,6 @@ import {
   formatPrice,
   formatReviewCount,
   formatTourDuration,
-  getSlotsAvailability,
 } from "@/lib/format";
 import { includedInTour } from "@/lib/site-content";
 import { TourViewTracker } from "@/components/tour-view-tracker";
@@ -22,7 +21,7 @@ import { FavoriteButton } from "@/components/favorite-button";
 import { CompanyReply } from "@/components/testimonial-card";
 import { TourRecommendations } from "@/components/tour-recommendations";
 import { isUuidParam, tourPath, tourSeoDescription, tourSeoTitle } from "@/lib/tour-path";
-import { isRegularTour } from "@/lib/api/tours";
+import { isRegularTour, isTourSoldOut } from "@/lib/api/tours";
 
 type TourPageProps = {
   params: Promise<{ id: string }>;
@@ -92,7 +91,7 @@ export default async function TourPage({ params }: TourPageProps) {
   const [sessionUser, pageData] = await Promise.all([getSessionUser(), loadTourPageData(id)]);
   const { tour, reviews } = pageData;
   const profile = toBookingProfile(sessionUser);
-  const soldOut = getSlotsAvailability(tour.slots_left) === "sold_out";
+  const soldOut = isTourSoldOut(tour);
   const regular = isRegularTour(tour);
   const duration = regular ? "" : formatTourDuration(tour.date_start, tour.date_end);
   const avgRating =
@@ -119,7 +118,11 @@ export default async function TourPage({ params }: TourPageProps) {
 
         <div className="grid gap-8 lg:grid-cols-[1.4fr_1fr] lg:items-start">
           <section className="space-y-6">
-            <div className="overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm">
+            <div
+              className={`overflow-hidden rounded-2xl border bg-white shadow-sm ${
+                tour.is_hot ? "border-amber-200/80 ring-1 ring-amber-100" : "border-stone-200"
+              }`}
+            >
               <div className="relative">
                 <TourImage
                   tour={tour}

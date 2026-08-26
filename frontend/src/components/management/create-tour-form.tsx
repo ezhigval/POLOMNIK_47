@@ -106,7 +106,7 @@ export function CreateTourForm() {
       <div className="flex flex-wrap gap-4 text-sm">
         <label className="flex items-center gap-2">
           <input type="checkbox" name="is_active" defaultChecked className="size-4" />
-          Активен
+          Активный
         </label>
         <label className="flex items-center gap-2">
           <input type="checkbox" name="is_hot" className="size-4" />
@@ -114,7 +114,7 @@ export function CreateTourForm() {
         </label>
         <label className="flex items-center gap-2">
           <input type="checkbox" name="overbooking_enabled" className="size-4" />
-          Overbooking
+          Овербукинг
         </label>
       </div>
 

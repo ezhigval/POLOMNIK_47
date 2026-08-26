@@ -19,8 +19,9 @@ type TourResponse struct {
 	SlotsLeft   int      `json:"slots_left"`
 	Location    string   `json:"location"`
 	Images      []string `json:"images"`
-	IsHot       bool     `json:"is_hot"`
-	IsRegular   bool     `json:"is_regular"`
+	IsHot              bool `json:"is_hot"`
+	IsRegular          bool `json:"is_regular"`
+	OverbookingEnabled bool `json:"overbooking_enabled"`
 }
 
 type ManagementTourResponse struct {
@@ -58,8 +59,9 @@ func ToTourResponse(tour domain.Tour) TourResponse {
 		SlotsLeft:   tour.SlotsLeft,
 		Location:    tour.Location,
 		Images:      tour.Images,
-		IsHot:       tour.IsHot,
-		IsRegular:   tour.IsRegular,
+		IsHot:              tour.IsHot,
+		IsRegular:          tour.IsRegular,
+		OverbookingEnabled: tour.OverbookingEnabled,
 	}
 	if !tour.IsRegular {
 		price := tour.Price

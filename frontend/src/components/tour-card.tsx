@@ -6,9 +6,8 @@ import {
   formatDateRange,
   formatPrice,
   formatTourDuration,
-  getSlotsAvailability,
 } from "@/lib/format";
-import { isRegularTour, type Tour } from "@/lib/api/tours";
+import { isRegularTour, isTourSoldOut, type Tour } from "@/lib/api/tours";
 import { tourPath } from "@/lib/tour-path";
 
 type TourCardProps = {
@@ -17,14 +16,15 @@ type TourCardProps = {
 };
 
 export function TourCard({ tour, featured = false }: TourCardProps) {
-  const soldOut = getSlotsAvailability(tour.slots_left) === "sold_out";
+  const soldOut = isTourSoldOut(tour);
   const regular = isRegularTour(tour);
   const duration = regular ? "" : formatTourDuration(tour.date_start, tour.date_end);
+  const highlighted = featured || tour.is_hot;
 
   return (
     <article
       className={`group flex flex-col overflow-hidden rounded-2xl border bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg ${
-        featured
+        highlighted
           ? "border-amber-200/80 ring-1 ring-amber-100"
           : "border-stone-200/80 hover:border-brand-200"
       }`}
@@ -35,7 +35,7 @@ export function TourCard({ tour, featured = false }: TourCardProps) {
           <div className="absolute left-3 top-3 flex flex-wrap gap-2">
             {tour.is_hot ? (
               <span className="rounded-full bg-amber-400/95 px-2.5 py-0.5 text-xs font-semibold text-amber-950 shadow-sm">
-                Хит сезона
+                Популярный
               </span>
             ) : null}
             {regular ? (

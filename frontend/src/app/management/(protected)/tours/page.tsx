@@ -59,10 +59,13 @@ export default async function ManagementToursPage() {
                   <td className="px-4 py-4">
                     <div className="flex flex-wrap gap-1">
                       <StatusBadge variant={tour.is_active ? "success" : "neutral"}>
-                        {tour.is_active ? "Активен" : "Скрыт"}
+                        {tour.is_active ? "Активный" : "Скрыт"}
                       </StatusBadge>
                       {tour.is_regular ? <StatusBadge variant="neutral">Регулярный</StatusBadge> : null}
-                      {tour.is_hot ? <StatusBadge variant="warning">Hot</StatusBadge> : null}
+                      {tour.is_hot ? <StatusBadge variant="warning">Популярный</StatusBadge> : null}
+                      {tour.overbooking_enabled ? (
+                        <StatusBadge variant="neutral">Овербукинг</StatusBadge>
+                      ) : null}
                     </div>
                   </td>
                   <td className="px-4 py-4">

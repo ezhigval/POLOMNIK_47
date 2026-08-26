@@ -118,7 +118,7 @@ export function EditTourForm({ tour }: EditTourFormProps) {
       <div className="flex flex-wrap gap-4 text-sm">
         <label className="flex items-center gap-2">
           <input type="checkbox" name="is_active" defaultChecked={tour.is_active} className="size-4" />
-          Активен
+          Активный
         </label>
         <label className="flex items-center gap-2">
           <input type="checkbox" name="is_hot" defaultChecked={tour.is_hot} className="size-4" />
@@ -126,7 +126,7 @@ export function EditTourForm({ tour }: EditTourFormProps) {
         </label>
         <label className="flex items-center gap-2">
           <input type="checkbox" name="overbooking_enabled" defaultChecked={tour.overbooking_enabled} className="size-4" />
-          Overbooking
+          Овербукинг
         </label>
       </div>
 

@@ -4,11 +4,9 @@ import {
   formatDateRange,
   formatPrice,
   formatTourDuration,
-  getSlotsAvailability,
 } from "@/lib/format";
-import type { Tour } from "@/lib/api/tours";
+import { isRegularTour, isTourSoldOut, type Tour } from "@/lib/api/tours";
 import { tourPath } from "@/lib/tour-path";
-import { isRegularTour } from "@/lib/api/tours";
 
 type TourScheduleProps = {
   tours: Tour[];
@@ -46,7 +44,7 @@ export function TourSchedule({ tours }: TourScheduleProps) {
 }
 
 function ScheduleRow({ tour }: { tour: Tour }) {
-  const soldOut = getSlotsAvailability(tour.slots_left) === "sold_out";
+  const soldOut = isTourSoldOut(tour);
   const regular = isRegularTour(tour);
   const duration = regular ? "" : formatTourDuration(tour.date_start, tour.date_end);
 
@@ -60,6 +58,11 @@ function ScheduleRow({ tour }: { tour: Tour }) {
         <Link href={tourPath(tour)} className="font-medium text-stone-900 hover:text-brand-800">
           {tour.title}
         </Link>
+        {tour.is_hot ? (
+          <span className="ml-2 inline-flex rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-900">
+            Популярный
+          </span>
+        ) : null}
         {tour.location ? <p className="mt-1 text-xs text-stone-500">{tour.location}</p> : null}
       </td>
       <td className="whitespace-nowrap px-4 py-4 font-medium text-stone-900">
@@ -87,7 +90,7 @@ function ScheduleRow({ tour }: { tour: Tour }) {
 }
 
 function ScheduleCard({ tour }: { tour: Tour }) {
-  const soldOut = getSlotsAvailability(tour.slots_left) === "sold_out";
+  const soldOut = isTourSoldOut(tour);
   const regular = isRegularTour(tour);
   const duration = regular ? "" : formatTourDuration(tour.date_start, tour.date_end);
 
@@ -98,6 +101,11 @@ function ScheduleCard({ tour }: { tour: Tour }) {
           <Link href={tourPath(tour)} className="font-medium text-stone-900 hover:text-brand-800">
             {tour.title}
           </Link>
+          {tour.is_hot ? (
+            <span className="mt-1 inline-flex rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-900">
+              Популярный
+            </span>
+          ) : null}
           {tour.location ? <p className="mt-1 text-xs text-stone-500">{tour.location}</p> : null}
         </div>
         <SlotsBadge slotsLeft={tour.slots_left} />

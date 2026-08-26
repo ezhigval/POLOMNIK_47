@@ -111,7 +111,7 @@ export default async function ManagementBookingsPage({ searchParams }: PageProps
                     <p className="mt-2 max-w-xs rounded-lg bg-stone-50 p-2 text-stone-600">{booking.comment}</p>
                   ) : null}
                   {booking.overbooked ? (
-                    <StatusBadge variant="warning">Overbooking</StatusBadge>
+                    <StatusBadge variant="warning">Овербукинг</StatusBadge>
                   ) : null}
                 </td>
                 <td className="px-4 py-4 font-medium">{formatPrice(booking.total_price, "₽")}</td>

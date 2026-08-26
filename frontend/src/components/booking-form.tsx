@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { FormEvent, useMemo, useRef, useState } from "react";
 import { ApiError } from "@/lib/api/client";
-import { formatBookingStatus, formatPrice, getSlotsAvailability } from "@/lib/format";
-import { createBooking, isRegularTour, type CreateBookingResult, type Tour } from "@/lib/api/tours";
+import { formatBookingStatus, formatPrice } from "@/lib/format";
+import { createBooking, isRegularTour, isTourSoldOut, type CreateBookingResult, type Tour } from "@/lib/api/tours";
 import { trackBeginCheckout, trackBookingSubmit } from "@/lib/analytics";
 import type { BookingProfile } from "@/lib/auth/user-features";
 import { HoneypotField } from "@/components/honeypot-field";
@@ -24,7 +24,7 @@ export function BookingForm({ tour, profile = null }: BookingFormProps) {
   const [consentMarketing, setConsentMarketing] = useState(false);
   const beginCheckoutSent = useRef(false);
 
-  const soldOut = getSlotsAvailability(tour.slots_left) === "sold_out";
+  const soldOut = isTourSoldOut(tour);
   const regular = isRegularTour(tour);
   const estimatedTotal = useMemo(
     () => (regular || tour.price == null ? null : tour.price * peopleCount),
