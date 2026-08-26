@@ -22,6 +22,7 @@ type Tour struct {
 	Images             []string
 	IsActive           bool
 	IsHot              bool
+	IsRegular          bool
 	OverbookingEnabled bool
 	CreatedAt          time.Time
 	UpdatedAt          time.Time
@@ -42,6 +43,7 @@ type NewTourInput struct {
 	Images             []string
 	IsActive           bool
 	IsHot              bool
+	IsRegular          bool
 	OverbookingEnabled bool
 	Now                time.Time
 }
@@ -62,7 +64,10 @@ func NewTour(input NewTourInput) (Tour, error) {
 	if strings.TrimSpace(input.Currency) == "" {
 		return Tour{}, ErrInvalidCurrency
 	}
-	if input.DateStart.IsZero() || input.DateEnd.IsZero() || input.DateStart.After(input.DateEnd) {
+	if input.IsRegular {
+		input.DateStart = time.Time{}
+		input.DateEnd = time.Time{}
+	} else if input.DateStart.IsZero() || input.DateEnd.IsZero() || input.DateStart.After(input.DateEnd) {
 		return Tour{}, ErrInvalidDateRange
 	}
 	if err := validateSlots(input.SlotsTotal, input.SlotsLeft); err != nil {
@@ -89,6 +94,7 @@ func NewTour(input NewTourInput) (Tour, error) {
 		Images:             stringSliceCopy(input.Images),
 		IsActive:           input.IsActive,
 		IsHot:              input.IsHot,
+		IsRegular:          input.IsRegular,
 		OverbookingEnabled: input.OverbookingEnabled,
 		CreatedAt:          now,
 		UpdatedAt:          now,
@@ -104,6 +110,55 @@ func (t Tour) CanAcceptPeople(peopleCount int) bool {
 
 func (t Tour) BookingWouldBeOverbooked(peopleCount int) bool {
 	return peopleCount > 0 && peopleCount > t.SlotsLeft && t.OverbookingEnabled
+}
+
+func (t Tour) HasPublicSchedule() bool {
+	return !t.IsRegular && !t.DateStart.IsZero() && !t.DateEnd.IsZero()
+}
+
+func (t Tour) BookingTotal(peopleCount int) int {
+	if t.IsRegular || peopleCount <= 0 {
+		return 0
+	}
+	return t.Price * peopleCount
+}
+
+func (t Tour) ScheduleEndedOn(today time.Time) bool {
+	if t.IsRegular || t.DateEnd.IsZero() {
+		return false
+	}
+	day := today.UTC().Truncate(24 * time.Hour)
+	end := t.DateEnd.UTC().Truncate(24 * time.Hour)
+	return end.Before(day)
+}
+
+// CompareToursByCatalog orders dated tours first (by date_start, then id), then regular tours (by id).
+func CompareToursByCatalog(a, b Tour) int {
+	if a.IsRegular != b.IsRegular {
+		if a.IsRegular {
+			return 1
+		}
+		return -1
+	}
+	if !a.DateStart.Equal(b.DateStart) {
+		if a.DateStart.IsZero() {
+			return 1
+		}
+		if b.DateStart.IsZero() {
+			return -1
+		}
+		if a.DateStart.Before(b.DateStart) {
+			return -1
+		}
+		return 1
+	}
+	if a.ID == b.ID {
+		return 0
+	}
+	if a.ID.String() < b.ID.String() {
+		return -1
+	}
+	return 1
 }
 
 func (t *Tour) ReserveSlots(peopleCount int) error {

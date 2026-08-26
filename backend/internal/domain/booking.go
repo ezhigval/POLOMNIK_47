@@ -57,7 +57,7 @@ func NewBooking(input NewBookingInput) (Booking, error) {
 		return Booking{}, ErrInsufficientSlots
 	}
 
-	totalPrice := input.Tour.Price * input.PeopleCount
+	totalPrice := input.Tour.BookingTotal(input.PeopleCount)
 	if totalPrice < 0 {
 		return Booking{}, ErrInvalidTotalPrice
 	}

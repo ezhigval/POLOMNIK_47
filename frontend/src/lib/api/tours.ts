@@ -5,16 +5,21 @@ export type Tour = {
   slug: string;
   title: string;
   description: string;
-  price: number;
+  price: number | null;
   currency: string;
-  date_start: string;
-  date_end: string;
+  date_start: string | null;
+  date_end: string | null;
   slots_total: number;
   slots_left: number;
   location: string;
   images: string[];
   is_hot: boolean;
+  is_regular: boolean;
 };
+
+export function isRegularTour(tour: { is_regular?: boolean }): boolean {
+  return Boolean(tour.is_regular);
+}
 
 export type Review = {
   id: string;

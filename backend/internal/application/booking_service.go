@@ -183,7 +183,5 @@ func (s *BookingService) UpdateBookingStatus(ctx context.Context, id uuid.UUID, 
 }
 
 func tourEnded(tour domain.Tour) bool {
-	today := time.Now().UTC().Truncate(24 * time.Hour)
-	end := tour.DateEnd.UTC().Truncate(24 * time.Hour)
-	return end.Before(today)
+	return tour.ScheduleEndedOn(time.Now())
 }

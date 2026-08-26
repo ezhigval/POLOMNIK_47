@@ -22,6 +22,7 @@ export function tourSeoDescription(tour: {
   title: string;
   description?: string;
   location?: string;
+  is_regular?: boolean;
 }): string {
   const firstLine = tour.description
     ?.split("\n")
@@ -31,7 +32,13 @@ export function tourSeoDescription(tour: {
     return firstLine.length > 180 ? `${firstLine.slice(0, 177)}…` : firstLine;
   }
   if (tour.location?.trim()) {
+    if (tour.is_regular) {
+      return `Паломнический тур «${tour.title}» — ${tour.location}. Запись на сайте.`;
+    }
     return `Паломнический тур «${tour.title}» — ${tour.location}. Даты и стоимость на сайте.`;
+  }
+  if (tour.is_regular) {
+    return `Паломнический тур «${tour.title}». Запись на сайте.`;
   }
   return `Паломнический тур «${tour.title}». Даты и стоимость на сайте.`;
 }

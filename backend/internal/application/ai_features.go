@@ -139,13 +139,21 @@ func (s *AIFeaturesService) RecommendPublishedTours(ctx context.Context, seedID 
 	}
 	var catalog strings.Builder
 	for _, tour := range published {
+		date := ""
+		price := ""
+		if tour.HasPublicSchedule() {
+			date = tour.DateStart.UTC().Format("2006-01-02")
+		}
+		if !tour.IsRegular {
+			price = fmt.Sprintf("%d", tour.Price)
+		}
 		fmt.Fprintf(
 			&catalog,
-			"%s\t%s\t%s\t%d\t%s\n",
+			"%s\t%s\t%s\t%s\t%s\n",
 			tour.ID,
 			tour.Title,
-			tour.DateStart.UTC().Format("2006-01-02"),
-			tour.Price,
+			date,
+			price,
 			tour.Location,
 		)
 	}

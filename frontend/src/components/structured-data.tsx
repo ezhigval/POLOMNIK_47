@@ -80,6 +80,7 @@ export function TourStructuredData({ tour }: { tour: Tour }) {
   const url = absoluteUrl(tourPath(tour));
 
   const images = tour.images?.filter(Boolean).slice(0, 5) ?? [];
+  const regular = Boolean(tour.is_regular);
   const jsonLd: Record<string, unknown> = {
     "@context": "https://schema.org",
     "@type": "TouristTrip",
@@ -90,15 +91,17 @@ export function TourStructuredData({ tour }: { tour: Tour }) {
     provider: {
       "@id": `${siteConfig.url}/#organization`,
     },
-    offers: {
+  };
+  if (!regular && tour.price != null) {
+    jsonLd.offers = {
       "@type": "Offer",
       price: tour.price,
       priceCurrency: tour.currency || "RUB",
       availability: offerAvailability,
       url,
       ...(tour.date_start ? { validFrom: tour.date_start } : {}),
-    },
-  };
+    };
+  }
   if (images.length > 0) {
     jsonLd.image = images;
   }
