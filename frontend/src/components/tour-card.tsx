@@ -7,7 +7,7 @@ import {
   formatPrice,
   formatTourDuration,
 } from "@/lib/format";
-import { isRegularTour, isTourSoldOut, type Tour } from "@/lib/api/tours";
+import { isRegularTour, isTourSoldOut, tourShowsPrice, type Tour } from "@/lib/api/tours";
 import { tourPath } from "@/lib/tour-path";
 
 type TourCardProps = {
@@ -18,6 +18,7 @@ type TourCardProps = {
 export function TourCard({ tour, featured = false }: TourCardProps) {
   const soldOut = isTourSoldOut(tour);
   const regular = isRegularTour(tour);
+  const showPrice = tourShowsPrice(tour);
   const duration = regular ? "" : formatTourDuration(tour.date_start, tour.date_end);
   const highlighted = featured || tour.is_hot;
 
@@ -63,30 +64,40 @@ export function TourCard({ tour, featured = false }: TourCardProps) {
         </Link>
         {tour.location ? <p className="mt-1 text-sm text-stone-500">{tour.location}</p> : null}
 
-        {regular ? (
+        {regular && !showPrice ? (
           <div className="mt-4 flex flex-1 items-end justify-end border-t border-stone-100 pt-4">
             <SlotsBadge slotsLeft={tour.slots_left} />
           </div>
         ) : (
           <dl className="mt-4 grid flex-1 grid-cols-2 gap-3 border-t border-stone-100 pt-4 text-sm">
-            <div>
-              <dt className="text-xs uppercase tracking-wide text-stone-400">Даты</dt>
-              <dd className="mt-1 text-stone-800">{formatDateRange(tour.date_start, tour.date_end)}</dd>
-            </div>
-            <div>
-              <dt className="text-xs uppercase tracking-wide text-stone-400">Длительность</dt>
-              <dd className="mt-1 text-stone-800">{duration || "—"}</dd>
-            </div>
-            <div className="col-span-2 flex flex-wrap items-end justify-between gap-2">
-              <div>
-                <dt className="text-xs uppercase tracking-wide text-stone-400">Стоимость</dt>
-                <dd className="mt-1 text-xl font-semibold text-stone-900">
-                  {formatPrice(tour.price, tour.currency)}
-                  <span className="text-sm font-normal text-stone-500"> / чел.</span>
-                </dd>
+            {regular ? null : (
+              <>
+                <div>
+                  <dt className="text-xs uppercase tracking-wide text-stone-400">Даты</dt>
+                  <dd className="mt-1 text-stone-800">{formatDateRange(tour.date_start, tour.date_end)}</dd>
+                </div>
+                <div>
+                  <dt className="text-xs uppercase tracking-wide text-stone-400">Длительность</dt>
+                  <dd className="mt-1 text-stone-800">{duration || "—"}</dd>
+                </div>
+              </>
+            )}
+            {showPrice ? (
+              <div className="col-span-2 flex flex-wrap items-end justify-between gap-2">
+                <div>
+                  <dt className="text-xs uppercase tracking-wide text-stone-400">Стоимость</dt>
+                  <dd className="mt-1 text-xl font-semibold text-stone-900">
+                    {formatPrice(tour.price, tour.currency)}
+                    <span className="text-sm font-normal text-stone-500"> / чел.</span>
+                  </dd>
+                </div>
+                <SlotsBadge slotsLeft={tour.slots_left} />
               </div>
-              <SlotsBadge slotsLeft={tour.slots_left} />
-            </div>
+            ) : (
+              <div className="col-span-2 flex justify-end">
+                <SlotsBadge slotsLeft={tour.slots_left} />
+              </div>
+            )}
           </dl>
         )}
 

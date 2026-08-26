@@ -11,6 +11,7 @@ import { StatusBadge } from "@/components/management/status-badge";
 import { deleteTourAction } from "@/app/management/actions";
 import { listManagementTours } from "@/lib/api/management";
 import { formatDateRange, formatPrice, formatTourDuration } from "@/lib/format";
+import { tourShowsPrice } from "@/lib/api/tours";
 import { ManagementNoAccess } from "@/components/management/management-no-access";
 import { canAccessManagementPage } from "@/lib/management-page-access";
 import { PERM } from "@/lib/management-access";
@@ -54,7 +55,7 @@ export default async function ManagementToursPage() {
                     {tour.slots_left}/{tour.slots_total}
                   </td>
                   <td className="px-4 py-4">
-                    {tour.is_regular ? "—" : formatPrice(tour.price, tour.currency)}
+                    {tourShowsPrice(tour) ? formatPrice(tour.price, tour.currency) : "—"}
                   </td>
                   <td className="px-4 py-4">
                     <div className="flex flex-wrap gap-1">

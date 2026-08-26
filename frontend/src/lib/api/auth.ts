@@ -21,6 +21,7 @@ export type MyBooking = {
   email: string;
   people_count: number;
   status: string;
+  payment_status: string;
   total_price: number;
   comment: string;
   created_at: string;

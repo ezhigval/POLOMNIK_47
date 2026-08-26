@@ -1,4 +1,5 @@
 import { BookingStatusForm } from "@/components/management/booking-status-form";
+import { BookingPaymentStatusForm } from "@/components/management/booking-payment-status-form";
 import {
   ManagementEmptyRow,
   ManagementPanel,
@@ -6,12 +7,12 @@ import {
   ManagementTableHead,
   ManagementTh,
 } from "@/components/management/management-panel";
-import { StatusBadge, bookingStatusVariant } from "@/components/management/status-badge";
+import { StatusBadge, bookingStatusVariant, paymentStatusVariant } from "@/components/management/status-badge";
 import { ManagementNoAccess } from "@/components/management/management-no-access";
 import { PERM } from "@/lib/management-access";
 import { canAccessManagementPage } from "@/lib/management-page-access";
 import { listManagementBookings, listManagementTours } from "@/lib/api/management";
-import { formatDateTime, formatManagementBookingStatus, formatPrice } from "@/lib/format";
+import { formatDateTime, formatManagementBookingStatus, formatManagementPaymentStatus, formatPrice } from "@/lib/format";
 import { buildTourTitleMap, tourTitle } from "@/lib/tour-title-map";
 
 const BOOKING_STATUSES = ["NEW", "CONTACTED", "CONFIRMED", "COMPLETED", "CANCELLED"] as const;
@@ -86,11 +87,12 @@ export default async function ManagementBookingsPage({ searchParams }: PageProps
           <ManagementTh>Тур</ManagementTh>
           <ManagementTh>Детали</ManagementTh>
           <ManagementTh>Сумма</ManagementTh>
-          <ManagementTh>Статус</ManagementTh>
+          <ManagementTh>Заявка</ManagementTh>
+          <ManagementTh>Оплата</ManagementTh>
         </ManagementTableHead>
         <tbody>
           {bookings.length === 0 ? (
-            <ManagementEmptyRow colSpan={5}>Заявок по фильтру нет.</ManagementEmptyRow>
+            <ManagementEmptyRow colSpan={6}>Заявок по фильтру нет.</ManagementEmptyRow>
           ) : (
             bookings.map((booking) => (
               <tr key={booking.id} className="border-b border-stone-100 align-top last:border-0">
@@ -122,6 +124,17 @@ export default async function ManagementBookingsPage({ searchParams }: PageProps
                     </StatusBadge>
                   </div>
                   <BookingStatusForm bookingId={booking.id} currentStatus={booking.status} />
+                </td>
+                <td className="px-4 py-4">
+                  <div className="mb-2">
+                    <StatusBadge variant={paymentStatusVariant(booking.payment_status)}>
+                      {formatManagementPaymentStatus(booking.payment_status)}
+                    </StatusBadge>
+                  </div>
+                  <BookingPaymentStatusForm
+                    bookingId={booking.id}
+                    currentStatus={booking.payment_status}
+                  />
                 </td>
               </tr>
             ))

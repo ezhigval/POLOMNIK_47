@@ -21,7 +21,7 @@ import { FavoriteButton } from "@/components/favorite-button";
 import { CompanyReply } from "@/components/testimonial-card";
 import { TourRecommendations } from "@/components/tour-recommendations";
 import { isUuidParam, tourPath, tourSeoDescription, tourSeoTitle } from "@/lib/tour-path";
-import { isRegularTour, isTourSoldOut } from "@/lib/api/tours";
+import { isRegularTour, isTourSoldOut, tourShowsPrice } from "@/lib/api/tours";
 
 type TourPageProps = {
   params: Promise<{ id: string }>;
@@ -93,6 +93,7 @@ export default async function TourPage({ params }: TourPageProps) {
   const profile = toBookingProfile(sessionUser);
   const soldOut = isTourSoldOut(tour);
   const regular = isRegularTour(tour);
+  const showPrice = tourShowsPrice(tour);
   const duration = regular ? "" : formatTourDuration(tour.date_start, tour.date_end);
   const avgRating =
     reviews.data.length > 0
@@ -171,7 +172,7 @@ export default async function TourPage({ params }: TourPageProps) {
                   </div>
                 </div>
 
-                <dl className={`mb-8 grid gap-3 rounded-xl bg-stone-50 p-4 ${regular ? "sm:grid-cols-2" : "sm:grid-cols-4"}`}>
+                <dl className={`mb-8 grid gap-3 rounded-xl bg-stone-50 p-4 ${regular && !showPrice ? "sm:grid-cols-2" : regular ? "sm:grid-cols-2" : "sm:grid-cols-4"}`}>
                   {regular ? null : (
                     <>
                       <div>
@@ -184,14 +185,24 @@ export default async function TourPage({ params }: TourPageProps) {
                         <dt className="text-xs font-medium uppercase tracking-wide text-stone-500">Длительность</dt>
                         <dd className="mt-1 text-sm font-medium text-stone-900">{duration || "—"}</dd>
                       </div>
-                      <div>
-                        <dt className="text-xs font-medium uppercase tracking-wide text-stone-500">Стоимость</dt>
-                        <dd className="mt-1 text-sm font-medium text-stone-900">
-                          {formatPrice(tour.price, tour.currency)} / чел.
-                        </dd>
-                      </div>
+                      {showPrice ? (
+                        <div>
+                          <dt className="text-xs font-medium uppercase tracking-wide text-stone-500">Стоимость</dt>
+                          <dd className="mt-1 text-sm font-medium text-stone-900">
+                            {formatPrice(tour.price, tour.currency)} / чел.
+                          </dd>
+                        </div>
+                      ) : null}
                     </>
                   )}
+                  {regular && showPrice ? (
+                    <div>
+                      <dt className="text-xs font-medium uppercase tracking-wide text-stone-500">Стоимость</dt>
+                      <dd className="mt-1 text-sm font-medium text-stone-900">
+                        {formatPrice(tour.price, tour.currency)} / чел.
+                      </dd>
+                    </div>
+                  ) : null}
                   <div>
                     <dt className="text-xs font-medium uppercase tracking-wide text-stone-500">Группа</dt>
                     <dd className="mt-1 text-sm font-medium text-stone-900">до {tour.slots_total} чел.</dd>
@@ -268,7 +279,7 @@ export default async function TourPage({ params }: TourPageProps) {
 
       <MobileBookingCTA
         disabled={soldOut}
-        price={regular ? undefined : (tour.price ?? undefined)}
+        price={showPrice ? (tour.price ?? undefined) : undefined}
         currency={tour.currency}
         dateStart={regular ? undefined : (tour.date_start ?? undefined)}
         dateEnd={regular ? undefined : (tour.date_end ?? undefined)}

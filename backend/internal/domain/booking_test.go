@@ -32,7 +32,7 @@ func TestNewBookingCalculatesTotalPrice(t *testing.T) {
 	}
 }
 
-func TestNewBookingRegularTourTotalIsZero(t *testing.T) {
+func TestNewBookingRegularTourWithPriceCalculatesTotal(t *testing.T) {
 	tour, err := NewTour(validTourInput(func(input *NewTourInput) {
 		input.IsRegular = true
 		input.Price = 3500
@@ -48,11 +48,38 @@ func TestNewBookingRegularTourTotalIsZero(t *testing.T) {
 	if err != nil {
 		t.Fatalf("create booking: %v", err)
 	}
-	if booking.TotalPrice != 0 {
-		t.Fatalf("expected total 0 for regular tour, got %d", booking.TotalPrice)
+	if booking.TotalPrice != 7000 {
+		t.Fatalf("expected total 7000 for regular tour with price, got %d", booking.TotalPrice)
+	}
+	if booking.PaymentStatus != PaymentStatusUnpaid {
+		t.Fatalf("expected UNPAID payment status, got %s", booking.PaymentStatus)
 	}
 	if booking.Status != BookingStatusNew {
 		t.Fatalf("expected status NEW, got %s", booking.Status)
+	}
+}
+
+func TestNewBookingZeroTotalHasNotRequiredPaymentStatus(t *testing.T) {
+	tour, err := NewTour(validTourInput(func(input *NewTourInput) {
+		input.IsRegular = true
+		input.Price = 0
+		input.SlotsLeft = 5
+	}))
+	if err != nil {
+		t.Fatalf("create tour: %v", err)
+	}
+
+	booking, err := NewBooking(validBookingInput(tour, func(input *NewBookingInput) {
+		input.PeopleCount = 2
+	}))
+	if err != nil {
+		t.Fatalf("create booking: %v", err)
+	}
+	if booking.TotalPrice != 0 {
+		t.Fatalf("expected total 0, got %d", booking.TotalPrice)
+	}
+	if booking.PaymentStatus != PaymentStatusNotRequired {
+		t.Fatalf("expected NOT_REQUIRED payment status, got %s", booking.PaymentStatus)
 	}
 }
 

@@ -10,7 +10,7 @@ import (
 	"palomnik/internal/domain"
 )
 
-func TestToTourResponseOmitsPriceAndDatesForRegular(t *testing.T) {
+func TestToTourResponseOmitsPriceWhenZero(t *testing.T) {
 	tour, err := domain.NewTour(domain.NewTourInput{
 		ID:         uuid.MustParse("11111111-1111-1111-1111-111111111111"),
 		Slug:       "regular",
@@ -42,7 +42,32 @@ func TestToTourResponseOmitsPriceAndDatesForRegular(t *testing.T) {
 		t.Fatalf("expected null price, got %#v", payload["price"])
 	}
 	if payload["date_start"] != nil || payload["date_end"] != nil {
-		t.Fatalf("expected null dates, got start=%#v end=%#v", payload["date_start"], payload["date_end"])
+		t.Fatalf("expected null dates for regular, got start=%#v end=%#v", payload["date_start"], payload["date_end"])
+	}
+}
+
+func TestToTourResponseIncludesPriceForRegularWithPrice(t *testing.T) {
+	tour, err := domain.NewTour(domain.NewTourInput{
+		ID:         uuid.MustParse("44444444-4444-4444-4444-444444444444"),
+		Slug:       "regular-priced",
+		Title:      "Regular priced",
+		Price:      5000,
+		Currency:   "RUB",
+		SlotsTotal: 10,
+		SlotsLeft:  10,
+		IsActive:   true,
+		IsRegular:  true,
+	})
+	if err != nil {
+		t.Fatalf("create tour: %v", err)
+	}
+
+	resp := ToTourResponse(tour)
+	if resp.Price == nil || *resp.Price != 5000 {
+		t.Fatalf("expected price 5000 for regular tour, got %#v", resp.Price)
+	}
+	if resp.DateStart != nil || resp.DateEnd != nil {
+		t.Fatalf("expected null dates for regular, got start=%#v end=%#v", resp.DateStart, resp.DateEnd)
 	}
 }
 

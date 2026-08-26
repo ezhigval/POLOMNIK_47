@@ -222,6 +222,32 @@ func (h *Handler) ManagementUpdateBookingStatus(c *fiber.Ctx) error {
 	})
 }
 
+func (h *Handler) ManagementUpdateBookingPaymentStatus(c *fiber.Ctx) error {
+	id, err := parseUUID(c.Params("id"))
+	if err != nil {
+		return writeAppError(c, err)
+	}
+
+	var req dto.UpdateBookingPaymentStatusRequest
+	if err := c.BodyParser(&req); err != nil {
+		return writeAppError(c, &AppError{
+			Status:  422,
+			Code:    "VALIDATION_ERROR",
+			Message: "Некорректные данные запроса",
+		})
+	}
+
+	status := domain.PaymentStatus(req.PaymentStatus)
+	booking, err := h.bookings.UpdateBookingPaymentStatus(c.Context(), id, status)
+	if err != nil {
+		return respondError(c, err, MapError)
+	}
+
+	return c.JSON(dto.DataEnvelope[dto.ManagementBookingResponse]{
+		Data: dto.ToManagementBookingResponse(booking),
+	})
+}
+
 func (h *Handler) ManagementListReviews(c *fiber.Ctx) error {
 	list, err := h.reviews.ListReviews(c.Context(), ports.ReviewFilters{}, parsePagination(c))
 	if err != nil {

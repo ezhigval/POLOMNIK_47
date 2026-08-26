@@ -22,6 +22,11 @@ export function isRegularTour(tour: { is_regular?: boolean }): boolean {
   return Boolean(tour.is_regular);
 }
 
+/** Public price is shown when price is specified and greater than zero. */
+export function tourShowsPrice(tour: { price?: number | null }): boolean {
+  return tour.price != null && tour.price > 0;
+}
+
 /** Booking stays open when slots_left=0 if overbooking is enabled. */
 export function canBookTour(tour: { slots_left: number; overbooking_enabled?: boolean }): boolean {
   if (tour.slots_left > 0) {

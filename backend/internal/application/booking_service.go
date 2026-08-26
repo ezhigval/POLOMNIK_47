@@ -182,6 +182,18 @@ func (s *BookingService) UpdateBookingStatus(ctx context.Context, id uuid.UUID, 
 	return updated, nil
 }
 
+func (s *BookingService) UpdateBookingPaymentStatus(ctx context.Context, id uuid.UUID, status domain.PaymentStatus) (domain.Booking, error) {
+	existing, err := s.bookings.GetBooking(ctx, id)
+	if err != nil {
+		return domain.Booking{}, err
+	}
+	if existing.PaymentStatus == status {
+		return existing, nil
+	}
+
+	return s.bookings.UpdateBookingPaymentStatus(ctx, id, status)
+}
+
 func tourEnded(tour domain.Tour) bool {
 	return tour.ScheduleEndedOn(time.Now())
 }

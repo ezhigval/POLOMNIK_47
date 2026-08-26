@@ -4,7 +4,7 @@ import Link from "next/link";
 import { FormEvent, useMemo, useRef, useState } from "react";
 import { ApiError } from "@/lib/api/client";
 import { formatBookingStatus, formatPrice } from "@/lib/format";
-import { createBooking, isRegularTour, isTourSoldOut, type CreateBookingResult, type Tour } from "@/lib/api/tours";
+import { createBooking, isRegularTour, isTourSoldOut, tourShowsPrice, type CreateBookingResult, type Tour } from "@/lib/api/tours";
 import { trackBeginCheckout, trackBookingSubmit } from "@/lib/analytics";
 import type { BookingProfile } from "@/lib/auth/user-features";
 import { HoneypotField } from "@/components/honeypot-field";
@@ -26,9 +26,10 @@ export function BookingForm({ tour, profile = null }: BookingFormProps) {
 
   const soldOut = isTourSoldOut(tour);
   const regular = isRegularTour(tour);
+  const showPrice = tourShowsPrice(tour);
   const estimatedTotal = useMemo(
-    () => (regular || tour.price == null ? null : tour.price * peopleCount),
-    [regular, tour.price, peopleCount],
+    () => (showPrice && tour.price != null ? tour.price * peopleCount : null),
+    [showPrice, tour.price, peopleCount],
   );
 
   function onFormFocus() {
@@ -101,7 +102,7 @@ export function BookingForm({ tour, profile = null }: BookingFormProps) {
             <dt className="text-emerald-800/80">Номер заявки</dt>
             <dd className="font-mono font-medium">{success.booking_id.slice(0, 8)}…</dd>
           </div>
-          {!regular && success.total_price > 0 ? (
+          {showPrice && success.total_price > 0 ? (
             <div className="flex justify-between gap-4">
               <dt className="text-emerald-800/80">Ориентировочная сумма</dt>
               <dd className="font-medium">{formatPrice(success.total_price, tour.currency)}</dd>
@@ -161,7 +162,7 @@ export function BookingForm({ tour, profile = null }: BookingFormProps) {
         <li className="rounded-full bg-stone-100 px-2.5 py-1">Консультация бесплатно</li>
       </ul>
 
-      {regular ? null : (
+      {showPrice ? (
         <div className="rounded-xl bg-stone-50 p-4">
           <p className="text-sm text-stone-600">Ориентировочная стоимость</p>
           <p className="text-2xl font-semibold text-stone-900">

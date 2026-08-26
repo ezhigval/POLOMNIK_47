@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { EmptyState } from "@/components/empty-state";
-import { formatBookingStatus, formatDateRange, formatPrice } from "@/lib/format";
+import { formatBookingStatus, formatDateRange, formatPaymentStatus, formatPrice } from "@/lib/format";
 import { fetchMyBookings } from "@/lib/api/auth";
 import { getAuthToken } from "@/lib/auth/session";
 import { getTour } from "@/lib/api/tours";
@@ -78,7 +78,7 @@ export default async function MyTripsPage() {
                   </span>
                 </div>
 
-                <dl className="mt-4 grid gap-2 text-sm text-stone-600 sm:grid-cols-3">
+                <dl className="mt-4 grid gap-2 text-sm text-stone-600 sm:grid-cols-4">
                   <div>
                     <dt className="text-stone-500">Участников</dt>
                     <dd className="font-medium text-stone-900">{booking.people_count}</dd>
@@ -86,10 +86,14 @@ export default async function MyTripsPage() {
                   <div>
                     <dt className="text-stone-500">Сумма</dt>
                     <dd className="font-medium text-stone-900">
-                      {tour?.is_regular
-                        ? "—"
-                        : formatPrice(booking.total_price, tour?.currency ?? "RUB")}
+                      {booking.total_price > 0
+                        ? formatPrice(booking.total_price, tour?.currency ?? "RUB")
+                        : "—"}
                     </dd>
+                  </div>
+                  <div>
+                    <dt className="text-stone-500">Оплата</dt>
+                    <dd className="font-medium text-stone-900">{formatPaymentStatus(booking.payment_status)}</dd>
                   </div>
                   <div>
                     <dt className="text-stone-500">Заявка</dt>
@@ -100,9 +104,13 @@ export default async function MyTripsPage() {
                 <div className="mt-4 rounded-xl bg-stone-50 p-3 text-sm text-stone-600">
                   <p className="font-medium text-stone-800">Оплата</p>
                   <p className="mt-1">
-                    {tour?.is_regular
-                      ? "Онлайн-оплата на сайте не подключена — порядок оплаты уточняет менеджер."
-                      : `Сумма заявки: ${formatPrice(booking.total_price, tour?.currency ?? "RUB")}. Онлайн-оплата на сайте не подключена — порядок оплаты уточняет менеджер.`}
+                    Статус: {formatPaymentStatus(booking.payment_status)}.
+                    {booking.total_price > 0
+                      ? ` Сумма заявки: ${formatPrice(booking.total_price, tour?.currency ?? "RUB")}.`
+                      : ""}{" "}
+                    {booking.payment_status === "PAID"
+                      ? "Оплата получена."
+                      : "Онлайн-оплата на сайте не подключена — порядок оплаты уточняет менеджер."}
                   </p>
                 </div>
 

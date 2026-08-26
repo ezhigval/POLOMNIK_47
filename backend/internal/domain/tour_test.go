@@ -107,7 +107,7 @@ func TestNewTourStillRequiresDatesWhenNotRegular(t *testing.T) {
 	}
 }
 
-func TestTourBookingTotalZeroWhenRegular(t *testing.T) {
+func TestTourBookingTotalUsesPriceWhenSet(t *testing.T) {
 	tour, err := NewTour(validTourInput(func(input *NewTourInput) {
 		input.IsRegular = true
 		input.Price = 3500
@@ -115,8 +115,21 @@ func TestTourBookingTotalZeroWhenRegular(t *testing.T) {
 	if err != nil {
 		t.Fatalf("create regular tour: %v", err)
 	}
+	if got := tour.BookingTotal(2); got != 7000 {
+		t.Fatalf("expected booking total 7000 when price set, got %d", got)
+	}
+}
+
+func TestTourBookingTotalZeroWhenPriceZero(t *testing.T) {
+	tour, err := NewTour(validTourInput(func(input *NewTourInput) {
+		input.IsRegular = true
+		input.Price = 0
+	}))
+	if err != nil {
+		t.Fatalf("create regular tour: %v", err)
+	}
 	if got := tour.BookingTotal(2); got != 0 {
-		t.Fatalf("expected booking total 0 for regular tour, got %d", got)
+		t.Fatalf("expected booking total 0 when price is 0, got %d", got)
 	}
 }
 

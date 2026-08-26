@@ -2,6 +2,7 @@ import { ImageResponse } from "next/og";
 import { ApiError } from "@/lib/api/client";
 import { getCachedTour } from "@/lib/api/tour-page";
 import { formatDateRange, formatPrice } from "@/lib/format";
+import { tourShowsPrice } from "@/lib/api/tours";
 import { siteConfig } from "@/lib/site-config";
 
 export const size = { width: 1200, height: 630 };
@@ -23,9 +24,16 @@ export default async function TourOpenGraphImage({ params }: OgImageProps) {
     const tour = await getCachedTour(id);
     title = tour.title;
     subtitle = tour.location;
-    meta = tour.is_regular
-      ? "Регулярный тур"
-      : `${formatDateRange(tour.date_start, tour.date_end)} · ${formatPrice(tour.price, tour.currency)}`;
+    const metaParts: string[] = [];
+    if (tour.is_regular) {
+      metaParts.push("Регулярный тур");
+    } else {
+      metaParts.push(formatDateRange(tour.date_start, tour.date_end));
+    }
+    if (tourShowsPrice(tour)) {
+      metaParts.push(formatPrice(tour.price, tour.currency));
+    }
+    meta = metaParts.filter(Boolean).join(" · ");
   } catch (error) {
     if (!(error instanceof ApiError && error.status === 404)) {
       throw error;

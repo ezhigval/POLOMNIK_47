@@ -15,8 +15,9 @@ type Booking struct {
 	Phone       string
 	Email       string
 	PeopleCount int
-	Status      BookingStatus
-	TotalPrice  int
+	Status        BookingStatus
+	PaymentStatus PaymentStatus
+	TotalPrice    int
 	Comment     string
 	Overbooked  bool
 	Source      string
@@ -68,15 +69,16 @@ func NewBooking(input NewBookingInput) (Booking, error) {
 	}
 
 	return Booking{
-		ID:          input.ID,
-		TourID:      input.Tour.ID,
-		UserID:      input.UserID,
-		Name:        strings.TrimSpace(input.Name),
-		Phone:       strings.TrimSpace(input.Phone),
-		Email:       strings.TrimSpace(input.Email),
-		PeopleCount: input.PeopleCount,
-		Status:      BookingStatusNew,
-		TotalPrice:  totalPrice,
+		ID:            input.ID,
+		TourID:        input.Tour.ID,
+		UserID:        input.UserID,
+		Name:          strings.TrimSpace(input.Name),
+		Phone:         strings.TrimSpace(input.Phone),
+		Email:         strings.TrimSpace(input.Email),
+		PeopleCount:   input.PeopleCount,
+		Status:        BookingStatusNew,
+		PaymentStatus: DefaultPaymentStatus(totalPrice),
+		TotalPrice:    totalPrice,
 		Comment:     strings.TrimSpace(input.Comment),
 		Overbooked:  input.Tour.BookingWouldBeOverbooked(input.PeopleCount),
 		Source:      strings.TrimSpace(input.Source),
@@ -99,4 +101,13 @@ func (b *Booking) ChangeStatus(next BookingStatus) error {
 
 func (b Booking) IsTerminal() bool {
 	return b.Status == BookingStatusCompleted || b.Status == BookingStatusCancelled
+}
+
+func (b *Booking) ChangePaymentStatus(next PaymentStatus) error {
+	if !next.Valid() {
+		return ErrInvalidPaymentStatus
+	}
+	b.PaymentStatus = next
+	b.UpdatedAt = time.Now().UTC()
+	return nil
 }

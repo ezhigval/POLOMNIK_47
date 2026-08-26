@@ -117,10 +117,14 @@ func (t Tour) HasPublicSchedule() bool {
 }
 
 func (t Tour) BookingTotal(peopleCount int) int {
-	if t.IsRegular || peopleCount <= 0 {
+	if peopleCount <= 0 || t.Price <= 0 {
 		return 0
 	}
 	return t.Price * peopleCount
+}
+
+func (t Tour) HasPublicPrice() bool {
+	return t.Price > 0
 }
 
 func (t Tour) ScheduleEndedOn(today time.Time) bool {

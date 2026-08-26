@@ -38,6 +38,21 @@ export function bookingStatusVariant(status: string): BadgeVariant {
   }
 }
 
+export function paymentStatusVariant(status: string): BadgeVariant {
+  switch (status) {
+    case "PAID":
+      return "success";
+    case "AWAITING_PAYMENT":
+      return "warning";
+    case "UNPAID":
+      return "brand";
+    case "NOT_REQUIRED":
+      return "neutral";
+    default:
+      return "neutral";
+  }
+}
+
 export function syncStatusVariant(status: string): BadgeVariant {
   switch (status) {
     case "synced":

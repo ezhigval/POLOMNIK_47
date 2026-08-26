@@ -173,6 +173,7 @@ func NewRouter(cfg config.Config, log *slog.Logger, services Services, health He
 	management.Get("/bookings", require(domain.PermManageBookings), h.ManagementListBookings)
 	management.Get("/bookings/:id", require(domain.PermManageBookings), h.ManagementGetBooking)
 	management.Patch("/bookings/:id/status", require(domain.PermManageBookings), h.ManagementUpdateBookingStatus)
+	management.Patch("/bookings/:id/payment-status", require(domain.PermManageBookings), h.ManagementUpdateBookingPaymentStatus)
 
 	management.Get("/support", require(domain.PermManageSupport), h.ManagementListSupportThreads)
 	management.Get("/support/:id", require(domain.PermManageSupport), h.ManagementGetSupportThread)

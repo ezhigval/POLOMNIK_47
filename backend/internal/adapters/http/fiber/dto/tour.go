@@ -63,9 +63,11 @@ func ToTourResponse(tour domain.Tour) TourResponse {
 		IsRegular:          tour.IsRegular,
 		OverbookingEnabled: tour.OverbookingEnabled,
 	}
-	if !tour.IsRegular {
+	if tour.HasPublicPrice() {
 		price := tour.Price
 		resp.Price = &price
+	}
+	if !tour.IsRegular {
 		resp.DateStart = formatDatePtr(tour.DateStart)
 		resp.DateEnd = formatDatePtr(tour.DateEnd)
 	}

@@ -26,7 +26,7 @@ export function CreateTourForm() {
         slug: String(formData.get("slug") ?? ""),
         title: String(formData.get("title") ?? ""),
         description: String(formData.get("description") ?? ""),
-        price: isRegular ? 0 : Number(formData.get("price") ?? 0),
+        price: Number(formData.get("price") ?? 0),
         currency: String(formData.get("currency") ?? "RUB") || "RUB",
         date_start: isRegular ? "" : String(formData.get("date_start") ?? ""),
         date_end: isRegular ? "" : String(formData.get("date_end") ?? ""),

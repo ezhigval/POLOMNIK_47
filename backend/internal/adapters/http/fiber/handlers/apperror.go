@@ -36,6 +36,8 @@ func MapError(err error) *AppError {
 		return &AppError{Status: 422, Code: "VALIDATION_ERROR", Message: "Нельзя изменить статус заявки"}
 	case errors.Is(err, domain.ErrInvalidBookingStatus):
 		return &AppError{Status: 422, Code: "VALIDATION_ERROR", Message: "Некорректный статус заявки"}
+	case errors.Is(err, domain.ErrInvalidPaymentStatus):
+		return &AppError{Status: 422, Code: "VALIDATION_ERROR", Message: "Некорректный статус оплаты"}
 	case errors.Is(err, domain.ErrInvalidCredentials):
 		return &AppError{Status: 401, Code: "UNAUTHORIZED", Message: "Неверный логин или пароль"}
 	case errors.Is(err, application.ErrPhoneVerificationUnavailable):

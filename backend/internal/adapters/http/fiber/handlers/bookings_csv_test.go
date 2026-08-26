@@ -21,8 +21,9 @@ func TestManagementBookingsCSVIncludesExistingFields(t *testing.T) {
 		Phone:       "+7999",
 		Email:       "a@b.c",
 		PeopleCount: 2,
-		Status:      domain.BookingStatusNew,
-		TotalPrice:  15000,
+		Status:        domain.BookingStatusNew,
+		PaymentStatus: domain.PaymentStatusUnpaid,
+		TotalPrice:    15000,
 		Comment:     "нужен трансфер",
 		Source:      "web",
 		CreatedAt:   created,
@@ -31,7 +32,7 @@ func TestManagementBookingsCSVIncludesExistingFields(t *testing.T) {
 		t.Fatal(err)
 	}
 	text := string(body)
-	if !strings.Contains(text, "id,created_at,status,name,phone,email,tour_id") {
+	if !strings.Contains(text, "id,created_at,status,payment_status,name,phone,email,tour_id") {
 		t.Fatalf("header: %q", text)
 	}
 	if !strings.Contains(text, "Иван") || !strings.Contains(text, "NEW") || !strings.Contains(text, "15000") {
