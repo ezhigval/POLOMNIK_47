@@ -8,6 +8,7 @@ import { HeroSection } from "@/components/hero-section";
 import { HomeNewsSection, HomeNewsSkeleton } from "@/components/home-news-section";
 import { HowItWorksSection } from "@/components/how-it-works";
 import { PopularDestinations, PopularDestinationsSkeleton } from "@/components/popular-destinations";
+import { ViewedToursSection } from "@/components/viewed-tours-section";
 import { TestimonialsSection } from "@/components/testimonials-section";
 import { WhyUsSection } from "@/components/why-us-section";
 import { getPublishedPage } from "@/lib/api/cms";
@@ -68,6 +69,7 @@ export default async function HomePage() {
         <Suspense fallback={<PopularDestinationsSkeleton />}>
           <PopularDestinations />
         </Suspense>
+        <ViewedToursSection />
         <AboutSection />
         <WhyUsSection />
         <HowItWorksSection />

@@ -115,6 +115,12 @@ type FavoriteRepository interface {
 	IsFavorite(ctx context.Context, userID, tourID uuid.UUID) (bool, error)
 }
 
+type TourViewRepository interface {
+	RecordTourView(ctx context.Context, userID, tourID uuid.UUID) error
+	ListViewedTourIDs(ctx context.Context, userID uuid.UUID, limit int) ([]uuid.UUID, error)
+	MergeTourViews(ctx context.Context, userID uuid.UUID, tourIDs []uuid.UUID) error
+}
+
 type SupportRepository interface {
 	GetOpenThread(ctx context.Context, userID uuid.UUID) (domain.SupportThread, error)
 	GetThreadByID(ctx context.Context, threadID uuid.UUID) (domain.SupportThread, error)

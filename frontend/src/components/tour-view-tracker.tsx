@@ -13,5 +13,13 @@ export function TourViewTracker({ tourId, title }: TourViewTrackerProps) {
     trackTourView(tourId, title);
   }, [tourId, title]);
 
+  useEffect(() => {
+    void fetch("/api/viewed-tours", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ tour_id: tourId }),
+    });
+  }, [tourId]);
+
   return null;
 }

@@ -500,19 +500,31 @@ function AboutForm({ content, loading, error, onCancel, onSave }: BlockFormField
   const [paragraphs, setParagraphs] = useState(stringArray(content, "paragraphs"));
   const [highlights, setHighlights] = useState(stringArray(content, "highlights"));
   const [showContacts, setShowContacts] = useState(boolValue(content, "showContacts", true));
+  const [stats, setStats] = useState(
+    objectArray<{ value: string; label: string }>(content, "stats", ["value", "label"]),
+  );
 
   return (
     <form
       className="space-y-3"
       onSubmit={(event) => {
         event.preventDefault();
-        onSave({ eyebrow, title, paragraphs, highlights, showContacts });
+        onSave({ eyebrow, title, paragraphs, highlights, showContacts, stats });
       }}
     >
       <Field label="Надзаголовок" value={eyebrow} onChange={setEyebrow} />
       <Field label="Заголовок" value={title} onChange={setTitle} />
       <StringListEditor label="Абзацы" values={paragraphs} onChange={setParagraphs} />
       <StringListEditor label="Акценты" values={highlights} onChange={setHighlights} />
+      <ObjectListEditor
+        label="Цифры"
+        rows={stats}
+        fields={[
+          { key: "value", value: "Значение" },
+          { key: "label", value: "Подпись" },
+        ]}
+        onChange={(rows) => setStats(rows as { value: string; label: string }[])}
+      />
       <label className="flex items-center gap-2 text-sm">
         <input
           type="checkbox"
