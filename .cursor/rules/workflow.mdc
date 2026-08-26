@@ -7,8 +7,8 @@ alwaysApply: true
 
 Публичный домен один: **https://tikhvin-palomnik.ru**. Отдельного preview-стенда нет.
 
-Порядок: отдельная ветка → тесты → PR в `main` → мерж → `make deploy` (только по просьбе).
+Порядок: отдельная ветка → тесты → PR в `main` → мерж → `make deploy` (только по просьбе, пока нет v4 этапа 12).
 
 `main` = прод. Каждое существенное изменение — своя ветка и свой PR; не смешивать hotfix и фичи.
 
-Не деплой на сервер сам, пока владелец не попросил. Не печатай `.env.production`. Не force-push `main`. Подробности: `AGENTS.md`, `docs/RELEASE.md`.
+Не деплой на сервер сам, пока владелец не попросил (до автодеплоя с `main`). Не два деплоя параллельно. Не `compose down -v`. Не печатай `.env.production`. Не force-push `main`. Goose на проде только `up`. Подробности: `AGENTS.md`, `docs/RELEASE.md`, `docs/V4_PLAN.md`.
