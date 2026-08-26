@@ -22,6 +22,7 @@ import { FavoriteButton } from "@/components/favorite-button";
 import { CompanyReply } from "@/components/testimonial-card";
 import { TourRecommendations } from "@/components/tour-recommendations";
 import { isUuidParam, tourPath, tourSeoDescription, tourSeoTitle } from "@/lib/tour-path";
+import { isRegularTour } from "@/lib/api/tours";
 
 type TourPageProps = {
   params: Promise<{ id: string }>;
@@ -92,7 +93,8 @@ export default async function TourPage({ params }: TourPageProps) {
   const { tour, reviews } = pageData;
   const profile = toBookingProfile(sessionUser);
   const soldOut = getSlotsAvailability(tour.slots_left) === "sold_out";
-  const duration = formatTourDuration(tour.date_start, tour.date_end);
+  const regular = isRegularTour(tour);
+  const duration = regular ? "" : formatTourDuration(tour.date_start, tour.date_end);
   const avgRating =
     reviews.data.length > 0
       ? reviews.data.reduce((sum, r) => sum + r.rating, 0) / reviews.data.length
@@ -147,6 +149,11 @@ export default async function TourPage({ params }: TourPageProps) {
                     ) : null}
                   </div>
                   <div className="flex flex-wrap gap-2">
+                    {regular ? (
+                      <span className="rounded-full bg-stone-100 px-3 py-1 text-xs font-medium text-stone-700">
+                        Регулярный тур
+                      </span>
+                    ) : null}
                     {duration ? (
                       <span className="rounded-full bg-stone-100 px-3 py-1 text-xs font-medium text-stone-700">
                         {duration}
@@ -161,23 +168,27 @@ export default async function TourPage({ params }: TourPageProps) {
                   </div>
                 </div>
 
-                <dl className="mb-8 grid gap-3 rounded-xl bg-stone-50 p-4 sm:grid-cols-4">
-                  <div>
-                    <dt className="text-xs font-medium uppercase tracking-wide text-stone-500">Даты</dt>
-                    <dd className="mt-1 text-sm font-medium text-stone-900">
-                      {formatDateRange(tour.date_start, tour.date_end)}
-                    </dd>
-                  </div>
-                  <div>
-                    <dt className="text-xs font-medium uppercase tracking-wide text-stone-500">Длительность</dt>
-                    <dd className="mt-1 text-sm font-medium text-stone-900">{duration || "—"}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-xs font-medium uppercase tracking-wide text-stone-500">Стоимость</dt>
-                    <dd className="mt-1 text-sm font-medium text-stone-900">
-                      {formatPrice(tour.price, tour.currency)} / чел.
-                    </dd>
-                  </div>
+                <dl className={`mb-8 grid gap-3 rounded-xl bg-stone-50 p-4 ${regular ? "sm:grid-cols-2" : "sm:grid-cols-4"}`}>
+                  {regular ? null : (
+                    <>
+                      <div>
+                        <dt className="text-xs font-medium uppercase tracking-wide text-stone-500">Даты</dt>
+                        <dd className="mt-1 text-sm font-medium text-stone-900">
+                          {formatDateRange(tour.date_start, tour.date_end)}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt className="text-xs font-medium uppercase tracking-wide text-stone-500">Длительность</dt>
+                        <dd className="mt-1 text-sm font-medium text-stone-900">{duration || "—"}</dd>
+                      </div>
+                      <div>
+                        <dt className="text-xs font-medium uppercase tracking-wide text-stone-500">Стоимость</dt>
+                        <dd className="mt-1 text-sm font-medium text-stone-900">
+                          {formatPrice(tour.price, tour.currency)} / чел.
+                        </dd>
+                      </div>
+                    </>
+                  )}
                   <div>
                     <dt className="text-xs font-medium uppercase tracking-wide text-stone-500">Группа</dt>
                     <dd className="mt-1 text-sm font-medium text-stone-900">до {tour.slots_total} чел.</dd>
@@ -254,10 +265,10 @@ export default async function TourPage({ params }: TourPageProps) {
 
       <MobileBookingCTA
         disabled={soldOut}
-        price={tour.price}
+        price={regular ? undefined : (tour.price ?? undefined)}
         currency={tour.currency}
-        dateStart={tour.date_start}
-        dateEnd={tour.date_end}
+        dateStart={regular ? undefined : (tour.date_start ?? undefined)}
+        dateEnd={regular ? undefined : (tour.date_end ?? undefined)}
       />
     </>
   );

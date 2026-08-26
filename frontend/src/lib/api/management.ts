@@ -57,6 +57,7 @@ export type TourUpsertInput = {
   images: string[];
   is_active: boolean;
   is_hot: boolean;
+  is_regular: boolean;
   overbooking_enabled: boolean;
 };
 

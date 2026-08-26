@@ -10,6 +10,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 
+	"palomnik/internal/adapters/http/fiber/dto"
 	"palomnik/internal/domain"
 	"palomnik/internal/ports"
 )
@@ -90,6 +91,21 @@ func parseRequiredDate(value string) (time.Time, error) {
 		}
 	}
 	return *parsed, nil
+}
+
+func parseTourSchedule(req dto.TourUpsertRequest) (time.Time, time.Time, error) {
+	if req.IsRegular {
+		return time.Time{}, time.Time{}, nil
+	}
+	dateStart, err := parseRequiredDate(req.DateStart)
+	if err != nil {
+		return time.Time{}, time.Time{}, err
+	}
+	dateEnd, err := parseRequiredDate(req.DateEnd)
+	if err != nil {
+		return time.Time{}, time.Time{}, err
+	}
+	return dateStart, dateEnd, nil
 }
 
 func parseUUID(value string) (uuid.UUID, error) {

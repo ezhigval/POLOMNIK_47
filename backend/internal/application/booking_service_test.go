@@ -181,6 +181,62 @@ func TestBookingServiceUpdateBookingStatusFollowsDomainRules(t *testing.T) {
 	}
 }
 
+func TestBookingServiceCreateBookingAcceptsRegularTour(t *testing.T) {
+	ctx := context.Background()
+	store := memory.NewStore()
+	service := newBookingService(store)
+
+	tour := testTour(func(input *domain.NewTourInput) {
+		input.IsRegular = true
+		input.Price = 0
+		input.DateStart = testDate(2020, 1, 1)
+		input.DateEnd = testDate(2020, 1, 2)
+	})
+	if _, err := store.CreateTour(ctx, tour); err != nil {
+		t.Fatalf("create tour: %v", err)
+	}
+
+	result, err := service.CreateBooking(ctx, CreateBookingInput{
+		TourID:      tour.ID,
+		Name:        "Иван Иванов",
+		Phone:       "+79999999999",
+		PeopleCount: 2,
+	})
+	if err != nil {
+		t.Fatalf("create booking: %v", err)
+	}
+	if result.Booking.Status != domain.BookingStatusNew {
+		t.Fatalf("expected NEW, got %s", result.Booking.Status)
+	}
+	if result.Booking.TotalPrice != 0 {
+		t.Fatalf("expected total 0, got %d", result.Booking.TotalPrice)
+	}
+}
+
+func TestBookingServiceCreateBookingRejectsExpiredDatedTour(t *testing.T) {
+	ctx := context.Background()
+	store := memory.NewStore()
+	service := newBookingService(store)
+
+	tour := testTour(func(input *domain.NewTourInput) {
+		input.DateStart = testDate(2020, 1, 1)
+		input.DateEnd = testDate(2020, 1, 5)
+	})
+	if _, err := store.CreateTour(ctx, tour); err != nil {
+		t.Fatalf("create tour: %v", err)
+	}
+
+	_, err := service.CreateBooking(ctx, CreateBookingInput{
+		TourID:      tour.ID,
+		Name:        "Иван Иванов",
+		Phone:       "+79999999999",
+		PeopleCount: 1,
+	})
+	if !errors.Is(err, ErrTourExpired) {
+		t.Fatalf("expected tour expired, got %v", err)
+	}
+}
+
 func TestBookingServiceListAllBookingsFiltersByStatus(t *testing.T) {
 	ctx := context.Background()
 	store := memory.NewStore()

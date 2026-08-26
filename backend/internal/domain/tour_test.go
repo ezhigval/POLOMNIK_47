@@ -64,6 +64,101 @@ func TestTourOverbookingAllowsReservationWithoutNegativeSlots(t *testing.T) {
 	}
 }
 
+func TestNewTourRegularAllowsMissingDates(t *testing.T) {
+	tour, err := NewTour(validTourInput(func(input *NewTourInput) {
+		input.IsRegular = true
+		input.Price = 0
+		input.DateStart = time.Time{}
+		input.DateEnd = time.Time{}
+	}))
+	if err != nil {
+		t.Fatalf("create regular tour: %v", err)
+	}
+	if !tour.IsRegular {
+		t.Fatal("expected is_regular")
+	}
+	if !tour.DateStart.IsZero() || !tour.DateEnd.IsZero() {
+		t.Fatalf("expected empty dates, got %v – %v", tour.DateStart, tour.DateEnd)
+	}
+}
+
+func TestNewTourRegularClearsProvidedDates(t *testing.T) {
+	tour, err := NewTour(validTourInput(func(input *NewTourInput) {
+		input.IsRegular = true
+	}))
+	if err != nil {
+		t.Fatalf("create regular tour: %v", err)
+	}
+	if !tour.DateStart.IsZero() || !tour.DateEnd.IsZero() {
+		t.Fatal("regular tour must not keep a schedule")
+	}
+	if tour.HasPublicSchedule() {
+		t.Fatal("regular tour must not have a public schedule")
+	}
+}
+
+func TestNewTourStillRequiresDatesWhenNotRegular(t *testing.T) {
+	_, err := NewTour(validTourInput(func(input *NewTourInput) {
+		input.DateStart = time.Time{}
+		input.DateEnd = time.Time{}
+	}))
+	if !errors.Is(err, ErrInvalidDateRange) {
+		t.Fatalf("expected invalid date range, got %v", err)
+	}
+}
+
+func TestTourBookingTotalZeroWhenRegular(t *testing.T) {
+	tour, err := NewTour(validTourInput(func(input *NewTourInput) {
+		input.IsRegular = true
+		input.Price = 3500
+	}))
+	if err != nil {
+		t.Fatalf("create regular tour: %v", err)
+	}
+	if got := tour.BookingTotal(2); got != 0 {
+		t.Fatalf("expected booking total 0 for regular tour, got %d", got)
+	}
+}
+
+func TestCompareToursByCatalogPutsRegularAfterDated(t *testing.T) {
+	datedLater, err := NewTour(validTourInput(func(input *NewTourInput) {
+		input.ID = uuid.MustParse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")
+		input.Slug = "dated-later"
+		input.DateStart = time.Date(2026, 10, 1, 0, 0, 0, 0, time.UTC)
+		input.DateEnd = time.Date(2026, 10, 3, 0, 0, 0, 0, time.UTC)
+	}))
+	if err != nil {
+		t.Fatalf("dated later: %v", err)
+	}
+	datedSooner, err := NewTour(validTourInput(func(input *NewTourInput) {
+		input.ID = uuid.MustParse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb")
+		input.Slug = "dated-sooner"
+		input.DateStart = time.Date(2026, 9, 1, 0, 0, 0, 0, time.UTC)
+		input.DateEnd = time.Date(2026, 9, 3, 0, 0, 0, 0, time.UTC)
+	}))
+	if err != nil {
+		t.Fatalf("dated sooner: %v", err)
+	}
+	regular, err := NewTour(validTourInput(func(input *NewTourInput) {
+		input.ID = uuid.MustParse("00000000-0000-0000-0000-000000000001")
+		input.Slug = "regular"
+		input.IsRegular = true
+	}))
+	if err != nil {
+		t.Fatalf("regular: %v", err)
+	}
+
+	if CompareToursByCatalog(datedSooner, datedLater) >= 0 {
+		t.Fatal("expected sooner dated tour before later dated tour")
+	}
+	if CompareToursByCatalog(datedLater, regular) >= 0 {
+		t.Fatal("expected dated tour before regular tour")
+	}
+	if CompareToursByCatalog(regular, datedSooner) <= 0 {
+		t.Fatal("expected regular tour after dated tour")
+	}
+}
+
 func TestNewTourEmptyImagesNotNil(t *testing.T) {
 	tour, err := NewTour(validTourInput())
 	if err != nil {

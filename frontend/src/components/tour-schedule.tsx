@@ -8,6 +8,7 @@ import {
 } from "@/lib/format";
 import type { Tour } from "@/lib/api/tours";
 import { tourPath } from "@/lib/tour-path";
+import { isRegularTour } from "@/lib/api/tours";
 
 type TourScheduleProps = {
   tours: Tour[];
@@ -46,12 +47,13 @@ export function TourSchedule({ tours }: TourScheduleProps) {
 
 function ScheduleRow({ tour }: { tour: Tour }) {
   const soldOut = getSlotsAvailability(tour.slots_left) === "sold_out";
-  const duration = formatTourDuration(tour.date_start, tour.date_end);
+  const regular = isRegularTour(tour);
+  const duration = regular ? "" : formatTourDuration(tour.date_start, tour.date_end);
 
   return (
     <tr className="border-t border-stone-100 align-top">
       <td className="whitespace-nowrap px-4 py-4 text-stone-800">
-        {formatDateRange(tour.date_start, tour.date_end)}
+        {regular ? "Регулярный тур" : formatDateRange(tour.date_start, tour.date_end)}
       </td>
       <td className="whitespace-nowrap px-4 py-4 text-stone-600">{duration || "—"}</td>
       <td className="px-4 py-4">
@@ -61,8 +63,12 @@ function ScheduleRow({ tour }: { tour: Tour }) {
         {tour.location ? <p className="mt-1 text-xs text-stone-500">{tour.location}</p> : null}
       </td>
       <td className="whitespace-nowrap px-4 py-4 font-medium text-stone-900">
-        {formatPrice(tour.price, tour.currency)}
-        <span className="ml-1 text-xs font-normal text-stone-500">/ чел.</span>
+        {regular ? "—" : (
+          <>
+            {formatPrice(tour.price, tour.currency)}
+            <span className="ml-1 text-xs font-normal text-stone-500">/ чел.</span>
+          </>
+        )}
       </td>
       <td className="px-4 py-4">
         <SlotsBadge slotsLeft={tour.slots_left} />
@@ -82,7 +88,8 @@ function ScheduleRow({ tour }: { tour: Tour }) {
 
 function ScheduleCard({ tour }: { tour: Tour }) {
   const soldOut = getSlotsAvailability(tour.slots_left) === "sold_out";
-  const duration = formatTourDuration(tour.date_start, tour.date_end);
+  const regular = isRegularTour(tour);
+  const duration = regular ? "" : formatTourDuration(tour.date_start, tour.date_end);
 
   return (
     <article className="flex flex-col gap-3 p-4">
@@ -95,23 +102,27 @@ function ScheduleCard({ tour }: { tour: Tour }) {
         </div>
         <SlotsBadge slotsLeft={tour.slots_left} />
       </div>
-      <dl className="grid grid-cols-2 gap-2 text-sm text-stone-600">
-        <div>
-          <dt className="text-xs uppercase tracking-wide text-stone-400">Даты</dt>
-          <dd className="text-stone-800">{formatDateRange(tour.date_start, tour.date_end)}</dd>
-        </div>
-        <div>
-          <dt className="text-xs uppercase tracking-wide text-stone-400">Длительность</dt>
-          <dd className="text-stone-800">{duration || "—"}</dd>
-        </div>
-        <div className="col-span-2">
-          <dt className="text-xs uppercase tracking-wide text-stone-400">Стоимость</dt>
-          <dd className="font-medium text-stone-900">
-            {formatPrice(tour.price, tour.currency)}
-            <span className="ml-1 text-xs font-normal text-stone-500">/ чел.</span>
-          </dd>
-        </div>
-      </dl>
+      {regular ? (
+        <p className="text-sm text-stone-600">Регулярный тур</p>
+      ) : (
+        <dl className="grid grid-cols-2 gap-2 text-sm text-stone-600">
+          <div>
+            <dt className="text-xs uppercase tracking-wide text-stone-400">Даты</dt>
+            <dd className="text-stone-800">{formatDateRange(tour.date_start, tour.date_end)}</dd>
+          </div>
+          <div>
+            <dt className="text-xs uppercase tracking-wide text-stone-400">Длительность</dt>
+            <dd className="text-stone-800">{duration || "—"}</dd>
+          </div>
+          <div className="col-span-2">
+            <dt className="text-xs uppercase tracking-wide text-stone-400">Стоимость</dt>
+            <dd className="font-medium text-stone-900">
+              {formatPrice(tour.price, tour.currency)}
+              <span className="ml-1 text-xs font-normal text-stone-500">/ чел.</span>
+            </dd>
+          </div>
+        </dl>
+      )}
       <Link
         href={tourPath(tour)}
         className={`btn-primary w-full ${soldOut ? "pointer-events-none opacity-50" : ""}`}

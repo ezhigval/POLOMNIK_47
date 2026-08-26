@@ -2,6 +2,7 @@ package memory
 
 import (
 	"context"
+	"sort"
 	"strings"
 	"sync"
 
@@ -36,7 +37,7 @@ type Store struct {
 	adminAssignments    []domain.AdminRoleAssignment
 	legalDocuments      map[uuid.UUID]domain.LegalDocument
 	consents            map[uuid.UUID]domain.Consent
-	userPhotos         map[uuid.UUID]domain.UserPhoto
+	userPhotos          map[uuid.UUID]domain.UserPhoto
 }
 
 func (s *Store) WithinTransaction(ctx context.Context, fn func(context.Context) error) error {
@@ -65,7 +66,7 @@ func NewStore() *Store {
 		adminAssignments: nil,
 		legalDocuments:   make(map[uuid.UUID]domain.LegalDocument),
 		consents:         make(map[uuid.UUID]domain.Consent),
-		userPhotos:      make(map[uuid.UUID]domain.UserPhoto),
+		userPhotos:       make(map[uuid.UUID]domain.UserPhoto),
 	}
 }
 
@@ -80,6 +81,10 @@ func (s *Store) ListTours(_ context.Context, filters ports.TourFilters, paginati
 		}
 		items = append(items, cloneTour(tour))
 	}
+
+	sort.SliceStable(items, func(i, j int) bool {
+		return domain.CompareToursByCatalog(items[i], items[j]) < 0
+	})
 
 	pageItems, meta := page(items, pagination)
 	return ports.TourList{Items: pageItems, Meta: meta}, nil
@@ -331,11 +336,13 @@ func matchesTourFilters(tour domain.Tour, filters ports.TourFilters) bool {
 	if filters.PriceMax != nil && tour.Price > *filters.PriceMax {
 		return false
 	}
-	if filters.DateFrom != nil && tour.DateEnd.Before(*filters.DateFrom) {
-		return false
-	}
-	if filters.DateTo != nil && tour.DateStart.After(*filters.DateTo) {
-		return false
+	if !tour.IsRegular {
+		if filters.DateFrom != nil && tour.DateEnd.Before(*filters.DateFrom) {
+			return false
+		}
+		if filters.DateTo != nil && tour.DateStart.After(*filters.DateTo) {
+			return false
+		}
 	}
 	if strings.TrimSpace(filters.Location) != "" {
 		needle := strings.ToLower(strings.TrimSpace(filters.Location))

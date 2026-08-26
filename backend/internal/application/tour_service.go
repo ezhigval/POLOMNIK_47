@@ -35,6 +35,7 @@ type CreateTourInput struct {
 	Images             []string
 	IsActive           bool
 	IsHot              bool
+	IsRegular          bool
 	OverbookingEnabled bool
 }
 
@@ -112,6 +113,7 @@ func (s *TourService) CreateTour(ctx context.Context, input CreateTourInput) (do
 		Images:             input.Images,
 		IsActive:           input.IsActive,
 		IsHot:              input.IsHot,
+		IsRegular:          input.IsRegular,
 		OverbookingEnabled: input.OverbookingEnabled,
 	})
 	if err != nil {
@@ -147,6 +149,7 @@ func (s *TourService) UpdateTour(ctx context.Context, id uuid.UUID, input Update
 		Images:             input.Images,
 		IsActive:           input.IsActive,
 		IsHot:              input.IsHot,
+		IsRegular:          input.IsRegular,
 		OverbookingEnabled: input.OverbookingEnabled,
 		Now:                existing.CreatedAt,
 	})
@@ -201,6 +204,7 @@ func (s *TourService) PatchTourOps(ctx context.Context, id uuid.UUID, patch Tour
 		Images:             append([]string(nil), existing.Images...),
 		IsActive:           existing.IsActive,
 		IsHot:              existing.IsHot,
+		IsRegular:          existing.IsRegular,
 		OverbookingEnabled: existing.OverbookingEnabled,
 	}
 	if patch.SlotsTotal != nil {

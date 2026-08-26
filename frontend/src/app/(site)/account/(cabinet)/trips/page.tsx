@@ -65,7 +65,11 @@ export default async function MyTripsPage() {
                     <h2 className="text-lg font-semibold text-stone-900">{tour?.title ?? "Тур"}</h2>
                     {tour ? (
                       <p className="mt-1 text-sm text-stone-500">
-                        {formatDateRange(tour.date_start, tour.date_end)} · {tour.location}
+                        {tour.is_regular
+                          ? ["Регулярный тур", tour.location].filter(Boolean).join(" · ")
+                          : [formatDateRange(tour.date_start, tour.date_end), tour.location]
+                              .filter(Boolean)
+                              .join(" · ")}
                       </p>
                     ) : null}
                   </div>
@@ -82,7 +86,9 @@ export default async function MyTripsPage() {
                   <div>
                     <dt className="text-stone-500">Сумма</dt>
                     <dd className="font-medium text-stone-900">
-                      {formatPrice(booking.total_price, tour?.currency ?? "RUB")}
+                      {tour?.is_regular
+                        ? "—"
+                        : formatPrice(booking.total_price, tour?.currency ?? "RUB")}
                     </dd>
                   </div>
                   <div>
@@ -94,8 +100,9 @@ export default async function MyTripsPage() {
                 <div className="mt-4 rounded-xl bg-stone-50 p-3 text-sm text-stone-600">
                   <p className="font-medium text-stone-800">Оплата</p>
                   <p className="mt-1">
-                    Сумма заявки: {formatPrice(booking.total_price, tour?.currency ?? "RUB")}.
-                    Онлайн-оплата на сайте не подключена — порядок оплаты уточняет менеджер.
+                    {tour?.is_regular
+                      ? "Онлайн-оплата на сайте не подключена — порядок оплаты уточняет менеджер."
+                      : `Сумма заявки: ${formatPrice(booking.total_price, tour?.currency ?? "RUB")}. Онлайн-оплата на сайте не подключена — порядок оплаты уточняет менеджер.`}
                   </p>
                 </div>
 
