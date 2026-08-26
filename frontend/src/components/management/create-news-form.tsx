@@ -67,7 +67,7 @@ export function CreateNewsForm() {
           name="body"
           rows={8}
           className="input-field"
-          placeholder="Абзацы разделяйте пустой строкой — каждый абзац попадёт в попап."
+          placeholder="Абзацы разделяйте пустой строкой. Фотолента: один адрес картинки на строку, без другого текста."
         />
       </label>
 

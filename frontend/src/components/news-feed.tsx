@@ -29,7 +29,9 @@ export function NewsFeed({ articles }: NewsFeedProps) {
               <span className="mt-2 font-display text-xl font-semibold text-stone-900 group-hover:text-brand-800 sm:text-2xl">
                 {article.title}
               </span>
-              <span className="mt-2 line-clamp-3 text-sm leading-6 text-stone-600">{article.excerpt}</span>
+              {article.photoStrip.length === 0 ? (
+                <span className="mt-2 line-clamp-3 text-sm leading-6 text-stone-600">{article.excerpt}</span>
+              ) : null}
               <span className="mt-4 text-sm font-medium text-brand-800">Читать статью →</span>
             </span>
           </Link>
