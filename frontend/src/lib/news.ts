@@ -13,6 +13,10 @@ export type NewsArticle = {
 
 const IMAGE_SRC_PATTERN = /^(?:https?:\/\/|\/)\S+\.(?:jpe?g|png|webp|gif)$/i;
 
+export function isNewsImageSrc(value: string): boolean {
+  return IMAGE_SRC_PATTERN.test(value.trim());
+}
+
 export function photoStripSrcs(body: string): string[] {
   const lines = body
     .split(/\r?\n/)
