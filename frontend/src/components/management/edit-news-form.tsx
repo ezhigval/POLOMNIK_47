@@ -73,7 +73,14 @@ export function EditNewsForm({ article }: EditNewsFormProps) {
       </label>
       <label className="block text-sm">
         <span className="mb-1 block font-medium">Текст статьи</span>
-        <textarea required name="body" rows={8} defaultValue={article.body} className="input-field" />
+        <textarea
+          required
+          name="body"
+          rows={8}
+          defaultValue={article.body}
+          className="input-field"
+          placeholder="Абзацы разделяйте пустой строкой. Фотолента: один адрес картинки на строку, без другого текста."
+        />
       </label>
       <NewsImageField defaultValue={article.image_url} />
       <label className="block text-sm">

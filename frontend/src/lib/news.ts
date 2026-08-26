@@ -7,7 +7,28 @@ export type NewsArticle = {
   excerpt: string;
   image: string;
   paragraphs: string[];
+  photoStrip: string[];
 };
+
+const IMAGE_SRC_PATTERN = /^(?:https?:\/\/|\/)\S+\.(?:jpe?g|png|webp|gif)$/i;
+
+export function photoStripSrcs(body: string): string[] {
+  const lines = body
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+  if (lines.length === 0) {
+    return [];
+  }
+  if (lines.every((line) => IMAGE_SRC_PATTERN.test(line))) {
+    return lines;
+  }
+  return [];
+}
+
+export function isPhotoStripBody(body: string): boolean {
+  return photoStripSrcs(body).length > 0;
+}
 
 export const newsArticles: NewsArticle[] = [
   {
@@ -22,6 +43,7 @@ export const newsArticles: NewsArticle[] = [
       "За два дня вы идёте по святыням, которыми веками молились цари, монахи и богомольцы: от Старой Ладоги к чудотворной Тихвинской иконе Божией Матери и дальше — к Александро-Свирскому монастырю, единственному в России месту явления Святой Троицы. Затем путь уходит в Карелию.",
       "Записаться просто: оставьте заявку на сайте, менеджер перезвонит, уточнит детали и подтвердит участие. Оплату на сайте вносить не нужно.",
     ],
+    photoStrip: [],
   },
   {
     slug: "northern-route",
@@ -35,6 +57,7 @@ export const newsArticles: NewsArticle[] = [
       "Паломники начинают путь в Санкт-Петербурге и за два дня проходят святыни, связанные с историей Руси и чудотворной Тихвинской иконой Божией Матери.",
       "Дальше маршрут продолжается в Карелию. Мы помогаем пройти этот путь спокойно: с продуманной программой, сопровождением и заботой о каждом участнике.",
     ],
+    photoStrip: [],
   },
   {
     slug: "how-to-join",
@@ -48,6 +71,7 @@ export const newsArticles: NewsArticle[] = [
       "Мы индивидуально подбираем туры по вашим потребностям и возможностям. Если есть особые пожелания — напишите их в комментарии к заявке.",
       "Большинство туров подходят для взрослых и детей от 7 лет. Можно ехать одному, с семьёй или небольшой группой — состав поездки согласуем заранее.",
     ],
+    photoStrip: [],
   },
   {
     slug: "svir-and-tikhvin",
@@ -61,6 +85,7 @@ export const newsArticles: NewsArticle[] = [
       "На второй день путь ведёт к Александро-Свирскому монастырю. Это единственное в России место явления Святой Троицы: здесь покоятся мощи преподобного Александра Свирского.",
       "Программа включает также Старую Ладогу, Введенский монастырь и тихие места Нижне-Свирского заповедника — чтобы было время не только на дорогу, но и на молитву.",
     ],
+    photoStrip: [],
   },
 ];
 
@@ -88,12 +113,14 @@ export function toFeedArticle(article: {
   image_url: string;
   published_at: string;
 }): NewsArticle {
+  const photoStrip = photoStripSrcs(article.body);
   return {
     slug: article.slug,
     title: article.title,
     date: article.published_at.slice(0, 10),
     excerpt: article.excerpt,
-    image: article.image_url,
-    paragraphs: paragraphsFromBody(article.body),
+    image: article.image_url || photoStrip[0] || "",
+    paragraphs: photoStrip.length > 0 ? [] : paragraphsFromBody(article.body),
+    photoStrip,
   };
 }

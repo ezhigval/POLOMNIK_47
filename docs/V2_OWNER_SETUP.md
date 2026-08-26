@@ -104,7 +104,9 @@ NEXT_PUBLIC_YM_WEBVISOR=1      # только после согласия на �
 # NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION=...
 ```
 
-Дальше: после деплоя — «Проверить» в Яндекс.Вебмастере и Google Search Console, sitemap `https://tikhvin-palomnik.ru/sitemap.xml`.
+Дальше: после деплоя — «Проверить» в Яндекс.Вебмастере и Google Search Console, sitemap `https://tikhvin-palomnik.ru/sitemap.xml`.  
+Что ещё нужно для выдачи (контент туров, карта, ссылка с епархии) — [SEO_ADS.md](./SEO_ADS.md).  
+Реклама — по вашему решению; код событий уже есть (`begin_checkout`, `support_contact`, …).
 
 ---
 
