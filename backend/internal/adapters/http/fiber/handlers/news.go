@@ -94,6 +94,31 @@ func (h *Handler) ManagementUpdateNews(c *fiber.Ctx) error {
 	})
 }
 
+func (h *Handler) ManagementSetNewsPinned(c *fiber.Ctx) error {
+	id, err := parseUUID(c.Params("id"))
+	if err != nil {
+		return writeAppError(c, err)
+	}
+
+	var req dto.NewsPinRequest
+	if err := c.BodyParser(&req); err != nil {
+		return writeAppError(c, &AppError{
+			Status:  422,
+			Code:    "VALIDATION_ERROR",
+			Message: "Некорректные данные запроса",
+		})
+	}
+
+	article, err := h.news.SetNewsPinned(c.Context(), id, req.IsPinned)
+	if err != nil {
+		return respondError(c, err, MapError)
+	}
+
+	return c.JSON(dto.DataEnvelope[dto.NewsArticleResponse]{
+		Data: dto.ToNewsArticleResponse(article),
+	})
+}
+
 func (h *Handler) ManagementDeleteNews(c *fiber.Ctx) error {
 	id, err := parseUUID(c.Params("id"))
 	if err != nil {
@@ -130,6 +155,7 @@ func parseNewsArticleInput(c *fiber.Ctx) (application.NewsArticleInput, *AppErro
 		ImageURL:    req.ImageURL,
 		PublishedAt: publishedAt,
 		IsPublished: req.IsPublished,
+		IsPinned:    req.IsPinned,
 		SortOrder:   req.SortOrder,
 	}, nil
 }

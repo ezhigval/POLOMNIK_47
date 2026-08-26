@@ -187,6 +187,7 @@ func NewRouter(cfg config.Config, log *slog.Logger, services Services, health He
 	management.Get("/news", require(domain.PermManageContent), h.ManagementListNews)
 	management.Post("/news", require(domain.PermManageContent), h.ManagementCreateNews)
 	management.Get("/news/:id", require(domain.PermManageContent), h.ManagementGetNews)
+	management.Patch("/news/:id/pin", require(domain.PermManageContent), h.ManagementSetNewsPinned)
 	management.Patch("/news/:id", require(domain.PermManageContent), h.ManagementUpdateNews)
 	management.Delete("/news/:id", require(domain.PermManageContent), h.ManagementDeleteNews)
 

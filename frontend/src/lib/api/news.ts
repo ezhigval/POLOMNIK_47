@@ -9,6 +9,7 @@ export type PublicNewsArticle = {
   image_url: string;
   published_at: string;
   is_published: boolean;
+  is_pinned: boolean;
   sort_order: number;
 };
 

@@ -21,6 +21,7 @@ import {
   createManagementNews,
   updateManagementNews,
   deleteManagementNews,
+  setManagementNewsPinned,
   createManagementSMM,
   publishManagementSMM,
   deleteManagementSMM,
@@ -216,6 +217,7 @@ export async function reorderCmsBlocksAction(pageId: string, blockIds: string[],
 }
 
 function revalidateNewsPaths() {
+  revalidatePath("/");
   revalidatePath("/news");
   revalidatePath("/management/news");
 }
@@ -236,9 +238,15 @@ export async function deleteNewsAction(formData: FormData) {
   revalidateNewsPaths();
 }
 
+export async function toggleNewsPinAction(id: string, isPinned: boolean) {
+  await setManagementNewsPinned(id, isPinned);
+  revalidateNewsPaths();
+}
+
 function revalidateSMMPaths() {
   revalidatePath("/management/smm");
   revalidatePath("/news");
+  revalidatePath("/");
 }
 
 export async function createSMMPostAction(input: SMMPostCreateInput) {
