@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Breadcrumbs } from "@/components/breadcrumbs";
 import { NewsPhotoStrip } from "@/components/news-photo-strip";
 import { formatNewsDate, NEWS_AI_DISCLAIMER, paragraphsFromBody, toFeedArticle } from "@/lib/news";
 import { getPublicNewsBySlug } from "@/lib/api/news";
 import { ApiError } from "@/lib/api/client";
+import { NewsArticleStructuredData } from "@/components/structured-data";
 import { siteConfig } from "@/lib/site-config";
 
 type PageProps = {
@@ -36,8 +37,26 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       title: article.title,
       description: article.excerpt,
       url: `/news/${article.slug}`,
+      type: "article",
+      publishedTime: article.date,
+      ...(article.image ? { images: [{ url: article.image }] } : {}),
     },
   };
+}
+
+function NewsHeader({ article }: { article: ReturnType<typeof toFeedArticle> }) {
+  return (
+    <>
+      <NewsArticleStructuredData article={article} />
+      <Breadcrumbs
+        items={[
+          { name: "Главная", href: "/" },
+          { name: "Новости", href: "/news" },
+          { name: article.title },
+        ]}
+      />
+    </>
+  );
 }
 
 export default async function NewsArticlePage({ params }: PageProps) {
@@ -50,9 +69,7 @@ export default async function NewsArticlePage({ params }: PageProps) {
   if (article.photoStrip.length > 0) {
     return (
       <article className="mx-auto max-w-3xl space-y-6 px-4 py-8 sm:py-10">
-        <Link href="/news" className="text-sm text-stone-500 hover:text-brand-800">
-          ← Все новости
-        </Link>
+        <NewsHeader article={article} />
         <header className="space-y-2">
           <time dateTime={article.date} className="text-xs font-medium uppercase tracking-wide text-brand-800">
             {formatNewsDate(article.date)}
@@ -71,9 +88,7 @@ export default async function NewsArticlePage({ params }: PageProps) {
 
   return (
     <article className="mx-auto max-w-3xl space-y-6 px-4 py-8 sm:py-10">
-      <Link href="/news" className="text-sm text-stone-500 hover:text-brand-800">
-        ← Все новости
-      </Link>
+      <NewsHeader article={article} />
       <div className="overflow-hidden rounded-3xl border border-stone-200 bg-white shadow-sm">
         {article.image ? (
           <div className="aspect-[16/8] bg-stone-100">

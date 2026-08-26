@@ -6,6 +6,7 @@ import { formatBookingStatus, formatDateRange, formatPrice } from "@/lib/format"
 import { fetchMyBookings } from "@/lib/api/auth";
 import { getAuthToken } from "@/lib/auth/session";
 import { getTour } from "@/lib/api/tours";
+import { tourPath } from "@/lib/tour-path";
 
 export const metadata: Metadata = {
   title: "Мои поездки",
@@ -101,7 +102,7 @@ export default async function MyTripsPage() {
                 <div className="mt-4 flex flex-wrap gap-4">
                   {tour ? (
                     <Link
-                      href={`/tours/${tour.id}`}
+                      href={tourPath(tour)}
                       className="text-sm font-medium text-brand-800 hover:underline"
                     >
                       Открыть тур

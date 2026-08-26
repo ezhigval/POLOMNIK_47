@@ -4,22 +4,32 @@ import type { Metadata } from "next";
 import { CatalogStickyCTA } from "@/components/catalog-sticky-cta";
 import { TripSearchConstructor } from "@/components/trip-search-constructor";
 import { ToursSection } from "@/components/tours-section";
-import { parseTourFilters } from "@/lib/tour-filters";
-
-export const metadata: Metadata = {
-  title: "Расписание туров",
-  description: "Расписание паломнических туров: даты, стоимость и длительность.",
-  alternates: { canonical: "/search" },
-  openGraph: {
-    title: "Расписание туров",
-    description: "Расписание паломнических туров: даты, стоимость и длительность.",
-    url: "/search",
-  },
-};
+import { Breadcrumbs } from "@/components/breadcrumbs";
+import { hasActiveFilters, parseTourFilters } from "@/lib/tour-filters";
+import { siteConfig } from "@/lib/site-config";
 
 type SearchPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
+
+export async function generateMetadata({ searchParams }: SearchPageProps): Promise<Metadata> {
+  const params = await searchParams;
+  const filters = parseTourFilters(params);
+  const filtered = hasActiveFilters(filters);
+  const description = `Расписание паломнических туров из ${siteConfig.departureCity}: даты, стоимость и длительность.`;
+
+  return {
+    title: "Расписание туров",
+    description,
+    alternates: { canonical: "/search" },
+    robots: filtered ? { index: false, follow: true } : { index: true, follow: true },
+    openGraph: {
+      title: "Расписание туров",
+      description,
+      url: "/search",
+    },
+  };
+}
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
   const params = await searchParams;
@@ -27,13 +37,20 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
   return (
     <div className="mx-auto max-w-6xl space-y-8 px-4 py-8 pb-24 sm:py-10 lg:pb-10">
+      <Breadcrumbs
+        items={[
+          { name: "Главная", href: "/" },
+          { name: "Расписание туров" },
+        ]}
+      />
       <div className="space-y-3">
         <p className="text-sm font-medium uppercase tracking-widest text-brand-800">Туры</p>
         <h1 className="font-display text-3xl font-semibold text-stone-900 sm:text-4xl">
-          Расписание
+          Расписание паломнических туров
         </h1>
         <p className="max-w-2xl text-sm text-stone-600 sm:text-base">
-          Даты, стоимость и длительность — из карточки тура. Фильтр по датам и числу мест.
+          Даты, стоимость и длительность — из карточки тура. Выезд из {siteConfig.departureCity}.
+          Фильтр по датам и числу мест.
         </p>
       </div>
 

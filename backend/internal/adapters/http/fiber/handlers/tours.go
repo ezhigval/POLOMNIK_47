@@ -57,12 +57,7 @@ func (h *Handler) ListTours(c *fiber.Ctx) error {
 }
 
 func (h *Handler) GetTour(c *fiber.Ctx) error {
-	id, err := parseUUID(c.Params("id"))
-	if err != nil {
-		return writeAppError(c, err)
-	}
-
-	tour, err := h.tours.GetPublicTourCached(c.Context(), id)
+	tour, err := h.tours.GetPublicTourByKeyCached(c.Context(), c.Params("id"))
 	if err != nil {
 		return respondError(c, err, MapError)
 	}

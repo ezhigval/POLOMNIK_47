@@ -114,7 +114,7 @@ Response item:
 
 ### GET /api/v1/tours/{id}
 
-Returns one active tour.
+Returns one active tour. `{id}` — UUID **или публичный slug** (`optina-pustyn`). Регистр slug не важен.
 
 If tour is inactive or missing, return `404`.
 

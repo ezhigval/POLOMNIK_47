@@ -7,6 +7,7 @@ import {
   getSlotsAvailability,
 } from "@/lib/format";
 import type { Tour } from "@/lib/api/tours";
+import { tourPath } from "@/lib/tour-path";
 
 type TourScheduleProps = {
   tours: Tour[];
@@ -54,7 +55,7 @@ function ScheduleRow({ tour }: { tour: Tour }) {
       </td>
       <td className="whitespace-nowrap px-4 py-4 text-stone-600">{duration || "—"}</td>
       <td className="px-4 py-4">
-        <Link href={`/tours/${tour.id}`} className="font-medium text-stone-900 hover:text-brand-800">
+        <Link href={tourPath(tour)} className="font-medium text-stone-900 hover:text-brand-800">
           {tour.title}
         </Link>
         {tour.location ? <p className="mt-1 text-xs text-stone-500">{tour.location}</p> : null}
@@ -68,7 +69,7 @@ function ScheduleRow({ tour }: { tour: Tour }) {
       </td>
       <td className="px-4 py-4 text-right">
         <Link
-          href={`/tours/${tour.id}`}
+          href={tourPath(tour)}
           className={`btn-primary px-4 py-2 ${soldOut ? "pointer-events-none opacity-50" : ""}`}
           aria-disabled={soldOut}
         >
@@ -87,7 +88,7 @@ function ScheduleCard({ tour }: { tour: Tour }) {
     <article className="flex flex-col gap-3 p-4">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
-          <Link href={`/tours/${tour.id}`} className="font-medium text-stone-900 hover:text-brand-800">
+          <Link href={tourPath(tour)} className="font-medium text-stone-900 hover:text-brand-800">
             {tour.title}
           </Link>
           {tour.location ? <p className="mt-1 text-xs text-stone-500">{tour.location}</p> : null}
@@ -112,7 +113,7 @@ function ScheduleCard({ tour }: { tour: Tour }) {
         </div>
       </dl>
       <Link
-        href={`/tours/${tour.id}`}
+        href={tourPath(tour)}
         className={`btn-primary w-full ${soldOut ? "pointer-events-none opacity-50" : ""}`}
         aria-disabled={soldOut}
       >

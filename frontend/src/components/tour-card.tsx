@@ -9,6 +9,7 @@ import {
   getSlotsAvailability,
 } from "@/lib/format";
 import type { Tour } from "@/lib/api/tours";
+import { tourPath } from "@/lib/tour-path";
 
 type TourCardProps = {
   tour: Tour;
@@ -28,7 +29,7 @@ export function TourCard({ tour, featured = false }: TourCardProps) {
       }`}
     >
       <div className="relative">
-        <Link href={`/tours/${tour.id}`} className="relative block">
+        <Link href={tourPath(tour)} className="relative block">
           <TourImage tour={tour} overlay className="aspect-[16/10] w-full" />
           <div className="absolute left-3 top-3 flex flex-wrap gap-2">
             {tour.is_hot ? (
@@ -49,7 +50,7 @@ export function TourCard({ tour, featured = false }: TourCardProps) {
       </div>
 
       <div className="flex flex-1 flex-col p-5">
-        <Link href={`/tours/${tour.id}`}>
+        <Link href={tourPath(tour)}>
           <h2 className="font-display text-xl font-semibold leading-snug text-stone-900 transition group-hover:text-brand-800">
             {tour.title}
           </h2>
@@ -78,7 +79,7 @@ export function TourCard({ tour, featured = false }: TourCardProps) {
         </dl>
 
         <Link
-          href={`/tours/${tour.id}`}
+          href={tourPath(tour)}
           className={`btn-primary mt-4 w-full text-center ${soldOut ? "pointer-events-none opacity-50" : ""}`}
           aria-disabled={soldOut}
         >

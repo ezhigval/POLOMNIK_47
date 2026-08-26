@@ -1,4 +1,4 @@
-import { ApiError, apiGet } from "./client";
+import { ApiError, apiGet, apiGetList } from "./client";
 
 export type CmsBlockType =
   | "hero"
@@ -133,4 +133,26 @@ export async function getPublishedPage(slug: string): Promise<CmsPage | null> {
     }
     throw error;
   }
+}
+
+export async function listPublishedPages(): Promise<CmsPage[]> {
+  try {
+    const body = await apiGetList<CmsPage>("/pages");
+    return body.data ?? [];
+  } catch (error) {
+    if (error instanceof ApiError && (error.status === 404 || error.status >= 500)) {
+      return [];
+    }
+    throw error;
+  }
+}
+
+export function cmsPublicPath(page: Pick<CmsPage, "slug" | "path">): string | null {
+  if (page.slug === "home" || page.path === "/") {
+    return null;
+  }
+  if (page.path?.startsWith("/") && page.path !== "/") {
+    return page.path;
+  }
+  return `/pages/${page.slug}`;
 }

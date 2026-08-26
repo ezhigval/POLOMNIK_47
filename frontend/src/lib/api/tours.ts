@@ -54,7 +54,7 @@ export function getTours(params?: Record<string, string>) {
 }
 
 export function getTour(id: string) {
-  return apiGet<Tour>(`/tours/${id}`);
+  return apiGet<Tour>(`/tours/${encodeURIComponent(id)}`);
 }
 
 export function getPopularTours(limit = 10) {
