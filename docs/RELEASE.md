@@ -13,11 +13,13 @@ API: **https://api.tikhvin-palomnik.ru**
 
 1. Ветка от `main`: правка, `docker compose up --build -d`, тесты `go test` / `npm run lint`.
 2. GitHub: https://github.com/ezhigval/POLOMNIK_47 — PR в `main`, мерж после проверки.
-3. Прод:
+3. Прод (пока нет v4 этапа 12 — автодеплой с `main`):
 
 ```bash
 make deploy
 ```
+
+После этапа 12: зелёный CI на `main` сам выкладывает; два деплоя сразу не гонять. Миграции только `goose up`, без `compose down -v`.
 
 SSH: `ssh smailikin70@93.77.165.81` (каталог `/opt/palomnik`, либо `DEPLOY_DIR`).  
 Не `compose down -v` — не сбрасывать Postgres.
