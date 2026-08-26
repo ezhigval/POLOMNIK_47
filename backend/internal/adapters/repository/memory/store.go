@@ -5,6 +5,7 @@ import (
 	"sort"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/google/uuid"
 
@@ -38,6 +39,8 @@ type Store struct {
 	legalDocuments      map[uuid.UUID]domain.LegalDocument
 	consents            map[uuid.UUID]domain.Consent
 	userPhotos          map[uuid.UUID]domain.UserPhoto
+	newsLikes           map[newsLikeKey]time.Time
+	newsComments        map[uuid.UUID]domain.NewsComment
 }
 
 func (s *Store) WithinTransaction(ctx context.Context, fn func(context.Context) error) error {
@@ -67,6 +70,8 @@ func NewStore() *Store {
 		legalDocuments:   make(map[uuid.UUID]domain.LegalDocument),
 		consents:         make(map[uuid.UUID]domain.Consent),
 		userPhotos:       make(map[uuid.UUID]domain.UserPhoto),
+		newsLikes:        make(map[newsLikeKey]time.Time),
+		newsComments:     make(map[uuid.UUID]domain.NewsComment),
 	}
 }
 

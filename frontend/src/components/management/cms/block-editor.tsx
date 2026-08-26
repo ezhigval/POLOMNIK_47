@@ -494,10 +494,10 @@ function AboutForm({ content, loading, error, onCancel, onSave }: BlockFormField
   const [title, setTitle] = useState(stringValue(content, "title"));
   const [paragraphs, setParagraphs] = useState(stringArray(content, "paragraphs"));
   const [highlights, setHighlights] = useState(stringArray(content, "highlights"));
-  const [showContacts, setShowContacts] = useState(boolValue(content, "showContacts", true));
   const [stats, setStats] = useState(
     objectArray<{ value: string; label: string }>(content, "stats", ["value", "label"]),
   );
+  const [showContacts, setShowContacts] = useState(boolValue(content, "showContacts", true));
   return (
     <form
       className="space-y-3"

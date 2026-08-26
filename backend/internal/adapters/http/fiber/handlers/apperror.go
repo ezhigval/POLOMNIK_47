@@ -140,6 +140,10 @@ func mapValidationError(err error) *AppError {
 		return &AppError{Status: 422, Code: "VALIDATION_ERROR", Message: "Укажите дату публикации"}
 	case errors.Is(err, domain.ErrTooManyPinnedNews):
 		return &AppError{Status: 422, Code: "TOO_MANY_PINNED_NEWS", Message: "Можно закрепить не больше трёх новостей: одна главная и две рядом"}
+	case errors.Is(err, domain.ErrInvalidVisitorID):
+		return &AppError{Status: 422, Code: "VALIDATION_ERROR", Message: "Некорректный идентификатор посетителя"}
+	case errors.Is(err, domain.ErrInvalidCommentBody):
+		return &AppError{Status: 422, Code: "VALIDATION_ERROR", Message: "Введите текст комментария"}
 	default:
 		return nil
 	}
