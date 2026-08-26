@@ -3,6 +3,20 @@ export type NavLink = {
   label: string;
 };
 
+/** Active state for header / mobile nav (hash anchors excluded). */
+export function isMainNavLinkActive(href: string, pathname: string): boolean {
+  if (href.includes("#")) {
+    return false;
+  }
+  if (href === "/") {
+    return pathname === "/";
+  }
+  if (href === "/search") {
+    return pathname === "/search" || pathname.startsWith("/tours/");
+  }
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+
 /** Основное меню — один источник для header, footer, mobile */
 export const mainNavLinks: NavLink[] = [
   { href: "/", label: "Главная" },

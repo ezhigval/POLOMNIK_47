@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { Breadcrumbs } from "@/components/breadcrumbs";
+import { DetailPageNav } from "@/components/detail-page-nav";
+import { ReturnToListLink } from "@/components/return-to-list-link";
 import { NewsPhotoStrip } from "@/components/news-photo-strip";
 import { NewsLikeButton } from "@/components/news-like-button";
 import { NewsComments } from "@/components/news-comments";
@@ -55,8 +56,10 @@ function NewsHeader({ article }: { article: ReturnType<typeof toFeedArticle> }) 
   return (
     <>
       <NewsArticleStructuredData article={article} />
-      <Breadcrumbs
-        items={[
+      <DetailPageNav
+        fallbackHref="/news"
+        backLabel="Назад"
+        breadcrumbs={[
           { name: "Главная", href: "/" },
           { name: "Новости", href: "/news" },
           { name: article.title },
@@ -93,6 +96,7 @@ export default async function NewsArticlePage({ params }: PageProps) {
         </header>
         <NewsPhotoStrip srcs={article.photoStrip} />
         {engagement}
+        <ReturnToListLink fallbackHref="/news" label="Все новости" />
       </article>
     );
   }
@@ -131,6 +135,7 @@ export default async function NewsArticlePage({ params }: PageProps) {
           {engagement}
         </div>
       </div>
+      <ReturnToListLink fallbackHref="/news" label="Все новости" />
     </article>
   );
 }

@@ -6,7 +6,7 @@ import { useEffect, useId, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import { desktopMediaQuery } from "@/lib/breakpoints";
 import { contactPhone, contactPhoneDisplay } from "@/lib/contact";
-import { accountNavLinks, mainNavLinks } from "@/lib/site-nav";
+import { accountNavLinks, isMainNavLinkActive, mainNavLinks } from "@/lib/site-nav";
 import type { User } from "@/lib/api/auth";
 
 type MobileNavProps = {
@@ -94,16 +94,22 @@ export function MobileNav({ user }: MobileNavProps) {
               </div>
 
               <div className="flex flex-1 flex-col gap-1 overflow-y-auto p-3">
-                {mainNavLinks.map((link) => (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    onClick={close}
-                    className="rounded-xl px-4 py-3 text-base font-medium text-stone-800 hover:bg-stone-50"
-                  >
-                    {link.label}
-                  </Link>
-                ))}
+                {mainNavLinks.map((link) => {
+                  const active = isMainNavLinkActive(link.href, pathname);
+                  return (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      onClick={close}
+                      aria-current={active ? "page" : undefined}
+                      className={`rounded-xl px-4 py-3 text-base font-medium transition hover:bg-stone-50 ${
+                        active ? "bg-brand-50 text-brand-900" : "text-stone-800"
+                      }`}
+                    >
+                      {link.label}
+                    </Link>
+                  );
+                })}
                 {!user ? (
                   <Link
                     href="/support/chat"
@@ -114,16 +120,25 @@ export function MobileNav({ user }: MobileNavProps) {
                   </Link>
                 ) : null}
                 {user ? (
-                  accountNavLinks.map((link) => (
-                    <Link
-                      key={link.href}
-                      href={link.href}
-                      onClick={close}
-                      className="rounded-xl px-4 py-3 text-base font-medium text-stone-800 hover:bg-stone-50"
-                    >
-                      {link.label}
-                    </Link>
-                  ))
+                  accountNavLinks.map((link) => {
+                    const active =
+                      link.href === "/account"
+                        ? pathname === "/account"
+                        : pathname === link.href || pathname.startsWith(`${link.href}/`);
+                    return (
+                      <Link
+                        key={link.href}
+                        href={link.href}
+                        onClick={close}
+                        aria-current={active ? "page" : undefined}
+                        className={`rounded-xl px-4 py-3 text-base font-medium transition hover:bg-stone-50 ${
+                          active ? "bg-brand-50 text-brand-900" : "text-stone-800"
+                        }`}
+                      >
+                        {link.label}
+                      </Link>
+                    );
+                  })
                 ) : (
                   <>
                     <Link

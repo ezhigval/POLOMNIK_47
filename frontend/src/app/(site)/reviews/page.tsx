@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Breadcrumbs } from "@/components/breadcrumbs";
 import { PageIntro } from "@/components/page-intro";
 import { PublicReviewForm } from "@/components/public-review-form";
 import { TestimonialCard } from "@/components/testimonial-card";
@@ -28,7 +29,14 @@ export default async function ReviewsPage() {
 
   return (
     <div className="mx-auto max-w-6xl space-y-8 px-4 py-8 sm:py-10">
+      <Breadcrumbs
+        items={[
+          { name: "Главная", href: "/" },
+          { name: "Отзывы" },
+        ]}
+      />
       <PageIntro
+        showBack={false}
         title="Что говорят паломники"
         description="Впечатления после поездок: организация, сопровождение и атмосфера маршрута."
       />

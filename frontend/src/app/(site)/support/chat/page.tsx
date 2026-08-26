@@ -25,7 +25,7 @@ export default async function SupportChatPage() {
     <div className="mx-auto max-w-3xl space-y-6 px-4 py-8 sm:py-12">
       <PageIntro
         backHref="/support"
-        backLabel="← Справочник поддержки"
+        backLabel="Справочник поддержки"
         title="Чат поддержки"
         description="Задайте вопрос — менеджер ответит в рабочее время. История переписки сохраняется в аккаунте."
       />

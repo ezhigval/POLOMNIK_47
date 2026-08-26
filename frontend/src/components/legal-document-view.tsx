@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { LegalDocumentType } from "@/lib/operator-config";
 import { legalDocumentPaths } from "@/lib/operator-config";
+import { DetailPageNav } from "@/components/detail-page-nav";
 
 type LegalDocumentViewProps = {
   doc: {
@@ -24,14 +25,15 @@ function formatDate(iso: string): string {
 export function LegalDocumentView({ doc, type }: LegalDocumentViewProps) {
   return (
     <div className="mx-auto max-w-3xl px-4 py-10 sm:py-14">
-      <div className="mb-6 flex flex-wrap gap-4 text-sm">
-        <Link href="/" className="text-stone-500 transition hover:text-brand-800">
-          ← На главную
-        </Link>
-        <Link href="/legal" className="text-stone-500 transition hover:text-brand-800">
-          Юридические документы
-        </Link>
-      </div>
+      <DetailPageNav
+        fallbackHref="/legal"
+        backLabel="Назад"
+        breadcrumbs={[
+          { name: "Главная", href: "/" },
+          { name: "Юридические документы", href: "/legal" },
+          { name: doc.title },
+        ]}
+      />
 
       <header className="mb-8 border-b border-stone-200 pb-6">
         <h1 className="font-display text-2xl font-semibold text-stone-900 sm:text-3xl">{doc.title}</h1>

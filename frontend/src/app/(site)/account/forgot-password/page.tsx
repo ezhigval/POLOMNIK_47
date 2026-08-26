@@ -12,6 +12,7 @@ export default function ForgotPasswordPage() {
     <div className="mx-auto flex min-h-[60vh] max-w-md flex-col justify-center gap-4 px-4 py-12">
       <PageIntro
         backHref="/account/login"
+        backLabel="К входу"
         title="Забыли пароль?"
         description="Пришлём ссылку на email, если почта настроена на сервере."
       />
