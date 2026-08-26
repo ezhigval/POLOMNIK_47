@@ -96,9 +96,9 @@ MAIL_FORWARD_TO=smailikin70@yandex.ru
 См. [SEO_ADS.md](./SEO_ADS.md).
 
 ```bash
-NEXT_PUBLIC_YM_ID=...
+NEXT_PUBLIC_YM_ID=111985266
 NEXT_PUBLIC_GA_ID=...          # опционально
-NEXT_PUBLIC_YM_WEBVISOR=1      # только после согласия на запись сессий
+NEXT_PUBLIC_YM_WEBVISOR=1      # вебвизор; JS-тег — после «Принять все» в баннере cookie
 # Вебмастер/GSC: коды уже в фронте; env нужен только чтобы сменить
 # NEXT_PUBLIC_YANDEX_VERIFICATION=...
 # NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION=...

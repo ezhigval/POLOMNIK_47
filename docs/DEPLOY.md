@@ -57,9 +57,10 @@ cp .env.production.example .env.production
 | `NEXT_PUBLIC_API_URL` | `/api/v1` (same-origin через Next rewrite) |
 | `UPLOAD_PUBLIC_BASE_URL` | `https://api.tikhvin-palomnik.ru` |
 | `NEXT_PUBLIC_CONTACT_*` | Телефон и email на сайте |
-| `NEXT_PUBLIC_YM_ID` | Яндекс.Метрика (опционально) |
+| `NEXT_PUBLIC_YM_ID` | Яндекс.Метрика (прод: `111985266`; пусто = без скрипта) |
 | `NEXT_PUBLIC_GA_ID` | Google Analytics (опционально) |
-| `NEXT_PUBLIC_YM_WEBVISOR` | `1` — вебвизор Метрики (опц., см. `SEO_ADS.md`) |
+| `NEXT_PUBLIC_YM_WEBVISOR` | `1` — вебвизор Метрики (прод включён; нужен rebuild фронта) |
+| `NEXT_PUBLIC_YM_CLICKMAP` | `0` — выключить карту кликов (иначе вкл. вместе с Метрикой) |
 | `NEXT_PUBLIC_YANDEX_VERIFICATION` | Код Яндекс.Вебмастера (мета-тег, опц.) |
 | `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` | Код Google Search Console (опц.) |
 | `NOTIFICATION_ADAPTER` | `telegram` при настройке бота |
