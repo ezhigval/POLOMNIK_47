@@ -292,7 +292,9 @@ export default async function TourPage({ params }: TourPageProps) {
             <ReturnToListLink fallbackHref="/search" label="К расписанию туров" />
           </section>
 
-          <BookingForm tour={tour} profile={profile} />
+          <aside className="scroll-mt-24 lg:sticky lg:top-24 lg:self-start">
+            <BookingForm tour={tour} profile={profile} />
+          </aside>
         </div>
       </div>
 
