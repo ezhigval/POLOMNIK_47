@@ -40,7 +40,9 @@ Rules:
 - `slots_left >= 0`;
 - `slots_left <= slots_total`, unless overbooking creates a separate booking flag instead of negative slots;
 - `date_start <= date_end` for dated tours;
-- regular tours (`is_regular`): no `date_start` / `date_end` on the public card; `price` may be 0 until the owner sets an internal price (do not invent);
+- regular tours (`is_regular`): the offer exists, but a specific departure is not scheduled; no `date_start` / `date_end` and no public price; admin hides those fields; `price` may be 0 internally (do not invent);
+- `is_hot` = popular: highlight + tag «Популярный» on the public card;
+- `overbooking_enabled`: bookings still accepted at `slots_left = 0`, booking flagged `overbooked`;
 - public API returns only active tours.
 
 ## 3. Booking
