@@ -7,7 +7,7 @@ export const siteConfig = {
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
   description:
     process.env.NEXT_PUBLIC_SITE_DESCRIPTION ??
-    "Паломнические поездки в монастыри и святые места России. Сопровождение духовника, комфортный транспорт, прозрачная стоимость.",
+    "Паломнические поездки в монастыри и святые места России. Сопровождение священника, комфортный транспорт, прозрачная стоимость.",
   region: process.env.NEXT_PUBLIC_SITE_REGION ?? "RU",
   departureCity: process.env.NEXT_PUBLIC_DEPARTURE_CITY ?? "Санкт-Петербург",
   parentOrganization: {
