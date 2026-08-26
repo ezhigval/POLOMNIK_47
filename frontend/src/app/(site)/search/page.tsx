@@ -6,6 +6,7 @@ import { TripSearchConstructor } from "@/components/trip-search-constructor";
 import { ToursSection } from "@/components/tours-section";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { hasActiveFilters, parseTourFilters } from "@/lib/tour-filters";
+import { buildPublicPageMetadata } from "@/lib/seo-metadata";
 import { siteConfig } from "@/lib/site-config";
 
 type SearchPageProps = {
@@ -19,15 +20,12 @@ export async function generateMetadata({ searchParams }: SearchPageProps): Promi
   const description = `Расписание паломнических туров из ${siteConfig.departureCity}: даты, стоимость и длительность.`;
 
   return {
-    title: "Расписание туров",
-    description,
-    alternates: { canonical: "/search" },
-    robots: filtered ? { index: false, follow: true } : { index: true, follow: true },
-    openGraph: {
+    ...buildPublicPageMetadata({
       title: "Расписание туров",
       description,
-      url: "/search",
-    },
+      canonical: "/search",
+    }),
+    robots: filtered ? { index: false, follow: true } : { index: true, follow: true },
   };
 }
 

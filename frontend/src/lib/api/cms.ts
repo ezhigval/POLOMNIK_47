@@ -29,6 +29,7 @@ export type AboutBlockContent = {
   paragraphs?: string[];
   highlights?: string[];
   showContacts?: boolean;
+  stats?: { value: string; label: string }[];
 };
 
 export type WhyUsBlockContent = {

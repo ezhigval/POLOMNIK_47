@@ -223,9 +223,9 @@ func DefaultBlockContent(blockType string) json.RawMessage {
 	case domain.BlockTypeHero:
 		return json.RawMessage(`{"eyebrow":"","title":"Заголовок","subtitle":""}`)
 	case domain.BlockTypeAbout:
-		return json.RawMessage(`{"eyebrow":"О службе","title":"О нас","paragraphs":[""],"highlights":[],"showContacts":true}`)
+		return json.RawMessage(`{"eyebrow":"О службе","title":"О нас","paragraphs":[""],"highlights":[],"stats":[],"showContacts":true}`)
 	case domain.BlockTypeWhyUs:
-		return json.RawMessage(`{"eyebrow":"Почему мы","title":"Паломничество без лишних забот","description":"Мы не просто везём вас в монастырь — мы создаём возможность для тишины, молитвы и встречи с Богом.","items":[],"stats":[]}`)
+		return json.RawMessage(`{"eyebrow":"Почему мы","title":"Паломничество без лишних забот","description":"Мы не просто везём вас в монастырь — мы создаём возможность для тишины, молитвы и встречи с Богом.","items":[]}`)
 	case domain.BlockTypeHowItWorks:
 		return json.RawMessage(`{"eyebrow":"Просто","title":"Как записаться","description":"","steps":[],"ctaLabel":"Записаться","ctaHref":"/search"}`)
 	case domain.BlockTypeFAQ:

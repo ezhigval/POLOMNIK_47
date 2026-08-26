@@ -134,3 +134,28 @@ export function NewsArticleStructuredData({ article }: { article: NewsArticle })
   }
   return <JsonLd data={jsonLd} />;
 }
+
+export function NewsCollectionStructuredData({
+  articles,
+}: {
+  articles: Array<{ slug: string; title: string; date: string; excerpt: string }>;
+}) {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: "Новости",
+    url: absoluteUrl("/news"),
+    inLanguage: "ru-RU",
+    isPartOf: { "@id": `${siteConfig.url}/#website` },
+    mainEntity: {
+      "@type": "ItemList",
+      itemListElement: articles.map((article, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        url: absoluteUrl(`/news/${article.slug}`),
+        name: article.title,
+      })),
+    },
+  };
+  return <JsonLd data={jsonLd} />;
+}

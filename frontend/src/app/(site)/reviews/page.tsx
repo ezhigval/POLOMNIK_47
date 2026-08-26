@@ -6,17 +6,15 @@ import { TestimonialCard } from "@/components/testimonial-card";
 import { getTours } from "@/lib/api/tours";
 import { siteConfig } from "@/lib/site-config";
 import { loadTestimonials } from "@/lib/testimonials";
+import { buildPublicPageMetadata } from "@/lib/seo-metadata";
 
-export const metadata: Metadata = {
+const reviewsDescription = `Отзывы паломников о поездках «${siteConfig.name}».`;
+
+export const metadata: Metadata = buildPublicPageMetadata({
   title: "Отзывы",
-  description: `Отзывы паломников о поездках «${siteConfig.name}».`,
-  alternates: { canonical: "/reviews" },
-  openGraph: {
-    title: "Отзывы",
-    description: `Отзывы паломников о поездках «${siteConfig.name}».`,
-    url: "/reviews",
-  },
-};
+  description: reviewsDescription,
+  canonical: "/reviews",
+});
 
 export default async function ReviewsPage() {
   const testimonials = await loadTestimonials(24);

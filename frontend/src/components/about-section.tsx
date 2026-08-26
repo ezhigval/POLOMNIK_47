@@ -2,6 +2,7 @@ import { SectionHeading } from "@/components/section-heading";
 import { DioceseAffiliation } from "@/components/diocese-affiliation";
 import { contactPhoneDisplay, contactEmail } from "@/lib/contact";
 import { siteConfig } from "@/lib/site-config";
+import { trustStats } from "@/lib/site-content";
 import type { AboutBlockContent } from "@/lib/api/cms";
 
 const defaultHighlights = [
@@ -29,6 +30,7 @@ export function AboutSection({ content }: AboutSectionProps = {}) {
     : defaultParagraphs;
   const highlights = content?.highlights?.length ? content.highlights : defaultHighlights;
   const showContacts = content?.showContacts ?? true;
+  const stats = content?.stats?.length ? content.stats : trustStats;
 
   return (
     <section id="about" className="scroll-mt-24">
@@ -41,6 +43,18 @@ export function AboutSection({ content }: AboutSectionProps = {}) {
             : "Мы помогаем людям доехать до святынь, сосредоточиться на молитве и не думать о логистике."
         }
       />
+
+      <dl className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
+        {stats.map((stat) => (
+          <div
+            key={stat.label}
+            className="rounded-2xl border border-stone-200 bg-white px-4 py-3 shadow-sm"
+          >
+            <dt className="font-display text-2xl font-semibold text-brand-900 sm:text-3xl">{stat.value}</dt>
+            <dd className="mt-0.5 text-xs text-stone-600 sm:text-sm">{stat.label}</dd>
+          </div>
+        ))}
+      </dl>
 
       <div className="mt-8 grid gap-8 lg:grid-cols-2">
         <div className="space-y-4 text-sm leading-7 text-stone-700">

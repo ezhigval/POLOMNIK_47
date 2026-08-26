@@ -398,11 +398,6 @@ function HeroForm({ content, loading, error, onCancel, onSave }: BlockFormFields
           eyebrow,
           title,
           subtitle,
-          primaryCta: stringValue(content, "primaryCta"),
-          primaryHref: stringValue(content, "primaryHref"),
-          secondaryCta: stringValue(content, "secondaryCta"),
-          secondaryHref: stringValue(content, "secondaryHref"),
-          stats: objectArray<{ value: string; label: string }>(content, "stats", ["value", "label"]),
         });
       }}
     >
@@ -500,10 +495,6 @@ function AboutForm({ content, loading, error, onCancel, onSave }: BlockFormField
   const [paragraphs, setParagraphs] = useState(stringArray(content, "paragraphs"));
   const [highlights, setHighlights] = useState(stringArray(content, "highlights"));
   const [showContacts, setShowContacts] = useState(boolValue(content, "showContacts", true));
-  const [stats, setStats] = useState(
-    objectArray<{ value: string; label: string }>(content, "stats", ["value", "label"]),
-  );
-
   return (
     <form
       className="space-y-3"
@@ -559,21 +550,12 @@ function WhyUsForm({ content, loading, error, onCancel, onSave }: BlockFormField
       className="space-y-3"
       onSubmit={(event) => {
         event.preventDefault();
-        onSave({ eyebrow, title, description, items, stats });
+        onSave({ eyebrow, title, description, items });
       }}
     >
       <Field label="Надзаголовок" value={eyebrow} onChange={setEyebrow} />
       <Field label="Заголовок" value={title} onChange={setTitle} />
       <Field label="Описание" value={description} onChange={setDescription} multiline />
-      <ObjectListEditor
-        label="Статистика"
-        rows={stats}
-        fields={[
-          { key: "value", value: "Значение" },
-          { key: "label", value: "Подпись" },
-        ]}
-        onChange={(rows) => setStats(rows as { value: string; label: string }[])}
-      />
       <ObjectListEditor
         label="Пункты"
         rows={items}

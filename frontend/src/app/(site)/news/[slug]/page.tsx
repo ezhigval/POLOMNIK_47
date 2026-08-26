@@ -12,6 +12,7 @@ import {
 import { getPublicNewsBySlug } from "@/lib/api/news";
 import { ApiError } from "@/lib/api/client";
 import { NewsArticleStructuredData } from "@/components/structured-data";
+import { buildPublicPageMetadata } from "@/lib/seo-metadata";
 import { siteConfig } from "@/lib/site-config";
 
 type PageProps = {
@@ -35,19 +36,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!article) {
     return { title: "Новость" };
   }
-  return {
+  return buildPublicPageMetadata({
     title: article.title,
     description: article.excerpt,
-    alternates: { canonical: `/news/${article.slug}` },
-    openGraph: {
-      title: article.title,
-      description: article.excerpt,
-      url: `/news/${article.slug}`,
-      type: "article",
-      publishedTime: article.date,
-      ...(article.image ? { images: [{ url: article.image }] } : {}),
-    },
-  };
+    canonical: `/news/${article.slug}`,
+    ogType: "article",
+    publishedTime: article.date,
+    images: article.image ? [article.image] : undefined,
+  });
 }
 
 function NewsHeader({ article }: { article: ReturnType<typeof toFeedArticle> }) {

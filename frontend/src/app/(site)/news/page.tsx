@@ -1,21 +1,20 @@
-import { Suspense } from "react";
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { NewsFeed } from "@/components/news-feed";
+import { NewsCollectionStructuredData } from "@/components/structured-data";
 import { PageIntro } from "@/components/page-intro";
 import { listPublicNews } from "@/lib/api/news";
 import { toFeedArticle } from "@/lib/news";
+import { buildPublicPageMetadata } from "@/lib/seo-metadata";
 import { siteConfig } from "@/lib/site-config";
 
-export const metadata: Metadata = {
+const description = `Новости и статьи паломнической службы «${siteConfig.name}».`;
+
+export const metadata: Metadata = buildPublicPageMetadata({
   title: "Новости",
-  description: `Новости и статьи паломнической службы «${siteConfig.name}».`,
-  alternates: { canonical: "/news" },
-  openGraph: {
-    title: "Новости",
-    description: `Новости и статьи паломнической службы «${siteConfig.name}».`,
-    url: "/news",
-  },
-};
+  description,
+  canonical: "/news",
+});
 
 export default async function NewsPage() {
   let articles: ReturnType<typeof toFeedArticle>[] = [];
@@ -28,6 +27,7 @@ export default async function NewsPage() {
 
   return (
     <div className="mx-auto max-w-6xl space-y-8 px-4 py-8 sm:py-10">
+      <NewsCollectionStructuredData articles={articles} />
       <PageIntro
         title="Новости"
         description="События службы, маршруты и святыни — откройте карточку, чтобы прочитать статью."

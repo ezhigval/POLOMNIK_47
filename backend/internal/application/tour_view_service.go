@@ -5,7 +5,7 @@ import (
 
 	"github.com/google/uuid"
 
-	"polomnik/internal/ports"
+	"palomnik/internal/ports"
 )
 
 const maxViewedTours = 20
