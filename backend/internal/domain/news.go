@@ -7,6 +7,8 @@ import (
 	"github.com/google/uuid"
 )
 
+const MaxPinnedNews = 3
+
 type NewsArticle struct {
 	ID          uuid.UUID
 	Slug        string
@@ -16,6 +18,7 @@ type NewsArticle struct {
 	ImageURL    string
 	PublishedAt time.Time
 	IsPublished bool
+	IsPinned    bool
 	SortOrder   int
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
@@ -30,6 +33,7 @@ type NewNewsArticleInput struct {
 	ImageURL    string
 	PublishedAt time.Time
 	IsPublished bool
+	IsPinned    bool
 	SortOrder   int
 	Now         time.Time
 }
@@ -75,8 +79,27 @@ func NewNewsArticle(input NewNewsArticleInput) (NewsArticle, error) {
 		ImageURL:    imageURL,
 		PublishedAt: input.PublishedAt.UTC().Truncate(24 * time.Hour),
 		IsPublished: input.IsPublished,
+		IsPinned:    input.IsPinned,
 		SortOrder:   input.SortOrder,
 		CreatedAt:   now,
 		UpdatedAt:   now,
 	}, nil
+}
+
+// NewsListLess reports whether a should appear before b in public and admin lists:
+// pinned articles first (lower sort_order is higher), then published_at descending.
+func NewsListLess(a, b NewsArticle) bool {
+	if a.IsPinned != b.IsPinned {
+		return a.IsPinned
+	}
+	if a.IsPinned && a.SortOrder != b.SortOrder {
+		return a.SortOrder < b.SortOrder
+	}
+	if !a.PublishedAt.Equal(b.PublishedAt) {
+		return a.PublishedAt.After(b.PublishedAt)
+	}
+	if a.SortOrder != b.SortOrder {
+		return a.SortOrder < b.SortOrder
+	}
+	return a.CreatedAt.After(b.CreatedAt)
 }

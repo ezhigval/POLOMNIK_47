@@ -13,6 +13,7 @@ type NewsArticleResponse struct {
 	ImageURL    string `json:"image_url"`
 	PublishedAt string `json:"published_at"`
 	IsPublished bool   `json:"is_published"`
+	IsPinned    bool   `json:"is_pinned"`
 	SortOrder   int    `json:"sort_order"`
 }
 
@@ -24,7 +25,12 @@ type NewsArticleUpsertRequest struct {
 	ImageURL    string `json:"image_url"`
 	PublishedAt string `json:"published_at"`
 	IsPublished bool   `json:"is_published"`
+	IsPinned    bool   `json:"is_pinned"`
 	SortOrder   int    `json:"sort_order"`
+}
+
+type NewsPinRequest struct {
+	IsPinned bool `json:"is_pinned"`
 }
 
 func ToNewsArticleResponse(article domain.NewsArticle) NewsArticleResponse {
@@ -37,6 +43,7 @@ func ToNewsArticleResponse(article domain.NewsArticle) NewsArticleResponse {
 		ImageURL:    article.ImageURL,
 		PublishedAt: article.PublishedAt.UTC().Format("2006-01-02"),
 		IsPublished: article.IsPublished,
+		IsPinned:    article.IsPinned,
 		SortOrder:   article.SortOrder,
 	}
 }

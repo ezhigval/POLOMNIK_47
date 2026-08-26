@@ -530,6 +530,7 @@ export type ManagementNewsArticle = {
   image_url: string;
   published_at: string;
   is_published: boolean;
+  is_pinned: boolean;
   sort_order: number;
 };
 
@@ -541,6 +542,7 @@ export type NewsUpsertInput = {
   image_url: string;
   published_at: string;
   is_published: boolean;
+  is_pinned: boolean;
   sort_order: number;
 };
 
@@ -567,6 +569,14 @@ export async function updateManagementNews(id: string, input: NewsUpsertInput) {
 
 export async function deleteManagementNews(id: string) {
   await managementRequest<void>(`/news/${id}`, { method: "DELETE" });
+}
+
+export async function setManagementNewsPinned(id: string, isPinned: boolean) {
+  const body = await managementRequest<DataEnvelope<ManagementNewsArticle>>(`/news/${id}/pin`, {
+    method: "PATCH",
+    body: JSON.stringify({ is_pinned: isPinned }),
+  });
+  return body.data;
 }
 
 export type ManagementSMMResult = {

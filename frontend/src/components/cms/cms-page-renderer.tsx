@@ -1,4 +1,5 @@
-import { Suspense } from "react";
+import type { ReactNode } from "react";
+import { Fragment, Suspense } from "react";
 import { AboutSection } from "@/components/about-section";
 import { CtaSection } from "@/components/cta-section";
 import { FaqSection } from "@/components/faq-section";
@@ -23,17 +24,19 @@ import type {
 
 type CmsPageRendererProps = {
   blocks: CmsBlock[];
+  afterHero?: ReactNode;
 };
 
 function asContent<T>(content: Record<string, unknown>): T {
   return content as T;
 }
 
-export function CmsPageRenderer({ blocks }: CmsPageRendererProps) {
+export function CmsPageRenderer({ blocks, afterHero }: CmsPageRendererProps) {
   const ordered = [...blocks].sort((a, b) => a.sort_order - b.sort_order);
   const heroBlocks = ordered.filter((block) => block.type === "hero");
   const bodyBlocks = ordered.filter((block) => block.type !== "hero");
   const hasFeaturedRoute = ordered.some((block) => block.type === "featured_route" && block.is_visible);
+  const featuredIndex = bodyBlocks.findIndex((block) => block.type === "featured_route" && block.is_visible);
 
   return (
     <>
@@ -44,15 +47,21 @@ export function CmsPageRenderer({ blocks }: CmsPageRendererProps) {
       ))}
 
       {!hasFeaturedRoute ? (
-        <div className="mx-auto max-w-6xl px-4 pb-8 sm:pb-12">
-          <FeaturedRouteSection />
-        </div>
+        <>
+          <div className="mx-auto max-w-6xl px-4 pb-8 sm:pb-12">
+            <FeaturedRouteSection />
+          </div>
+          {afterHero ? <div className="mx-auto max-w-6xl px-4 pb-8 sm:pb-12">{afterHero}</div> : null}
+        </>
       ) : null}
 
       {bodyBlocks.length > 0 ? (
         <div className="mx-auto max-w-6xl space-y-20 px-4 py-8 sm:space-y-24 sm:py-12">
-          {bodyBlocks.map((block) => (
-            <CmsBlockView key={block.id} block={block} />
+          {bodyBlocks.map((block, index) => (
+            <Fragment key={block.id}>
+              <CmsBlockView block={block} />
+              {afterHero && hasFeaturedRoute && index === featuredIndex ? afterHero : null}
+            </Fragment>
           ))}
         </div>
       ) : null}

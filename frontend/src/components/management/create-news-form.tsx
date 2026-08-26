@@ -26,6 +26,7 @@ export function CreateNewsForm() {
         image_url: String(formData.get("image_url") ?? ""),
         published_at: String(formData.get("published_at") ?? ""),
         is_published: formData.get("is_published") === "on",
+        is_pinned: formData.get("is_pinned") === "on",
         sort_order: Number(formData.get("sort_order") ?? 0),
       });
       setFormKey((value) => value + 1);
@@ -74,8 +75,16 @@ export function CreateNewsForm() {
       <NewsImageField />
 
       <label className="block text-sm">
-        <span className="mb-1 block font-medium">Порядок</span>
+        <span className="mb-1 block font-medium">Порядок среди закреплённых</span>
         <input type="number" name="sort_order" defaultValue={0} className="input-field" />
+        <span className="mt-1 block text-xs text-stone-500">
+          Меньше число — выше. 1 — главная карточка, 2 и 3 — рядом.
+        </span>
+      </label>
+
+      <label className="flex items-center gap-2 text-sm">
+        <input type="checkbox" name="is_pinned" className="size-4" />
+        Закрепить вверху (главная и две рядом)
       </label>
 
       <label className="flex items-center gap-2 text-sm">

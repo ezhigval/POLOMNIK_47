@@ -24,13 +24,7 @@ func (s *Store) ListNews(_ context.Context, filters ports.NewsFilters, paginatio
 	}
 
 	sort.Slice(items, func(i, j int) bool {
-		if !items[i].PublishedAt.Equal(items[j].PublishedAt) {
-			return items[i].PublishedAt.After(items[j].PublishedAt)
-		}
-		if items[i].SortOrder != items[j].SortOrder {
-			return items[i].SortOrder < items[j].SortOrder
-		}
-		return items[i].CreatedAt.After(items[j].CreatedAt)
+		return domain.NewsListLess(items[i], items[j])
 	})
 
 	pageItems, meta := page(items, pagination)

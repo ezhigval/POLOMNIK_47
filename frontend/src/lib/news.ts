@@ -8,6 +8,7 @@ export type NewsArticle = {
   image: string;
   paragraphs: string[];
   photoStrip: string[];
+  pinned?: boolean;
 };
 
 const IMAGE_SRC_PATTERN = /^(?:https?:\/\/|\/)\S+\.(?:jpe?g|png|webp|gif)$/i;
@@ -112,6 +113,7 @@ export function toFeedArticle(article: {
   body: string;
   image_url: string;
   published_at: string;
+  is_pinned?: boolean;
 }): NewsArticle {
   const photoStrip = photoStripSrcs(article.body);
   return {
@@ -122,5 +124,14 @@ export function toFeedArticle(article: {
     image: article.image_url || photoStrip[0] || "",
     paragraphs: photoStrip.length > 0 ? [] : paragraphsFromBody(article.body),
     photoStrip,
+    pinned: Boolean(article.is_pinned),
+  };
+}
+
+export function splitNewsLayout(articles: NewsArticle[]) {
+  return {
+    featured: articles[0] ?? null,
+    side: articles.slice(1, 3),
+    rest: articles.slice(3),
   };
 }

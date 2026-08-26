@@ -511,6 +511,14 @@ DELETE /api/v1/management/smm/:id
 
 `GET /news/:slug` — только `is_published=true`. Management SMM: `manage_content`. Тело поста — `title`, `body`, `url`, `publish_at` (RFC3339), `channels` (`site_news` / `telegram_channel` / `vk_wall` / `max_feed`). Публикация пишет `results[]` по каждому каналу; один канал может упасть.
 
+Новости на главной и `/news`: поле `is_pinned`, не больше трёх закреплённых (1 — главная карточка, 2 и 3 — рядом). Список: сначала закреплённые (`sort_order` по возрастанию), затем `published_at` убыванию. Четвёртая закреплённая — 422 `TOO_MANY_PINNED_NEWS`.
+
+```text
+PATCH  /api/v1/management/news/:id/pin
+```
+
+Тело: `{ "is_pinned": true }`. Право `manage_content`. Если у статьи `sort_order = 0`, при закреплении сервер ставит свободный слот 1/2/3.
+
 ## 8d. ИИ-фичи (этап 7)
 
 ```text
