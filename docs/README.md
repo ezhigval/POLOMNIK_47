@@ -23,5 +23,6 @@
 | [TELEGRAM_SETUP.md](TELEGRAM_SETUP.md) | Бот и получатели |
 | [OAUTH_SETUP.md](OAUTH_SETUP.md) | Соцвход пошагово |
 | [SEO_ADS.md](SEO_ADS.md) | Выдача в поиске, Метрика, sitemap, реклама |
+| [SEO_WORDSTAT.md](SEO_WORDSTAT.md) | v4 этап 10: Wordstat, кластеры запросов, посадка на страницы |
 | [INTEGRATIONS.md](INTEGRATIONS.md) | Bitrix24 и 1С как адаптеры |
 | [PROJECT_SPEC.md](PROJECT_SPEC.md) | Цель продукта (исторический набросок + ссылка на STATUS) |
