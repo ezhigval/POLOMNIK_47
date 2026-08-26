@@ -2,7 +2,9 @@
 -- Новость с сайта Тихвинской епархии:
 -- https://www.tikhvin-eparhia.ru/novosti/7811-chudotvornaya-tikhvinskaya-ikona-bozhiej-materi-budet-prinesena-v-moskvu-i-moskovskuyu-oblast
 -- Текст, дата и фото — с исходной страницы (25 августа 2026). Картинки локально, без хотлинка.
+-- StatementBegin: в тексте есть точки с запятой, goose иначе режет INSERT.
 
+-- +goose StatementBegin
 INSERT INTO news_articles (
     id,
     slug,
@@ -57,7 +59,9 @@ INSERT INTO news_articles (
 Московская (городская) епархия
 
 /images/news/ikona-v-moskvu/img-5334.jpg
+
 /images/news/ikona-v-moskvu/img-5335.jpg
+
 /images/news/ikona-v-moskvu/img-5336.jpg$article$,
     '/images/news/ikona-v-moskvu/img-5303.jpg',
     '2026-08-25',
@@ -68,6 +72,7 @@ INSERT INTO news_articles (
     NOW()
 )
 ON CONFLICT (slug) DO NOTHING;
+-- +goose StatementEnd
 
 -- +goose Down
 DELETE FROM news_articles WHERE slug = 'ikona-v-moskvu';
