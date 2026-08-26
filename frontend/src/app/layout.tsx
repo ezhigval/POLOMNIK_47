@@ -36,12 +36,8 @@ export const metadata: Metadata = {
     follow: true,
   },
   verification: {
-    ...(process.env.NEXT_PUBLIC_YANDEX_VERIFICATION
-      ? { yandex: process.env.NEXT_PUBLIC_YANDEX_VERIFICATION }
-      : {}),
-    ...(process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
-      ? { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION }
-      : {}),
+    yandex: siteConfig.verification.yandex,
+    google: siteConfig.verification.google,
   },
 };
 

@@ -17,17 +17,16 @@ API: `https://api.tikhvin-palomnik.ru`.
 
 Без этого Яндекс и Google почти не знают, что сайт живой.
 
-1. [Яндекс.Вебмастер](https://webmaster.yandex.ru/) — добавить `tikhvin-palomnik.ru`, подтвердить права (HTML-файл **или** мета-тег).
-2. Вставить код подтверждения в `.env.production`:
-   - `NEXT_PUBLIC_YANDEX_VERIFICATION=...` (Вебмастер → подтверждение мета-тегом)
-   - при Google: `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION=...`
-   Затем пересборка фронта / `make deploy`.
-3. [Google Search Console](https://search.google.com/search-console) — то же для Google.
+1. [Яндекс.Вебмастер](https://webmaster.yandex.ru/) — добавить `tikhvin-palomnik.ru`. Коды подтверждения уже в сайте:
+   - мета-тег `yandex-verification`
+   - файл `https://tikhvin-palomnik.ru/yandex_e79d1ee72d61fee0.html`
+2. [Google Search Console](https://search.google.com/search-console) — мета-тег `google-site-verification` уже в `<head>`.
+3. После деплоя этой ветки нажать «Проверить» в обоих кабинетах.
 4. Отправить sitemap: `https://tikhvin-palomnik.ru/sitemap.xml`.
 5. Проверить `https://tikhvin-palomnik.ru/robots.txt` (Host + Sitemap уже в коде).
 6. В Вебмастере смотреть: индексирование, запросы, ошибки 4xx/5xx, «главное зеркало» `https://tikhvin-palomnik.ru` (без www).
 
-Код мета-тегов готов. Без ваших кодов из кабинетов теги пустые — это норма.
+Сменить коды можно через `NEXT_PUBLIC_YANDEX_VERIFICATION` / `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` (пересборка фронта). Текущие значения зашиты как запасные, секретами не являются.
 
 ### 2. Контент — главный рычаг (владелец + админка)
 
@@ -132,7 +131,7 @@ API: `https://api.tikhvin-palomnik.ru`.
 - [ ] `NEXT_PUBLIC_YM_ID` / при необходимости `NEXT_PUBLIC_GA_ID` в prod
 - [ ] В Метрике видны `tour_view` / `booking_submit`
 - [ ] Sitemap в Вебмастере и Search Console
-- [ ] Коды `NEXT_PUBLIC_YANDEX_VERIFICATION` / Google (если подтверждаете мета-тегом)
+- [ ] После деплоя: «Проверить» в Вебмастере (файл `/yandex_e79d1ee72d61fee0.html` и мета-тег) и в Search Console
 - [ ] OG-превью: ссылка на главную в мессенджере
 - [ ] В админке у туров заполнены уникальные описания и slug
 - [ ] Карточка в Яндекс Бизнесе и ссылка с сайта епархии

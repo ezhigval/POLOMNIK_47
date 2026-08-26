@@ -99,13 +99,12 @@ MAIL_FORWARD_TO=smailikin70@yandex.ru
 NEXT_PUBLIC_YM_ID=...
 NEXT_PUBLIC_GA_ID=...          # опционально
 NEXT_PUBLIC_YM_WEBVISOR=1      # только после согласия на запись сессий
-NEXT_PUBLIC_YANDEX_VERIFICATION=...   # мета-тег из Вебмастера
-NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION=...  # опционально
+# Вебмастер/GSC: коды уже в фронте; env нужен только чтобы сменить
+# NEXT_PUBLIC_YANDEX_VERIFICATION=...
+# NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION=...
 ```
 
-Дальше: Яндекс.Вебмастер + Google Search Console → sitemap `https://tikhvin-palomnik.ru/sitemap.xml`.  
-Что ещё нужно для выдачи (контент туров, карта, ссылка с епархии) — [SEO_ADS.md](./SEO_ADS.md).  
-Реклама — по вашему решению; код событий уже есть (`begin_checkout`, `support_contact`, …).
+Дальше: после деплоя — «Проверить» в Яндекс.Вебмастере и Google Search Console, sitemap `https://tikhvin-palomnik.ru/sitemap.xml`.
 
 ---
 
