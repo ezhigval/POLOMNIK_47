@@ -544,7 +544,6 @@ function WhyUsForm({ content, loading, error, onCancel, onSave }: BlockFormField
       "icon",
     ]),
   );
-
   return (
     <form
       className="space-y-3"
