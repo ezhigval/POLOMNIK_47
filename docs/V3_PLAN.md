@@ -1,9 +1,9 @@
 # План линейки v3
 
 Канон: [ROADMAP.md](ROADMAP.md) · [STATUS.md](STATUS.md) · [AGENTS.md](../AGENTS.md).  
-База прода: тег `v2.1.0`. Freeze v3 code-complete + контент: **`v3.0.0`** (2026-08-26). v4 не начат.
+База прода: тег `v2.1.0`. Freeze v3 code-complete + контент: **`v3.0.0`** (2026-08-26). **Линейка v3 закрыта.** Дальше: [V4_PLAN.md](V4_PLAN.md).
 
-Без ключа любой адаптер `Configured()==false`, сайт жив. Live Bitrix24 / 1С нет. ИИ-звонки и автономный ИИ-менеджер продаж — **v4**.
+Без ключа любой адаптер `Configured()==false`, сайт жив. Live Bitrix24 / 1С нет. ИИ-звонки и автономный ИИ-менеджер продаж перенесены в **v4 этапы 7–8** (не этап 1 зачистки).
 
 **Правило подключений:** код адаптера пишем до включения в UX, с mock-тестами и переменными в `.env.example`. Когда ключ появится — только `.env.production` + `make deploy`.
 
@@ -130,7 +130,7 @@ WhatsApp — только официальный Cloud API. `ExportPayment` на
 
 **Сделано в коде (PublisherPort):** `PUBLISHER_ADAPTER=noop` (по умолчанию) или `live` / один канал `site_news` / `telegram_channel` / `vk_wall` / `max_feed`. Без ключа — noop. `live` вызывает только настроенные каналы. Telegram-канал — тот же бот и Worker; бот должен быть админом, webhook не трогаем. VK — официальный `wall.post`, `owner_id` сообщества отрицательный. Max — `POST /messages?chat_id=`. SMM-календарь не включён (этап 6). Чеклист: [V3_OWNER_SETUP.md](V3_OWNER_SETUP.md).
 
-**Сделано в коде (AIPort):** `AI_ADAPTER=noop` (по умолчанию) или `yandexgpt`. Без ключа — noop. Официальный `POST https://llm.api.cloud.yandex.net/foundationModels/v1/completion`, заголовок `Authorization: Api-Key`. Нужны `YANDEXGPT_API_KEY` и `YANDEXGPT_FOLDER_ID`. Фичи поддержки/рекомендаций/watchdog не включены (этап 7). v4 (звонки, ИИ-продавец) сюда не входит. Чеклист: [V3_OWNER_SETUP.md](V3_OWNER_SETUP.md).
+**Сделано в коде (AIPort):** `AI_ADAPTER=noop` (по умолчанию) или `yandexgpt`. Без ключа — noop. Официальный `POST https://llm.api.cloud.yandex.net/foundationModels/v1/completion`, заголовок `Authorization: Api-Key`. Нужны `YANDEXGPT_API_KEY` и `YANDEXGPT_FOLDER_ID`. Фичи поддержки/рекомендаций/watchdog не включены (этап 7). v4 (звонки, ИИ-продавец) сюда не входит — см. [V4_PLAN.md](V4_PLAN.md) этапы 7–8. Чеклист: [V3_OWNER_SETUP.md](V3_OWNER_SETUP.md).
 
 ---
 
@@ -157,7 +157,7 @@ WhatsApp — только официальный Cloud API. `ExportPayment` на
 - Дайджест метрик директору/рекламщику.
 - Watchdog: health, диск, outbox, 5xx, просроченный бэкап → отчёт, **без** рестарта прода.
 
-**Сделано в коде:** `POST /management/support/:id/draft` — черновик менеджеру, в тред и клиенту не пишется, эскалация человеку всегда. `GET /tours/:id/recommendations` — только `IsActive` туры (неактивные и выдуманные id отбрасываются; без ключа — остальные опубликованные). `GET /management/ai/metrics-digest` (`view_stats`) — заявки по статусам, активные туры, открытые диалоги, outbox; визитов нет. `GET /management/watchdog` и лог worker раз в 5 мин: БД, диск, outbox, 5xx с старта API, бэкап старше 26 ч; `restart_attempted` всегда false. На проде `AI_ADAPTER=noop` — фичи no-op, сайт жив. v4 не начат.
+**Сделано в коде:** `POST /management/support/:id/draft` — черновик менеджеру, в тред и клиенту не пишется, эскалация человеку всегда. `GET /tours/:id/recommendations` — только `IsActive` туры (неактивные и выдуманные id отбрасываются; без ключа — остальные опубликованные). `GET /management/ai/metrics-digest` (`view_stats`) — заявки по статусам, активные туры, открытые диалоги, outbox; визитов нет. `GET /management/watchdog` и лог worker раз в 5 мин: БД, диск, outbox, 5xx с старта API, бэкап старше 26 ч; `restart_attempted` всегда false. На проде `AI_ADAPTER=noop` — фичи no-op, сайт жив. ИИ-звонки и ИИ-продавец — не этот этап, см. [V4_PLAN.md](V4_PLAN.md).
 
 ---
 
@@ -186,7 +186,7 @@ WhatsApp — только официальный Cloud API. `ExportPayment` на
 
 **Сделано:** перечисленные файлы приведены к факту прода (этапы 0–9, goose 20, #22 на main, оплата noop). Юридические тела документов не переписывались.
 
-Freeze **2026-08-26** (`v3.0.0`): этапы 0–10 остаются закрытыми; поверх них контент (новости, pinning, `ikona-v-moskvu`, `is_regular`, Метрика 111985266). Goose **25**.
+Freeze **2026-08-26** (`v3.0.0`): этапы 0–10 закрыты; поверх них контент (новости, pinning, `ikona-v-moskvu`, `is_regular`, Метрика 111985266). Goose **25**. Линейка **закрыта**. Дальше не дописывать v3 — [V4_PLAN.md](V4_PLAN.md).
 
 Проверки этапа: `go test ./...`, `go vet`, `npm run lint` / `build`. Прод — `make deploy` по просьбе.
 
@@ -194,11 +194,15 @@ Freeze **2026-08-26** (`v3.0.0`): этапы 0–10 остаются закры�
 
 ## Не входит в v3
 
-- Live Bitrix24 / 1С
-- Возвраты, рассрочка
-- Неофициальный WhatsApp
-- Посты «из нейросети»
-- Фейковые визиты
-- СНИЛС
-- ИИ-звонки и ИИ-продавец (v4)
-- Watchdog, который сам меняет прод
+Закрытый список. Неоткрытое ушло в [V4_PLAN.md](V4_PLAN.md), историю не вычёркиваем.
+
+- Live Bitrix24 / 1С → v4 этап 4, только по просьбе
+- Возвраты, рассрочка → не в v4, пока владелец не попросит
+- Неофициальный WhatsApp → не делаем
+- Посты «из нейросети» / фейковые визиты → не делаем
+- СНИЛС → не делаем
+- ИИ-звонки и ИИ-продавец → **v4 этапы 7–8**, не этап 1
+- Watchdog, который сам меняет прод → не в v4, пока владелец не попросит
+- Цены листовок и сумма регулярного тура → владелец, не код
+- Клики Вебмастера / Search Console / карта / ссылка с епархии → [V4_OWNER_SETUP.md](V4_OWNER_SETUP.md)
+- `AWAITING_PAYMENT` / `PAID` → ждать текста владельца (v4 этап 5)

@@ -33,7 +33,7 @@ SSH: `ssh smailikin70@93.77.165.81` (каталог `/opt/palomnik`, либо `D
 - [x] `/robots.txt` и `sitemap.xml`
 - [x] `https://api.tikhvin-palomnik.ru/health/ready`
 - [ ] `/management/login` — проверить после hard-refresh
-- [ ] Секреты из [V2_OWNER_SETUP.md](V2_OWNER_SETUP.md) — по мере готовности кабинетов
+- [ ] Секреты из [V4_OWNER_SETUP.md](V4_OWNER_SETUP.md) — по мере готовности кабинетов
 
 ## Cron на ВМ
 

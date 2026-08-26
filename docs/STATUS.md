@@ -19,7 +19,7 @@
 
 ## Freeze v3.0.0 (2026-08-26)
 
-Владелец зафиксировал срез как **полностью готовое v3 плюс контент**. Код этапов **0–10** на `main` и на проде после деплоя этого тега. Контентный срез в том же freeze:
+Владелец зафиксировал срез как **полностью готовое v3 плюс контент**. Код этапов **0–10** на `main` и на проде. Контентный срез в том же freeze:
 
 - короткое имя сайта (#26)
 - новость «Святыни Тихвинской Епархии» (#29)
@@ -30,9 +30,15 @@
 - новость о принесении иконы в Москву, slug `ikona-v-moskvu`, закреплена (#33, goose **25**). Текст епархии не переписывали.
 - Яндекс.Метрика счётчик **111985266** (вебвизор + карта кликов) через существующий `Analytics`; цели `tour_view` / `begin_checkout` / `booking_submit` / `support_contact`.
 
-Goose на проде после деплоя freeze: **25** (плюс **24**, если накатывался после уже применённой 25).
+Goose на проде: **25**.
 
-**Код v3 готов.** v4 не начат.
+**Код v3 готов и заморожен.** План v4: **[V4_PLAN.md](V4_PLAN.md)**. Чеклист: **[V4_OWNER_SETUP.md](V4_OWNER_SETUP.md)**.
+
+## v4 (2026-08-26)
+
+Продуктовая линейка v4 **не** начата, кроме **этапа 1** (зачистка кода / следы ИИ / безопасная оптимизация и проводка env). ИИ-звонки и ИИ-продавец — этапы 7–8 плана, не этап 1.
+
+Этап 1 в коде: мёртвая форма Telegram-username убрана; `.env.example` полный; compose прокидывает `OPERATOR_*` (значения не выдумывали) и env PublisherPort/watchdog в worker; Метрика остаётся только env.
 
 ## Что в коде (готово)
 
@@ -49,20 +55,24 @@ Goose на проде после деплоя freeze: **25** (плюс **24**, �
 
 ## Что делает владелец (не код)
 
-Единый чеклист: **[V2_OWNER_SETUP.md](V2_OWNER_SETUP.md)** · v3 ключи: **[V3_OWNER_SETUP.md](V3_OWNER_SETUP.md)**  
+Единый чеклист v4: **[V4_OWNER_SETUP.md](V4_OWNER_SETUP.md)**  
+Ранее: **[V2_OWNER_SETUP.md](V2_OWNER_SETUP.md)** · **[V3_OWNER_SETUP.md](V3_OWNER_SETUP.md)**  
 OAuth: [OAUTH_SETUP.md](OAUTH_SETUP.md) · реклама: [SEO_ADS.md](SEO_ADS.md) · Telegram: [TELEGRAM_SETUP.md](TELEGRAM_SETUP.md)
 
-Остаётся только у владельца (этот freeze **не** закрывает):
+Остаётся только у владельца (этот срез **не** закрывает):
 
 - нажать «Проверить» в Яндекс.Вебмастере и Google Search Console, отправить sitemap
 - OAuth / SMTP / sms.ru — если соответствующие env ещё пустые
+- MX / SPF / DKIM для `info@`
 - цены и даты туров из листовок (пока `is_active=false`; **не публиковать с выдуманной ценой**)
+- открытый вопрос: сумма заявки на регулярный тур = 0; внутреннюю цену не назначали
 - живые Messenger / Publisher / AI / Payment / Bitrix24 / 1С
 - договор эквайринга; статусов `AWAITING_PAYMENT` / `PAID` в domain **нет** — ЮKassa и Сбер в коде как адаптеры, **не live**
-- юридическая сертификация текстов согласий (тела в репозитории **не** заменяют проверку юристом)
+- юридическая сертификация текстов согласий; реквизиты `OPERATOR_*` (placeholders, ИНН/ОГРН не выдумывать)
 - контент остальных туров, отзывы, карта организации, ссылка с епархии
+- инфра 4 vCPU / 8 ГБ перед живым ботом/GPT, если ещё не сделано
 
-## v3 этапы 0–10 (код на проде)
+## v3 этапы 0–10 (код на проде, freeze)
 
 | Этап | На проде | Заметка |
 |------|----------|---------|
@@ -79,8 +89,8 @@ OAuth: [OAUTH_SETUP.md](OAUTH_SETUP.md) · реклама: [SEO_ADS.md](SEO_ADS.
 
 **Noop / не live:** Messenger, Publisher, AI, Payment, Bitrix24, 1С. Живой эквайринг не включать: статусов `AWAITING_PAYMENT` / `PAID` в domain нет.
 
-**Согласия (#22, влил владелец, `768ddf3`):** goose **18–20** — `legal_documents`, `consents`, `user_photos`, `reviews.allow_distribution`. Публичные `/legal`, кабинет `/account/consents` и `/account/photos`, cookie-баннер, админка `/management/legal`. Тексты документов **не сертифицированы юристом**. Реквизиты оператора — placeholders в коде.
+**Согласия (#22, влил владелец, `768ddf3`):** goose **18–20** — `legal_documents`, `consents`, `user_photos`, `reviews.allow_distribution`. Публичные `/legal`, кабинет `/account/consents` и `/account/photos`, cookie-баннер, админка `/management/legal`. Тексты документов **не сертифицированы юристом**. Реквизиты оператора — placeholders в коде; compose с этапа 1 v4 прокидывает пустые `OPERATOR_*`.
 
-v4 не начат. План: **[V3_PLAN.md](V3_PLAN.md)**. Юридическая папка: [legal/README.md](legal/README.md).
+История v3: **[V3_PLAN.md](V3_PLAN.md)** (закрыт). Юридическая папка: [legal/README.md](legal/README.md).
 
-Без секретов владельца E2E OAuth/SMTP не прогнать — [V2_OWNER_SETUP.md](V2_OWNER_SETUP.md).
+Без секретов владельца E2E OAuth/SMTP не прогнать — [V4_OWNER_SETUP.md](V4_OWNER_SETUP.md).

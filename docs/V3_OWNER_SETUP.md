@@ -57,7 +57,7 @@ PUBLISHER_ADAPTER=noop
 
 ## AIPort
 
-Фичи поддержки/рекомендаций/дайджеста/watchdog — этап 7, на проде. Без ключа `Complete` не вызывается, сайт жив. По умолчанию `noop`. На проде ключа YandexGPT нет — оставлять `AI_ADAPTER=noop`. v4 (звонки, ИИ-продавец) сюда не входит.
+Фичи поддержки/рекомендаций/дайджеста/watchdog — этап 7, на проде. Без ключа `Complete` не вызывается, сайт жив. По умолчанию `noop`. На проде ключа YandexGPT нет — оставлять `AI_ADAPTER=noop`. ИИ-звонки и ИИ-продавец — [V4_PLAN.md](V4_PLAN.md) этапы 7–8.
 
 ```bash
 AI_ADAPTER=noop
@@ -103,7 +103,7 @@ Return URL: `PAYMENT_RETURN_URL` или `{PUBLIC_SITE_URL}/account/trips`. Но�
 
 Код и таблицы (goose 18–20) уже на проде. Новых адаптеров нет. Тексты в `legal_documents` **не сертифицированы юристом** — не считать публикацию проверкой юротдела.
 
-Код читает `OPERATOR_*` (`backend/internal/legal/operator`) и `NEXT_PUBLIC_OPERATOR_*` (`frontend/src/lib/operator-config.ts`). **Compose эти переменные пока не прокидывает** — на проде действуют placeholders из кода (`название`, «—», запасные контактные email/телефон сайта). Вписать реквизиты в `.env.production` без правки compose не подхватится. Не выдумывать ИНН/ОГРН/адреса. Прокинуть env — отдельная просьба владельца, не этот этап.
+Код читает `OPERATOR_*` (`backend/internal/legal/operator`) и `NEXT_PUBLIC_OPERATOR_*` (`frontend/src/lib/operator-config.ts`). С **v4 этапа 1** compose прокидывает эти переменные (пустые = плейсхолдеры `название` / «—»). Не выдумывать ИНН/ОГРН/адреса. Чеклист: [V4_OWNER_SETUP.md](V4_OWNER_SETUP.md).
 
 ## Инфра
 
