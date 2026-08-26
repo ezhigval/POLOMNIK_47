@@ -24,8 +24,11 @@ fi
 
 COMPOSE="sudo docker compose --env-file .env.production -f docker-compose.yml -f docker-compose.prod.yml"
 
+# Remote .env.production is the live secret file (Telegram, Cloudflare Worker, OAuth).
+# Do not rsync it from the laptop/agent workspace — that would overwrite rotated tokens.
 if [[ ! -f "$ROOT_DIR/.env.production" ]]; then
-  echo "Missing $ROOT_DIR/.env.production"
+  echo "Missing local $ROOT_DIR/.env.production (needed as a reminder that prod secrets exist)."
+  echo "Remote keeps its own .env.production; this file is not uploaded."
   exit 1
 fi
 
@@ -67,6 +70,8 @@ rsync -az --delete \
   --exclude node_modules \
   --exclude .next \
   --exclude backups \
+  --exclude .env.production \
+  --exclude .env \
   --exclude frontend/.env.local \
   --exclude "data/uploads" \
   --exclude "backend/data/uploads" \
