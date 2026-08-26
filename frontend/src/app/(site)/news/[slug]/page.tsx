@@ -2,7 +2,13 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { NewsPhotoStrip } from "@/components/news-photo-strip";
-import { formatNewsDate, NEWS_AI_DISCLAIMER, paragraphsFromBody, toFeedArticle } from "@/lib/news";
+import {
+  formatNewsDate,
+  isNewsImageSrc,
+  NEWS_AI_DISCLAIMER,
+  paragraphsFromBody,
+  toFeedArticle,
+} from "@/lib/news";
 import { getPublicNewsBySlug } from "@/lib/api/news";
 import { ApiError } from "@/lib/api/client";
 import { NewsArticleStructuredData } from "@/components/structured-data";
@@ -103,9 +109,16 @@ export default async function NewsArticlePage({ params }: PageProps) {
           <h1 className="font-display text-3xl font-semibold text-stone-900">{article.title}</h1>
           <p className="sr-only">{siteConfig.name}</p>
           <div className="space-y-4 text-sm leading-7 text-stone-700 sm:text-base">
-            {(body.length > 0 ? body : paragraphsFromBody(article.excerpt)).map((paragraph) => (
-              <p key={paragraph}>{paragraph}</p>
-            ))}
+            {(body.length > 0 ? body : paragraphsFromBody(article.excerpt)).map((paragraph) =>
+              isNewsImageSrc(paragraph) ? (
+                <figure key={paragraph} className="overflow-hidden rounded-2xl bg-stone-100">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={paragraph.trim()} alt="" className="mx-auto h-auto w-full object-contain" />
+                </figure>
+              ) : (
+                <p key={paragraph}>{paragraph}</p>
+              ),
+            )}
           </div>
           {hasDisclaimer ? (
             <p className="border-t border-stone-100 pt-4 text-xs leading-5 text-stone-400">{NEWS_AI_DISCLAIMER}</p>
