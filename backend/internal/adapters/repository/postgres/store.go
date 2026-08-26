@@ -209,27 +209,29 @@ WHERE id = $1
 	return requireAffected(result)
 }
 
+const bookingSelectColumns = `
+id, tour_id, user_id, name, phone, email, people_count, status, payment_status, total_price,
+comment, overbooked, source, created_at, updated_at`
+
 func (s *Store) CreateBooking(ctx context.Context, booking domain.Booking) (domain.Booking, error) {
 	row := s.conn(ctx).QueryRowContext(ctx, `
 INSERT INTO bookings (
-    id, tour_id, user_id, name, phone, email, people_count, status, total_price,
+    id, tour_id, user_id, name, phone, email, people_count, status, payment_status, total_price,
     comment, overbooked, source, created_at, updated_at
 ) VALUES (
-    $1, $2, $3, $4, $5, $6, $7, $8, $9,
-    $10, $11, $12, $13, $14
+    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10,
+    $11, $12, $13, $14, $15
 )
-RETURNING id, tour_id, user_id, name, phone, email, people_count, status, total_price,
-          comment, overbooked, source, created_at, updated_at
+RETURNING`+bookingSelectColumns+`
 `, booking.ID, booking.TourID, uuidValue(booking.UserID), booking.Name, booking.Phone, booking.Email,
-		booking.PeopleCount, booking.Status, booking.TotalPrice, booking.Comment,
+		booking.PeopleCount, booking.Status, booking.PaymentStatus, booking.TotalPrice, booking.Comment,
 		booking.Overbooked, booking.Source, booking.CreatedAt, booking.UpdatedAt)
 	return scanBooking(row)
 }
 
 func (s *Store) GetBooking(ctx context.Context, id uuid.UUID) (domain.Booking, error) {
 	row := s.conn(ctx).QueryRowContext(ctx, `
-SELECT id, tour_id, user_id, name, phone, email, people_count, status, total_price,
-       comment, overbooked, source, created_at, updated_at
+SELECT`+bookingSelectColumns+`
 FROM bookings
 WHERE id = $1
 `, id)
@@ -246,8 +248,7 @@ func (s *Store) ListBookings(ctx context.Context, filters ports.BookingFilters, 
 	}
 
 	rows, err := s.conn(ctx).QueryContext(ctx, `
-SELECT id, tour_id, user_id, name, phone, email, people_count, status, total_price,
-       comment, overbooked, source, created_at, updated_at
+SELECT`+bookingSelectColumns+`
 FROM bookings
 WHERE `+bookingWhereClause+`
 ORDER BY created_at DESC, id ASC
@@ -280,9 +281,27 @@ UPDATE bookings
 SET status = $2,
     updated_at = $3
 WHERE id = $1
-RETURNING id, tour_id, user_id, name, phone, email, people_count, status, total_price,
-          comment, overbooked, source, created_at, updated_at
+RETURNING`+bookingSelectColumns+`
 `, id, booking.Status, booking.UpdatedAt)
+	return scanBooking(row)
+}
+
+func (s *Store) UpdateBookingPaymentStatus(ctx context.Context, id uuid.UUID, status domain.PaymentStatus) (domain.Booking, error) {
+	booking, err := s.GetBooking(ctx, id)
+	if err != nil {
+		return domain.Booking{}, err
+	}
+	if err := booking.ChangePaymentStatus(status); err != nil {
+		return domain.Booking{}, err
+	}
+
+	row := s.conn(ctx).QueryRowContext(ctx, `
+UPDATE bookings
+SET payment_status = $2,
+    updated_at = $3
+WHERE id = $1
+RETURNING`+bookingSelectColumns+`
+`, id, booking.PaymentStatus, booking.UpdatedAt)
 	return scanBooking(row)
 }
 
@@ -292,8 +311,7 @@ UPDATE bookings
 SET overbooked = TRUE,
     updated_at = NOW()
 WHERE id = $1
-RETURNING id, tour_id, user_id, name, phone, email, people_count, status, total_price,
-          comment, overbooked, source, created_at, updated_at
+RETURNING`+bookingSelectColumns+`
 `, id)
 	return scanBooking(row)
 }
@@ -533,6 +551,7 @@ func scanBooking(row scanner) (domain.Booking, error) {
 		&booking.Email,
 		&booking.PeopleCount,
 		&booking.Status,
+		&booking.PaymentStatus,
 		&booking.TotalPrice,
 		&booking.Comment,
 		&booking.Overbooked,

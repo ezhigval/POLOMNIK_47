@@ -80,6 +80,20 @@ export function formatManagementBookingStatus(status: string): string {
   return labels[status] ?? status;
 }
 
+export function formatPaymentStatus(status: string): string {
+  const labels: Record<string, string> = {
+    UNPAID: "Не оплачено",
+    AWAITING_PAYMENT: "Ожидает оплаты",
+    PAID: "Оплачено",
+    NOT_REQUIRED: "Оплата не требуется",
+  };
+  return labels[status] ?? status;
+}
+
+export function formatManagementPaymentStatus(status: string): string {
+  return formatPaymentStatus(status);
+}
+
 export const integrationSyncLabels: Record<string, string> = {
   not_configured: "Не настроено",
   pending: "В очереди",

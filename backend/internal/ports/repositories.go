@@ -55,6 +55,7 @@ type BookingRepository interface {
 	GetBooking(ctx context.Context, id uuid.UUID) (domain.Booking, error)
 	ListBookings(ctx context.Context, filters BookingFilters, pagination Pagination) (BookingList, error)
 	UpdateBookingStatus(ctx context.Context, id uuid.UUID, status domain.BookingStatus) (domain.Booking, error)
+	UpdateBookingPaymentStatus(ctx context.Context, id uuid.UUID, status domain.PaymentStatus) (domain.Booking, error)
 	MarkBookingOverbooked(ctx context.Context, id uuid.UUID) (domain.Booking, error)
 }
 

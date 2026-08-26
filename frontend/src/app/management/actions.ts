@@ -14,6 +14,7 @@ import {
   reorderManagementCmsBlocks,
   setManagementReviewReply,
   updateManagementBookingStatus,
+  updateManagementBookingPaymentStatus,
   updateManagementCmsBlock,
   updateManagementCmsPage,
   updateManagementTour,
@@ -111,6 +112,11 @@ export async function deleteTourAction(formData: FormData) {
 
 export async function updateBookingStatusAction(id: string, status: string) {
   await updateManagementBookingStatus(id, status);
+  revalidatePath("/management/bookings");
+}
+
+export async function updateBookingPaymentStatusAction(id: string, paymentStatus: string) {
+  await updateManagementBookingPaymentStatus(id, paymentStatus);
   revalidatePath("/management/bookings");
 }
 

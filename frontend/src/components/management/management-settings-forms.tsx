@@ -54,6 +54,7 @@ export type AdminRoleTemplateOption = {
 
 const EVENT_KINDS = [
   { kind: "booking_created", title: "Новые заявки" },
+  { kind: "tour_hidden", title: "Тур скрыт (дата прошла)" },
   { kind: "booking_status_changed", title: "Смена статуса заявки" },
   { kind: "support_message", title: "Сообщения в поддержку" },
 ] as const;

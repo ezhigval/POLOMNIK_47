@@ -1,11 +1,11 @@
 import Link from "next/link";
 import { SlotsBadge } from "@/components/slots-badge";
+import { BurningTourBadge, TourPrice } from "@/components/tour-price";
 import {
   formatDateRange,
-  formatPrice,
   formatTourDuration,
 } from "@/lib/format";
-import { isRegularTour, isTourSoldOut, type Tour } from "@/lib/api/tours";
+import { isRegularTour, isTourSoldOut, tourShowsPrice, type Tour } from "@/lib/api/tours";
 import { tourPath } from "@/lib/tour-path";
 
 type TourScheduleProps = {
@@ -46,6 +46,7 @@ export function TourSchedule({ tours }: TourScheduleProps) {
 function ScheduleRow({ tour }: { tour: Tour }) {
   const soldOut = isTourSoldOut(tour);
   const regular = isRegularTour(tour);
+  const showPrice = tourShowsPrice(tour);
   const duration = regular ? "" : formatTourDuration(tour.date_start, tour.date_end);
 
   return (
@@ -58,6 +59,11 @@ function ScheduleRow({ tour }: { tour: Tour }) {
         <Link href={tourPath(tour)} className="font-medium text-stone-900 hover:text-brand-800">
           {tour.title}
         </Link>
+        {tour.is_burning ? (
+          <span className="ml-2 inline-flex">
+            <BurningTourBadge compact />
+          </span>
+        ) : null}
         {tour.is_hot ? (
           <span className="ml-2 inline-flex rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-900">
             Популярный
@@ -66,11 +72,17 @@ function ScheduleRow({ tour }: { tour: Tour }) {
         {tour.location ? <p className="mt-1 text-xs text-stone-500">{tour.location}</p> : null}
       </td>
       <td className="whitespace-nowrap px-4 py-4 font-medium text-stone-900">
-        {regular ? "—" : (
+        {showPrice ? (
           <>
-            {formatPrice(tour.price, tour.currency)}
-            <span className="ml-1 text-xs font-normal text-stone-500">/ чел.</span>
+            <TourPrice
+              price={tour.price}
+              originalPrice={tour.original_price}
+              currency={tour.currency}
+              suffix=" / чел."
+            />
           </>
+        ) : (
+          "—"
         )}
       </td>
       <td className="px-4 py-4">
@@ -92,6 +104,7 @@ function ScheduleRow({ tour }: { tour: Tour }) {
 function ScheduleCard({ tour }: { tour: Tour }) {
   const soldOut = isTourSoldOut(tour);
   const regular = isRegularTour(tour);
+  const showPrice = tourShowsPrice(tour);
   const duration = regular ? "" : formatTourDuration(tour.date_start, tour.date_end);
 
   return (
@@ -101,7 +114,12 @@ function ScheduleCard({ tour }: { tour: Tour }) {
           <Link href={tourPath(tour)} className="font-medium text-stone-900 hover:text-brand-800">
             {tour.title}
           </Link>
-          {tour.is_hot ? (
+          {tour.is_burning ? (
+          <span className="ml-2 inline-flex">
+            <BurningTourBadge compact />
+          </span>
+        ) : null}
+        {tour.is_hot ? (
             <span className="mt-1 inline-flex rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-900">
               Популярный
             </span>
@@ -110,25 +128,39 @@ function ScheduleCard({ tour }: { tour: Tour }) {
         </div>
         <SlotsBadge slotsLeft={tour.slots_left} />
       </div>
-      {regular ? (
+      {regular && !showPrice ? (
         <p className="text-sm text-stone-600">Регулярный тур</p>
       ) : (
         <dl className="grid grid-cols-2 gap-2 text-sm text-stone-600">
-          <div>
-            <dt className="text-xs uppercase tracking-wide text-stone-400">Даты</dt>
-            <dd className="text-stone-800">{formatDateRange(tour.date_start, tour.date_end)}</dd>
-          </div>
-          <div>
-            <dt className="text-xs uppercase tracking-wide text-stone-400">Длительность</dt>
-            <dd className="text-stone-800">{duration || "—"}</dd>
-          </div>
-          <div className="col-span-2">
-            <dt className="text-xs uppercase tracking-wide text-stone-400">Стоимость</dt>
-            <dd className="font-medium text-stone-900">
-              {formatPrice(tour.price, tour.currency)}
-              <span className="ml-1 text-xs font-normal text-stone-500">/ чел.</span>
-            </dd>
-          </div>
+          {regular ? null : (
+            <>
+              <div>
+                <dt className="text-xs uppercase tracking-wide text-stone-400">Даты</dt>
+                <dd className="text-stone-800">{formatDateRange(tour.date_start, tour.date_end)}</dd>
+              </div>
+              <div>
+                <dt className="text-xs uppercase tracking-wide text-stone-400">Длительность</dt>
+                <dd className="text-stone-800">{duration || "—"}</dd>
+              </div>
+            </>
+          )}
+          {showPrice ? (
+            <div className="col-span-2">
+              <dt className="text-xs uppercase tracking-wide text-stone-400">Стоимость</dt>
+              <dd className="font-medium text-stone-900">
+                <TourPrice
+                  price={tour.price}
+                  originalPrice={tour.original_price}
+                  currency={tour.currency}
+                  suffix=" / чел."
+                />
+              </dd>
+            </div>
+          ) : regular ? (
+            <div className="col-span-2">
+              <p className="text-sm text-stone-600">Регулярный тур</p>
+            </div>
+          ) : null}
         </dl>
       )}
       <Link

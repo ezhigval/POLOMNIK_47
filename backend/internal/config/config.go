@@ -117,6 +117,7 @@ type Config struct {
 	YooKassaSecretKey        string
 	YooKassaAPIBase          string
 	PaymentReturnURL         string
+	HotTourDiscountPercent   int
 }
 
 func Load() Config {
@@ -230,6 +231,7 @@ func Load() Config {
 		YooKassaSecretKey:        os.Getenv("YOOKASSA_SECRET_KEY"),
 		YooKassaAPIBase:          envString("YOOKASSA_API_BASE", "https://api.yookassa.ru"),
 		PaymentReturnURL:         os.Getenv("PAYMENT_RETURN_URL"),
+		HotTourDiscountPercent:   envInt("HOT_TOUR_DISCOUNT_PERCENT", 0),
 	}
 }
 

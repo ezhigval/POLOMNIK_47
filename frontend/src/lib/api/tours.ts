@@ -14,12 +14,19 @@ export type Tour = {
   location: string;
   images: string[];
   is_hot: boolean;
+  is_burning: boolean;
   is_regular: boolean;
   overbooking_enabled: boolean;
+  original_price?: number | null;
 };
 
 export function isRegularTour(tour: { is_regular?: boolean }): boolean {
   return Boolean(tour.is_regular);
+}
+
+/** Public price is shown when price is specified and greater than zero. */
+export function tourShowsPrice(tour: { price?: number | null }): boolean {
+  return tour.price != null && tour.price > 0;
 }
 
 /** Booking stays open when slots_left=0 if overbooking is enabled. */

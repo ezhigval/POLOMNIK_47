@@ -56,6 +56,8 @@ func run() int {
 		telegramDeps.Chats = chats
 	}
 	notifications := notification.Inner(cfg, telegramDeps)
+	tourService := application.NewTourService(tourRepo, nil, crm)
+	tourLifecycle := application.NewTourLifecycleService(tourService, notifications)
 	var smm *application.SMMService
 	if newsRepo, ok := tourRepo.(ports.NewsRepository); ok {
 		if posts, ok := tourRepo.(ports.SMMPostRepository); ok {
@@ -101,11 +103,21 @@ func run() int {
 	ticker := time.NewTicker(cfg.OutboxWorkerPollInterval)
 	defer ticker.Stop()
 	var lastWatchdog time.Time
+	var lastTourLifecycle time.Time
 
 	for {
 		if lastWatchdog.IsZero() || time.Since(lastWatchdog) >= 5*time.Minute {
 			watchdog.Log(ctx, log)
 			lastWatchdog = time.Now()
+		}
+
+		if lastTourLifecycle.IsZero() || time.Since(lastTourLifecycle) >= time.Hour {
+			if hidden, hideErr := tourLifecycle.HideExpiredActiveTours(ctx, time.Now().UTC()); hideErr != nil {
+				log.Error("hide expired tours failed", slog.Any("error", hideErr))
+			} else if hidden > 0 {
+				log.Info("expired tours hidden", slog.Int("count", hidden))
+			}
+			lastTourLifecycle = time.Now()
 		}
 
 		if smm != nil {

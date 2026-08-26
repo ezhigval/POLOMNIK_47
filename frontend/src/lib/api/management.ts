@@ -23,6 +23,7 @@ export type ManagementBooking = {
   email: string;
   people_count: number;
   status: string;
+  payment_status: string;
   total_price: number;
   comment: string;
   overbooked: boolean;
@@ -286,6 +287,17 @@ export async function updateManagementBookingStatus(id: string, status: string) 
     {
       method: "PATCH",
       body: JSON.stringify({ status }),
+    },
+  );
+  return body.data;
+}
+
+export async function updateManagementBookingPaymentStatus(id: string, paymentStatus: string) {
+  const body = await managementRequest<DataEnvelope<ManagementBooking>>(
+    `/bookings/${id}/payment-status`,
+    {
+      method: "PATCH",
+      body: JSON.stringify({ payment_status: paymentStatus }),
     },
   );
   return body.data;

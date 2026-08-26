@@ -1,7 +1,7 @@
 import { contactEmail, contactPhone } from "@/lib/contact";
 import { absoluteUrl, siteConfig } from "@/lib/site-config";
 import type { Tour } from "@/lib/api/tours";
-import { canBookTour } from "@/lib/api/tours";
+import { canBookTour, tourShowsPrice } from "@/lib/api/tours";
 import { tourPath, tourSeoDescription } from "@/lib/tour-path";
 import type { NewsArticle } from "@/lib/news";
 
@@ -79,7 +79,6 @@ export function TourStructuredData({ tour }: { tour: Tour }) {
   const url = absoluteUrl(tourPath(tour));
 
   const images = tour.images?.filter(Boolean).slice(0, 5) ?? [];
-  const regular = Boolean(tour.is_regular);
   const jsonLd: Record<string, unknown> = {
     "@context": "https://schema.org",
     "@type": "TouristTrip",
@@ -91,7 +90,7 @@ export function TourStructuredData({ tour }: { tour: Tour }) {
       "@id": `${siteConfig.url}/#organization`,
     },
   };
-  if (!regular && tour.price != null) {
+  if (tourShowsPrice(tour)) {
     jsonLd.offers = {
       "@type": "Offer",
       price: tour.price,

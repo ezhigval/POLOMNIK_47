@@ -33,6 +33,10 @@ func (n *recordingSupportNotifier) NotifySupportMessage(_ context.Context, note 
 	return nil
 }
 
+func (n *recordingSupportNotifier) NotifyTourHidden(context.Context, domain.Tour) error {
+	return nil
+}
+
 func TestSendUserMessageTriggersNotifier(t *testing.T) {
 	store := memory.NewStore()
 	notifier := &recordingSupportNotifier{}

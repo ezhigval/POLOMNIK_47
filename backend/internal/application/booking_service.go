@@ -12,12 +12,13 @@ import (
 )
 
 type BookingService struct {
-	bookings      ports.BookingRepository
-	tours         ports.TourRepository
-	crm           ports.CRMPort
-	accounting    ports.AccountingPort
-	notifications ports.NotificationPort
-	tx            ports.TransactionManager
+	bookings               ports.BookingRepository
+	tours                  ports.TourRepository
+	crm                    ports.CRMPort
+	accounting             ports.AccountingPort
+	notifications          ports.NotificationPort
+	tx                     ports.TransactionManager
+	hotTourDiscountPercent int
 }
 
 func NewBookingService(
@@ -27,14 +28,22 @@ func NewBookingService(
 	accounting ports.AccountingPort,
 	notifications ports.NotificationPort,
 	tx ports.TransactionManager,
+	hotTourDiscountPercent int,
 ) *BookingService {
+	if hotTourDiscountPercent < 0 {
+		hotTourDiscountPercent = 0
+	}
+	if hotTourDiscountPercent > 100 {
+		hotTourDiscountPercent = 100
+	}
 	return &BookingService{
-		bookings:      bookings,
-		tours:         tours,
-		crm:           crm,
-		accounting:    accounting,
-		notifications: notifications,
-		tx:            tx,
+		bookings:               bookings,
+		tours:                  tours,
+		crm:                    crm,
+		accounting:             accounting,
+		notifications:          notifications,
+		tx:                     tx,
+		hotTourDiscountPercent: hotTourDiscountPercent,
 	}
 }
 
@@ -72,15 +81,16 @@ func (s *BookingService) CreateBooking(ctx context.Context, input CreateBookingI
 	}
 
 	booking, err := domain.NewBooking(domain.NewBookingInput{
-		ID:          uuid.New(),
-		Tour:        tour,
-		UserID:      input.UserID,
-		Name:        input.Name,
-		Phone:       input.Phone,
-		Email:       input.Email,
-		PeopleCount: input.PeopleCount,
-		Comment:     input.Comment,
-		Source:      source,
+		ID:                     uuid.New(),
+		Tour:                   tour,
+		UserID:                 input.UserID,
+		Name:                   input.Name,
+		Phone:                  input.Phone,
+		Email:                  input.Email,
+		PeopleCount:            input.PeopleCount,
+		Comment:                input.Comment,
+		Source:                 source,
+		HotTourDiscountPercent: s.hotTourDiscountPercent,
 	})
 	if err != nil {
 		return CreateBookingResult{}, err
@@ -180,6 +190,18 @@ func (s *BookingService) UpdateBookingStatus(ctx context.Context, id uuid.UUID, 
 	_ = s.notifications.NotifyBookingStatusChanged(ctx, updated, tour, existing.Status)
 
 	return updated, nil
+}
+
+func (s *BookingService) UpdateBookingPaymentStatus(ctx context.Context, id uuid.UUID, status domain.PaymentStatus) (domain.Booking, error) {
+	existing, err := s.bookings.GetBooking(ctx, id)
+	if err != nil {
+		return domain.Booking{}, err
+	}
+	if existing.PaymentStatus == status {
+		return existing, nil
+	}
+
+	return s.bookings.UpdateBookingPaymentStatus(ctx, id, status)
 }
 
 func tourEnded(tour domain.Tour) bool {

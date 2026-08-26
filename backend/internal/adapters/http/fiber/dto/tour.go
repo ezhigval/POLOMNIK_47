@@ -20,8 +20,10 @@ type TourResponse struct {
 	Location    string   `json:"location"`
 	Images      []string `json:"images"`
 	IsHot              bool `json:"is_hot"`
+	IsBurning          bool `json:"is_burning"`
 	IsRegular          bool `json:"is_regular"`
 	OverbookingEnabled bool `json:"overbooking_enabled"`
+	OriginalPrice      *int `json:"original_price,omitempty"`
 }
 
 type ManagementTourResponse struct {
@@ -49,6 +51,10 @@ type TourUpsertRequest struct {
 }
 
 func ToTourResponse(tour domain.Tour) TourResponse {
+	return ToPublicTourResponse(tour, domain.TourCatalogContext{})
+}
+
+func ToPublicTourResponse(tour domain.Tour, catalog domain.TourCatalogContext) TourResponse {
 	resp := TourResponse{
 		ID:          tour.ID.String(),
 		Slug:        tour.Slug,
@@ -60,12 +66,20 @@ func ToTourResponse(tour domain.Tour) TourResponse {
 		Location:    tour.Location,
 		Images:      tour.Images,
 		IsHot:              tour.IsHot,
+		IsBurning:          tour.IsBurningIn(catalog),
 		IsRegular:          tour.IsRegular,
 		OverbookingEnabled: tour.OverbookingEnabled,
 	}
-	if !tour.IsRegular {
-		price := tour.Price
+	if tour.HasPublicPrice() {
+		unit := tour.UnitPriceIn(catalog)
+		price := unit
 		resp.Price = &price
+		if resp.IsBurning && catalog.HotTourDiscountPercent > 0 && unit < tour.Price {
+			original := tour.Price
+			resp.OriginalPrice = &original
+		}
+	}
+	if !tour.IsRegular {
 		resp.DateStart = formatDatePtr(tour.DateStart)
 		resp.DateEnd = formatDatePtr(tour.DateEnd)
 	}

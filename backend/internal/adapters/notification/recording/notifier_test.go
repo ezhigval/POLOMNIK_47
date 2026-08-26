@@ -27,6 +27,10 @@ func (failingNotifier) NotifySupportMessage(context.Context, domain.SupportNotif
 	return errors.New("telegram down")
 }
 
+func (failingNotifier) NotifyTourHidden(context.Context, domain.Tour) error {
+	return errors.New("telegram down")
+}
+
 func TestRecordingNotifierSkipsNotConfigured(t *testing.T) {
 	ctx := context.Background()
 	store := memory.NewStore()

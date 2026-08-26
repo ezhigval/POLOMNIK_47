@@ -23,6 +23,7 @@ var (
 	ErrInvalidPeopleCount          = errors.New("invalid people count")
 	ErrInvalidTotalPrice           = errors.New("invalid total price")
 	ErrInvalidBookingStatus        = errors.New("invalid booking status")
+	ErrInvalidPaymentStatus        = errors.New("invalid payment status")
 	ErrInvalidStatusTransition     = errors.New("invalid booking status transition")
 	ErrInvalidClientName           = errors.New("invalid client name")
 	ErrInvalidRating               = errors.New("invalid rating")

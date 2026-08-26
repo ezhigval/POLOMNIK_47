@@ -18,6 +18,7 @@ const (
 	NotificationEventBookingCreated       NotificationEventKind = "booking_created"
 	NotificationEventBookingStatusChanged NotificationEventKind = "booking_status_changed"
 	NotificationEventSupportMessage       NotificationEventKind = "support_message"
+	NotificationEventTourHidden             NotificationEventKind = "tour_hidden"
 )
 
 type NotificationChannel string
@@ -46,12 +47,13 @@ func AllNotificationEventKinds() []NotificationEventKind {
 		NotificationEventBookingCreated,
 		NotificationEventBookingStatusChanged,
 		NotificationEventSupportMessage,
+		NotificationEventTourHidden,
 	}
 }
 
 func ValidNotificationEventKind(kind NotificationEventKind) bool {
 	switch kind {
-	case NotificationEventBookingCreated, NotificationEventBookingStatusChanged, NotificationEventSupportMessage:
+	case NotificationEventBookingCreated, NotificationEventBookingStatusChanged, NotificationEventSupportMessage, NotificationEventTourHidden:
 		return true
 	default:
 		return false
@@ -184,6 +186,7 @@ func NotificationRoutingFromTelegramRecipients(legacy TelegramRecipients, now ti
 	support := telegramUsernamesToRecipients(legacy.SupportUsernames)
 	routing.ByEvent[NotificationEventBookingCreated] = append([]NotificationRecipient(nil), booking...)
 	routing.ByEvent[NotificationEventBookingStatusChanged] = append([]NotificationRecipient(nil), booking...)
+	routing.ByEvent[NotificationEventTourHidden] = append([]NotificationRecipient(nil), booking...)
 	routing.ByEvent[NotificationEventSupportMessage] = support
 	if !legacy.UpdatedAt.IsZero() {
 		routing.UpdatedAt = legacy.UpdatedAt.UTC()
@@ -231,6 +234,7 @@ func UniqueTelegramAddressesFromRouting(routing NotificationRouting) []string {
 	return UniqueTelegramUsernames(
 		TelegramUsernamesFromRouting(routing, NotificationEventBookingCreated),
 		TelegramUsernamesFromRouting(routing, NotificationEventBookingStatusChanged),
+		TelegramUsernamesFromRouting(routing, NotificationEventTourHidden),
 		TelegramUsernamesFromRouting(routing, NotificationEventSupportMessage),
 	)
 }

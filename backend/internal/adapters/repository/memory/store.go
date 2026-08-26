@@ -232,6 +232,21 @@ func (s *Store) UpdateBookingStatus(_ context.Context, id uuid.UUID, status doma
 	return booking, nil
 }
 
+func (s *Store) UpdateBookingPaymentStatus(_ context.Context, id uuid.UUID, status domain.PaymentStatus) (domain.Booking, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	booking, ok := s.bookings[id]
+	if !ok {
+		return domain.Booking{}, domain.ErrNotFound
+	}
+	if err := booking.ChangePaymentStatus(status); err != nil {
+		return domain.Booking{}, err
+	}
+	s.bookings[id] = booking
+	return booking, nil
+}
+
 func (s *Store) MarkBookingOverbooked(_ context.Context, id uuid.UUID) (domain.Booking, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()

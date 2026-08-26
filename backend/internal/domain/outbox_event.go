@@ -18,6 +18,7 @@ const (
 	OutboxEventNotificationBookingCreated = "notification.booking.created"
 	OutboxEventNotificationBookingStatus  = "notification.booking.status_changed"
 	OutboxEventNotificationSupport        = "notification.support.message"
+	OutboxEventNotificationTourHidden     = "notification.tour.hidden"
 )
 
 type OutboxStatus string

@@ -159,8 +159,9 @@ type MyBookingResponse struct {
 	Phone       string    `json:"phone"`
 	Email       string    `json:"email"`
 	PeopleCount int       `json:"people_count"`
-	Status      string    `json:"status"`
-	TotalPrice  int       `json:"total_price"`
+	Status        string    `json:"status"`
+	PaymentStatus string    `json:"payment_status"`
+	TotalPrice    int       `json:"total_price"`
 	Comment     string    `json:"comment"`
 	CreatedAt   time.Time `json:"created_at"`
 }
@@ -173,8 +174,9 @@ func ToMyBookingResponse(booking domain.Booking) MyBookingResponse {
 		Phone:       booking.Phone,
 		Email:       booking.Email,
 		PeopleCount: booking.PeopleCount,
-		Status:      string(booking.Status),
-		TotalPrice:  booking.TotalPrice,
+		Status:        string(booking.Status),
+		PaymentStatus: string(booking.PaymentStatus),
+		TotalPrice:    booking.TotalPrice,
 		Comment:     booking.Comment,
 		CreatedAt:   booking.CreatedAt,
 	}
