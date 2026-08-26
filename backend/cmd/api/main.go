@@ -79,7 +79,6 @@ func run() int {
 		integration.NewAccounting(cfg, integrationRefs, outboxRepo),
 		notifier,
 		txManager(tourRepo),
-		cfg.HotTourDiscountPercent,
 	)
 
 	var siteSettingsRepo ports.SiteSettingsRepository
@@ -215,7 +214,7 @@ func run() int {
 		RateLimiter:    rateLimiterFromCache(redisCache),
 		Metrics:        metrics,
 		BackupLastPath: cfg.BackupLastPath,
-		TourCatalog:    application.NewTourCatalog(cfg.HotTourDiscountPercent),
+		TourCatalog:    application.NewTourCatalog(),
 	}
 	if engagementRepo, ok := tourRepo.(ports.NewsEngagementRepository); ok {
 		services.NewsEngagement = application.NewNewsEngagementService(engagementRepo, newsRepo, userRepo)

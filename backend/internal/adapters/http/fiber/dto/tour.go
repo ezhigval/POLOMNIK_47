@@ -30,6 +30,7 @@ type ManagementTourResponse struct {
 	TourResponse
 	IsActive           bool `json:"is_active"`
 	OverbookingEnabled bool `json:"overbooking_enabled"`
+	HotDiscountPercent int  `json:"hot_discount_percent"`
 }
 
 type TourUpsertRequest struct {
@@ -48,6 +49,7 @@ type TourUpsertRequest struct {
 	IsHot              bool     `json:"is_hot"`
 	IsRegular          bool     `json:"is_regular"`
 	OverbookingEnabled bool     `json:"overbooking_enabled"`
+	HotDiscountPercent int      `json:"hot_discount_percent"`
 }
 
 func ToTourResponse(tour domain.Tour) TourResponse {
@@ -74,7 +76,7 @@ func ToPublicTourResponse(tour domain.Tour, catalog domain.TourCatalogContext) T
 		unit := tour.UnitPriceIn(catalog)
 		price := unit
 		resp.Price = &price
-		if resp.IsBurning && catalog.HotTourDiscountPercent > 0 && unit < tour.Price {
+		if resp.IsBurning && tour.HotDiscountPercent > 0 && unit < tour.Price {
 			original := tour.Price
 			resp.OriginalPrice = &original
 		}
@@ -91,6 +93,7 @@ func ToManagementTourResponse(tour domain.Tour) ManagementTourResponse {
 		TourResponse:       ToTourResponse(tour),
 		IsActive:           tour.IsActive,
 		OverbookingEnabled: tour.OverbookingEnabled,
+		HotDiscountPercent: tour.HotDiscountPercent,
 	}
 }
 

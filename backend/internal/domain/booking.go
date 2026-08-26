@@ -33,10 +33,9 @@ type NewBookingInput struct {
 	Phone                  string
 	Email                  string
 	PeopleCount            int
-	Comment                string
-	Source                 string
-	HotTourDiscountPercent int
-	Now                    time.Time
+	Comment     string
+	Source      string
+	Now         time.Time
 }
 
 func NewBooking(input NewBookingInput) (Booking, error) {
@@ -64,10 +63,7 @@ func NewBooking(input NewBookingInput) (Booking, error) {
 		now = time.Now().UTC()
 	}
 
-	catalog := TourCatalogContext{
-		Today:                  now,
-		HotTourDiscountPercent: input.HotTourDiscountPercent,
-	}
+	catalog := TourCatalogContext{Today: now}
 	totalPrice := input.Tour.BookingTotalIn(input.PeopleCount, catalog)
 	if totalPrice < 0 {
 		return Booking{}, ErrInvalidTotalPrice

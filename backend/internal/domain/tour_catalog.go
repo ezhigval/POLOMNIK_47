@@ -5,8 +5,7 @@ import "time"
 // TourCatalogContext carries read-time rules for public tour presentation.
 // Regular tours without fixed dates skip burning/hot logic.
 type TourCatalogContext struct {
-	Today                  time.Time
-	HotTourDiscountPercent int
+	Today time.Time
 }
 
 func (c TourCatalogContext) today() time.Time {
@@ -49,8 +48,8 @@ func (t Tour) UnitPriceIn(catalog TourCatalogContext) int {
 	if t.Price <= 0 {
 		return 0
 	}
-	if t.IsBurningIn(catalog) && catalog.HotTourDiscountPercent > 0 {
-		return ApplyPercentDiscount(t.Price, catalog.HotTourDiscountPercent)
+	if t.IsBurningIn(catalog) && t.HotDiscountPercent > 0 {
+		return ApplyPercentDiscount(t.Price, t.HotDiscountPercent)
 	}
 	return t.Price
 }

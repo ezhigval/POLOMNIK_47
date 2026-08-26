@@ -42,6 +42,7 @@ export function EditTourForm({ tour }: EditTourFormProps) {
         is_hot: formData.get("is_hot") === "on",
         is_regular: isRegular,
         overbooking_enabled: formData.get("overbooking_enabled") === "on",
+        hot_discount_percent: isRegular ? 0 : Number(formData.get("hot_discount_percent") ?? 0),
       });
       setOpen(false);
     } catch (err) {
@@ -89,6 +90,17 @@ export function EditTourForm({ tour }: EditTourFormProps) {
             <label className="block text-sm">
               <span className="mb-1 block font-medium">Валюта</span>
               <input required name="currency" defaultValue={tour.currency} className="input-field" />
+            </label>
+            <label className="block text-sm">
+              <span className="mb-1 block font-medium">Скидка горящего тура, %</span>
+              <input
+                type="number"
+                min={0}
+                max={100}
+                name="hot_discount_percent"
+                defaultValue={tour.hot_discount_percent ?? 0}
+                className="input-field"
+              />
             </label>
             <label className="block text-sm">
               <span className="mb-1 block font-medium">Дата начала</span>

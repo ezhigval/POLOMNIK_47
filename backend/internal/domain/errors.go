@@ -7,6 +7,7 @@ var (
 	ErrInvalidSlug                 = errors.New("invalid slug")
 	ErrInvalidTitle                = errors.New("invalid title")
 	ErrInvalidPrice                = errors.New("invalid price")
+	ErrInvalidHotDiscountPercent   = errors.New("invalid hot discount percent")
 	ErrInvalidCurrency             = errors.New("invalid currency")
 	ErrInvalidDateRange            = errors.New("invalid date range")
 	ErrInvalidSlots                = errors.New("invalid slots")

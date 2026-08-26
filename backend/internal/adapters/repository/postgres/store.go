@@ -108,15 +108,15 @@ func (s *Store) CreateTour(ctx context.Context, tour domain.Tour) (domain.Tour, 
 INSERT INTO tours (
     id, slug, title, description, price, currency, date_start, date_end,
     slots_total, slots_left, location, images, is_active, is_hot,
-    is_regular, overbooking_enabled, created_at, updated_at
+    is_regular, overbooking_enabled, hot_discount_percent, created_at, updated_at
 ) VALUES (
     $1, $2, $3, $4, $5, $6, $7, $8,
-    $9, $10, $11, $12, $13, $14, $15, $16, $17, $18
+    $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19
 )
 RETURNING `+tourSelectColumns+`
 `, tour.ID, tour.Slug, tour.Title, tour.Description, tour.Price, tour.Currency,
 		nullableTime(tour.DateStart), nullableTime(tour.DateEnd), tour.SlotsTotal, tour.SlotsLeft, tour.Location,
-		pq.Array(tour.Images), tour.IsActive, tour.IsHot, tour.IsRegular, tour.OverbookingEnabled, tour.CreatedAt, tour.UpdatedAt)
+		pq.Array(tour.Images), tour.IsActive, tour.IsHot, tour.IsRegular, tour.OverbookingEnabled, tour.HotDiscountPercent, tour.CreatedAt, tour.UpdatedAt)
 	return scanTour(row)
 }
 
@@ -138,12 +138,13 @@ SET slug = $2,
     is_hot = $14,
     is_regular = $15,
     overbooking_enabled = $16,
-    updated_at = $17
+    hot_discount_percent = $17,
+    updated_at = $18
 WHERE id = $1
 RETURNING `+tourSelectColumns+`
 `, tour.ID, tour.Slug, tour.Title, tour.Description, tour.Price, tour.Currency,
 		nullableTime(tour.DateStart), nullableTime(tour.DateEnd), tour.SlotsTotal, tour.SlotsLeft, tour.Location,
-		pq.Array(tour.Images), tour.IsActive, tour.IsHot, tour.IsRegular, tour.OverbookingEnabled, tour.UpdatedAt)
+		pq.Array(tour.Images), tour.IsActive, tour.IsHot, tour.IsRegular, tour.OverbookingEnabled, tour.HotDiscountPercent, tour.UpdatedAt)
 	return scanTour(row)
 }
 
@@ -410,7 +411,7 @@ const reviewSelectColumns = `id, tour_id, client_name, rating, text, is_approved
 
 const tourSelectColumns = `id, slug, title, description, price, currency, date_start, date_end,
        slots_total, slots_left, location, images, is_active, is_hot,
-       is_regular, overbooking_enabled, created_at, updated_at`
+       is_regular, overbooking_enabled, hot_discount_percent, created_at, updated_at`
 
 const tourWhereClause = `
 ($1::date IS NULL OR is_regular OR date_end >= $1) AND
@@ -505,6 +506,7 @@ func scanTour(row scanner) (domain.Tour, error) {
 		&tour.IsHot,
 		&tour.IsRegular,
 		&tour.OverbookingEnabled,
+		&tour.HotDiscountPercent,
 		&tour.CreatedAt,
 		&tour.UpdatedAt,
 	)

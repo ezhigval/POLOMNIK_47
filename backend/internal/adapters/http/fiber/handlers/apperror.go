@@ -86,7 +86,7 @@ func mapValidationError(err error) *AppError {
 		return &AppError{Status: 422, Code: "VALIDATION_ERROR", Message: "Некорректный адрес страницы"}
 	case errors.Is(err, domain.ErrInvalidTitle):
 		return &AppError{Status: 422, Code: "VALIDATION_ERROR", Message: "Укажите название"}
-	case errors.Is(err, domain.ErrInvalidPrice), errors.Is(err, domain.ErrInvalidTotalPrice):
+	case errors.Is(err, domain.ErrInvalidPrice), errors.Is(err, domain.ErrInvalidTotalPrice), errors.Is(err, domain.ErrInvalidHotDiscountPercent):
 		return &AppError{Status: 422, Code: "VALIDATION_ERROR", Message: "Некорректная стоимость"}
 	case errors.Is(err, domain.ErrInvalidCurrency):
 		return &AppError{Status: 422, Code: "VALIDATION_ERROR", Message: "Некорректная валюта"}

@@ -21,9 +21,10 @@ type Tour struct {
 	Location           string
 	Images             []string
 	IsActive           bool
-	IsHot              bool
-	IsRegular          bool
-	OverbookingEnabled bool
+	IsHot               bool
+	IsRegular           bool
+	OverbookingEnabled  bool
+	HotDiscountPercent  int
 	CreatedAt          time.Time
 	UpdatedAt          time.Time
 }
@@ -42,9 +43,10 @@ type NewTourInput struct {
 	Location           string
 	Images             []string
 	IsActive           bool
-	IsHot              bool
-	IsRegular          bool
-	OverbookingEnabled bool
+	IsHot               bool
+	IsRegular           bool
+	OverbookingEnabled  bool
+	HotDiscountPercent  int
 	Now                time.Time
 }
 
@@ -60,6 +62,9 @@ func NewTour(input NewTourInput) (Tour, error) {
 	}
 	if input.Price < 0 {
 		return Tour{}, ErrInvalidPrice
+	}
+	if input.HotDiscountPercent < 0 || input.HotDiscountPercent > 100 {
+		return Tour{}, ErrInvalidHotDiscountPercent
 	}
 	if strings.TrimSpace(input.Currency) == "" {
 		return Tour{}, ErrInvalidCurrency
@@ -96,6 +101,7 @@ func NewTour(input NewTourInput) (Tour, error) {
 		IsHot:              input.IsHot,
 		IsRegular:          input.IsRegular,
 		OverbookingEnabled: input.OverbookingEnabled,
+		HotDiscountPercent: input.HotDiscountPercent,
 		CreatedAt:          now,
 		UpdatedAt:          now,
 	}, nil

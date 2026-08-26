@@ -103,7 +103,7 @@ func newBotService(t *testing.T, store *memory.Store, sender ports.TelegramBotSe
 	settings := NewNotificationSettingsService(store, store, store, true, false)
 	support := NewSupportService(store, nil).WithClientMessenger(messenger, store)
 	tours := NewTourService(store, nil, noop.NewCRMAdapter())
-	bookings := NewBookingService(store, store, noop.NewCRMAdapter(), noop.NewAccountingAdapter(), notificationnoop.New(), store, 0)
+	bookings := NewBookingService(store, store, noop.NewCRMAdapter(), noop.NewAccountingAdapter(), notificationnoop.New(), store)
 	adminRoles := NewAdminRoleService(store, store, "admin-token", "jwt-secret")
 	return NewTelegramService(settings, store, sender, "").WithBot(TelegramBotDeps{
 		Support:    support,
@@ -291,7 +291,7 @@ func TestBotBookingsMaskPhone(t *testing.T) {
 	if _, err := store.CreateTour(context.Background(), tour); err != nil {
 		t.Fatalf("create tour: %v", err)
 	}
-	bookings := NewBookingService(store, store, noop.NewCRMAdapter(), noop.NewAccountingAdapter(), notificationnoop.New(), store, 0)
+	bookings := NewBookingService(store, store, noop.NewCRMAdapter(), noop.NewAccountingAdapter(), notificationnoop.New(), store)
 	created, err := bookings.CreateBooking(context.Background(), CreateBookingInput{
 		TourID:      tour.ID,
 		Name:        "Иван Иванов",

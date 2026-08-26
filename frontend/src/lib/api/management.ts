@@ -13,6 +13,7 @@ import type { Tour } from "./tours";
 export type ManagementTour = Tour & {
   is_active: boolean;
   overbooking_enabled: boolean;
+  hot_discount_percent: number;
 };
 
 export type ManagementBooking = {
@@ -60,6 +61,7 @@ export type TourUpsertInput = {
   is_hot: boolean;
   is_regular: boolean;
   overbooking_enabled: boolean;
+  hot_discount_percent: number;
 };
 
 export function isManagementConfigured(): boolean {
