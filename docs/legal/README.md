@@ -21,7 +21,7 @@
 - Backend: `backend/internal/legal/operator/operator.go` (env: `OPERATOR_*`)
 - Frontend: `frontend/src/lib/operator-config.ts` (env: `NEXT_PUBLIC_OPERATOR_*`)
 
-После получения настоящих реквизитов заменить placeholders только в этих файлах и в `.env.production`.
+После получения настоящих реквизитов задать `OPERATOR_*` / `NEXT_PUBLIC_OPERATOR_*` в `.env.production` (compose прокидывает с v4 этапа 1). Не править ИНН/ОГРН в коде наугад.
 
 ## Типы юридических документов
 

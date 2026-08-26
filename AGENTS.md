@@ -1,6 +1,6 @@
 # Правила для агентов
 
-Канон для Cursor, Claude, Codex и любых других агентов. Релиз: [docs/RELEASE.md](docs/RELEASE.md). Архитектура: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). Кодстайл: [docs/CONVENTIONS.md](docs/CONVENTIONS.md).
+Канон для Cursor, Claude, Codex и любых других агентов. Релиз: [docs/RELEASE.md](docs/RELEASE.md). Архитектура: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). Кодстайл: [docs/CONVENTIONS.md](docs/CONVENTIONS.md). План: [docs/V4_PLAN.md](docs/V4_PLAN.md).
 
 ## Прод
 
@@ -16,7 +16,7 @@ API: **https://api.tikhvin-palomnik.ru**
 
 `main` соответствует продовому деплою. В `main` напрямую не коммитить.
 
-Каждое **существенное** изменение — своя ветка и свой PR (hotfix, багфикс, этап v3 не смешивать). Так проще читать git и откатывать.
+Каждое **существенное** изменение — своя ветка и свой PR (hotfix, багфикс, этап v4 не смешивать). Так проще читать git и откатывать.
 
 ```bash
 make deploy

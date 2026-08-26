@@ -1,6 +1,6 @@
 # Backend Architecture
 
-Слои не менялись. Telegram на проде — адаптер уведомлений + webhook, не ядро домена. Bitrix24 и 1С в проде `noop`. Очередь: [ROADMAP.md](ROADMAP.md).
+Слои не менялись. Telegram на проде — адаптер уведомлений + webhook, не ядро домена. Bitrix24 и 1С в проде `noop`. Очередь: [ROADMAP.md](ROADMAP.md) · [V4_PLAN.md](V4_PLAN.md).
 
 ## 1. Обязательный стиль
 
@@ -199,7 +199,7 @@ Configured()
 Complete(system, user)
 ```
 
-Адаптер `yandexgpt`: `AI_ADAPTER=noop` (по умолчанию) или `yandexgpt`. Без ключа `Configured()==false`. Этап 7: черновик поддержки, рекомендации опубликованных туров, дайджест, watchdog — вызывают `Complete` только если `Configured()`. Без ключа отвечают фактами/пустым черновиком, сайт жив. v4 (звонки, ИИ-продавец) сюда не входит.
+Адаптер `yandexgpt`: `AI_ADAPTER=noop` (по умолчанию) или `yandexgpt`. Без ключа `Configured()==false`. Этап 7: черновик поддержки, рекомендации опубликованных туров, дайджест, watchdog — вызывают `Complete` только если `Configured()`. Без ключа отвечают фактами/пустым черновиком, сайт жив. ИИ-звонки и ИИ-продавец — [V4_PLAN.md](V4_PLAN.md) этапы 7–8.
 
 ### PaymentPort (v3, этап 8)
 

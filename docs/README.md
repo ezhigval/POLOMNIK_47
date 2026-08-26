@@ -4,11 +4,13 @@
 
 | Файл | Зачем |
 |------|--------|
-| [STATUS.md](STATUS.md) | Что на проде и в git **сейчас** (v2.1.0 + v3 0–10) |
-| [V2_OWNER_SETUP.md](V2_OWNER_SETUP.md) | Чеклист владельца: OAuth, почта, sms.ru, Метрика |
+| [STATUS.md](STATUS.md) | Что на проде и в git **сейчас** (v3.0.0 + v4 этап 1) |
+| [V4_PLAN.md](V4_PLAN.md) | Этапы линейки v4 (этап 1 = зачистка) |
+| [V4_OWNER_SETUP.md](V4_OWNER_SETUP.md) | Чеклист владельца v4: env, админка, клики в кабинетах |
+| [V2_OWNER_SETUP.md](V2_OWNER_SETUP.md) | Чеклист v2: OAuth, почта, sms.ru, Метрика |
 | [../AGENTS.md](../AGENTS.md) | Правила агентов и прод |
-| [ROADMAP.md](ROADMAP.md) | Freeze v2 и указатель на v3 |
-| [V3_PLAN.md](V3_PLAN.md) | Этапы линейки v3, инфра ВМ/DNS |
+| [ROADMAP.md](ROADMAP.md) | Freeze v2/v3 и указатель на v4 |
+| [V3_PLAN.md](V3_PLAN.md) | История линейки v3 (закрыта) |
 | [V3_OWNER_SETUP.md](V3_OWNER_SETUP.md) | Чеклист ключей v3 (адаптеры, оплата noop, реквизиты оператора) |
 | [legal/README.md](legal/README.md) | Система согласий (#22); тексты не сертифицированы юристом |
 | [DECISIONS.md](DECISIONS.md) | Решения владельца |

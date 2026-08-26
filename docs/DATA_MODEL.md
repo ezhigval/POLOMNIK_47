@@ -27,6 +27,7 @@ location TEXT
 images TEXT[]
 is_active BOOLEAN
 is_hot BOOLEAN
+is_regular BOOLEAN
 overbooking_enabled BOOLEAN
 created_at TIMESTAMPTZ
 updated_at TIMESTAMPTZ
@@ -38,7 +39,8 @@ Rules:
 - `slots_total >= 0`;
 - `slots_left >= 0`;
 - `slots_left <= slots_total`, unless overbooking creates a separate booking flag instead of negative slots;
-- `date_start <= date_end`;
+- `date_start <= date_end` for dated tours;
+- regular tours (`is_regular`): no `date_start` / `date_end` on the public card; `price` may be 0 until the owner sets an internal price (do not invent);
 - public API returns only active tours.
 
 ## 3. Booking
@@ -85,7 +87,7 @@ Rules:
 
 - booking belongs to one tour;
 - `people_count > 0`;
-- `total_price = tour.price * people_count` in MVP 1;
+- `total_price = tour.price * people_count` for dated tours; regular tours currently store `0` (owner has not set a price);
 - status transitions must be validated in domain/application layer;
 - cancellation should release reserved slots if slots were already reserved.
 
@@ -300,5 +302,16 @@ user_photos
 
 ## 12. UX расписания (v3 этап 9)
 
-Новых таблиц и колонок нет. Длительность тура считается на frontend из уже существующих `date_start` и `date_end` (`date_end − date_start + 1` календарный день). Публичный список туров по-прежнему `ORDER BY date_start ASC, id ASC`.
+Длительность датированного тура считается на frontend из `date_start` и `date_end` (`date_end − date_start + 1` календарный день). Публичный список: регулярные без даты не отфильтровываются диапазоном дат; сортировка `is_regular ASC, date_start ASC NULLS LAST, id ASC`.
+
+## 13. Новости: закрепление (goose 23)
+
+```text
+news_articles
+  …
+  is_pinned BOOLEAN
+  sort_order INT     # 1 — главная карточка, 2 и 3 — рядом; 0 если не закреплена
+```
+
+Не больше трёх закреплённых. Список: сначала pinned (`sort_order` ASC), затем `published_at` DESC.
 
