@@ -46,6 +46,30 @@ func TestToTourResponseOmitsPriceAndDatesForRegular(t *testing.T) {
 	}
 }
 
+func TestToTourResponseIncludesOverbookingFlag(t *testing.T) {
+	tour, err := domain.NewTour(domain.NewTourInput{
+		ID:                 uuid.MustParse("33333333-3333-3333-3333-333333333333"),
+		Slug:               "overbook",
+		Title:              "Overbook",
+		Price:              10000,
+		Currency:           "RUB",
+		DateStart:          time.Date(2026, 9, 1, 0, 0, 0, 0, time.UTC),
+		DateEnd:            time.Date(2026, 9, 3, 0, 0, 0, 0, time.UTC),
+		SlotsTotal:         10,
+		SlotsLeft:          0,
+		IsActive:           true,
+		OverbookingEnabled: true,
+	})
+	if err != nil {
+		t.Fatalf("create tour: %v", err)
+	}
+
+	resp := ToTourResponse(tour)
+	if !resp.OverbookingEnabled {
+		t.Fatal("expected overbooking_enabled true on public tour response")
+	}
+}
+
 func TestToTourResponseKeepsPriceAndDatesForDated(t *testing.T) {
 	tour, err := domain.NewTour(domain.NewTourInput{
 		ID:         uuid.MustParse("22222222-2222-2222-2222-222222222222"),

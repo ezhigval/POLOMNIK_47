@@ -1,7 +1,7 @@
 import { contactEmail, contactPhone } from "@/lib/contact";
 import { absoluteUrl, siteConfig } from "@/lib/site-config";
 import type { Tour } from "@/lib/api/tours";
-import { getSlotsAvailability } from "@/lib/format";
+import { canBookTour } from "@/lib/api/tours";
 import { tourPath, tourSeoDescription } from "@/lib/tour-path";
 import type { NewsArticle } from "@/lib/news";
 
@@ -72,11 +72,10 @@ export function StructuredData() {
 }
 
 export function TourStructuredData({ tour }: { tour: Tour }) {
-  const availability = getSlotsAvailability(tour.slots_left);
-  const offerAvailability =
-    availability === "sold_out"
-      ? "https://schema.org/SoldOut"
-      : "https://schema.org/InStock";
+  const bookingClosed = !canBookTour(tour);
+  const offerAvailability = bookingClosed
+    ? "https://schema.org/SoldOut"
+    : "https://schema.org/InStock";
   const url = absoluteUrl(tourPath(tour));
 
   const images = tour.images?.filter(Boolean).slice(0, 5) ?? [];

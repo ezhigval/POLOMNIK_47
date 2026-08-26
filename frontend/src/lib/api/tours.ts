@@ -15,10 +15,23 @@ export type Tour = {
   images: string[];
   is_hot: boolean;
   is_regular: boolean;
+  overbooking_enabled: boolean;
 };
 
 export function isRegularTour(tour: { is_regular?: boolean }): boolean {
   return Boolean(tour.is_regular);
+}
+
+/** Booking stays open when slots_left=0 if overbooking is enabled. */
+export function canBookTour(tour: { slots_left: number; overbooking_enabled?: boolean }): boolean {
+  if (tour.slots_left > 0) {
+    return true;
+  }
+  return Boolean(tour.overbooking_enabled);
+}
+
+export function isTourSoldOut(tour: { slots_left: number; overbooking_enabled?: boolean }): boolean {
+  return !canBookTour(tour);
 }
 
 export type Review = {
