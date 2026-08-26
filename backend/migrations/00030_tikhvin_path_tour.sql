@@ -2,6 +2,7 @@
 -- Тур «Тихвинский путь» — главный маршрут службы (CMS featured_route, frontend/src/lib/featured-route.ts,
 -- новость tikhvin-path в seeds/dev.sql). Цена и расписание в источниках не указаны: price=0, is_regular=true.
 
+-- +goose StatementBegin
 INSERT INTO tours (
     id,
     slug,
@@ -57,6 +58,7 @@ INSERT INTO tours (
     NOW()
 )
 ON CONFLICT (slug) DO NOTHING;
+-- +goose StatementEnd
 
 -- +goose Down
 DELETE FROM tours WHERE slug = 'tikhvin-path';
