@@ -24,12 +24,12 @@ SSH: `ssh smailikin70@93.77.165.81` (каталог `/opt/palomnik`, либо `D
 
 ## Теги
 
-Промежуточные: `v1.n.m`. Линейка продукта: `v2.0.0`, `v2.0.1`, …  
-Откат: checkout тега → `make deploy` (миграции только аддитивные).
+Промежуточные: `v1.n.m`. Линейка продукта: `v2.0.0`, `v2.0.1`, `v2.1.0`, `v3.0.0`, …  
+Откат: checkout тега → `make deploy` (миграции только аддитивные). Не двигать уже выпущенные теги.
 
 ## После деплоя
 
-- [x] https://tikhvin-palomnik.ru — HTTPS 200 (сверка 2026-08-23)
+- [x] https://tikhvin-palomnik.ru — HTTPS 200 (сверка freeze v3.0.0, 2026-08-26)
 - [x] `/robots.txt` и `sitemap.xml`
 - [x] `https://api.tikhvin-palomnik.ru/health/ready`
 - [ ] `/management/login` — проверить после hard-refresh

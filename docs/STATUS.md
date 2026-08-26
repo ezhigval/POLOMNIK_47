@@ -1,6 +1,6 @@
 # Статус продукта
 
-Дата сверки: **2026-08-23**.  
+Дата сверки: **2026-08-26**.  
 Репозиторий: [github.com/ezhigval/POLOMNIK_47](https://github.com/ezhigval/POLOMNIK_47) · ветка `main`.  
 Прод: **https://tikhvin-palomnik.ru** · API: **https://api.tikhvin-palomnik.ru**
 
@@ -13,32 +13,56 @@
 | `v1.3.0` / `v2.0.0` | Mailer, OAuth-кнопки, чеклист владельца |
 | `v2.0.1` | Hotfix compose + документация |
 | `v2.1.0` | Freeze v2 code-complete: поддержка в админке, password reset, security P0/P1 |
+| `v3.0.0` | Freeze v3 code-complete + контент: этапы 0–10, новости, закрепление, регулярные туры, Метрика 111985266 |
 
 Откат: `git checkout <тег>` / деплой с известного тега. Не `compose down -v` — данные Postgres сохранять.
 
+## Freeze v3.0.0 (2026-08-26)
+
+Владелец зафиксировал срез как **полностью готовое v3 плюс контент**. Код этапов **0–10** на `main` и на проде после деплоя этого тега. Контентный срез в том же freeze:
+
+- короткое имя сайта (#26)
+- новость «Святыни Тихвинской Епархии» (#29)
+- туры из листовок в БД, **скрыты** (`is_active=false`) до цен/дат владельца (#28)
+- человекочитаемые slug / sitemap (#30)
+- закрепление новостей звёздочкой, layout 1+2 (#31, goose **23**)
+- регулярные туры: флаг `is_regular`, без цены и дат на витрине, заявка с суммой 0 (#32, goose **24**). Существующие туры (Успение и др.) **не** помечены регулярными. Внутреннюю цену не выдумывали.
+- новость о принесении иконы в Москву, slug `ikona-v-moskvu`, закреплена (#33, goose **25**). Текст епархии не переписывали.
+- Яндекс.Метрика счётчик **111985266** (вебвизор + карта кликов) через существующий `Analytics`; цели `tour_view` / `begin_checkout` / `booking_submit` / `support_contact`.
+
+Goose на проде после деплоя freeze: **25** (плюс **24**, если накатывался после уже применённой 25).
+
+**Код v3 готов.** v4 не начат.
+
 ## Что в коде (готово)
 
-- Сайт: туры, заявки, отзывы, новости, CMS главной, кабинет `/account`, поддержка (чат в БД)
-- Админка: Главная, новости, туры, заявки, **поддержка** (`/management/support`), отзывы, синхронизация, **Настройки** (сайт, получатели `канал:адрес`, роли; право `manage_support`)
+- Сайт: туры, заявки, отзывы, новости (в т.ч. закреплённые), CMS главной, кабинет `/account`, поддержка (чат в БД)
+- Админка: Главная, новости (звезда закрепления), туры (галочка «Регулярный тур»), заявки, **поддержка**, отзывы, синхронизация, **Настройки**, юр. документы
 - Восстановление пароля: `/account/forgot-password` → письмо (нужен SMTP) → `/account/reset-password`
 - Полный админ = `ADMIN_TOKEN` в env; пароли ролей — хеш в БД; UUID пользователя в кабинете
 - Telegram: один бот, webhook, исходящие через Cloudflare Worker; в уведомлении поддержки — ссылка на тред в админке
 - Телефон: sms.ru **callcheck** (без ключа — «пока недоступно»)
 - Соцвход: Яндекс / VK / Max / Telegram (без env — кнопки недоступны); Google в UI снят
-- Mailer SMTP/noop; SEO/Метрика/GA — код готов
+- Mailer SMTP/noop; SEO; Метрика на проде с ID 111985266; GA — код готов, ID пустой
 - Bitrix24 / 1С — адаптеры есть, live **выключен** (`noop`)
 - CMS create/delete page в management API закрыты
 
-**Код v2 готов.** Владельцу остаются только секреты / DNS / контент / Telegram `/start` — см. [V2_OWNER_SETUP.md](V2_OWNER_SETUP.md).
-
 ## Что делает владелец (не код)
 
-Единый чеклист: **[V2_OWNER_SETUP.md](V2_OWNER_SETUP.md)**  
-OAuth подробно: [OAUTH_SETUP.md](OAUTH_SETUP.md) · реклама: [SEO_ADS.md](SEO_ADS.md) · Telegram: [TELEGRAM_SETUP.md](TELEGRAM_SETUP.md)
+Единый чеклист: **[V2_OWNER_SETUP.md](V2_OWNER_SETUP.md)** · v3 ключи: **[V3_OWNER_SETUP.md](V3_OWNER_SETUP.md)**  
+OAuth: [OAUTH_SETUP.md](OAUTH_SETUP.md) · реклама: [SEO_ADS.md](SEO_ADS.md) · Telegram: [TELEGRAM_SETUP.md](TELEGRAM_SETUP.md)
 
-## v3 (2026-08-23)
+Остаётся только у владельца (этот freeze **не** закрывает):
 
-Этапы **0–10** в `main`. На проде после деплоя этого среза: goose **20**, сайт и `/health/ready` **200**.
+- нажать «Проверить» в Яндекс.Вебмастере и Google Search Console, отправить sitemap
+- OAuth / SMTP / sms.ru — если соответствующие env ещё пустые
+- цены и даты туров из листовок (пока `is_active=false`; **не публиковать с выдуманной ценой**)
+- живые Messenger / Publisher / AI / Payment / Bitrix24 / 1С
+- договор эквайринга; статусов `AWAITING_PAYMENT` / `PAID` в domain **нет** — ЮKassa и Сбер в коде как адаптеры, **не live**
+- юридическая сертификация текстов согласий (тела в репозитории **не** заменяют проверку юристом)
+- контент остальных туров, отзывы, карта организации, ссылка с епархии
+
+## v3 этапы 0–10 (код на проде)
 
 | Этап | На проде | Заметка |
 |------|----------|---------|
@@ -49,16 +73,14 @@ OAuth подробно: [OAUTH_SETUP.md](OAUTH_SETUP.md) · реклама: [SEO
 | 7 | да | черновик поддержки, рекомендации, дайджест, watchdog |
 | 8 | да | PaymentPort `sber` / `yookassa`; **`PAYMENT_ADAPTER=noop`** |
 | 9 | да | каталог как расписание, sticky CTA, кабинет: привязки / пассажиры / заглушка оплаты |
-| 10 | этот срез | STATUS, DECISIONS §12, DATA_MODEL, API, ARCHITECTURE, V3_OWNER_SETUP |
+| 10 | да | STATUS, DECISIONS, DATA_MODEL, API, ARCHITECTURE, V3_OWNER_SETUP |
 
-**Live на проде:** `NOTIFICATION_ADAPTER=telegram` (один бот, исходящие через Cloudflare Worker).  
+**Live на проде:** `NOTIFICATION_ADAPTER=telegram` (один бот, исходящие через Cloudflare Worker). Метрика 111985266 в сборке фронта.
 
 **Noop / не live:** Messenger, Publisher, AI, Payment, Bitrix24, 1С. Живой эквайринг не включать: статусов `AWAITING_PAYMENT` / `PAID` в domain нет.
 
-**UX (этап 9), без новых полей тура:** `/search` заголовок «Расписание»; таблица из `date_start` / `date_end` / title / location / price / slots; длительность = `date_end − date_start + 1` день; на главной блок «Ближайшие выезды» (`GET /tours?limit=8`, `ORDER BY date_start ASC`); sticky CTA на мобильном — телефон из настроек и «Чат»; в кабинете счётчики привязок и пассажиров, текст «на сайте не подключена»; кнопок Pay нет.
+**Согласия (#22, влил владелец, `768ddf3`):** goose **18–20** — `legal_documents`, `consents`, `user_photos`, `reviews.allow_distribution`. Публичные `/legal`, кабинет `/account/consents` и `/account/photos`, cookie-баннер, админка `/management/legal`. Тексты документов **не сертифицированы юристом**. Реквизиты оператора — placeholders в коде.
 
-**Согласия (#22, влил владелец, `768ddf3`):** goose **18–20** — `legal_documents`, `consents`, `user_photos`, `reviews.allow_distribution`. Публичные `/legal`, кабинет `/account/consents` и `/account/photos`, cookie-баннер, админка `/management/legal`. Тексты документов **не сертифицированы юристом**. Реквизиты оператора — placeholders в коде; compose `OPERATOR_*` / `NEXT_PUBLIC_OPERATOR_*` пока не прокидывает.
-
-v4 не начат. План: **[V3_PLAN.md](V3_PLAN.md)**. Ключи: [V3_OWNER_SETUP.md](V3_OWNER_SETUP.md). Юридическая папка: [legal/README.md](legal/README.md).
+v4 не начат. План: **[V3_PLAN.md](V3_PLAN.md)**. Юридическая папка: [legal/README.md](legal/README.md).
 
 Без секретов владельца E2E OAuth/SMTP не прогнать — [V2_OWNER_SETUP.md](V2_OWNER_SETUP.md).
