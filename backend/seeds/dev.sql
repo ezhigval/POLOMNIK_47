@@ -218,6 +218,75 @@ ON CONFLICT (id) DO UPDATE SET
     is_hot = EXCLUDED.is_hot,
     updated_at = NOW();
 
+INSERT INTO tours (
+    id,
+    slug,
+    title,
+    description,
+    price,
+    currency,
+    date_start,
+    date_end,
+    slots_total,
+    slots_left,
+    location,
+    images,
+    is_active,
+    is_hot,
+    is_regular,
+    overbooking_enabled,
+    created_at,
+    updated_at
+) VALUES (
+    'f47a0001-0000-4000-8000-000000000001',
+    'tikhvin-path',
+    'Тихвинский путь',
+    $tour_tikhvin$2 дня / 1 ночь.
+
+Это не просто один из туров в каталоге — это сердце нашей службы. «Тихвинский путь» — часть федерального паломнического маршрута «Великий Русский Северный путь», который проходит через двенадцать регионов России.
+
+За два дня вы идёте по святыням, которыми веками молились цари, монахи и богомольцы: от Старой Ладоги к чудотворной Тихвинской иконе Божией Матери и дальше — к Александро-Свирскому монастырю, единственному в России месту явления Святой Троицы. Затем путь уходит в Карелию.
+
+Программа:
+• День 1. Ладога и Тихвин — выезд из Санкт-Петербурга — начало паломничества по святыням Ленинградской области.
+• Старая Ладога: первая русская крепость, Варяжская улица, курган Вещего Олега, Успенский и Никольский монастыри, святой источник на Малышевой горе.
+• Тихвин: Успенский мужской монастырь и чудотворная Тихвинская икона Божией Матери. Ночлег в городе.
+• День 2. Тихвин, заповедник и Свирь — Введенский монастырь — обитель, связанная с царской семьёй Романовых.
+• Дом-музей Н. А. Римского-Корсакова в Тихвине.
+• Экотропа Нижне-Свирского заповедника.
+• Александро-Свирский монастырь: мощи преподобного Александра, монастырская трапеза. Дальше маршрут продолжается по Великому Русскому Северному пути в Карелию.
+
+Записаться просто: оставьте заявку на сайте, менеджер перезвонит, уточнит детали и подтвердит участие. Оплату на сайте вносить не нужно.$tour_tikhvin$,
+    0,
+    'RUB',
+    NULL,
+    NULL,
+    0,
+    0,
+    'Санкт-Петербург и Ленинградская область',
+    ARRAY['/images/hero/tikhvin-monastery.webp'],
+    TRUE,
+    TRUE,
+    TRUE,
+    FALSE,
+    NOW(),
+    NOW()
+)
+ON CONFLICT (id) DO UPDATE SET
+    title = EXCLUDED.title,
+    description = EXCLUDED.description,
+    price = EXCLUDED.price,
+    date_start = EXCLUDED.date_start,
+    date_end = EXCLUDED.date_end,
+    slots_total = EXCLUDED.slots_total,
+    slots_left = EXCLUDED.slots_left,
+    location = EXCLUDED.location,
+    images = EXCLUDED.images,
+    is_active = EXCLUDED.is_active,
+    is_hot = EXCLUDED.is_hot,
+    is_regular = EXCLUDED.is_regular,
+    updated_at = NOW();
+
 INSERT INTO reviews (
     id,
     tour_id,
