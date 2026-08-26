@@ -86,19 +86,23 @@ API: `https://api.tikhvin-palomnik.ru`.
 
 ## 1. Счётчики на сайте
 
-В `.env.production` (и пересборка фронта):
+В `.env.production` (и пересборка фронта). Прод-счётчик: **111985266**.
 
 | Переменная | Зачем |
 |------------|--------|
-| `NEXT_PUBLIC_YM_ID` | ID счётчика Яндекс.Метрики |
+| `NEXT_PUBLIC_YM_ID` | ID счётчика Яндекс.Метрики (`111985266` на palomnik) |
 | `NEXT_PUBLIC_GA_ID` | ID Google Analytics (G-…) |
-| `NEXT_PUBLIC_YM_WEBVISOR` | `1` — включить вебвизор (по умолчанию выкл.) |
+| `NEXT_PUBLIC_YM_WEBVISOR` | `1` — включить вебвизор (на проде включён) |
 | `NEXT_PUBLIC_YM_CLICKMAP` | `0` — выключить карту кликов (по умолчанию вкл. при Метрике) |
 | `NEXT_PUBLIC_SITE_URL` | `https://tikhvin-palomnik.ru` |
 | `NEXT_PUBLIC_YANDEX_VERIFICATION` | Код из Яндекс.Вебмастера (мета-тег) |
 | `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` | Код из Google Search Console |
 
 Пустые ID — скрипты и мета-теги подтверждения не подключаются, сайт не ломается.
+
+Код счётчика уже в `frontend/src/components/analytics.tsx` (не вставлять второй raw-сниппет Яндекса). Опции init: `ssr`, `webvisor`, `clickmap`, `ecommerce: "dataLayer"`, `accurateTrackBounce`, `trackLinks`. Noscript-pixel: `https://mc.yandex.ru/watch/111985266`. Тег: `https://mc.yandex.ru/metrika/tag.js?id=111985266`.
+
+JS-тег грузится после согласия на аналитические cookie («Принять все»). Проверка: исходный HTML главной содержит `111985266` / `mc.yandex.ru`; после согласия в сети виден `tag.js`. Кабинет [Яндекс.Вебмастера](https://webmaster.yandex.ru/) — отдельно от Метрики.
 
 Цели (reachGoal / GA events): `tour_view`, `begin_checkout`, `booking_submit`, `support_contact`.
 
@@ -128,7 +132,8 @@ API: `https://api.tikhvin-palomnik.ru`.
 
 ## 4. После деплоя (чеклист)
 
-- [ ] `NEXT_PUBLIC_YM_ID` / при необходимости `NEXT_PUBLIC_GA_ID` в prod
+- [x] `NEXT_PUBLIC_YM_ID=111985266`, `NEXT_PUBLIC_YM_WEBVISOR=1` (карта кликов по умолчанию вкл.)
+- [ ] при необходимости `NEXT_PUBLIC_GA_ID` в prod
 - [ ] В Метрике видны `tour_view` / `booking_submit`
 - [ ] Sitemap в Вебмастере и Search Console
 - [ ] После деплоя: «Проверить» в Вебмастере (файл `/yandex_e79d1ee72d61fee0.html` и мета-тег) и в Search Console

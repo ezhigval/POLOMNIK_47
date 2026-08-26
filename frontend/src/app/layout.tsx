@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Analytics } from "@/components/analytics";
 import { CookieBanner } from "@/components/cookie-banner";
 import { LiveRefresh } from "@/components/live-refresh";
+import { YandexMetrikaPixel } from "@/components/yandex-metrika-pixel";
 import { displaySerif, geistMono, geistSans } from "@/lib/fonts";
 import { siteConfig } from "@/lib/site-config";
 import "./globals.css";
@@ -55,6 +56,7 @@ export default function RootLayout({
         {children}
         {process.env.NEXT_PUBLIC_LIVE_REFRESH === "1" ? <LiveRefresh /> : null}
         <CookieBanner />
+        <YandexMetrikaPixel />
         <Analytics />
       </body>
     </html>

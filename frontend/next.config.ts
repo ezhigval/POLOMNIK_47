@@ -17,9 +17,9 @@ function lanDevHosts(): string[] {
 function buildContentSecurityPolicy(): string {
   return [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://mc.yandex.ru https://mc.yandex.com https://www.googletagmanager.com https://www.google-analytics.com",
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://mc.yandex.ru https://mc.yandex.com https://mc.webvisor.com https://mc.webvisor.org https://yastatic.net https://www.googletagmanager.com https://www.google-analytics.com",
     "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data: blob: http://localhost:8080 http://127.0.0.1:8080 https://images.unsplash.com https://*.googleusercontent.com https://mc.yandex.ru https://mc.yandex.com https:",
+    "img-src 'self' data: blob: http://localhost:8080 http://127.0.0.1:8080 https://images.unsplash.com https://*.googleusercontent.com https://mc.yandex.ru https://mc.yandex.com https://mc.webvisor.com https://mc.webvisor.org https:",
     "font-src 'self' data:",
     [
       "connect-src 'self' ws: wss:",
@@ -28,12 +28,16 @@ function buildContentSecurityPolicy(): string {
       "https:",
       "https://mc.yandex.ru",
       "https://mc.yandex.com",
+      "https://mc.webvisor.com",
+      "https://mc.webvisor.org",
       "https://www.google-analytics.com",
       "https://region1.google-analytics.com",
       "https://www.googletagmanager.com",
     ].join(" "),
     "form-action 'self'",
-    "frame-src 'self' https://mc.yandex.ru https://mc.yandex.com",
+    "child-src 'self' blob: https://mc.yandex.ru https://mc.yandex.com https://mc.webvisor.com https://mc.webvisor.org",
+    "worker-src 'self' blob: https://mc.yandex.ru https://mc.yandex.com https://mc.webvisor.com https://mc.webvisor.org",
+    "frame-src 'self' blob: https://mc.yandex.ru https://mc.yandex.com https://mc.webvisor.com https://mc.webvisor.org",
     "frame-ancestors 'self'",
     "base-uri 'self'",
   ].join("; ");

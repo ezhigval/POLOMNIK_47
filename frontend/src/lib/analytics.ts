@@ -1,8 +1,9 @@
 export const analyticsConfig = {
   yandexMetrikaId: process.env.NEXT_PUBLIC_YM_ID?.trim() || "",
   googleAnalyticsId: process.env.NEXT_PUBLIC_GA_ID?.trim() || "",
-  /** Webvisor / clickmap — только при явном NEXT_PUBLIC_YM_WEBVISOR=1 */
+  /** Webvisor — только при явном NEXT_PUBLIC_YM_WEBVISOR=1 */
   yandexWebvisor: process.env.NEXT_PUBLIC_YM_WEBVISOR === "1",
+  /** Карта кликов включена вместе с Метрикой; NEXT_PUBLIC_YM_CLICKMAP=0 выключает. */
   yandexClickmap: process.env.NEXT_PUBLIC_YM_CLICKMAP !== "0",
 };
 
