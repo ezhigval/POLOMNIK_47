@@ -1,0 +1,67 @@
+# v4 stage 12: deploy to production after green CI on main (one at a time).
+# Secrets: DEPLOY_SSH_KEY (required), DEPLOY_SSH_HOST (optional user@host).
+name: Deploy production
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_branch == 'main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Require deploy SSH key
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+        run: |
+          if [[ -z "${DEPLOY_SSH_KEY}" ]]; then
+            echo "DEPLOY_SSH_KEY secret is not set — skip deploy (configure in repo Settings → Secrets)."
+            exit 1
+          fi
+
+      - name: Install SSH key
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+
+      - name: Deploy via deploy.sh
+        env:
+          DEPLOY_CI: "1"
+          SSH_KEY: ~/.ssh/deploy_key
+          DEPLOY_REMOTE: ${{ secrets.DEPLOY_SSH_HOST || 'smailikin70@93.77.165.81' }}
+        run: |
+          chmod +x deploy/yandex/deploy.sh
+          ./deploy/yandex/deploy.sh
+
+      - name: Wait for API ready
+        run: |
+          ok=0
+          for _ in $(seq 1 36); do
+            if curl -sf --max-time 15 https://api.tikhvin-palomnik.ru/health/ready >/dev/null; then
+              ok=1
+              break
+            fi
+            sleep 10
+          done
+          if [[ "$ok" != "1" ]]; then
+            echo "health/ready did not return 200 in time"
+            exit 1
+          fi
+          curl -sf https://api.tikhvin-palomnik.ru/health/ready

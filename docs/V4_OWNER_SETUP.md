@@ -55,14 +55,19 @@ Compose с v4 этапа 1 прокидывает `OPERATOR_*` в API и `NEXT_P
 
 Несекретные адреса пересылки: админка «Настройки» (`mail_forward_to`) или запасной `MAIL_FORWARD_TO` в env.
 
-### GitHub Actions — только этап 12 (автодеплой), не в git
+### GitHub Actions — этап 12 (автодеплой)
 
-Пока workflow нет — деплой `make deploy`. Когда этап 12 включат, в **Settings → Secrets** репозитория (значения не сюда):
+Workflow `.github/workflows/deploy.yml`: после **успешного CI** на push в `main` → rsync + compose на ВМ (тот же `deploy/yandex/deploy.sh`, `DEPLOY_CI=1`). Один деплой за раз (`concurrency: production-deploy`). Проверка `https://api.tikhvin-palomnik.ru/health/ready`.
 
-| Имя (предложение) | Зачем |
-|-------------------|--------|
-| `DEPLOY_SSH_KEY` | Приватный ключ на ВМ `smailikin70@93.77.165.81` |
-| `DEPLOY_SSH_HOST` | если не зашивать IP в workflow |
+В **Settings → Secrets and variables → Actions** репозитория (значения не сюда):
+
+| Имя | Зачем |
+|-----|--------|
+| `DEPLOY_SSH_KEY` | **Обязательно** для автодеплоя. Приватный ключ SSH на ВМ (`smailikin70@93.77.165.81`) |
+| `DEPLOY_REMOTE` | Опционально. Полный SSH target, если не `smailikin70@93.77.165.81` |
+| `DEPLOY_DIR` | Опционально. Каталог на ВМ, если не `/opt/polomnik` |
+
+Без `DEPLOY_SSH_KEY` workflow завершится ошибкой; ручной `make deploy` с машины владельца/агента остаётся.
 
 Не класть в Actions весь `.env.production`. Правка только env на ВМ по-прежнему требует пересборки фронта/`make deploy` (NEXT_PUBLIC_* в образе).
 
@@ -116,6 +121,6 @@ Cloudflare token воркера — только на ВМ / в кабинете
 ## 4. После заполнения секретов
 
 1. Обновить `.env.production` на ВМ (не коммитить).
-2. Пока нет этапа 12: `make deploy`. После этапа 12: мерж в `main` выкладывает код; **только env** — всё равно пересборка на ВМ (секреты не в git).
+2. Пока нет `DEPLOY_SSH_KEY` в GitHub Actions: `make deploy`. После секрета: мерж в `main` (зелёный CI) выкладывает код автоматически; **только env** на ВМ — всё равно пересборка (`make deploy` или push в main после правки кода).
 3. Hard-refresh сайта.
 4. Проверить: главная 200, `/news`, `/management`, заявка → Telegram.

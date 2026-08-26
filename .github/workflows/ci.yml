@@ -6,6 +6,13 @@ on:
   pull_request:
 
 jobs:
+  migrations:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check goose migration numbering and StatementBegin
+        run: chmod +x scripts/check-migrations.sh && ./scripts/check-migrations.sh
+
   backend:
     runs-on: ubuntu-latest
     defaults:

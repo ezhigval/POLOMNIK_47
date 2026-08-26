@@ -26,7 +26,7 @@ COMPOSE="sudo docker compose --env-file .env.production -f docker-compose.yml -f
 
 # Remote .env.production is the live secret file (Telegram, Cloudflare Worker, OAuth).
 # Do not rsync it from the laptop/agent workspace — that would overwrite rotated tokens.
-if [[ ! -f "$ROOT_DIR/.env.production" ]]; then
+if [[ "${DEPLOY_CI:-}" != "1" ]] && [[ ! -f "$ROOT_DIR/.env.production" ]]; then
   echo "Missing local $ROOT_DIR/.env.production (needed as a reminder that prod secrets exist)."
   echo "Remote keeps its own .env.production; this file is not uploaded."
   exit 1
