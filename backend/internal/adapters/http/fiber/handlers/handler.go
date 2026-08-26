@@ -29,6 +29,7 @@ type Handler struct {
 	captcha               ports.CaptchaPort
 	webhookGuard          *application.WebhookGuard
 	ai                    *application.AIFeaturesService
+	newsEngagement        *application.NewsEngagementService
 }
 
 func New(
@@ -84,6 +85,13 @@ func New(
 func (h *Handler) WithAI(ai *application.AIFeaturesService) *Handler {
 	if h != nil {
 		h.ai = ai
+	}
+	return h
+}
+
+func (h *Handler) WithNewsEngagement(service *application.NewsEngagementService) *Handler {
+	if h != nil {
+		h.newsEngagement = service
 	}
 	return h
 }

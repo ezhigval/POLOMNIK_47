@@ -18,6 +18,7 @@ type Services struct {
 	Support        *application.SupportService
 	CMS            *application.CMSService
 	News           *application.NewsService
+	NewsEngagement *application.NewsEngagementService
 	SMM            *application.SMMService
 	Telegram       *application.TelegramService
 	Notifications  *application.NotificationSettingsService

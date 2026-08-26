@@ -494,6 +494,9 @@ function AboutForm({ content, loading, error, onCancel, onSave }: BlockFormField
   const [title, setTitle] = useState(stringValue(content, "title"));
   const [paragraphs, setParagraphs] = useState(stringArray(content, "paragraphs"));
   const [highlights, setHighlights] = useState(stringArray(content, "highlights"));
+  const [stats, setStats] = useState(
+    objectArray<{ value: string; label: string }>(content, "stats", ["value", "label"]),
+  );
   const [showContacts, setShowContacts] = useState(boolValue(content, "showContacts", true));
   return (
     <form
@@ -540,9 +543,6 @@ function WhyUsForm({ content, loading, error, onCancel, onSave }: BlockFormField
       "description",
       "icon",
     ]),
-  );
-  const [stats, setStats] = useState(
-    objectArray<{ value: string; label: string }>(content, "stats", ["value", "label"]),
   );
 
   return (

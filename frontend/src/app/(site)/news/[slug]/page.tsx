@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { NewsPhotoStrip } from "@/components/news-photo-strip";
+import { NewsLikeButton } from "@/components/news-like-button";
+import { NewsComments } from "@/components/news-comments";
+import { NewsClickableImage } from "@/components/news-clickable-image";
 import {
   formatNewsDate,
   isNewsImageSrc,
@@ -9,11 +12,13 @@ import {
   paragraphsFromBody,
   toFeedArticle,
 } from "@/lib/news";
+import { linkifyText } from "@/lib/linkify";
+import { buildPublicPageMetadata } from "@/lib/seo-metadata";
+import { siteConfig } from "@/lib/site-config";
 import { getPublicNewsBySlug } from "@/lib/api/news";
 import { ApiError } from "@/lib/api/client";
 import { NewsArticleStructuredData } from "@/components/structured-data";
-import { buildPublicPageMetadata } from "@/lib/seo-metadata";
-import { siteConfig } from "@/lib/site-config";
+import { getSessionUser } from "@/lib/auth/session";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
@@ -63,10 +68,17 @@ function NewsHeader({ article }: { article: ReturnType<typeof toFeedArticle> }) 
 
 export default async function NewsArticlePage({ params }: PageProps) {
   const { slug } = await params;
-  const article = await loadArticle(slug);
+  const [article, sessionUser] = await Promise.all([loadArticle(slug), getSessionUser()]);
   if (!article) {
     notFound();
   }
+
+  const engagement = (
+    <div className="space-y-4 border-t border-stone-100 pt-4">
+      <NewsLikeButton slug={article.slug} />
+      <NewsComments slug={article.slug} loggedIn={Boolean(sessionUser)} />
+    </div>
+  );
 
   if (article.photoStrip.length > 0) {
     return (
@@ -80,6 +92,7 @@ export default async function NewsArticlePage({ params }: PageProps) {
           <p className="sr-only">{siteConfig.name}</p>
         </header>
         <NewsPhotoStrip srcs={article.photoStrip} />
+        {engagement}
       </article>
     );
   }
@@ -93,10 +106,7 @@ export default async function NewsArticlePage({ params }: PageProps) {
       <NewsHeader article={article} />
       <div className="overflow-hidden rounded-3xl border border-stone-200 bg-white shadow-sm">
         {article.image ? (
-          <div className="aspect-[16/8] bg-stone-100">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={article.image} alt={article.title} className="size-full object-cover" />
-          </div>
+          <NewsClickableImage src={article.image} alt={article.title} className="aspect-[16/8] size-full object-cover" />
         ) : null}
         <div className="space-y-4 px-5 py-6 sm:px-8 sm:py-8">
           <time dateTime={article.date} className="text-xs font-medium uppercase tracking-wide text-brand-800">
@@ -108,17 +118,17 @@ export default async function NewsArticlePage({ params }: PageProps) {
             {(body.length > 0 ? body : paragraphsFromBody(article.excerpt)).map((paragraph) =>
               isNewsImageSrc(paragraph) ? (
                 <figure key={paragraph} className="overflow-hidden rounded-2xl bg-stone-100">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={paragraph.trim()} alt="" className="mx-auto h-auto w-full object-contain" />
+                  <NewsClickableImage src={paragraph.trim()} alt="" className="mx-auto h-auto w-full object-contain" />
                 </figure>
               ) : (
-                <p key={paragraph}>{paragraph}</p>
+                <p key={paragraph}>{linkifyText(paragraph)}</p>
               ),
             )}
           </div>
           {hasDisclaimer ? (
             <p className="border-t border-stone-100 pt-4 text-xs leading-5 text-stone-400">{NEWS_AI_DISCLAIMER}</p>
           ) : null}
+          {engagement}
         </div>
       </div>
     </article>

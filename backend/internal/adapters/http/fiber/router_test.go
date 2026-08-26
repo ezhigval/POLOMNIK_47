@@ -1311,8 +1311,9 @@ func newTestAppWithStore(store *memory.Store, adminToken string) *fiber.App {
 		Passengers: application.NewPassengerService(store),
 		Support:    application.NewSupportService(store, notificationnoop.New()),
 		CMS:        application.NewCMSService(store),
-		News:       application.NewNewsService(store, nil),
-		SMM:        application.NewSMMService(store, publishernoop.New()),
+		News:            application.NewNewsService(store, nil),
+		NewsEngagement:  application.NewNewsEngagementService(store, store, store),
+		SMM:             application.NewSMMService(store, publishernoop.New()),
 		AIFeatures: application.NewAIFeaturesService(
 			nil,
 			application.NewTourService(store, nil, noop.NewCRMAdapter()),
@@ -1510,4 +1511,46 @@ func mustReadBody(t *testing.T, resp *http.Response) []byte {
 		t.Fatalf("read body: %v", err)
 	}
 	return body
+}
+
+func TestNewsEngagementLikeAndComment(t *testing.T) {
+	ctx := context.Background()
+	store := memory.NewStore()
+	app := newTestAppWithStore(store, "admin-token")
+
+	article, err := domain.NewNewsArticle(domain.NewNewsArticleInput{
+		ID:          uuid.New(),
+		Slug:        "engagement-test",
+		Title:       "Engagement",
+		Excerpt:     "Excerpt",
+		Body:        "Body",
+		PublishedAt: time.Now().UTC(),
+		IsPublished: true,
+	})
+	if err != nil {
+		t.Fatalf("new article: %v", err)
+	}
+	if _, err := store.CreateNews(ctx, article); err != nil {
+		t.Fatalf("create news: %v", err)
+	}
+
+	likeReq := httptest.NewRequest(http.MethodPost, "/api/v1/news/engagement-test/likes", nil)
+	likeReq.Header.Set("Cookie", "palomnik_visitor=visitor-test")
+	likeResp, err := app.Test(likeReq)
+	if err != nil {
+		t.Fatalf("like request: %v", err)
+	}
+	if likeResp.StatusCode != 200 {
+		t.Fatalf("expected 200 like, got %d %s", likeResp.StatusCode, mustReadBody(t, likeResp))
+	}
+
+	commentReq := httptest.NewRequest(http.MethodPost, "/api/v1/news/engagement-test/comments", bytes.NewBufferString(`{"body":"Nice"}`))
+	commentReq.Header.Set("Content-Type", "application/json")
+	commentResp, err := app.Test(commentReq)
+	if err != nil {
+		t.Fatalf("comment request: %v", err)
+	}
+	if commentResp.StatusCode != 401 {
+		t.Fatalf("expected 401 without auth, got %d", commentResp.StatusCode)
+	}
 }

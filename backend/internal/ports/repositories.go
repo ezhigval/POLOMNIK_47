@@ -149,6 +149,21 @@ type NewsRepository interface {
 	DeleteNews(ctx context.Context, id uuid.UUID) error
 }
 
+type NewsEngagementRepository interface {
+	CountNewsLikes(ctx context.Context, newsID uuid.UUID) (int, error)
+	HasNewsLike(ctx context.Context, newsID uuid.UUID, visitorID string) (bool, error)
+	AddNewsLike(ctx context.Context, newsID uuid.UUID, visitorID string) error
+	RemoveNewsLike(ctx context.Context, newsID uuid.UUID, visitorID string) error
+	CountNewsComments(ctx context.Context, newsID uuid.UUID) (int, error)
+	ListNewsComments(ctx context.Context, newsID uuid.UUID, pagination Pagination) ([]domain.NewsComment, error)
+	AddNewsComment(ctx context.Context, comment domain.NewsComment) (domain.NewsComment, error)
+}
+
+type NewsCommentList struct {
+	Items []domain.NewsComment
+	Meta  PageMeta
+}
+
 type SMMPostList struct {
 	Items []domain.SMMPost
 	Meta  PageMeta

@@ -81,7 +81,7 @@ func NewRouter(cfg config.Config, log *slog.Logger, services Services, health He
 		application.TelegramWebhookSecret(cfg.InternalAPISecret),
 		services.Captcha,
 		services.WebhookGuard,
-	).WithAI(services.AIFeatures)
+	).WithAI(services.AIFeatures).WithNewsEngagement(services.NewsEngagement)
 
 	ready := handlers.NewReadinessChecker(health.PingDB, health.PingCache, false)
 
@@ -116,6 +116,10 @@ func NewRouter(cfg config.Config, log *slog.Logger, services Services, health He
 	v1.Get("/reviews", h.ListReviews)
 	v1.Post("/reviews", appmiddleware.OptionalUserAuth(services.Auth), h.CreatePublicReview)
 	v1.Get("/news", h.ListPublicNews)
+	v1.Get("/news/:slug/likes", h.GetNewsLikeState)
+	v1.Post("/news/:slug/likes", h.ToggleNewsLike)
+	v1.Get("/news/:slug/comments", h.ListNewsComments)
+	v1.Post("/news/:slug/comments", appmiddleware.RequireUserAuth(services.Auth), h.AddNewsComment)
 	v1.Get("/news/:slug", h.GetPublicNewsBySlug)
 	v1.Get("/pages", h.ListPublicCMSPages)
 	v1.Get("/pages/:slug", h.GetPublicCMSPage)

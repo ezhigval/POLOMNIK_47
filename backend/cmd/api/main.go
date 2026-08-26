@@ -215,6 +215,9 @@ func run() int {
 		Metrics:        metrics,
 		BackupLastPath: cfg.BackupLastPath,
 	}
+	if engagementRepo, ok := tourRepo.(ports.NewsEngagementRepository); ok {
+		services.NewsEngagement = application.NewNewsEngagementService(engagementRepo, newsRepo, userRepo)
+	}
 
 	health := fiberhttp.HealthDeps{
 		CacheRequired: false,

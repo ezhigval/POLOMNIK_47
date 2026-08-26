@@ -1,36 +1,34 @@
-import type { Metadata } from "next";
 import { Suspense } from "react";
-import { NewsFeed } from "@/components/news-feed";
+import { NewsInfiniteFeed } from "@/components/news-infinite-feed";
 import { NewsCollectionStructuredData } from "@/components/structured-data";
 import { PageIntro } from "@/components/page-intro";
 import { listPublicNews } from "@/lib/api/news";
 import { toFeedArticle } from "@/lib/news";
 import { buildPublicPageMetadata } from "@/lib/seo-metadata";
 import { siteConfig } from "@/lib/site-config";
+import { getSessionUser } from "@/lib/auth/session";
 
 const description = `Новости и статьи паломнической службы «${siteConfig.name}».`;
 
-export const metadata: Metadata = buildPublicPageMetadata({
+export const metadata = buildPublicPageMetadata({
   title: "Новости",
   description,
   canonical: "/news",
 });
 
 export default async function NewsPage() {
-  let articles: ReturnType<typeof toFeedArticle>[] = [];
-  try {
-    const published = await listPublicNews();
-    articles = published.map(toFeedArticle);
-  } catch {
-    articles = [];
-  }
+  const [sessionUser, published] = await Promise.all([
+    getSessionUser(),
+    listPublicNews().catch(() => []),
+  ]);
+  const articles = published.map(toFeedArticle);
 
   return (
-    <div className="mx-auto max-w-6xl space-y-8 px-4 py-8 sm:py-10">
+    <div className="mx-auto max-w-3xl space-y-8 px-4 py-8 sm:py-10">
       <NewsCollectionStructuredData articles={articles} />
       <PageIntro
         title="Новости"
-        description="События службы, маршруты и святыни — откройте карточку, чтобы прочитать статью."
+        description="Лента событий службы — лайки без регистрации, комментарии после входа в кабинет."
       />
 
       {articles.length === 0 ? (
@@ -38,24 +36,23 @@ export default async function NewsPage() {
           Новостей пока нет.
         </div>
       ) : (
-        <Suspense fallback={<NewsFeedSkeleton />}>
-          <NewsFeed articles={articles} />
+        <Suspense fallback={<FeedSkeleton />}>
+          <NewsInfiniteFeed
+            key={articles.map((article) => article.slug).join("|")}
+            articles={articles}
+            loggedIn={Boolean(sessionUser)}
+          />
         </Suspense>
       )}
     </div>
   );
 }
 
-function NewsFeedSkeleton() {
+function FeedSkeleton() {
   return (
-    <div className="space-y-5" aria-hidden="true">
-      <div className="grid gap-5 lg:grid-cols-3">
-        <div className="h-80 animate-pulse rounded-3xl bg-stone-200 lg:col-span-2" />
-        <div className="grid gap-5">
-          <div className="h-36 animate-pulse rounded-3xl bg-stone-200" />
-          <div className="h-36 animate-pulse rounded-3xl bg-stone-200" />
-        </div>
-      </div>
+    <div className="space-y-6" aria-hidden="true">
+      <div className="h-64 animate-pulse rounded-3xl bg-stone-200" />
+      <div className="h-64 animate-pulse rounded-3xl bg-stone-200" />
     </div>
   );
 }

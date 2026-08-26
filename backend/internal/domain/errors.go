@@ -63,4 +63,6 @@ var (
 	ErrInvalidAcceptedAt           = errors.New("invalid accepted at")
 	ErrConsentRequired             = errors.New("consent required")
 	ErrInvalidPhotoURL             = errors.New("invalid photo url")
+	ErrInvalidVisitorID            = errors.New("invalid visitor id")
+	ErrInvalidCommentBody          = errors.New("invalid comment body")
 )
