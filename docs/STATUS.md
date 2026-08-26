@@ -30,7 +30,7 @@
 - новость о принесении иконы в Москву, slug `ikona-v-moskvu`, закреплена (#33, goose **25**). Текст епархии не переписывали.
 - Яндекс.Метрика счётчик **111985266** (вебвизор + карта кликов) через существующий `Analytics`; цели `tour_view` / `begin_checkout` / `booking_submit` / `support_contact`.
 
-Goose на проде: **25**.
+Goose на проде: **28** (после деплоя v4 этапов 9–11: `00027_tour_views`, `00028_news_engagement`).
 
 **Код v3 готов и заморожен.** План v4: **[V4_PLAN.md](V4_PLAN.md)**. Чеклист: **[V4_OWNER_SETUP.md](V4_OWNER_SETUP.md)**.
 
