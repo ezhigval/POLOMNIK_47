@@ -26,7 +26,6 @@ import {
   publishManagementSMM,
   deleteManagementSMM,
   type SMMPostCreateInput,
-  updateManagementTelegramSettings,
   updateManagementNotificationSettings,
   updateManagementSiteSettings,
   createManagementRole,
@@ -264,22 +263,6 @@ export async function deleteSMMPostAction(formData: FormData) {
   const id = String(formData.get("id") ?? "");
   await deleteManagementSMM(id);
   revalidateSMMPaths();
-}
-
-export async function updateTelegramSettingsAction(input: {
-  booking_usernames: string;
-  support_usernames: string;
-}) {
-  try {
-    const settings = await updateManagementTelegramSettings(input);
-    revalidatePath("/management/settings");
-    return settings;
-  } catch (error) {
-    if (error instanceof ApiError) {
-      throw new Error(error.message);
-    }
-    throw error;
-  }
 }
 
 export async function updateNotificationSettingsAction(

@@ -265,8 +265,8 @@ export function ManagementSettingsForms({
         <div>
           <h2 className="text-lg font-semibold text-stone-900">Получатели уведомлений</h2>
           <p className="mt-1 text-sm text-stone-600">
-            Блоки канал + адрес. Telegram: username без @, человек должен написать боту /start. Max: телефон
-            в международном формате (пока stub до появления ключей).
+            Блоки канал + адрес. Telegram: username без @, человек должен один раз написать боту /start.
+            Max: телефон в международном формате; без ключа в env канал остаётся не настроен.
           </p>
           <ul className="mt-2 flex flex-wrap gap-3 text-xs text-stone-500">
             {channelOptions.map((ch) => (

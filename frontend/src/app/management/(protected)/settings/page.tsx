@@ -108,6 +108,12 @@ export default async function ManagementSettingsPage() {
           Идентичность сайта, получатели уведомлений (канал + адрес) и роли админки. Разделы зависят
           от прав текущей роли. Менять роли может только полный админ (`ADMIN_TOKEN`).
         </p>
+        <p className="mt-3 max-w-2xl text-sm leading-6 text-stone-500">
+          Секреты и счётчики только в env на сервере, не в этой форме: OAuth, SMTP, sms.ru, Telegram-бот,
+          Cloudflare Worker, ЮKassa/Сбер, YandexGPT, Метрика (`NEXT_PUBLIC_YM_ID`). Реквизиты оператора ПДн —
+          `OPERATOR_*` / `NEXT_PUBLIC_OPERATOR_*` (пустые = плейсхолдеры в коде; ИНН/ОГРН не выдумываем).
+          Чеклист: docs/V4_OWNER_SETUP.md.
+        </p>
       </div>
       <ManagementSettingsForms
         channels={channels}

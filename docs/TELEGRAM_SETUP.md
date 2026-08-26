@@ -44,4 +44,4 @@ NOTIFICATION_ADAPTER=telegram -> telegram adapter + recording -> outbox on failu
 
 Входящий webhook: `POST /api/v1/webhooks/telegram` — пишет `username → chat_id`.
 
-Management API: `GET|PATCH /api/v1/management/telegram-settings`.
+Management API: `GET|PATCH /api/v1/management/telegram-settings` (legacy username lists). Живая форма в админке — **Настройки**: канал + адрес (`GET|PATCH /api/v1/management/notification-settings`).
