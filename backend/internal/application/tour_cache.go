@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -65,6 +66,34 @@ func (s *TourService) GetPublicTourCached(ctx context.Context, id uuid.UUID) (do
 	}
 
 	_ = s.writeCache(ctx, key, tour)
+	return tour, nil
+}
+
+func (s *TourService) GetPublicTourByKeyCached(ctx context.Context, key string) (domain.Tour, error) {
+	key = strings.TrimSpace(key)
+	if id, err := uuid.Parse(key); err == nil {
+		return s.GetPublicTourCached(ctx, id)
+	}
+	if s.cache == nil {
+		return s.FindPublicTour(ctx, key)
+	}
+
+	cacheKey, err := s.cacheKey(ctx, "detail:public:slug", strings.ToLower(key))
+	if err != nil {
+		return s.FindPublicTour(ctx, key)
+	}
+
+	var cached domain.Tour
+	if ok, _ := s.readCache(ctx, cacheKey, &cached); ok {
+		return cached, nil
+	}
+
+	tour, err := s.FindPublicTour(ctx, key)
+	if err != nil {
+		return domain.Tour{}, err
+	}
+
+	_ = s.writeCache(ctx, cacheKey, tour)
 	return tour, nil
 }
 

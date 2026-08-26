@@ -60,6 +60,46 @@ func TestTourServiceGetPublicTourHidesInactive(t *testing.T) {
 	}
 }
 
+func TestTourServiceFindTourBySlug(t *testing.T) {
+	ctx := context.Background()
+	store := memory.NewStore()
+	service := NewTourService(store, nil, noop.NewCRMAdapter())
+
+	tour := testTour(func(input *domain.NewTourInput) {
+		input.Slug = "Optina-Pustyn"
+	})
+	if _, err := store.CreateTour(ctx, tour); err != nil {
+		t.Fatalf("create tour: %v", err)
+	}
+
+	found, err := service.FindTour(ctx, "optina-pustyn")
+	if err != nil {
+		t.Fatalf("find tour by slug: %v", err)
+	}
+	if found.ID != tour.ID {
+		t.Fatalf("expected tour %s, got %s", tour.ID, found.ID)
+	}
+}
+
+func TestTourServiceFindPublicTourHidesInactive(t *testing.T) {
+	ctx := context.Background()
+	store := memory.NewStore()
+	service := NewTourService(store, nil, noop.NewCRMAdapter())
+
+	tour := testTour(func(input *domain.NewTourInput) {
+		input.Slug = "inactive-slug"
+		input.IsActive = false
+	})
+	if _, err := store.CreateTour(ctx, tour); err != nil {
+		t.Fatalf("create tour: %v", err)
+	}
+
+	_, err := service.FindPublicTour(ctx, "inactive-slug")
+	if !errors.Is(err, domain.ErrNotFound) {
+		t.Fatalf("expected not found for inactive slug, got %v", err)
+	}
+}
+
 func TestTourServiceListPopularTours(t *testing.T) {
 	ctx := context.Background()
 	store := memory.NewStore()

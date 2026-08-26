@@ -20,6 +20,6 @@
 | [DEPLOY.md](DEPLOY.md) | Сервер и HTTPS |
 | [TELEGRAM_SETUP.md](TELEGRAM_SETUP.md) | Бот и получатели |
 | [OAUTH_SETUP.md](OAUTH_SETUP.md) | Соцвход пошагово |
-| [SEO_ADS.md](SEO_ADS.md) | Метрика, sitemap, реклама |
+| [SEO_ADS.md](SEO_ADS.md) | Выдача в поиске, Метрика, sitemap, реклама |
 | [INTEGRATIONS.md](INTEGRATIONS.md) | Bitrix24 и 1С как адаптеры |
 | [PROJECT_SPEC.md](PROJECT_SPEC.md) | Цель продукта (исторический набросок + ссылка на STATUS) |

@@ -172,6 +172,71 @@ func TestCreateBookingAndListTours(t *testing.T) {
 	}
 }
 
+func TestGetPublicTourBySlug(t *testing.T) {
+	store := memory.NewStore()
+	app := newTestAppWithStore(store, "secret-token")
+	start := time.Now().UTC().AddDate(0, 0, 30).Format("2006-01-02")
+	end := time.Now().UTC().AddDate(0, 0, 34).Format("2006-01-02")
+
+	createTourReq := httptest.NewRequest(http.MethodPost, "/api/v1/management/tours", bytes.NewBufferString(`{
+		"slug": "tikhvin-path",
+		"title": "Tikhvin Path",
+		"description": "Test",
+		"price": 3500,
+		"currency": "RUB",
+		"date_start": "`+start+`",
+		"date_end": "`+end+`",
+		"slots_total": 10,
+		"slots_left": 10,
+		"location": "Тихвин",
+		"images": [],
+		"is_active": true,
+		"is_hot": false,
+		"overbooking_enabled": false
+	}`))
+	createTourReq.Header.Set("Content-Type", "application/json")
+	createTourReq.Header.Set("X-Admin-Token", "secret-token")
+
+	createTourResp, err := app.Test(createTourReq)
+	if err != nil {
+		t.Fatalf("create tour request failed: %v", err)
+	}
+	if createTourResp.StatusCode != http.StatusCreated {
+		t.Fatalf("expected 201, got %d", createTourResp.StatusCode)
+	}
+
+	slugReq := httptest.NewRequest(http.MethodGet, "/api/v1/tours/tikhvin-path", nil)
+	slugResp, err := app.Test(slugReq)
+	if err != nil {
+		t.Fatalf("get tour by slug failed: %v", err)
+	}
+	if slugResp.StatusCode != http.StatusOK {
+		t.Fatalf("expected 200 for slug, got %d", slugResp.StatusCode)
+	}
+
+	var body struct {
+		Data struct {
+			Slug  string `json:"slug"`
+			Title string `json:"title"`
+		} `json:"data"`
+	}
+	if err := json.NewDecoder(slugResp.Body).Decode(&body); err != nil {
+		t.Fatalf("decode slug response: %v", err)
+	}
+	if body.Data.Slug != "tikhvin-path" {
+		t.Fatalf("expected slug tikhvin-path, got %q", body.Data.Slug)
+	}
+
+	missingReq := httptest.NewRequest(http.MethodGet, "/api/v1/tours/missing-slug", nil)
+	missingResp, err := app.Test(missingReq)
+	if err != nil {
+		t.Fatalf("missing slug request failed: %v", err)
+	}
+	if missingResp.StatusCode != http.StatusNotFound {
+		t.Fatalf("expected 404 for unknown slug, got %d", missingResp.StatusCode)
+	}
+}
+
 func TestManagementListIntegrationReferences(t *testing.T) {
 	app := newTestApp(config.Config{AppEnv: "test", HTTPAddr: ":0", AdminToken: "secret"})
 

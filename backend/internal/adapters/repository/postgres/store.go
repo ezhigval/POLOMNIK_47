@@ -98,6 +98,17 @@ WHERE id = $1
 	return scanTour(row)
 }
 
+func (s *Store) GetTourBySlug(ctx context.Context, slug string) (domain.Tour, error) {
+	row := s.conn(ctx).QueryRowContext(ctx, `
+SELECT id, slug, title, description, price, currency, date_start, date_end,
+       slots_total, slots_left, location, images, is_active, is_hot,
+       overbooking_enabled, created_at, updated_at
+FROM tours
+WHERE LOWER(slug) = LOWER($1)
+`, strings.TrimSpace(slug))
+	return scanTour(row)
+}
+
 func (s *Store) CreateTour(ctx context.Context, tour domain.Tour) (domain.Tour, error) {
 	row := s.conn(ctx).QueryRowContext(ctx, `
 INSERT INTO tours (

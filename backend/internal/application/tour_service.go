@@ -57,6 +57,17 @@ func (s *TourService) GetPublicTour(ctx context.Context, id uuid.UUID) (domain.T
 	return tour, nil
 }
 
+func (s *TourService) FindPublicTour(ctx context.Context, key string) (domain.Tour, error) {
+	tour, err := s.FindTour(ctx, key)
+	if err != nil {
+		return domain.Tour{}, err
+	}
+	if !tour.IsActive {
+		return domain.Tour{}, domain.ErrNotFound
+	}
+	return tour, nil
+}
+
 func (s *TourService) ListPopularTours(ctx context.Context, limit int) ([]domain.Tour, error) {
 	if limit < 1 {
 		limit = 10
@@ -168,22 +179,7 @@ func (s *TourService) FindTour(ctx context.Context, key string) (domain.Tour, er
 	if id, err := uuid.Parse(key); err == nil {
 		return s.GetTour(ctx, id)
 	}
-	slug := strings.ToLower(key)
-	for page := 1; page <= 50; page++ {
-		list, err := s.ListTours(ctx, ports.TourFilters{}, ports.NormalizePagination(page, 100))
-		if err != nil {
-			return domain.Tour{}, err
-		}
-		for _, tour := range list.Items {
-			if strings.ToLower(tour.Slug) == slug {
-				return tour, nil
-			}
-		}
-		if !list.Meta.HasNext {
-			break
-		}
-	}
-	return domain.Tour{}, domain.ErrNotFound
+	return s.tours.GetTourBySlug(ctx, key)
 }
 
 func (s *TourService) PatchTourOps(ctx context.Context, id uuid.UUID, patch TourOpsPatch) (domain.Tour, error) {

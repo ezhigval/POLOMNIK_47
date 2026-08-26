@@ -19,6 +19,22 @@ export function FaqSection({ content }: FaqSectionProps = {}) {
 
   return (
     <section id="faq" className="scroll-mt-24">
+      {items.length > 0 ? (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "FAQPage",
+              mainEntity: items.map((item) => ({
+                "@type": "Question",
+                name: item.question,
+                acceptedAnswer: { "@type": "Answer", text: item.answer },
+              })),
+            }),
+          }}
+        />
+      ) : null}
       <SectionHeading eyebrow={eyebrow} title={title} description={description} />
 
       <div className="mt-8 divide-y divide-stone-200 rounded-2xl border border-stone-200 bg-white">
@@ -32,6 +48,8 @@ export function FaqSection({ content }: FaqSectionProps = {}) {
                 onClick={() => setOpenIndex(isOpen ? null : index)}
                 className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left transition hover:bg-stone-50"
                 aria-expanded={isOpen}
+                aria-controls={`faq-answer-${index}`}
+                id={`faq-question-${index}`}
               >
                 <span className="font-medium text-stone-900">{item.question}</span>
                 <span
@@ -41,9 +59,14 @@ export function FaqSection({ content }: FaqSectionProps = {}) {
                   +
                 </span>
               </button>
-              {isOpen ? (
-                <div className="px-5 pb-4 text-sm leading-7 text-stone-600">{item.answer}</div>
-              ) : null}
+              <div
+                id={`faq-answer-${index}`}
+                role="region"
+                aria-labelledby={`faq-question-${index}`}
+                className={`px-5 text-sm leading-7 text-stone-600 ${isOpen ? "pb-4" : "sr-only"}`}
+              >
+                {item.answer}
+              </div>
             </div>
           );
         })}

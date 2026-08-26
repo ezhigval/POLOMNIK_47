@@ -96,6 +96,22 @@ func (s *Store) GetTour(_ context.Context, id uuid.UUID) (domain.Tour, error) {
 	return cloneTour(tour), nil
 }
 
+func (s *Store) GetTourBySlug(_ context.Context, slug string) (domain.Tour, error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	slug = strings.TrimSpace(slug)
+	if slug == "" {
+		return domain.Tour{}, domain.ErrNotFound
+	}
+	for _, tour := range s.tours {
+		if strings.EqualFold(tour.Slug, slug) {
+			return cloneTour(tour), nil
+		}
+	}
+	return domain.Tour{}, domain.ErrNotFound
+}
+
 func (s *Store) CreateTour(_ context.Context, tour domain.Tour) (domain.Tour, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()

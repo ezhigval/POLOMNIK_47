@@ -29,6 +29,7 @@ type TourList struct {
 type TourRepository interface {
 	ListTours(ctx context.Context, filters TourFilters, pagination Pagination) (TourList, error)
 	GetTour(ctx context.Context, id uuid.UUID) (domain.Tour, error)
+	GetTourBySlug(ctx context.Context, slug string) (domain.Tour, error)
 	CreateTour(ctx context.Context, tour domain.Tour) (domain.Tour, error)
 	UpdateTour(ctx context.Context, tour domain.Tour) (domain.Tour, error)
 	DeleteTour(ctx context.Context, id uuid.UUID) error

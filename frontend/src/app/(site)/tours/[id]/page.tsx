@@ -1,6 +1,6 @@
-import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { BookingForm } from "@/components/booking-form";
+import { Breadcrumbs } from "@/components/breadcrumbs";
 import { MobileBookingCTA } from "@/components/mobile-booking-cta";
 import { SlotsBadge } from "@/components/slots-badge";
 import { TourImage } from "@/components/tour-image";
@@ -21,6 +21,7 @@ import { toBookingProfile } from "@/lib/auth/user-features";
 import { FavoriteButton } from "@/components/favorite-button";
 import { CompanyReply } from "@/components/testimonial-card";
 import { TourRecommendations } from "@/components/tour-recommendations";
+import { isUuidParam, tourPath, tourSeoDescription, tourSeoTitle } from "@/lib/tour-path";
 
 type TourPageProps = {
   params: Promise<{ id: string }>;
@@ -28,7 +29,8 @@ type TourPageProps = {
 
 async function loadTourPageData(id: string) {
   try {
-    const [tour, reviews] = await Promise.all([getCachedTour(id), getCachedTourReviews(id)]);
+    const tour = await getCachedTour(id);
+    const reviews = await getCachedTourReviews(tour.id);
     return { tour, reviews };
   } catch (err) {
     if (err instanceof ApiError && err.status === 404) {
@@ -43,24 +45,26 @@ export async function generateMetadata({ params }: TourPageProps) {
 
   try {
     const tour = await getCachedTour(id);
-    const description = tour.description?.split("\n")[0] || `Паломнический тур — ${tour.location}`;
+    const title = tourSeoTitle(tour);
+    const description = tourSeoDescription(tour);
     const images = tour.images?.filter(Boolean).slice(0, 3) ?? [];
+    const canonical = tourPath(tour);
     return {
-      title: tour.title,
+      title,
       description,
       alternates: {
-        canonical: `/tours/${tour.id}`,
+        canonical,
       },
       openGraph: {
-        title: tour.title,
+        title,
         description,
         type: "website",
-        url: `/tours/${tour.id}`,
+        url: canonical,
         ...(images.length > 0 ? { images: images.map((url) => ({ url })) } : {}),
       },
       twitter: {
         card: "summary_large_image",
-        title: tour.title,
+        title,
         description,
         ...(images[0] ? { images: [images[0]] } : {}),
       },
@@ -94,22 +98,22 @@ export default async function TourPage({ params }: TourPageProps) {
       ? reviews.data.reduce((sum, r) => sum + r.rating, 0) / reviews.data.length
       : null;
 
+  if (isUuidParam(id) && tour.slug && tour.slug !== id) {
+    permanentRedirect(tourPath(tour));
+  }
+
   return (
     <>
       <TourStructuredData tour={tour} />
       <TourViewTracker tourId={tour.id} title={tour.title} />
       <div className="mx-auto max-w-6xl px-4 py-8 pb-28 sm:py-10 lg:pb-10">
-        <nav className="mb-6 text-sm text-stone-500" aria-label="Хлебные крошки">
-          <Link href="/" className="hover:text-brand-800">
-            Главная
-          </Link>
-          <span className="mx-2">/</span>
-          <Link href="/search" className="hover:text-brand-800">
-            Туры
-          </Link>
-          <span className="mx-2">/</span>
-          <span className="text-stone-800">{tour.title}</span>
-        </nav>
+        <Breadcrumbs
+          items={[
+            { name: "Главная", href: "/" },
+            { name: "Туры", href: "/search" },
+            { name: tour.title },
+          ]}
+        />
 
         <div className="grid gap-8 lg:grid-cols-[1.4fr_1fr] lg:items-start">
           <section className="space-y-6">

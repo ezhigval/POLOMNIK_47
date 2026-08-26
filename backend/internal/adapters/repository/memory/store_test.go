@@ -52,4 +52,12 @@ func TestStoreTourSlotReservation(t *testing.T) {
 	if stored.SlotsLeft != 3 {
 		t.Fatalf("expected 3 slots left, got %d", stored.SlotsLeft)
 	}
+
+	bySlug, err := store.GetTourBySlug(ctx, "TEST-TOUR")
+	if err != nil {
+		t.Fatalf("get tour by slug: %v", err)
+	}
+	if bySlug.ID != tour.ID {
+		t.Fatalf("expected slug lookup to return %s, got %s", tour.ID, bySlug.ID)
+	}
 }

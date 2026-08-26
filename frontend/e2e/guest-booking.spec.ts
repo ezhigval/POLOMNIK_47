@@ -8,6 +8,7 @@ test("guest can browse search and submit a booking", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Расписание", level: 1 })).toBeVisible();
 
   await page.goto(`/tours/${BOOKABLE_TOUR_ID}`);
+  await expect(page).toHaveURL(/\/tours\/valaam(?:\?|$)/);
   await expect(page.getByRole("heading", { level: 1 })).toContainText("Валаам");
 
   const bookingForm = page.locator("#booking-form");

@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { LegalDocumentView } from "@/components/legal-document-view";
 import { fetchLegalDocument } from "@/lib/api/legal";
 import { legalDocumentPaths, type LegalDocumentType } from "@/lib/operator-config";
+import { siteConfig } from "@/lib/site-config";
 
 const slugToType: Record<string, LegalDocumentType> = {
   "privacy-policy": "privacy_policy",
@@ -32,6 +33,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const doc = await fetchLegalDocument(type);
     return {
       title: doc.title,
+      description: `${doc.title} — ${siteConfig.name}.`,
       alternates: { canonical: legalDocumentPaths[type] },
     };
   } catch {
