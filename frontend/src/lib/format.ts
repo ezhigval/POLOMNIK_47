@@ -9,7 +9,10 @@ const shortDateFormatter = new Intl.DateTimeFormat("ru-RU", {
   month: "short",
 });
 
-export function formatDateRange(start: string, end: string): string {
+export function formatDateRange(start?: string | null, end?: string | null): string {
+  if (!start || !end) {
+    return "";
+  }
   const startDate = new Date(start);
   const endDate = new Date(end);
   if (Number.isNaN(startDate.getTime()) || Number.isNaN(endDate.getTime())) {
@@ -21,12 +24,18 @@ export function formatDateRange(start: string, end: string): string {
   return `${shortDateFormatter.format(startDate)} — ${dateFormatter.format(endDate)}`;
 }
 
-export function formatPrice(amount: number, currency: string): string {
+export function formatPrice(amount: number | null | undefined, currency: string): string {
+  if (amount == null) {
+    return "";
+  }
   const symbol = currency === "RUB" ? "₽" : currency;
   return `${amount.toLocaleString("ru-RU")} ${symbol}`;
 }
 
-export function formatTourDuration(start: string, end: string): string {
+export function formatTourDuration(start?: string | null, end?: string | null): string {
+  if (!start || !end) {
+    return "";
+  }
   const startDate = new Date(start);
   const endDate = new Date(end);
   if (Number.isNaN(startDate.getTime()) || Number.isNaN(endDate.getTime())) {

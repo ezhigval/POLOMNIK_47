@@ -32,6 +32,30 @@ func TestNewBookingCalculatesTotalPrice(t *testing.T) {
 	}
 }
 
+func TestNewBookingRegularTourTotalIsZero(t *testing.T) {
+	tour, err := NewTour(validTourInput(func(input *NewTourInput) {
+		input.IsRegular = true
+		input.Price = 3500
+		input.SlotsLeft = 5
+	}))
+	if err != nil {
+		t.Fatalf("create tour: %v", err)
+	}
+
+	booking, err := NewBooking(validBookingInput(tour, func(input *NewBookingInput) {
+		input.PeopleCount = 2
+	}))
+	if err != nil {
+		t.Fatalf("create booking: %v", err)
+	}
+	if booking.TotalPrice != 0 {
+		t.Fatalf("expected total 0 for regular tour, got %d", booking.TotalPrice)
+	}
+	if booking.Status != BookingStatusNew {
+		t.Fatalf("expected status NEW, got %s", booking.Status)
+	}
+}
+
 func TestNewBookingRejectsInsufficientSlots(t *testing.T) {
 	tour, err := NewTour(validTourInput(func(input *NewTourInput) {
 		input.SlotsLeft = 1

@@ -54,11 +54,7 @@ func (h *Handler) ManagementCreateTour(c *fiber.Ctx) error {
 		})
 	}
 
-	dateStart, err := parseRequiredDate(req.DateStart)
-	if err != nil {
-		return writeAppError(c, err)
-	}
-	dateEnd, err := parseRequiredDate(req.DateEnd)
+	dateStart, dateEnd, err := parseTourSchedule(req)
 	if err != nil {
 		return writeAppError(c, err)
 	}
@@ -77,6 +73,7 @@ func (h *Handler) ManagementCreateTour(c *fiber.Ctx) error {
 		Images:             req.Images,
 		IsActive:           req.IsActive,
 		IsHot:              req.IsHot,
+		IsRegular:          req.IsRegular,
 		OverbookingEnabled: req.OverbookingEnabled,
 	})
 	if err != nil {
@@ -103,11 +100,7 @@ func (h *Handler) ManagementUpdateTour(c *fiber.Ctx) error {
 		})
 	}
 
-	dateStart, err := parseRequiredDate(req.DateStart)
-	if err != nil {
-		return writeAppError(c, err)
-	}
-	dateEnd, err := parseRequiredDate(req.DateEnd)
+	dateStart, dateEnd, err := parseTourSchedule(req)
 	if err != nil {
 		return writeAppError(c, err)
 	}
@@ -126,6 +119,7 @@ func (h *Handler) ManagementUpdateTour(c *fiber.Ctx) error {
 		Images:             req.Images,
 		IsActive:           req.IsActive,
 		IsHot:              req.IsHot,
+		IsRegular:          req.IsRegular,
 		OverbookingEnabled: req.OverbookingEnabled,
 	})
 	if err != nil {

@@ -48,7 +48,7 @@ function dateGapDays(tour: Tour, windowStart: number | null, windowEnd: number |
   return Math.round((tourStart - end) / MS_PER_DAY);
 }
 
-function utcDay(value?: string): number | null {
+function utcDay(value?: string | null): number | null {
   if (!value) {
     return null;
   }

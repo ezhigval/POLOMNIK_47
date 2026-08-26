@@ -23,7 +23,9 @@ export default async function TourOpenGraphImage({ params }: OgImageProps) {
     const tour = await getCachedTour(id);
     title = tour.title;
     subtitle = tour.location;
-    meta = `${formatDateRange(tour.date_start, tour.date_end)} · ${formatPrice(tour.price, tour.currency)}`;
+    meta = tour.is_regular
+      ? "Регулярный тур"
+      : `${formatDateRange(tour.date_start, tour.date_end)} · ${formatPrice(tour.price, tour.currency)}`;
   } catch (error) {
     if (!(error instanceof ApiError && error.status === 404)) {
       throw error;

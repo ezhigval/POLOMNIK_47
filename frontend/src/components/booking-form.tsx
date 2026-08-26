@@ -4,7 +4,7 @@ import Link from "next/link";
 import { FormEvent, useMemo, useRef, useState } from "react";
 import { ApiError } from "@/lib/api/client";
 import { formatBookingStatus, formatPrice, getSlotsAvailability } from "@/lib/format";
-import { createBooking, type CreateBookingResult, type Tour } from "@/lib/api/tours";
+import { createBooking, isRegularTour, type CreateBookingResult, type Tour } from "@/lib/api/tours";
 import { trackBeginCheckout, trackBookingSubmit } from "@/lib/analytics";
 import type { BookingProfile } from "@/lib/auth/user-features";
 import { HoneypotField } from "@/components/honeypot-field";
@@ -25,7 +25,11 @@ export function BookingForm({ tour, profile = null }: BookingFormProps) {
   const beginCheckoutSent = useRef(false);
 
   const soldOut = getSlotsAvailability(tour.slots_left) === "sold_out";
-  const estimatedTotal = useMemo(() => tour.price * peopleCount, [tour.price, peopleCount]);
+  const regular = isRegularTour(tour);
+  const estimatedTotal = useMemo(
+    () => (regular || tour.price == null ? null : tour.price * peopleCount),
+    [regular, tour.price, peopleCount],
+  );
 
   function onFormFocus() {
     if (beginCheckoutSent.current || soldOut) {
@@ -97,10 +101,12 @@ export function BookingForm({ tour, profile = null }: BookingFormProps) {
             <dt className="text-emerald-800/80">Номер заявки</dt>
             <dd className="font-mono font-medium">{success.booking_id.slice(0, 8)}…</dd>
           </div>
-          <div className="flex justify-between gap-4">
-            <dt className="text-emerald-800/80">Ориентировочная сумма</dt>
-            <dd className="font-medium">{formatPrice(success.total_price, tour.currency)}</dd>
-          </div>
+          {!regular && success.total_price > 0 ? (
+            <div className="flex justify-between gap-4">
+              <dt className="text-emerald-800/80">Ориентировочная сумма</dt>
+              <dd className="font-medium">{formatPrice(success.total_price, tour.currency)}</dd>
+            </div>
+          ) : null}
         </dl>
         <div className="mt-4 flex flex-col gap-2 sm:flex-row">
           {profile ? (
@@ -155,19 +161,23 @@ export function BookingForm({ tour, profile = null }: BookingFormProps) {
         <li className="rounded-full bg-stone-100 px-2.5 py-1">Консультация бесплатно</li>
       </ul>
 
-      <div className="rounded-xl bg-stone-50 p-4">
-        <p className="text-sm text-stone-600">Ориентировочная стоимость</p>
-        <p className="text-2xl font-semibold text-stone-900">
-          {formatPrice(estimatedTotal, tour.currency)}
-        </p>
-        <p className="text-xs text-stone-500">
-          {formatPrice(tour.price, tour.currency)} × {peopleCount} чел.
-        </p>
-      </div>
+      {regular ? null : (
+        <div className="rounded-xl bg-stone-50 p-4">
+          <p className="text-sm text-stone-600">Ориентировочная стоимость</p>
+          <p className="text-2xl font-semibold text-stone-900">
+            {formatPrice(estimatedTotal, tour.currency)}
+          </p>
+          <p className="text-xs text-stone-500">
+            {formatPrice(tour.price, tour.currency)} × {peopleCount} чел.
+          </p>
+        </div>
+      )}
 
       {soldOut ? (
         <p role="alert" className="rounded-xl bg-stone-100 px-3 py-2 text-sm text-stone-700">
-          К сожалению, мест на этот тур больше нет. Выберите другую дату или тур.
+          {regular
+            ? "К сожалению, мест на этот тур больше нет. Выберите другой тур."
+            : "К сожалению, мест на этот тур больше нет. Выберите другую дату или тур."}
         </p>
       ) : null}
 

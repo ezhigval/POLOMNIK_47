@@ -237,6 +237,168 @@ func TestGetPublicTourBySlug(t *testing.T) {
 	}
 }
 
+func TestRegularToursPublicListOrderJSONAndBooking(t *testing.T) {
+	store := memory.NewStore()
+	app := newTestAppWithStore(store, "secret-token")
+
+	create := func(body string) {
+		t.Helper()
+		req := httptest.NewRequest(http.MethodPost, "/api/v1/management/tours", bytes.NewBufferString(body))
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("X-Admin-Token", "secret-token")
+		resp, err := app.Test(req)
+		if err != nil {
+			t.Fatalf("create tour: %v", err)
+		}
+		if resp.StatusCode != http.StatusCreated {
+			t.Fatalf("expected 201, got %d body=%s", resp.StatusCode, string(mustReadBody(t, resp)))
+		}
+	}
+
+	create(`{
+		"slug": "regular-path",
+		"title": "Регулярный",
+		"description": "Test",
+		"price": 0,
+		"currency": "RUB",
+		"slots_total": 10,
+		"slots_left": 10,
+		"location": "Тихвин",
+		"images": [],
+		"is_active": true,
+		"is_hot": false,
+		"is_regular": true,
+		"overbooking_enabled": false
+	}`)
+	create(`{
+		"slug": "dated-later",
+		"title": "Позже",
+		"description": "Test",
+		"price": 5000,
+		"currency": "RUB",
+		"date_start": "2026-11-01",
+		"date_end": "2026-11-03",
+		"slots_total": 10,
+		"slots_left": 10,
+		"location": "Тихвин",
+		"images": [],
+		"is_active": true,
+		"is_hot": false,
+		"overbooking_enabled": false
+	}`)
+	create(`{
+		"slug": "dated-sooner",
+		"title": "Раньше",
+		"description": "Test",
+		"price": 4000,
+		"currency": "RUB",
+		"date_start": "2026-09-01",
+		"date_end": "2026-09-03",
+		"slots_total": 10,
+		"slots_left": 10,
+		"location": "Тихвин",
+		"images": [],
+		"is_active": true,
+		"is_hot": false,
+		"overbooking_enabled": false
+	}`)
+
+	listReq := httptest.NewRequest(http.MethodGet, "/api/v1/tours", nil)
+	listResp, err := app.Test(listReq)
+	if err != nil {
+		t.Fatalf("list tours: %v", err)
+	}
+	if listResp.StatusCode != http.StatusOK {
+		t.Fatalf("expected 200, got %d", listResp.StatusCode)
+	}
+
+	var listBody struct {
+		Data []struct {
+			ID        string  `json:"id"`
+			Slug      string  `json:"slug"`
+			Price     *int    `json:"price"`
+			DateStart *string `json:"date_start"`
+			DateEnd   *string `json:"date_end"`
+			IsRegular bool    `json:"is_regular"`
+		} `json:"data"`
+	}
+	if err := json.NewDecoder(listResp.Body).Decode(&listBody); err != nil {
+		t.Fatalf("decode list: %v", err)
+	}
+	if len(listBody.Data) != 3 {
+		t.Fatalf("expected 3 tours, got %d", len(listBody.Data))
+	}
+	if listBody.Data[0].Slug != "dated-sooner" || listBody.Data[1].Slug != "dated-later" || listBody.Data[2].Slug != "regular-path" {
+		t.Fatalf("unexpected order: %s, %s, %s", listBody.Data[0].Slug, listBody.Data[1].Slug, listBody.Data[2].Slug)
+	}
+
+	regular := listBody.Data[2]
+	if !regular.IsRegular {
+		t.Fatal("expected last tour to be regular")
+	}
+	if regular.Price != nil || regular.DateStart != nil || regular.DateEnd != nil {
+		t.Fatalf("expected null price/dates for regular, got price=%v start=%v end=%v", regular.Price, regular.DateStart, regular.DateEnd)
+	}
+	if listBody.Data[0].Price == nil || *listBody.Data[0].Price != 4000 {
+		t.Fatalf("expected dated tour to keep price, got %#v", listBody.Data[0].Price)
+	}
+
+	getReq := httptest.NewRequest(http.MethodGet, "/api/v1/tours/regular-path", nil)
+	getResp, err := app.Test(getReq)
+	if err != nil {
+		t.Fatalf("get regular tour: %v", err)
+	}
+	if getResp.StatusCode != http.StatusOK {
+		t.Fatalf("expected 200, got %d", getResp.StatusCode)
+	}
+	var getBody struct {
+		Data struct {
+			Price     *int    `json:"price"`
+			DateStart *string `json:"date_start"`
+			IsRegular bool    `json:"is_regular"`
+		} `json:"data"`
+	}
+	if err := json.NewDecoder(getResp.Body).Decode(&getBody); err != nil {
+		t.Fatalf("decode get: %v", err)
+	}
+	if !getBody.Data.IsRegular || getBody.Data.Price != nil || getBody.Data.DateStart != nil {
+		t.Fatalf("public regular JSON should null price/dates: %+v", getBody.Data)
+	}
+
+	bookingReq := httptest.NewRequest(http.MethodPost, "/api/v1/bookings", bytes.NewBufferString(`{
+		"tour_id": "`+regular.ID+`",
+		"name": "Иван Иванов",
+		"phone": "+79999999999",
+		"email": "mail@test.com",
+		"people_count": 2,
+		"consent_personal_data": true,
+		"consent_terms": true
+	}`))
+	bookingReq.Header.Set("Content-Type", "application/json")
+	bookingResp, err := app.Test(bookingReq)
+	if err != nil {
+		t.Fatalf("booking: %v", err)
+	}
+	if bookingResp.StatusCode != http.StatusCreated {
+		t.Fatalf("expected 201, got %d body=%s", bookingResp.StatusCode, string(mustReadBody(t, bookingResp)))
+	}
+	var bookingBody struct {
+		Data struct {
+			BookingStatus string `json:"booking_status"`
+			TotalPrice    int    `json:"total_price"`
+		} `json:"data"`
+	}
+	if err := json.NewDecoder(bookingResp.Body).Decode(&bookingBody); err != nil {
+		t.Fatalf("decode booking: %v", err)
+	}
+	if bookingBody.Data.BookingStatus != "NEW" {
+		t.Fatalf("expected NEW, got %q", bookingBody.Data.BookingStatus)
+	}
+	if bookingBody.Data.TotalPrice != 0 {
+		t.Fatalf("expected total 0, got %d", bookingBody.Data.TotalPrice)
+	}
+}
+
 func TestManagementListIntegrationReferences(t *testing.T) {
 	app := newTestApp(config.Config{AppEnv: "test", HTTPAddr: ":0", AdminToken: "secret"})
 
@@ -1339,4 +1501,13 @@ func TestManagementListRoleTemplates(t *testing.T) {
 	if !foundAdvertiser {
 		t.Fatal("missing advertiser template")
 	}
+}
+
+func mustReadBody(t *testing.T, resp *http.Response) []byte {
+	t.Helper()
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		t.Fatalf("read body: %v", err)
+	}
+	return body
 }

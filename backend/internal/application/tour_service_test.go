@@ -170,3 +170,46 @@ func TestTourServiceCreateAndUpdateTour(t *testing.T) {
 		t.Fatalf("expected updated title, got %q", updated.Title)
 	}
 }
+
+func TestTourServiceListPublicToursPutsRegularAfterDated(t *testing.T) {
+	ctx := context.Background()
+	store := memory.NewStore()
+	service := NewTourService(store, nil, noop.NewCRMAdapter())
+
+	regular := testTour(func(input *domain.NewTourInput) {
+		input.ID = testUUID("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")
+		input.Slug = "regular-listed"
+		input.IsRegular = true
+		input.DateStart = testDate(2026, 1, 1)
+		input.DateEnd = testDate(2026, 1, 2)
+	})
+	laterDated := testTour(func(input *domain.NewTourInput) {
+		input.ID = testUUID("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb")
+		input.Slug = "dated-later"
+		input.DateStart = testDate(2026, 11, 1)
+		input.DateEnd = testDate(2026, 11, 3)
+	})
+	soonerDated := testTour(func(input *domain.NewTourInput) {
+		input.ID = testUUID("cccccccc-cccc-cccc-cccc-cccccccccccc")
+		input.Slug = "dated-sooner"
+		input.DateStart = testDate(2026, 9, 1)
+		input.DateEnd = testDate(2026, 9, 3)
+	})
+
+	for _, tour := range []domain.Tour{regular, laterDated, soonerDated} {
+		if _, err := store.CreateTour(ctx, tour); err != nil {
+			t.Fatalf("create tour %s: %v", tour.Slug, err)
+		}
+	}
+
+	list, err := service.ListPublicTours(ctx, ports.TourFilters{}, ports.Pagination{Page: 1, Limit: 20})
+	if err != nil {
+		t.Fatalf("list public tours: %v", err)
+	}
+	if len(list.Items) != 3 {
+		t.Fatalf("expected 3 tours, got %d", len(list.Items))
+	}
+	if list.Items[0].Slug != "dated-sooner" || list.Items[1].Slug != "dated-later" || list.Items[2].Slug != "regular-listed" {
+		t.Fatalf("unexpected order: %s, %s, %s", list.Items[0].Slug, list.Items[1].Slug, list.Items[2].Slug)
+	}
+}

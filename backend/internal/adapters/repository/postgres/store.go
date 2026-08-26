@@ -63,12 +63,10 @@ func (s *Store) ListTours(ctx context.Context, filters ports.TourFilters, pagina
 	}
 
 	rows, err := s.conn(ctx).QueryContext(ctx, `
-SELECT id, slug, title, description, price, currency, date_start, date_end,
-       slots_total, slots_left, location, images, is_active, is_hot,
-       overbooking_enabled, created_at, updated_at
+SELECT `+tourSelectColumns+`
 FROM tours
 WHERE `+tourWhereClause+`
-ORDER BY date_start ASC, id ASC
+ORDER BY is_regular ASC, date_start ASC NULLS LAST, id ASC
 LIMIT $10 OFFSET $11
 `, append(args, pagination.Limit, offset(pagination))...)
 	if err != nil {
@@ -89,9 +87,7 @@ LIMIT $10 OFFSET $11
 
 func (s *Store) GetTour(ctx context.Context, id uuid.UUID) (domain.Tour, error) {
 	row := s.conn(ctx).QueryRowContext(ctx, `
-SELECT id, slug, title, description, price, currency, date_start, date_end,
-       slots_total, slots_left, location, images, is_active, is_hot,
-       overbooking_enabled, created_at, updated_at
+SELECT `+tourSelectColumns+`
 FROM tours
 WHERE id = $1
 `, id)
@@ -100,9 +96,7 @@ WHERE id = $1
 
 func (s *Store) GetTourBySlug(ctx context.Context, slug string) (domain.Tour, error) {
 	row := s.conn(ctx).QueryRowContext(ctx, `
-SELECT id, slug, title, description, price, currency, date_start, date_end,
-       slots_total, slots_left, location, images, is_active, is_hot,
-       overbooking_enabled, created_at, updated_at
+SELECT `+tourSelectColumns+`
 FROM tours
 WHERE LOWER(slug) = LOWER($1)
 `, strings.TrimSpace(slug))
@@ -114,17 +108,15 @@ func (s *Store) CreateTour(ctx context.Context, tour domain.Tour) (domain.Tour, 
 INSERT INTO tours (
     id, slug, title, description, price, currency, date_start, date_end,
     slots_total, slots_left, location, images, is_active, is_hot,
-    overbooking_enabled, created_at, updated_at
+    is_regular, overbooking_enabled, created_at, updated_at
 ) VALUES (
     $1, $2, $3, $4, $5, $6, $7, $8,
-    $9, $10, $11, $12, $13, $14, $15, $16, $17
+    $9, $10, $11, $12, $13, $14, $15, $16, $17, $18
 )
-RETURNING id, slug, title, description, price, currency, date_start, date_end,
-          slots_total, slots_left, location, images, is_active, is_hot,
-          overbooking_enabled, created_at, updated_at
+RETURNING `+tourSelectColumns+`
 `, tour.ID, tour.Slug, tour.Title, tour.Description, tour.Price, tour.Currency,
-		tour.DateStart, tour.DateEnd, tour.SlotsTotal, tour.SlotsLeft, tour.Location,
-		pq.Array(tour.Images), tour.IsActive, tour.IsHot, tour.OverbookingEnabled, tour.CreatedAt, tour.UpdatedAt)
+		nullableTime(tour.DateStart), nullableTime(tour.DateEnd), tour.SlotsTotal, tour.SlotsLeft, tour.Location,
+		pq.Array(tour.Images), tour.IsActive, tour.IsHot, tour.IsRegular, tour.OverbookingEnabled, tour.CreatedAt, tour.UpdatedAt)
 	return scanTour(row)
 }
 
@@ -144,15 +136,14 @@ SET slug = $2,
     images = $12,
     is_active = $13,
     is_hot = $14,
-    overbooking_enabled = $15,
-    updated_at = $16
+    is_regular = $15,
+    overbooking_enabled = $16,
+    updated_at = $17
 WHERE id = $1
-RETURNING id, slug, title, description, price, currency, date_start, date_end,
-          slots_total, slots_left, location, images, is_active, is_hot,
-          overbooking_enabled, created_at, updated_at
+RETURNING `+tourSelectColumns+`
 `, tour.ID, tour.Slug, tour.Title, tour.Description, tour.Price, tour.Currency,
-		tour.DateStart, tour.DateEnd, tour.SlotsTotal, tour.SlotsLeft, tour.Location,
-		pq.Array(tour.Images), tour.IsActive, tour.IsHot, tour.OverbookingEnabled, tour.UpdatedAt)
+		nullableTime(tour.DateStart), nullableTime(tour.DateEnd), tour.SlotsTotal, tour.SlotsLeft, tour.Location,
+		pq.Array(tour.Images), tour.IsActive, tour.IsHot, tour.IsRegular, tour.OverbookingEnabled, tour.UpdatedAt)
 	return scanTour(row)
 }
 
@@ -399,9 +390,13 @@ RETURNING `+reviewSelectColumns+`
 
 const reviewSelectColumns = `id, tour_id, client_name, rating, text, is_approved, allow_distribution, company_reply, company_replied_at, created_at, updated_at`
 
+const tourSelectColumns = `id, slug, title, description, price, currency, date_start, date_end,
+       slots_total, slots_left, location, images, is_active, is_hot,
+       is_regular, overbooking_enabled, created_at, updated_at`
+
 const tourWhereClause = `
-($1::date IS NULL OR date_end >= $1) AND
-($2::date IS NULL OR date_start <= $2) AND
+($1::date IS NULL OR is_regular OR date_end >= $1) AND
+($2::date IS NULL OR is_regular OR date_start <= $2) AND
 ($3::integer IS NULL OR price >= $3) AND
 ($4::integer IS NULL OR price <= $4) AND
 ($5::text = '' OR LOWER(location) LIKE '%' || LOWER($5) || '%') AND
@@ -474,6 +469,7 @@ type scanner interface {
 func scanTour(row scanner) (domain.Tour, error) {
 	var tour domain.Tour
 	var images pq.StringArray
+	var dateStart, dateEnd sql.NullTime
 	err := row.Scan(
 		&tour.ID,
 		&tour.Slug,
@@ -481,14 +477,15 @@ func scanTour(row scanner) (domain.Tour, error) {
 		&tour.Description,
 		&tour.Price,
 		&tour.Currency,
-		&tour.DateStart,
-		&tour.DateEnd,
+		&dateStart,
+		&dateEnd,
 		&tour.SlotsTotal,
 		&tour.SlotsLeft,
 		&tour.Location,
 		&images,
 		&tour.IsActive,
 		&tour.IsHot,
+		&tour.IsRegular,
 		&tour.OverbookingEnabled,
 		&tour.CreatedAt,
 		&tour.UpdatedAt,
@@ -498,6 +495,12 @@ func scanTour(row scanner) (domain.Tour, error) {
 	}
 	if err != nil {
 		return domain.Tour{}, fmt.Errorf("scan tour: %w", err)
+	}
+	if dateStart.Valid {
+		tour.DateStart = dateStart.Time
+	}
+	if dateEnd.Valid {
+		tour.DateEnd = dateEnd.Time
 	}
 	tour.Images = []string(images)
 	return tour, nil
@@ -648,6 +651,13 @@ func dateValue(value *time.Time) any {
 		return nil
 	}
 	return value.Format(time.DateOnly)
+}
+
+func nullableTime(value time.Time) any {
+	if value.IsZero() {
+		return nil
+	}
+	return value
 }
 
 func timeValue(value *time.Time) any {

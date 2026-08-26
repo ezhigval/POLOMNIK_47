@@ -45,20 +45,23 @@ export default async function ManagementToursPage() {
                     <div className="text-stone-500">{tour.location}</div>
                   </td>
                   <td className="px-4 py-4 whitespace-nowrap">
-                    {formatDateRange(tour.date_start, tour.date_end)}
+                    {tour.is_regular ? "Регулярный тур" : formatDateRange(tour.date_start, tour.date_end)}
                   </td>
                   <td className="px-4 py-4 whitespace-nowrap">
-                    {formatTourDuration(tour.date_start, tour.date_end) || "—"}
+                    {tour.is_regular ? "—" : formatTourDuration(tour.date_start, tour.date_end) || "—"}
                   </td>
                   <td className="px-4 py-4">
                     {tour.slots_left}/{tour.slots_total}
                   </td>
-                  <td className="px-4 py-4">{formatPrice(tour.price, tour.currency)}</td>
+                  <td className="px-4 py-4">
+                    {tour.is_regular ? "—" : formatPrice(tour.price, tour.currency)}
+                  </td>
                   <td className="px-4 py-4">
                     <div className="flex flex-wrap gap-1">
                       <StatusBadge variant={tour.is_active ? "success" : "neutral"}>
                         {tour.is_active ? "Активен" : "Скрыт"}
                       </StatusBadge>
+                      {tour.is_regular ? <StatusBadge variant="neutral">Регулярный</StatusBadge> : null}
                       {tour.is_hot ? <StatusBadge variant="warning">Hot</StatusBadge> : null}
                     </div>
                   </td>
