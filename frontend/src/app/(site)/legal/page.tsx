@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { Breadcrumbs } from "@/components/breadcrumbs";
 import { SectionHeading } from "@/components/section-heading";
 import { fetchLegalDocuments } from "@/lib/api/legal";
 import { legalDocumentPaths } from "@/lib/operator-config";
@@ -20,11 +21,12 @@ export default async function LegalIndexPage() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10 sm:py-14">
-      <div className="mb-6">
-        <Link href="/" className="text-sm text-stone-500 transition hover:text-brand-800">
-          ← На главную
-        </Link>
-      </div>
+      <Breadcrumbs
+        items={[
+          { name: "Главная", href: "/" },
+          { name: "Юридические документы" },
+        ]}
+      />
 
       <SectionHeading
         title="Юридические документы"

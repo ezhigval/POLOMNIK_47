@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { BrandMark } from "@/components/brand-mark";
+import { MainNavLinks } from "@/components/main-nav-links";
 import { MobileNav } from "@/components/mobile-nav";
 import { UserMenu } from "@/components/user-menu";
 import { contactPhone, contactPhoneDisplay } from "@/lib/contact";
-import { mainNavLinks } from "@/lib/site-nav";
 import { siteConfig } from "@/lib/site-config";
 import type { User } from "@/lib/api/auth";
 
@@ -29,11 +29,7 @@ export function SiteHeader({ user }: SiteHeaderProps) {
           className="hidden items-center gap-1 text-sm lg:flex"
           aria-label="Основная навигация"
         >
-          {mainNavLinks.map((link) => (
-            <Link key={link.href} href={link.href} className="nav-link">
-              {link.label}
-            </Link>
-          ))}
+          <MainNavLinks />
           <UserMenu user={user} />
           <a href={`tel:${contactPhone}`} className="btn-primary ml-1 px-4 py-2 text-sm">
             {contactPhoneDisplay}

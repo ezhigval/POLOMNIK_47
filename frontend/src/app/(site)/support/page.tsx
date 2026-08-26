@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { Breadcrumbs } from "@/components/breadcrumbs";
 import { DioceseAffiliation } from "@/components/diocese-affiliation";
 import { FaqSection } from "@/components/faq-section";
 import { SectionHeading } from "@/components/section-heading";
@@ -55,6 +56,12 @@ const topics = [
 export default function SupportPage() {
   return (
     <div className="mx-auto max-w-6xl space-y-16 px-4 py-8 sm:py-12">
+      <Breadcrumbs
+        items={[
+          { name: "Главная", href: "/" },
+          { name: "Поддержка" },
+        ]}
+      />
       <section className="rounded-3xl bg-gradient-to-br from-brand-950 via-brand-900 to-brand-800 px-6 py-10 text-white sm:px-10">
         <p className="text-sm font-medium uppercase tracking-widest text-brand-100">Поддержка</p>
         <h1 className="mt-3 font-display text-4xl font-semibold sm:text-5xl">Чем можем помочь?</h1>

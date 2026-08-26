@@ -142,7 +142,7 @@ export function BookingForm({ tour, profile = null }: BookingFormProps) {
       id="booking-form"
       onSubmit={onSubmit}
       onFocus={onFormFocus}
-      className="relative space-y-4 rounded-2xl border border-stone-200 bg-white p-5 shadow-md ring-1 ring-stone-100 lg:sticky lg:top-24"
+      className="relative space-y-4 rounded-2xl border border-stone-200 bg-white p-5 shadow-md ring-1 ring-stone-100"
     >
       <div>
         <h3 className="font-display text-xl font-semibold text-stone-900">Оставить заявку</h3>

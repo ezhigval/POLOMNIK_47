@@ -27,7 +27,7 @@ export default async function RegisterPage({ searchParams }: RegisterPageProps) 
     <div className="mx-auto flex min-h-[60vh] max-w-md flex-col justify-center gap-4 px-4 py-12">
       <PageIntro
         backHref="/account/login"
-        backLabel="← К входу"
+        backLabel="К входу"
         title="Регистрация"
         description="Создайте аккаунт, чтобы сохранять туры и отслеживать заявки."
       />

@@ -19,6 +19,7 @@ export default async function ResetPasswordPage({ searchParams }: PageProps) {
     <div className="mx-auto flex min-h-[60vh] max-w-md flex-col justify-center gap-4 px-4 py-12">
       <PageIntro
         backHref="/account/login"
+        backLabel="К входу"
         title="Новый пароль"
         description="Задайте пароль по ссылке из письма."
       />

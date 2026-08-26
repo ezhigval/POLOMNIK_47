@@ -1,6 +1,7 @@
 import { notFound, permanentRedirect } from "next/navigation";
 import { BookingForm } from "@/components/booking-form";
-import { Breadcrumbs } from "@/components/breadcrumbs";
+import { DetailPageNav } from "@/components/detail-page-nav";
+import { ReturnToListLink } from "@/components/return-to-list-link";
 import { MobileBookingCTA } from "@/components/mobile-booking-cta";
 import { BurningTourBadge, TourPrice } from "@/components/tour-price";
 import { SlotsBadge } from "@/components/slots-badge";
@@ -109,8 +110,10 @@ export default async function TourPage({ params }: TourPageProps) {
       <TourStructuredData tour={tour} />
       <TourViewTracker tourId={tour.id} title={tour.title} />
       <div className="mx-auto max-w-6xl px-4 py-8 pb-28 sm:py-10 lg:pb-10">
-        <Breadcrumbs
-          items={[
+        <DetailPageNav
+          fallbackHref="/search"
+          backLabel="Назад"
+          breadcrumbs={[
             { name: "Главная", href: "/" },
             { name: "Туры", href: "/search" },
             { name: tour.title },
@@ -286,9 +289,12 @@ export default async function TourPage({ params }: TourPageProps) {
             </section>
 
             <TourRecommendations tourId={tour.id} />
+            <ReturnToListLink fallbackHref="/search" label="К расписанию туров" />
           </section>
 
-          <BookingForm tour={tour} profile={profile} />
+          <aside className="scroll-mt-24 lg:sticky lg:top-24 lg:self-start">
+            <BookingForm tour={tour} profile={profile} />
+          </aside>
         </div>
       </div>
 

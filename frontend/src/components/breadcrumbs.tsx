@@ -7,7 +7,7 @@ export type BreadcrumbItem = {
   href?: string;
 };
 
-export function Breadcrumbs({ items }: { items: BreadcrumbItem[] }) {
+export function Breadcrumbs({ items, className = "mb-6" }: { items: BreadcrumbItem[]; className?: string }) {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -22,7 +22,7 @@ export function Breadcrumbs({ items }: { items: BreadcrumbItem[] }) {
   return (
     <>
       <JsonLd data={jsonLd} />
-      <nav className="mb-6 text-sm text-stone-500" aria-label="Хлебные крошки">
+      <nav className={`${className} text-sm text-stone-500`} aria-label="Хлебные крошки">
         {items.map((item, index) => {
           const isLast = index === items.length - 1;
           return (

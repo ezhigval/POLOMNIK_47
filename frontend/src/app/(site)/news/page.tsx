@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { Breadcrumbs } from "@/components/breadcrumbs";
 import { NewsInfiniteFeed } from "@/components/news-infinite-feed";
 import { NewsCollectionStructuredData } from "@/components/structured-data";
 import { PageIntro } from "@/components/page-intro";
@@ -26,7 +27,14 @@ export default async function NewsPage() {
   return (
     <div className="mx-auto max-w-3xl space-y-8 px-4 py-8 sm:py-10">
       <NewsCollectionStructuredData articles={articles} />
+      <Breadcrumbs
+        items={[
+          { name: "Главная", href: "/" },
+          { name: "Новости" },
+        ]}
+      />
       <PageIntro
+        showBack={false}
         title="Новости"
         description="Лента событий службы — лайки без регистрации, комментарии после входа в кабинет."
       />
