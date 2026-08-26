@@ -9,6 +9,7 @@ import (
 	"log/slog"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
 
@@ -884,12 +885,12 @@ func newTestAppWithStore(store *memory.Store, adminToken string) *fiber.App {
 			"",
 			false,
 		),
-		Auth:          application.NewAuthService(store, store, nil, nil, application.SocialAuthConfig{}, config.DefaultJWTSecret, 24*time.Hour, "http://localhost:3000", store),
-		Passengers:    application.NewPassengerService(store),
-		Support:       application.NewSupportService(store, notificationnoop.New()),
-		CMS:           application.NewCMSService(store),
-		News:          application.NewNewsService(store, nil),
-		SMM:           application.NewSMMService(store, publishernoop.New()),
+		Auth:       application.NewAuthService(store, store, nil, nil, application.SocialAuthConfig{}, config.DefaultJWTSecret, 24*time.Hour, "http://localhost:3000", store),
+		Passengers: application.NewPassengerService(store),
+		Support:    application.NewSupportService(store, notificationnoop.New()),
+		CMS:        application.NewCMSService(store),
+		News:       application.NewNewsService(store, nil),
+		SMM:        application.NewSMMService(store, publishernoop.New()),
 		AIFeatures: application.NewAIFeaturesService(
 			nil,
 			application.NewTourService(store, nil, noop.NewCRMAdapter()),
@@ -1077,5 +1078,61 @@ func TestManagementListRoleTemplates(t *testing.T) {
 	}
 	if !foundAdvertiser {
 		t.Fatal("missing advertiser template")
+	}
+}
+
+func TestPublicSiteSettingsOmitsMailForwardList(t *testing.T) {
+	store := memory.NewStore()
+	_, err := store.UpsertSiteSettings(context.Background(), domain.SiteSettings{
+		SiteName:      "Тихвинский путь",
+		MailForwardTo: []string{"tikhvin-palomnik@yandex.ru"},
+	})
+	if err != nil {
+		t.Fatalf("seed: %v", err)
+	}
+	app := newTestAppWithStore(store, "admin-token")
+
+	publicReq := httptest.NewRequest("GET", "/api/v1/site-settings", nil)
+	publicResp, err := app.Test(publicReq)
+	if err != nil {
+		t.Fatalf("public request: %v", err)
+	}
+	if publicResp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(publicResp.Body)
+		t.Fatalf("public expected 200, got %d %s", publicResp.StatusCode, body)
+	}
+	publicRaw, err := io.ReadAll(publicResp.Body)
+	if err != nil {
+		t.Fatalf("read public: %v", err)
+	}
+	if strings.Contains(string(publicRaw), "tikhvin-palomnik@yandex.ru") {
+		t.Fatalf("public site-settings leaked mail forward list: %s", publicRaw)
+	}
+	var publicBody struct {
+		Data map[string]any `json:"data"`
+	}
+	if err := json.Unmarshal(publicRaw, &publicBody); err != nil {
+		t.Fatalf("decode public: %v", err)
+	}
+	if _, ok := publicBody.Data["mail_forward_to"]; ok {
+		t.Fatal("public site-settings must omit mail_forward_to")
+	}
+
+	adminReq := httptest.NewRequest("GET", "/api/v1/management/site-settings", nil)
+	adminReq.Header.Set("X-Admin-Token", "admin-token")
+	adminResp, err := app.Test(adminReq)
+	if err != nil {
+		t.Fatalf("admin request: %v", err)
+	}
+	if adminResp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(adminResp.Body)
+		t.Fatalf("admin expected 200, got %d %s", adminResp.StatusCode, body)
+	}
+	adminRaw, err := io.ReadAll(adminResp.Body)
+	if err != nil {
+		t.Fatalf("read admin: %v", err)
+	}
+	if !strings.Contains(string(adminRaw), "tikhvin-palomnik@yandex.ru") {
+		t.Fatalf("admin site-settings missing mail forward list: %s", adminRaw)
 	}
 }

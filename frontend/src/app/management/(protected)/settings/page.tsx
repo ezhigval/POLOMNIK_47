@@ -105,8 +105,9 @@ export default async function ManagementSettingsPage() {
       <div>
         <h2 className="text-xl font-semibold text-stone-900">Настройки</h2>
         <p className="mt-1 max-w-2xl text-sm leading-6 text-stone-600">
-          Идентичность сайта, получатели уведомлений (канал + адрес) и роли админки. Разделы зависят
-          от прав текущей роли. Менять роли может только полный админ (`ADMIN_TOKEN`).
+          Идентичность сайта, получатели пересылки писем с info@piter-jaluzi.ru, уведомления
+          (канал + адрес) и роли админки. Разделы зависят от прав текущей роли. Менять роли может
+          только полный админ (`ADMIN_TOKEN`).
         </p>
       </div>
       <ManagementSettingsForms

@@ -7,10 +7,10 @@ import (
 )
 
 const (
-	siteSettingsRowID      int16 = 1
-	maxSiteFieldLen              = 500
-	maxSiteDescriptionLen        = 2000
-	maxMailForwardRecipients     = 20
+	siteSettingsRowID        int16 = 1
+	maxSiteFieldLen                = 500
+	maxSiteDescriptionLen          = 2000
+	maxMailForwardRecipients       = 20
 )
 
 type SiteSettings struct {
@@ -100,11 +100,21 @@ func NormalizeMailForwardList(raw []string) ([]string, error) {
 }
 
 func FormatMailForwardList(emails []string) string {
-	return strings.Join(emails, ", ")
+	return strings.Join(emails, "\n")
 }
 
 func ParseMailForwardList(raw string) ([]string, error) {
 	return NormalizeMailForwardList(ParseLooseAddressList(raw))
+}
+
+func MailForwardListOrFallback(stored, fallback []string) []string {
+	if len(stored) > 0 {
+		return append([]string(nil), stored...)
+	}
+	if len(fallback) == 0 {
+		return nil
+	}
+	return append([]string(nil), fallback...)
 }
 
 func MergeSiteSettings(base, overlay SiteSettings) SiteSettings {

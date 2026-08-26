@@ -23,7 +23,9 @@ func (s *SiteSettingsService) Public(ctx context.Context) (domain.SiteSettings, 
 	if err != nil {
 		return domain.SiteSettings{}, err
 	}
-	return domain.MergeSiteSettings(s.defaults, stored), nil
+	merged := domain.MergeSiteSettings(s.defaults, stored)
+	merged.MailForwardTo = domain.MailForwardListOrFallback(stored.MailForwardTo, s.defaults.MailForwardTo)
+	return merged, nil
 }
 
 func (s *SiteSettingsService) Settings(ctx context.Context) (domain.SiteSettings, error) {
