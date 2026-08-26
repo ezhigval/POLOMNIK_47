@@ -7,20 +7,31 @@ import (
 	"github.com/google/uuid"
 )
 
-func TestTourIsBurningOnDepartureDay(t *testing.T) {
-	today := time.Date(2026, 8, 26, 15, 0, 0, 0, time.UTC)
+func TestTourIsBurningOnWindow(t *testing.T) {
+	start := time.Date(2026, 8, 26, 0, 0, 0, 0, time.UTC)
 	tour, err := NewTour(validTourInput(func(input *NewTourInput) {
-		input.DateStart = time.Date(2026, 8, 26, 0, 0, 0, 0, time.UTC)
+		input.DateStart = start
 		input.DateEnd = time.Date(2026, 8, 28, 0, 0, 0, 0, time.UTC)
 	}))
 	if err != nil {
 		t.Fatalf("create tour: %v", err)
 	}
-	if !tour.IsBurningOn(today) {
-		t.Fatal("expected burning tour on departure day")
+
+	windowStart := start.AddDate(0, 0, -BurningWindowDays)
+	if !tour.IsBurningOn(windowStart) {
+		t.Fatal("expected burning on first day of window")
 	}
-	if tour.IsBurningOn(today.Add(24 * time.Hour)) {
-		t.Fatal("expected not burning after departure day")
+	if !tour.IsBurningOn(start) {
+		t.Fatal("expected burning on departure day")
+	}
+	if !tour.IsBurningOn(time.Date(2026, 8, 26, 23, 59, 0, 0, time.UTC)) {
+		t.Fatal("expected burning late on departure day")
+	}
+	if tour.IsBurningOn(windowStart.AddDate(0, 0, -1)) {
+		t.Fatal("expected not burning before window")
+	}
+	if tour.IsBurningOn(start.AddDate(0, 0, 1)) {
+		t.Fatal("expected not burning after departure day even when tour still runs")
 	}
 }
 
@@ -49,13 +60,14 @@ func TestTourUnitPriceInBurningWithDiscount(t *testing.T) {
 	today := time.Date(2026, 8, 26, 0, 0, 0, 0, time.UTC)
 	tour, err := NewTour(validTourInput(func(input *NewTourInput) {
 		input.Price = 10000
+		input.HotDiscountPercent = 15
 		input.DateStart = today
 		input.DateEnd = time.Date(2026, 8, 28, 0, 0, 0, 0, time.UTC)
 	}))
 	if err != nil {
 		t.Fatalf("create tour: %v", err)
 	}
-	catalog := TourCatalogContext{Today: today, HotTourDiscountPercent: 15}
+	catalog := TourCatalogContext{Today: today}
 	if got := tour.UnitPriceIn(catalog); got != 8500 {
 		t.Fatalf("expected discounted unit price 8500, got %d", got)
 	}
@@ -75,7 +87,7 @@ func TestTourBurningWithoutDiscountKeepsPrice(t *testing.T) {
 	if err != nil {
 		t.Fatalf("create tour: %v", err)
 	}
-	catalog := TourCatalogContext{Today: today, HotTourDiscountPercent: 0}
+	catalog := TourCatalogContext{Today: today}
 	if !tour.IsBurningIn(catalog) {
 		t.Fatal("expected burning flag without configured discount")
 	}

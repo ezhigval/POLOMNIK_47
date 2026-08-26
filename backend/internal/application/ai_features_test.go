@@ -168,7 +168,7 @@ func TestRecommendPublishedToursNoopReturnsPublishedOnly(t *testing.T) {
 func TestMetricsDigestHasNoVisits(t *testing.T) {
 	store := memory.NewStore()
 	tours := NewTourService(store, nil, noop.NewCRMAdapter())
-	bookings := NewBookingService(store, store, noop.NewCRMAdapter(), noop.NewAccountingAdapter(), notificationnoop.New(), store, 0)
+	bookings := NewBookingService(store, store, noop.NewCRMAdapter(), noop.NewAccountingAdapter(), notificationnoop.New(), store)
 	seed := testTour()
 	if _, err := store.CreateTour(context.Background(), seed); err != nil {
 		t.Fatalf("tour: %v", err)

@@ -98,25 +98,23 @@ func TestToTourResponseIncludesOverbookingFlag(t *testing.T) {
 func TestToPublicTourResponseBurningDiscount(t *testing.T) {
 	today := time.Date(2026, 8, 26, 0, 0, 0, 0, time.UTC)
 	tour, err := domain.NewTour(domain.NewTourInput{
-		ID:         uuid.MustParse("55555555-5555-5555-5555-555555555555"),
-		Slug:       "burning",
-		Title:      "Burning",
-		Price:      10000,
-		Currency:   "RUB",
-		DateStart:  today,
-		DateEnd:    time.Date(2026, 8, 28, 0, 0, 0, 0, time.UTC),
-		SlotsTotal: 10,
-		SlotsLeft:  10,
-		IsActive:   true,
+		ID:                 uuid.MustParse("55555555-5555-5555-5555-555555555555"),
+		Slug:               "burning",
+		Title:              "Burning",
+		Price:              10000,
+		Currency:           "RUB",
+		DateStart:          today,
+		DateEnd:            time.Date(2026, 8, 28, 0, 0, 0, 0, time.UTC),
+		SlotsTotal:         10,
+		SlotsLeft:          10,
+		IsActive:           true,
+		HotDiscountPercent: 10,
 	})
 	if err != nil {
 		t.Fatalf("create tour: %v", err)
 	}
 
-	resp := ToPublicTourResponse(tour, domain.TourCatalogContext{
-		Today:                  today,
-		HotTourDiscountPercent: 10,
-	})
+	resp := ToPublicTourResponse(tour, domain.TourCatalogContext{Today: today})
 	if !resp.IsBurning {
 		t.Fatal("expected is_burning true")
 	}

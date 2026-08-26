@@ -12,13 +12,12 @@ import (
 )
 
 type BookingService struct {
-	bookings               ports.BookingRepository
-	tours                  ports.TourRepository
-	crm                    ports.CRMPort
-	accounting             ports.AccountingPort
-	notifications          ports.NotificationPort
-	tx                     ports.TransactionManager
-	hotTourDiscountPercent int
+	bookings      ports.BookingRepository
+	tours         ports.TourRepository
+	crm           ports.CRMPort
+	accounting    ports.AccountingPort
+	notifications ports.NotificationPort
+	tx            ports.TransactionManager
 }
 
 func NewBookingService(
@@ -28,22 +27,14 @@ func NewBookingService(
 	accounting ports.AccountingPort,
 	notifications ports.NotificationPort,
 	tx ports.TransactionManager,
-	hotTourDiscountPercent int,
 ) *BookingService {
-	if hotTourDiscountPercent < 0 {
-		hotTourDiscountPercent = 0
-	}
-	if hotTourDiscountPercent > 100 {
-		hotTourDiscountPercent = 100
-	}
 	return &BookingService{
-		bookings:               bookings,
-		tours:                  tours,
-		crm:                    crm,
-		accounting:             accounting,
-		notifications:          notifications,
-		tx:                     tx,
-		hotTourDiscountPercent: hotTourDiscountPercent,
+		bookings:      bookings,
+		tours:         tours,
+		crm:           crm,
+		accounting:    accounting,
+		notifications: notifications,
+		tx:            tx,
 	}
 }
 
@@ -89,8 +80,7 @@ func (s *BookingService) CreateBooking(ctx context.Context, input CreateBookingI
 		Email:                  input.Email,
 		PeopleCount:            input.PeopleCount,
 		Comment:                input.Comment,
-		Source:                 source,
-		HotTourDiscountPercent: s.hotTourDiscountPercent,
+		Source:      source,
 	})
 	if err != nil {
 		return CreateBookingResult{}, err

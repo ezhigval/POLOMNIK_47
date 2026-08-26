@@ -75,6 +75,7 @@ func (h *Handler) ManagementCreateTour(c *fiber.Ctx) error {
 		IsHot:              req.IsHot,
 		IsRegular:          req.IsRegular,
 		OverbookingEnabled: req.OverbookingEnabled,
+		HotDiscountPercent: req.HotDiscountPercent,
 	})
 	if err != nil {
 		return respondError(c, err, MapError)
@@ -121,6 +122,7 @@ func (h *Handler) ManagementUpdateTour(c *fiber.Ctx) error {
 		IsHot:              req.IsHot,
 		IsRegular:          req.IsRegular,
 		OverbookingEnabled: req.OverbookingEnabled,
+		HotDiscountPercent: req.HotDiscountPercent,
 	})
 	if err != nil {
 		return respondError(c, err, MapError)

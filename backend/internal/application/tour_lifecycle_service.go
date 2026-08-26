@@ -10,29 +10,18 @@ import (
 
 const tourLifecyclePageSize = 100
 
-// TourCatalog holds env-driven rules for public tour presentation.
-type TourCatalog struct {
-	HotTourDiscountPercent int
-}
+// TourCatalog holds read-time context for public tour presentation.
+type TourCatalog struct{}
 
-func NewTourCatalog(hotTourDiscountPercent int) TourCatalog {
-	if hotTourDiscountPercent < 0 {
-		hotTourDiscountPercent = 0
-	}
-	if hotTourDiscountPercent > 100 {
-		hotTourDiscountPercent = 100
-	}
-	return TourCatalog{HotTourDiscountPercent: hotTourDiscountPercent}
+func NewTourCatalog() TourCatalog {
+	return TourCatalog{}
 }
 
 func (c TourCatalog) Context(now time.Time) domain.TourCatalogContext {
 	if now.IsZero() {
 		now = time.Now().UTC()
 	}
-	return domain.TourCatalogContext{
-		Today:                  now,
-		HotTourDiscountPercent: c.HotTourDiscountPercent,
-	}
+	return domain.TourCatalogContext{Today: now}
 }
 
 type TourLifecycleService struct {

@@ -37,6 +37,7 @@ type CreateTourInput struct {
 	IsHot              bool
 	IsRegular          bool
 	OverbookingEnabled bool
+	HotDiscountPercent int
 }
 
 type UpdateTourInput = CreateTourInput
@@ -115,6 +116,7 @@ func (s *TourService) CreateTour(ctx context.Context, input CreateTourInput) (do
 		IsHot:              input.IsHot,
 		IsRegular:          input.IsRegular,
 		OverbookingEnabled: input.OverbookingEnabled,
+		HotDiscountPercent: input.HotDiscountPercent,
 	})
 	if err != nil {
 		return domain.Tour{}, err
@@ -151,6 +153,7 @@ func (s *TourService) UpdateTour(ctx context.Context, id uuid.UUID, input Update
 		IsHot:              input.IsHot,
 		IsRegular:          input.IsRegular,
 		OverbookingEnabled: input.OverbookingEnabled,
+		HotDiscountPercent: input.HotDiscountPercent,
 		Now:                existing.CreatedAt,
 	})
 	if err != nil {
