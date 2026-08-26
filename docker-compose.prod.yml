@@ -139,7 +139,7 @@ services:
         NEXT_PUBLIC_SITE_NAME: "${NEXT_PUBLIC_SITE_NAME:-Под Покровом Божией Матери \"Тихвинская\"}"
         NEXT_PUBLIC_SITE_FULL_NAME: "${NEXT_PUBLIC_SITE_FULL_NAME:-РПЦ Тихвинская Епархия. Паломническая служба «Под покровом Божией Матери «Тихвинская»»}"
         NEXT_PUBLIC_SITE_TAGLINE: "${NEXT_PUBLIC_SITE_TAGLINE:-Паломническая служба}"
-        NEXT_PUBLIC_SITE_DESCRIPTION: "${NEXT_PUBLIC_SITE_DESCRIPTION:-Паломнические поездки в монастыри и святые места России. Сопровождение духовника, комфортный транспорт, прозрачная стоимость.}"
+        NEXT_PUBLIC_SITE_DESCRIPTION: "${NEXT_PUBLIC_SITE_DESCRIPTION:-Паломнические поездки в монастыри и святые места России. Сопровождение священника, комфортный транспорт, прозрачная стоимость.}"
         NEXT_PUBLIC_CONTACT_PHONE: "${NEXT_PUBLIC_CONTACT_PHONE:-+79669334321}"
         NEXT_PUBLIC_CONTACT_PHONE_DISPLAY: "${NEXT_PUBLIC_CONTACT_PHONE_DISPLAY:-+7 966 933-43-21}"
         NEXT_PUBLIC_CONTACT_EMAIL: "${NEXT_PUBLIC_CONTACT_EMAIL:-info@tikhvin-palomnik.ru}"
