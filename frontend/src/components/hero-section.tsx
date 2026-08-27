@@ -13,10 +13,10 @@ export function HeroSection({ content }: HeroSectionProps = {}) {
   const subtitle = content?.subtitle || heroContent.subtitle;
 
   return (
-    <section className="relative overflow-hidden rounded-3xl">
+    <section className="relative min-w-0 overflow-hidden rounded-3xl">
       <HeroBackground />
 
-      <div className="relative px-4 py-10 sm:px-8 sm:py-14 lg:py-16">
+      <div className="relative min-w-0 px-4 py-10 sm:px-8 sm:py-14 lg:py-16">
         <div className="max-w-3xl">
           <p className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-medium uppercase tracking-widest text-amber-100 backdrop-blur-sm">
             <span className="size-1.5 rounded-full bg-amber-300" />
@@ -30,7 +30,7 @@ export function HeroSection({ content }: HeroSectionProps = {}) {
           </p>
         </div>
 
-        <div className="relative z-10 mt-8 lg:mt-10">
+        <div className="relative z-10 mt-8 min-w-0 w-full lg:mt-10">
           <TripSearchConstructor className="shadow-2xl shadow-black/20" />
         </div>
       </div>

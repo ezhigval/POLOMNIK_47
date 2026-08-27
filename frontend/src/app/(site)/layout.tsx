@@ -12,7 +12,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       <NavigationTracker />
       <StructuredData />
       <SiteHeader user={user} />
-      <main className="flex-1">{children}</main>
+      <main className="min-w-0 flex-1">{children}</main>
       <SiteFooter />
     </>
   );

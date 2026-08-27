@@ -34,7 +34,7 @@ export function TripSearchConstructor({
   return (
     <form
       onSubmit={handleSubmit}
-      className={`search-constructor ${compact ? "search-constructor-compact" : ""} ${className}`}
+      className={`search-constructor min-w-0 ${compact ? "search-constructor-compact" : ""} ${className}`}
     >
       <div className="search-constructor-grid">
         <label className="search-field">
