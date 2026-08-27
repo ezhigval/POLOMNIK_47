@@ -7,8 +7,8 @@ alwaysApply: true
 
 Публичный домен один: **https://tikhvin-palomnik.ru**. Отдельного preview-стенда нет.
 
-Порядок: отдельная ветка → тесты → PR в `main` → мерж → `make deploy` (только по просьбе, пока нет v4 этапа 12).
+Порядок: отдельная ветка → тесты → PR в `main` → мерж. Автодеплой GitHub Actions после CI на `main` **настроен, но падает** (`DEPLOY_SSH_KEY` ≠ ключ на ВМ). Рабочий путь: `make deploy`. Не два деплоя параллельно.
 
-`main` = прод. Каждое существенное изменение — своя ветка и свой PR; не смешивать hotfix и фичи.
+`main` = прод. Каждое существенное изменение — своя ветка и свой PR.
 
-Не деплой на сервер сам, пока владелец не попросил (до автодеплоя с `main`). Не два деплоя параллельно. Не `compose down -v`. Не печатай `.env.production`. Не force-push `main`. Goose на проде только `up`. Подробности: `AGENTS.md`, `docs/RELEASE.md`, `docs/V4_PLAN.md`.
+Не `compose down -v`. Не печатай `.env.production`. Не force-push `main`. Goose на проде только `up`. Не мержить PR #25 и #27. Подробности: `AGENTS.md`, `docs/RELEASE.md`, `docs/STATUS.md`.

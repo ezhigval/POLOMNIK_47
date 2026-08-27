@@ -29,19 +29,23 @@ is_active BOOLEAN
 is_hot BOOLEAN
 is_regular BOOLEAN
 overbooking_enabled BOOLEAN
+hot_discount_percent INT   # 0–100; скидка только в окне горящего тура
 created_at TIMESTAMPTZ
 updated_at TIMESTAMPTZ
 ```
 
+Публичный JSON также отдаёт вычисляемое `is_burning` (не колонка): сегодня UTC ∈ [`date_start` − 7 дней; `date_start`]. Регулярный тур горящим не бывает.
+
 Rules:
 
-- `price >= 0`;
+- `price >= 0`; на **витрине** цена показывается только если > 0, иначе блок скрыт (и регулярный, и датированный);
 - `slots_total >= 0`;
 - `slots_left >= 0`;
 - `slots_left <= slots_total`, unless overbooking creates a separate booking flag instead of negative slots;
+- публичные оставшиеся места регулярного тура: если `slots_total > 0` и `slots_left == 0`, витрина считает места = `slots_total` (админка заполнила только «всего»). Закрыть набор: `is_active=false`;
 - `date_start <= date_end` for dated tours;
-- regular tours (`is_regular`): the offer exists, but a specific departure is not scheduled; no `date_start` / `date_end` and no public price; admin hides those fields; `price` may be 0 internally (do not invent);
-- `is_hot` = popular: highlight + tag «Популярный» on the public card;
+- regular tours (`is_regular`): the offer exists, but a specific departure is not scheduled; no public dates; price may be 0 internally (do not invent);
+- `is_hot` = popular: highlight + tag «Популярный»;
 - `overbooking_enabled`: bookings still accepted at `slots_left = 0`, booking flagged `overbooked`;
 - public API returns only active tours.
 
@@ -57,6 +61,7 @@ phone TEXT
 email TEXT
 people_count INT
 status TEXT
+payment_status TEXT   # UNPAID / AWAITING_PAYMENT / PAID / NOT_REQUIRED (goose 00029)
 total_price INT
 comment TEXT
 overbooked BOOLEAN
@@ -89,7 +94,8 @@ Rules:
 
 - booking belongs to one tour;
 - `people_count > 0`;
-- `total_price = tour.price * people_count` for dated tours; regular tours currently store `0` (owner has not set a price);
+- `total_price = tour.price * people_count` for dated tours (с учётом `hot_discount_percent` в окне горящего тура); regular tours currently store `0`;
+- `payment_status` по умолчанию: `NOT_REQUIRED` если `total_price=0`, иначе `UNPAID`. Живой эквайринг статусы сам не двигает (`PAYMENT_ADAPTER=noop`);
 - status transitions must be validated in domain/application layer;
 - cancellation should release reserved slots if slots were already reserved.
 
@@ -316,4 +322,28 @@ news_articles
 ```
 
 Не больше трёх закреплённых. Список: сначала pinned (`sort_order` ASC), затем `published_at` DESC.
+
+Лента `/news` (goose 00028): превью карточки — **первое** фото (`photoStrip[0]` или `image_url`); остальные кадры только на `/news/{slug}`.
+
+```text
+news_likes
+  news_id UUID
+  visitor_id TEXT     # cookie palomnik_visitor; лайк без регистрации
+  created_at TIMESTAMPTZ
+  PRIMARY KEY (news_id, visitor_id)
+
+news_comments
+  id UUID
+  news_id UUID
+  user_id UUID        # только вошедший
+  body TEXT
+  created_at TIMESTAMPTZ
+```
+
+Модерации комментариев нет (нет `is_approved`).
+
+## 14. Просмотры туров (goose 00027)
+
+Гость: cookie `palomnik_viewed_tours`. Вошедший: таблица `tour_views (user_id, tour_id, viewed_at)`.
+
 

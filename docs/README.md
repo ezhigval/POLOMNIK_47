@@ -4,9 +4,9 @@
 
 | Файл | Зачем |
 |------|--------|
-| [STATUS.md](STATUS.md) | Что на проде и в git **сейчас** (v3.0.0 + v4 этап 1) |
-| [V4_PLAN.md](V4_PLAN.md) | Этапы линейки v4: зачистка, 9–11 продукт, 12 деплой, 13 флаги туров |
-| [V4_OWNER_SETUP.md](V4_OWNER_SETUP.md) | Чеклист владельца v4: env, админка, клики в кабинетах |
+| [STATUS.md](STATUS.md) | Что на проде **сейчас** (v4 9–19 + пробелы) |
+| [V4_PLAN.md](V4_PLAN.md) | Этапы v4: 1, 9–19 сделаны; 2–8 открыты |
+| [V4_OWNER_SETUP.md](V4_OWNER_SETUP.md) | Чеклист владельца: env, SSH автодеплоя, кабинеты |
 | [V2_OWNER_SETUP.md](V2_OWNER_SETUP.md) | Чеклист v2: OAuth, почта, sms.ru, Метрика |
 | [../AGENTS.md](../AGENTS.md) | Правила агентов и прод |
 | [ROADMAP.md](ROADMAP.md) | Freeze v2/v3 и указатель на v4 |
