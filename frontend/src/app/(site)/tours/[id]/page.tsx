@@ -22,7 +22,7 @@ import { FavoriteButton } from "@/components/favorite-button";
 import { CompanyReply } from "@/components/testimonial-card";
 import { TourRecommendations } from "@/components/tour-recommendations";
 import { isUuidParam, tourPath, tourSeoDescription, tourSeoTitle } from "@/lib/tour-path";
-import { isRegularTour, isTourSoldOut, tourShowsPrice } from "@/lib/api/tours";
+import { isRegularTour, isTourSoldOut, tourShowsPrice, tourSlotsLeft } from "@/lib/api/tours";
 
 type TourPageProps = {
   params: Promise<{ id: string }>;
@@ -176,7 +176,7 @@ export default async function TourPage({ params }: TourPageProps) {
                         Популярный
                       </span>
                     ) : null}
-                    <SlotsBadge slotsLeft={tour.slots_left} />
+                    <SlotsBadge slotsLeft={tourSlotsLeft(tour)} />
                   </div>
                 </div>
 

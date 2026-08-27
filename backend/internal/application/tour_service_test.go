@@ -130,6 +130,30 @@ func TestTourServiceListPopularTours(t *testing.T) {
 	}
 }
 
+func TestTourServiceCreateRegularTourFillsRemainingSlots(t *testing.T) {
+	ctx := context.Background()
+	store := memory.NewStore()
+	service := NewTourService(store, nil, noop.NewCRMAdapter())
+
+	created, err := service.CreateTour(ctx, CreateTourInput{
+		Slug:       "regular-seats",
+		Title:      "Regular seats",
+		Price:      0,
+		Currency:   "RUB",
+		SlotsTotal: 50,
+		SlotsLeft:  0,
+		Location:   "SPB",
+		IsActive:   true,
+		IsRegular:  true,
+	})
+	if err != nil {
+		t.Fatalf("create tour: %v", err)
+	}
+	if created.SlotsLeft != 50 {
+		t.Fatalf("expected slots_left 50, got %d", created.SlotsLeft)
+	}
+}
+
 func TestTourServiceCreateAndUpdateTour(t *testing.T) {
 	ctx := context.Background()
 	store := memory.NewStore()

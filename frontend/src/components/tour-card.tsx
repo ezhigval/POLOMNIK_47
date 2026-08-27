@@ -7,7 +7,7 @@ import {
   formatDateRange,
   formatTourDuration,
 } from "@/lib/format";
-import { isRegularTour, isTourSoldOut, tourShowsPrice, type Tour } from "@/lib/api/tours";
+import { isRegularTour, isTourSoldOut, tourShowsPrice, tourSlotsLeft, type Tour } from "@/lib/api/tours";
 import { tourPath } from "@/lib/tour-path";
 
 type TourCardProps = {
@@ -70,7 +70,7 @@ export function TourCard({ tour, featured = false }: TourCardProps) {
 
         {regular && !showPrice ? (
           <div className="mt-4 flex flex-1 items-end justify-end border-t border-stone-100 pt-4">
-            <SlotsBadge slotsLeft={tour.slots_left} />
+            <SlotsBadge slotsLeft={tourSlotsLeft(tour)} />
           </div>
         ) : (
           <dl className="mt-4 grid flex-1 grid-cols-2 gap-3 border-t border-stone-100 pt-4 text-sm">
@@ -98,11 +98,11 @@ export function TourCard({ tour, featured = false }: TourCardProps) {
                     />
                   </dd>
                 </div>
-                <SlotsBadge slotsLeft={tour.slots_left} />
+                <SlotsBadge slotsLeft={tourSlotsLeft(tour)} />
               </div>
             ) : (
               <div className="col-span-2 flex justify-end">
-                <SlotsBadge slotsLeft={tour.slots_left} />
+                <SlotsBadge slotsLeft={tourSlotsLeft(tour)} />
               </div>
             )}
           </dl>

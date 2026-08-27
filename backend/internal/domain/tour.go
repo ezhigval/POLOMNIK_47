@@ -111,7 +111,7 @@ func (t Tour) CanAcceptPeople(peopleCount int) bool {
 	if peopleCount <= 0 {
 		return false
 	}
-	return t.SlotsLeft >= peopleCount || t.OverbookingEnabled
+	return t.RemainingSlots() >= peopleCount || t.OverbookingEnabled
 }
 
 func (t Tour) BookingWouldBeOverbooked(peopleCount int) bool {
@@ -172,6 +172,7 @@ func (t *Tour) ReserveSlots(peopleCount int) error {
 	if peopleCount <= 0 {
 		return ErrInvalidPeopleCount
 	}
+	t.openRegularGroupIfNeeded()
 	if t.SlotsLeft < peopleCount {
 		if t.OverbookingEnabled {
 			t.UpdatedAt = time.Now().UTC()
@@ -194,6 +195,22 @@ func (t *Tour) ReleaseSlots(peopleCount int) error {
 	}
 	t.UpdatedAt = time.Now().UTC()
 	return nil
+}
+
+// RemainingSlots is free seats on the public site.
+// Regular tours often have only "всего мест" filled in admin (slots_left stays 0);
+// that must not look like a sold-out departure.
+func (t Tour) RemainingSlots() int {
+	if t.IsRegular && t.SlotsTotal > 0 && t.SlotsLeft == 0 {
+		return t.SlotsTotal
+	}
+	return t.SlotsLeft
+}
+
+func (t *Tour) openRegularGroupIfNeeded() {
+	if t.IsRegular && t.SlotsTotal > 0 && t.SlotsLeft == 0 {
+		t.SlotsLeft = t.SlotsTotal
+	}
 }
 
 func validateSlots(total int, left int) error {

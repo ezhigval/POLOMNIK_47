@@ -31,7 +31,14 @@ export function CreateTourForm() {
         date_start: isRegular ? "" : String(formData.get("date_start") ?? ""),
         date_end: isRegular ? "" : String(formData.get("date_end") ?? ""),
         slots_total: Number(formData.get("slots_total") ?? 0),
-        slots_left: Number(formData.get("slots_left") ?? 0),
+        slots_left: (() => {
+          const total = Number(formData.get("slots_total") ?? 0);
+          const left = Number(formData.get("slots_left") ?? 0);
+          if (isRegular && total > 0 && left === 0) {
+            return total;
+          }
+          return left;
+        })(),
         location: String(formData.get("location") ?? ""),
         images: parseImageUrls(String(formData.get("images") ?? "")),
         is_active: formData.get("is_active") === "on",
@@ -100,6 +107,9 @@ export function CreateTourForm() {
         <label className="block text-sm">
           <span className="mb-1 block font-medium">Свободно мест</span>
           <input required type="number" min={0} name="slots_left" className="input-field" />
+          <span className="mt-1 block text-xs text-stone-500">
+            Если оставить 0 при заполненном «Всего», сайт покажет «Мест нет». Для нового тура обычно совпадает с «Всего».
+          </span>
         </label>
         <label className="block text-sm md:col-span-2">
           <span className="mb-1 block font-medium">Локация</span>

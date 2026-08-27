@@ -10,6 +10,32 @@ import (
 	"palomnik/internal/domain"
 )
 
+func TestToTourResponseRegularZeroLeftUsesCapacity(t *testing.T) {
+	tour, err := domain.NewTour(domain.NewTourInput{
+		ID:         uuid.MustParse("55555555-5555-5555-5555-555555555555"),
+		Slug:       "regular-capacity",
+		Title:      "Regular capacity",
+		Price:      0,
+		Currency:   "RUB",
+		SlotsTotal: 50,
+		SlotsLeft:  0,
+		IsActive:   true,
+		IsRegular:  true,
+	})
+	if err != nil {
+		t.Fatalf("create tour: %v", err)
+	}
+
+	public := ToTourResponse(tour)
+	if public.SlotsLeft != 50 {
+		t.Fatalf("expected public slots_left 50, got %d", public.SlotsLeft)
+	}
+	admin := ToManagementTourResponse(tour)
+	if admin.SlotsLeft != 0 {
+		t.Fatalf("expected admin slots_left 0 (raw), got %d", admin.SlotsLeft)
+	}
+}
+
 func TestToTourResponseOmitsPriceWhenZero(t *testing.T) {
 	tour, err := domain.NewTour(domain.NewTourInput{
 		ID:         uuid.MustParse("11111111-1111-1111-1111-111111111111"),
