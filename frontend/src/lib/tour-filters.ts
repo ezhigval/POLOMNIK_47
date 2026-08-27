@@ -14,6 +14,7 @@ export type TourFilterValues = TripSearchValues & {
   location?: string;
   is_hot?: string;
   min_slots?: string;
+  route?: string;
 };
 
 export function parseTourFilters(
@@ -27,11 +28,15 @@ export function parseTourFilters(
     return raw ?? "";
   };
 
-  const q = value("q") || destinationToQuery(value("destination"));
+  const destination = value("destination");
+  const route = value("route");
+  const highlightTikhvinPath = route === "tikhvin-path" || destination === "tikhvin";
+  const q = highlightTikhvinPath ? "" : value("q") || destinationToQuery(destination);
 
   return {
     from: value("from"),
-    destination: value("destination"),
+    destination,
+    route,
     q,
     date_from: value("date_from"),
     date_to: value("date_to"),
@@ -81,7 +86,7 @@ export function toSearchParams(filters: TripSearchValues): URLSearchParams {
 
 export function hasActiveFilters(filters: TourFilterValues): boolean {
   return Object.entries(filters).some(
-    ([key, value]) => !["page", "from", "destination", "people"].includes(key) && Boolean(value),
+    ([key, value]) => !["page", "from", "destination", "people", "route"].includes(key) && Boolean(value),
   );
 }
 

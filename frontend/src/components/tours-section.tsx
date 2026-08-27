@@ -6,6 +6,8 @@ import { ActiveFilterChips, TourFilters } from "@/components/tour-filters";
 import { ApiError } from "@/lib/api/client";
 import { getPopularTours, getTours, type Tour } from "@/lib/api/tours";
 import { rankSimilarTours } from "@/lib/similar-tours";
+import { featuredRoute } from "@/lib/featured-route";
+import { isTikhvinPathCatalog, partitionTikhvinPathTours } from "@/lib/tikhvin-path-catalog";
 import {
   hasActiveFilters,
   parseTourFilters,
@@ -21,9 +23,13 @@ type ToursSectionProps = {
 };
 
 async function loadToursData(filters: TourFilterValues, showPopularBlock: boolean) {
+  const highlightPath = isTikhvinPathCatalog(filters);
   const query = toTourQueryParams(filters);
+  if (highlightPath) {
+    query.limit = query.limit || "50";
+  }
   const active = hasActiveFilters(filters);
-  const showPopular = showPopularBlock && !active;
+  const showPopular = showPopularBlock && !active && !highlightPath;
 
   try {
     const [toursResponse, popular] = await Promise.all([
@@ -43,6 +49,7 @@ async function loadToursData(filters: TourFilterValues, showPopularBlock: boolea
       popular,
       similar,
       showPopular,
+      highlightPath,
     };
   } catch (err) {
     return {
@@ -54,6 +61,7 @@ async function loadToursData(filters: TourFilterValues, showPopularBlock: boolea
       popular: [],
       similar: [] as Tour[],
       showPopular,
+      highlightPath,
     };
   }
 }
@@ -67,7 +75,10 @@ async function ToursContent({
   showPopularBlock: boolean;
   basePath: string;
 }) {
-  const { error, toursResponse, popular, similar, showPopular } = await loadToursData(filters, showPopularBlock);
+  const { error, toursResponse, popular, similar, showPopular, highlightPath } = await loadToursData(
+    filters,
+    showPopularBlock,
+  );
 
   if (error) {
     return (
@@ -95,14 +106,16 @@ async function ToursContent({
       ) : null}
 
       <section>
-        <div className="mb-4 flex items-center justify-between gap-3">
-          <h2 className="text-xl font-semibold">
-            {hasActiveFilters(filters) ? "Результаты поиска" : "Все туры"}
-          </h2>
-          {toursResponse.data.length > 0 ? (
-            <span className="text-sm text-stone-500">Найдено: {toursResponse.meta.total}</span>
-          ) : null}
-        </div>
+        {highlightPath ? null : (
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <h2 className="text-xl font-semibold">
+              {hasActiveFilters(filters) ? "Результаты поиска" : "Все туры"}
+            </h2>
+            {toursResponse.data.length > 0 ? (
+              <span className="text-sm text-stone-500">Найдено: {toursResponse.meta.total}</span>
+            ) : null}
+          </div>
+        )}
 
         {toursResponse.data.length === 0 ? (
           similar.length > 0 ? (
@@ -128,6 +141,8 @@ async function ToursContent({
                 : "Пока нет доступных туров."}
             </div>
           )
+        ) : highlightPath ? (
+          <TikhvinPathCatalog tours={toursResponse.data} />
         ) : (
           <>
             <TourSchedule tours={toursResponse.data} />
@@ -163,6 +178,34 @@ export function ToursSection({
         </Suspense>
       </div>
     </>
+  );
+}
+
+function TikhvinPathCatalog({ tours }: { tours: Tour[] }) {
+  const { featured, others } = partitionTikhvinPathTours(tours);
+
+  return (
+    <div className="space-y-10">
+      <div>
+        <h2 className="mb-4 text-xl font-semibold text-stone-900">{featuredRoute.title}</h2>
+        {featured.length > 0 ? (
+          <TourSchedule tours={featured} />
+        ) : (
+          <p className="rounded-2xl border border-dashed border-stone-300 bg-white p-5 text-sm text-stone-600">
+            Сейчас нет открытых туров с этим названием. Оставьте заявку через другой маршрут или напишите
+            менеджеру.
+          </p>
+        )}
+      </div>
+      {others.length > 0 ? (
+        <div>
+          <h3 className="mb-4 text-xl font-semibold text-stone-900">
+            Вас также могут заинтересовать другие туры
+          </h3>
+          <TourSchedule tours={others} />
+        </div>
+      ) : null}
+    </div>
   );
 }
 
