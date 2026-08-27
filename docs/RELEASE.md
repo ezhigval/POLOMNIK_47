@@ -19,7 +19,7 @@ API: **https://api.tikhvin-palomnik.ru**
 make deploy   # вручную, как раньше
 ```
 
-После v4 этапа 12: **зелёный CI на push в `main`** запускает [`.github/workflows/deploy.yml`](../.github/workflows/deploy.yml) (один деплой за раз, `concurrency`). Нужен GitHub Secret **`DEPLOY_SSH_KEY`**; опционально **`DEPLOY_SSH_HOST`** (`user@host`). Без секрета deploy-workflow падает — используйте `make deploy`. Миграции: [MIGRATIONS.md](MIGRATIONS.md). Не `compose down -v`.
+После v4 этапа 12: **зелёный CI на push в `main`** запускает [`.github/workflows/deploy.yml`](../.github/workflows/deploy.yml) (один деплой за раз, `concurrency`). Можно запустить вручную: Actions → **Deploy production** → **Run workflow**. Нужен GitHub Secret **`DEPLOY_SSH_KEY`** (приватный OpenSSH-ключ, не public); опционально **`DEPLOY_SSH_HOST`** (`user@host`). Без секрета deploy-workflow падает — используйте `make deploy`. Миграции: [MIGRATIONS.md](MIGRATIONS.md). Не `compose down -v`.
 
 SSH: `ssh smailikin70@93.77.165.81` (каталог `/opt/palomnik`, либо `DEPLOY_DIR`).  
 Не `compose down -v` — не сбрасывать Postgres.

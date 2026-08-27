@@ -81,7 +81,7 @@ Workflow `.github/workflows/deploy.yml`: после **успешного CI** н
 | `DEPLOY_REMOTE` | Опционально. Полный SSH target, если не `smailikin70@93.77.165.81` |
 | `DEPLOY_DIR` | Опционально. Каталог на ВМ, если не `/opt/polomnik` |
 
-Без `DEPLOY_SSH_KEY` workflow завершится ошибкой; ручной `make deploy` с машины владельца/агента остаётся.
+Без `DEPLOY_SSH_KEY` workflow завершится ошибкой; ручной `make deploy` с машины владельца/агента остаётся. После сохранения секрета: Actions → **Deploy production** → **Run workflow** (или любой push в `main` после зелёного CI).
 
 Не класть в Actions весь `.env.production`. Правка только env на ВМ по-прежнему требует пересборки фронта/`make deploy` (NEXT_PUBLIC_* в образе).
 

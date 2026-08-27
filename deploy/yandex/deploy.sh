@@ -36,15 +36,21 @@ echo "==> Production https://tikhvin-palomnik.ru"
 
 echo "Waiting for SSH..."
 ok=0
-for _ in $(seq 1 24); do
-  if ssh "${SSH_OPTS[@]}" "$REMOTE" "echo ok" >/dev/null 2>&1; then
+ssh_err=""
+for i in $(seq 1 24); do
+  if ssh_err="$(ssh "${SSH_OPTS[@]}" -o BatchMode=yes "$REMOTE" "echo ok" 2>&1)"; then
     ok=1
     break
+  fi
+  if [[ "$i" == "1" ]]; then
+    echo "SSH first attempt failed ($REMOTE):"
+    echo "$ssh_err" | tail -n 20
   fi
   sleep 5
 done
 if [[ "$ok" != "1" ]]; then
   echo "SSH failed: $REMOTE"
+  echo "$ssh_err" | tail -n 20
   exit 1
 fi
 
