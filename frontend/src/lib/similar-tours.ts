@@ -1,4 +1,4 @@
-import type { Tour } from "@/lib/api/tours";
+import { tourSlotsLeft, type Tour } from "@/lib/api/tours";
 import type { TourFilterValues } from "@/lib/tour-filters";
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
@@ -12,7 +12,7 @@ export function rankSimilarTours(tours: Tour[], filters: TourFilterValues, limit
     .map((tour) => ({
       tour,
       dateGap: dateGapDays(tour, dateFrom, dateTo),
-      slotGap: slotGap(tour.slots_left, people),
+      slotGap: slotGap(tourSlotsLeft(tour), people),
       start: utcDay(tour.date_start) ?? Number.MAX_SAFE_INTEGER,
     }))
     .sort((a, b) => a.dateGap - b.dateGap || a.slotGap - b.slotGap || a.start - b.start)

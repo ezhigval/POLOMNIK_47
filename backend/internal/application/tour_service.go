@@ -99,6 +99,9 @@ func (s *TourService) GetTour(ctx context.Context, id uuid.UUID) (domain.Tour, e
 }
 
 func (s *TourService) CreateTour(ctx context.Context, input CreateTourInput) (domain.Tour, error) {
+	if input.IsRegular && input.SlotsTotal > 0 && input.SlotsLeft == 0 {
+		input.SlotsLeft = input.SlotsTotal
+	}
 	tour, err := domain.NewTour(domain.NewTourInput{
 		ID:                 uuid.New(),
 		Slug:               input.Slug,

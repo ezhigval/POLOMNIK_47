@@ -64,7 +64,7 @@ func ToPublicTourResponse(tour domain.Tour, catalog domain.TourCatalogContext) T
 		Description: tour.Description,
 		Currency:    tour.Currency,
 		SlotsTotal:  tour.SlotsTotal,
-		SlotsLeft:   tour.SlotsLeft,
+		SlotsLeft:   tour.RemainingSlots(),
 		Location:    tour.Location,
 		Images:      tour.Images,
 		IsHot:              tour.IsHot,
@@ -89,8 +89,10 @@ func ToPublicTourResponse(tour domain.Tour, catalog domain.TourCatalogContext) T
 }
 
 func ToManagementTourResponse(tour domain.Tour) ManagementTourResponse {
+	resp := ToTourResponse(tour)
+	resp.SlotsLeft = tour.SlotsLeft
 	return ManagementTourResponse{
-		TourResponse:       ToTourResponse(tour),
+		TourResponse:       resp,
 		IsActive:           tour.IsActive,
 		OverbookingEnabled: tour.OverbookingEnabled,
 		HotDiscountPercent: tour.HotDiscountPercent,

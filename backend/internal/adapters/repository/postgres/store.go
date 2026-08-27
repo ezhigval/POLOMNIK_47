@@ -163,9 +163,15 @@ func (s *Store) ReserveSlots(ctx context.Context, tourID uuid.UUID, peopleCount 
 
 	result, err := s.conn(ctx).ExecContext(ctx, `
 UPDATE tours
-SET slots_left = slots_left - $2,
+SET slots_left = CASE
+      WHEN is_regular AND slots_left = 0 AND slots_total >= $2 THEN slots_total - $2
+      ELSE slots_left - $2
+    END,
     updated_at = NOW()
-WHERE id = $1 AND slots_left >= $2
+WHERE id = $1 AND (
+      slots_left >= $2
+      OR (is_regular AND slots_left = 0 AND slots_total >= $2)
+    )
 `, tourID, peopleCount)
 	if err != nil {
 		return fmt.Errorf("reserve slots: %w", err)

@@ -181,6 +181,43 @@ func TestBookingServiceUpdateBookingStatusFollowsDomainRules(t *testing.T) {
 	}
 }
 
+func TestBookingServiceCreateBookingAcceptsRegularTourWithZeroRemaining(t *testing.T) {
+	ctx := context.Background()
+	store := memory.NewStore()
+	service := newBookingService(store)
+
+	tour := testTour(func(input *domain.NewTourInput) {
+		input.IsRegular = true
+		input.Price = 0
+		input.SlotsTotal = 50
+		input.SlotsLeft = 0
+	})
+	if _, err := store.CreateTour(ctx, tour); err != nil {
+		t.Fatalf("create tour: %v", err)
+	}
+
+	result, err := service.CreateBooking(ctx, CreateBookingInput{
+		TourID:      tour.ID,
+		Name:        "Иван Иванов",
+		Phone:       "+79999999999",
+		PeopleCount: 2,
+	})
+	if err != nil {
+		t.Fatalf("create booking: %v", err)
+	}
+	if result.Booking.Status != domain.BookingStatusNew {
+		t.Fatalf("expected NEW, got %s", result.Booking.Status)
+	}
+
+	stored, err := store.GetTour(ctx, tour.ID)
+	if err != nil {
+		t.Fatalf("get tour: %v", err)
+	}
+	if stored.SlotsLeft != 48 {
+		t.Fatalf("expected 48 slots after first booking, got %d", stored.SlotsLeft)
+	}
+}
+
 func TestBookingServiceCreateBookingAcceptsRegularTour(t *testing.T) {
 	ctx := context.Background()
 	store := memory.NewStore()

@@ -8,6 +8,46 @@ import (
 	"github.com/google/uuid"
 )
 
+func TestNewTourRegularZeroRemainingUsesCapacity(t *testing.T) {
+	tour, err := NewTour(validTourInput(func(input *NewTourInput) {
+		input.IsRegular = true
+		input.Price = 0
+		input.SlotsTotal = 50
+		input.SlotsLeft = 0
+	}))
+	if err != nil {
+		t.Fatalf("create tour: %v", err)
+	}
+	if got := tour.RemainingSlots(); got != 50 {
+		t.Fatalf("expected remaining 50, got %d", got)
+	}
+	if !tour.CanAcceptPeople(2) {
+		t.Fatal("expected regular tour with capacity 50 to accept people")
+	}
+	if err := tour.ReserveSlots(2); err != nil {
+		t.Fatalf("reserve: %v", err)
+	}
+	if tour.SlotsLeft != 48 {
+		t.Fatalf("expected 48 after opening group, got %d", tour.SlotsLeft)
+	}
+}
+
+func TestDatedTourZeroRemainingStaysSoldOut(t *testing.T) {
+	tour, err := NewTour(validTourInput(func(input *NewTourInput) {
+		input.SlotsTotal = 50
+		input.SlotsLeft = 0
+	}))
+	if err != nil {
+		t.Fatalf("create tour: %v", err)
+	}
+	if tour.RemainingSlots() != 0 {
+		t.Fatalf("expected dated sold-out remaining 0, got %d", tour.RemainingSlots())
+	}
+	if tour.CanAcceptPeople(1) {
+		t.Fatal("expected dated tour with 0 left to reject booking")
+	}
+}
+
 func TestNewTourValidatesSlots(t *testing.T) {
 	_, err := NewTour(validTourInput(func(input *NewTourInput) {
 		input.SlotsTotal = 10

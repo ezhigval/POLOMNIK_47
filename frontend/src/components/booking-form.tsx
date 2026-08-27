@@ -4,7 +4,7 @@ import Link from "next/link";
 import { FormEvent, useMemo, useRef, useState } from "react";
 import { ApiError } from "@/lib/api/client";
 import { formatBookingStatus, formatPrice } from "@/lib/format";
-import { createBooking, isRegularTour, isTourSoldOut, tourShowsPrice, type CreateBookingResult, type Tour } from "@/lib/api/tours";
+import { createBooking, isRegularTour, isTourSoldOut, tourShowsPrice, tourSlotsLeft, type CreateBookingResult, type Tour } from "@/lib/api/tours";
 import { trackBeginCheckout, trackBookingSubmit } from "@/lib/analytics";
 import type { BookingProfile } from "@/lib/auth/user-features";
 import { HoneypotField } from "@/components/honeypot-field";
@@ -231,7 +231,7 @@ export function BookingForm({ tour, profile = null }: BookingFormProps) {
         <input
           required
           min={1}
-          max={Math.max(tour.slots_left, 1)}
+          max={Math.max(tourSlotsLeft(tour), 1)}
           type="number"
           name="people_count"
           value={peopleCount}

@@ -29,15 +29,37 @@ export function tourShowsPrice(tour: { price?: number | null }): boolean {
   return tour.price != null && tour.price > 0;
 }
 
+/** Public remaining seats. Regular tours with only "всего мест" filled (slots_left=0) are not sold out. */
+export function tourSlotsLeft(tour: {
+  slots_left: number;
+  slots_total: number;
+  is_regular?: boolean;
+}): number {
+  if (tour.is_regular && tour.slots_total > 0 && tour.slots_left <= 0) {
+    return tour.slots_total;
+  }
+  return tour.slots_left;
+}
+
 /** Booking stays open when slots_left=0 if overbooking is enabled. */
-export function canBookTour(tour: { slots_left: number; overbooking_enabled?: boolean }): boolean {
-  if (tour.slots_left > 0) {
+export function canBookTour(tour: {
+  slots_left: number;
+  slots_total?: number;
+  is_regular?: boolean;
+  overbooking_enabled?: boolean;
+}): boolean {
+  if (tourSlotsLeft({ slots_left: tour.slots_left, slots_total: tour.slots_total ?? 0, is_regular: tour.is_regular }) > 0) {
     return true;
   }
   return Boolean(tour.overbooking_enabled);
 }
 
-export function isTourSoldOut(tour: { slots_left: number; overbooking_enabled?: boolean }): boolean {
+export function isTourSoldOut(tour: {
+  slots_left: number;
+  slots_total?: number;
+  is_regular?: boolean;
+  overbooking_enabled?: boolean;
+}): boolean {
   return !canBookTour(tour);
 }
 

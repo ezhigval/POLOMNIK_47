@@ -5,7 +5,7 @@ import {
   formatDateRange,
   formatTourDuration,
 } from "@/lib/format";
-import { isRegularTour, isTourSoldOut, tourShowsPrice, type Tour } from "@/lib/api/tours";
+import { isRegularTour, isTourSoldOut, tourShowsPrice, tourSlotsLeft, type Tour } from "@/lib/api/tours";
 import { tourPath } from "@/lib/tour-path";
 
 type TourScheduleProps = {
@@ -86,7 +86,7 @@ function ScheduleRow({ tour }: { tour: Tour }) {
         )}
       </td>
       <td className="px-4 py-4">
-        <SlotsBadge slotsLeft={tour.slots_left} />
+        <SlotsBadge slotsLeft={tourSlotsLeft(tour)} />
       </td>
       <td className="px-4 py-4 text-right">
         <Link
@@ -126,7 +126,7 @@ function ScheduleCard({ tour }: { tour: Tour }) {
           ) : null}
           {tour.location ? <p className="mt-1 text-xs text-stone-500">{tour.location}</p> : null}
         </div>
-        <SlotsBadge slotsLeft={tour.slots_left} />
+        <SlotsBadge slotsLeft={tourSlotsLeft(tour)} />
       </div>
       {regular && !showPrice ? (
         <p className="text-sm text-stone-600">Регулярный тур</p>
