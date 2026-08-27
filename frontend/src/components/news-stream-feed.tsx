@@ -6,7 +6,7 @@ import { NewsComments } from "@/components/news-comments";
 import { NewsLikeButton } from "@/components/news-like-button";
 import { PhotoLightbox } from "@/components/photo-lightbox";
 import { linkifyText } from "@/lib/linkify";
-import { formatNewsDate, type NewsArticle } from "@/lib/news";
+import { formatNewsDate, newsPreviewImageSrc, type NewsArticle } from "@/lib/news";
 
 type NewsStreamFeedProps = {
   articles: NewsArticle[];
@@ -25,8 +25,8 @@ export function NewsStreamFeed({ articles, loggedIn }: NewsStreamFeedProps) {
 
 function NewsStreamCard({ article, loggedIn }: { article: NewsArticle; loggedIn: boolean }) {
   const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
-  const images =
-    article.photoStrip.length > 0 ? article.photoStrip : article.image ? [article.image] : [];
+  const previewImage = newsPreviewImageSrc(article);
+  const images = previewImage ? [previewImage] : [];
 
   return (
     <article className="overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm">
