@@ -13,7 +13,7 @@ API: **https://api.tikhvin-palomnik.ru**
 
 Полный канон: **[AGENTS.md](AGENTS.md)**. Кратко:
 
-1. Правки сначала **локально**, затем **GitHub**, затем деплой на palomnik — только если владелец попросил.
+1. Правки в **отдельной ветке** и PR в `main`. Деплой: GitHub Actions после CI (сейчас SSH-ключ неверный) или `make deploy`.
 2. Не выдумывать бизнес-логику. Неясное поведение — вопрос владельцу.
 3. Backend — гексагональная архитектура. Логика не в HTTP-handlers и не во frontend.
 4. Секреты (`.env.production`, ключи, токены) не коммитить и не светить в чат.
@@ -70,32 +70,33 @@ make check-ops               # ready + worker + outbox
 ## Релиз и деплой
 
 ```text
-локально → GitHub (если попросили commit/push) → make deploy
+ветка → PR → main → make deploy  (пока Actions Deploy красный)
 ```
 
 ```bash
 make deploy
 ```
 
-ВМ: Ubuntu 24.04, пользователь `smailikin70`, IP `93.77.165.81`, каталог `/opt/palomnik` (`DEPLOY_DIR` если путь другой). SSH: `ssh smailikin70@93.77.165.81`. Compose: `docker-compose.yml` + `docker-compose.prod.yml`, env `.env.production` (не в git).
+ВМ: Ubuntu 24.04, пользователь `smailikin70`, IP `93.77.165.81`. Каталог на сервере **`/opt/polomnik`** (скрипт ищет compose, если нет `/opt/palomnik`). SSH: `ssh smailikin70@93.77.165.81`. Env `.env.production` только на ВМ, не в git.
 
 DNS на REG.RU для зоны **tikhvin-palomnik.ru**: `@` / `www` / `api` → A `93.77.165.81`. Подробности: [docs/DEPLOY.md](docs/DEPLOY.md), [docs/RELEASE.md](docs/RELEASE.md).
 
 ## Документация
 
-- [docs/STATUS.md](docs/STATUS.md) — что на проде сейчас (v2)
-- [docs/V2_OWNER_SETUP.md](docs/V2_OWNER_SETUP.md) — чеклист секретов и кабинетов
+- [docs/STATUS.md](docs/STATUS.md) — что на проде сейчас
+- [docs/V4_PLAN.md](docs/V4_PLAN.md) — линейка v4
+- [docs/V4_OWNER_SETUP.md](docs/V4_OWNER_SETUP.md) — чеклист секретов и кабинетов
 - [docs/RELEASE.md](docs/RELEASE.md) — конвейер релиза
 - [docs/DEPLOY.md](docs/DEPLOY.md) — сервер, env, HTTPS, бэкапы
-- [docs/ROADMAP.md](docs/ROADMAP.md) — бэклог после v2
+- [docs/ROADMAP.md](docs/ROADMAP.md)
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 - [docs/API.md](docs/API.md)
 - [docs/OAUTH_SETUP.md](docs/OAUTH_SETUP.md)
 - [docs/SEO_ADS.md](docs/SEO_ADS.md)
 - [docs/TELEGRAM_SETUP.md](docs/TELEGRAM_SETUP.md)
-- [docs/BITRIX_SETUP.md](docs/BITRIX_SETUP.md)
-- [docs/ONEC_INTEGRATOR_TZ.md](docs/ONEC_INTEGRATOR_TZ.md)
+
+Остальное: [docs/README.md](docs/README.md).
 
 ## Статус
 
-**v2.0** на https://tikhvin-palomnik.ru (тег `v2.0.x`). Код интеграций и OAuth готов; live Bitrix/1С выключен. Секреты и кабинеты — [docs/V2_OWNER_SETUP.md](docs/V2_OWNER_SETUP.md). Бэклог: [docs/ROADMAP.md](docs/ROADMAP.md).
+Сверка **2026-08-27**: код v4 этапов 9–19 на https://tikhvin-palomnik.ru (goose **00032**). Тег freeze v3: `v3.0.0`. Live: Telegram. Bitrix/1С/оплата/ИИ — `noop`. Что осталось у владельца — [docs/STATUS.md](docs/STATUS.md).

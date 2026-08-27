@@ -15,14 +15,15 @@ API: **https://api.tikhvin-palomnik.ru**
 2. GitHub: https://github.com/ezhigval/POLOMNIK_47 — PR в `main`, мерж после проверки.
 3. Прод:
 
+Пока GitHub Actions Deploy красный (`DEPLOY_SSH_KEY`):
+
 ```bash
-make deploy   # вручную, как раньше
+make deploy
 ```
 
-После v4 этапа 12: **зелёный CI на push в `main`** запускает [`.github/workflows/deploy.yml`](../.github/workflows/deploy.yml) (один деплой за раз, `concurrency`). Можно запустить вручную: Actions → **Deploy production** → **Run workflow**. Нужен GitHub Secret **`DEPLOY_SSH_KEY`** (приватный OpenSSH-ключ, не public); опционально **`DEPLOY_SSH_HOST`** (`user@host`). Без секрета deploy-workflow падает — используйте `make deploy`. Миграции: [MIGRATIONS.md](MIGRATIONS.md). Не `compose down -v`.
+После исправления секрета: зелёный CI на push в `main` запускает [`.github/workflows/deploy.yml`](../.github/workflows/deploy.yml). Вручную: Actions → **Deploy production**. Нужен **приватный** OpenSSH-ключ; опционально **`DEPLOY_SSH_HOST`**. Миграции: [MIGRATIONS.md](MIGRATIONS.md). Не `compose down -v`.
 
-SSH: `ssh smailikin70@93.77.165.81` (каталог `/opt/palomnik`, либо `DEPLOY_DIR`).  
-Не `compose down -v` — не сбрасывать Postgres.
+SSH: `ssh smailikin70@93.77.165.81`, каталог **`/opt/polomnik`**.
 
 ## Теги
 
@@ -31,10 +32,10 @@ SSH: `ssh smailikin70@93.77.165.81` (каталог `/opt/palomnik`, либо `D
 
 ## После деплоя
 
-- [x] https://tikhvin-palomnik.ru — HTTPS 200 (сверка freeze v3.0.0, 2026-08-26)
+- [x] https://tikhvin-palomnik.ru — HTTPS 200 (сверка 2026-08-27, после #46)
 - [x] `/robots.txt` и `sitemap.xml`
 - [x] `https://api.tikhvin-palomnik.ru/health/ready`
-- [ ] `/management/login` — проверить после hard-refresh
+- [ ] Автодеплой Actions — чинить `DEPLOY_SSH_KEY`
 - [ ] Секреты из [V4_OWNER_SETUP.md](V4_OWNER_SETUP.md) — по мере готовности кабинетов
 
 ## Cron на ВМ

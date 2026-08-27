@@ -21,7 +21,7 @@ export PATH="$HOME/yandex-cloud/bin:$PATH"
 yc init   # один раз, логин в браузере
 ./deploy/yandex/provision.sh          # VPC + VM + IP
 ./deploy/yandex/deploy.sh             # rsync + docker compose prod
-# каталог по умолчанию /opt/palomnik; иначе DEPLOY_DIR=...
+# каталог по умолчанию /opt/palomnik; на этой ВМ живой путь /opt/polomnik (скрипт подхватывает)
 ```
 
 DNS на REG.RU (A-записи → публичный IP VM) для зоны **tikhvin-palomnik.ru**:

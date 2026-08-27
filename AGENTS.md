@@ -1,6 +1,6 @@
 # Правила для агентов
 
-Канон для Cursor, Claude, Codex и любых других агентов. Релиз: [docs/RELEASE.md](docs/RELEASE.md). Архитектура: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). Кодстайл: [docs/CONVENTIONS.md](docs/CONVENTIONS.md). План: [docs/V4_PLAN.md](docs/V4_PLAN.md).
+Канон для Cursor, Claude, Codex и любых других агентов. Релиз: [docs/RELEASE.md](docs/RELEASE.md). Архитектура: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). Кодстайл: [docs/CONVENTIONS.md](docs/CONVENTIONS.md). План: [docs/V4_PLAN.md](docs/V4_PLAN.md). Статус: [docs/STATUS.md](docs/STATUS.md).
 
 ## Прод
 
@@ -11,18 +11,18 @@ API: **https://api.tikhvin-palomnik.ru**
 ## Конвейер
 
 ```text
-правки в отдельной ветке → проверки → PR в main → мерж → деплой на palomnik (пока v4 этап 12 не готов — только если владелец попросил)
+ветка cursor/<имя>-… → проверки → PR в main → мерж
+  → GitHub Actions Deploy (сейчас падает: SSH Permission denied)
+  → запасной путь: make deploy
 ```
 
-`main` соответствует продовому деплою. В `main` напрямую не коммитить. Автодеплой с `main` — [V4_PLAN.md](docs/V4_PLAN.md) этап 12 (не включать, пока нет workflow и секретов Actions).
-
-Каждое **существенное** изменение — своя ветка и свой PR (hotfix, багфикс, этап v4 не смешивать). Так проще читать git и откатывать.
+`main` = то, что должно быть на проде. В `main` напрямую не коммитить. Одно существенное изменение — свой PR (hotfix и фичи не смешивать). Не мержить черновики **#25** и **#27**.
 
 ```bash
 make deploy
 ```
 
-Не деплоить на сервер без просьбы владельца (до этапа 12). Не два `make deploy` параллельно. Не `compose down -v`. Не коммитить секреты. Не force-push в `main`. Goose на проде только `up`.
+Не два `make deploy` параллельно. Не `compose down -v`. Не коммитить секреты. Не force-push в `main`. Goose на проде только `up`. Пока `DEPLOY_SSH_KEY` не совпадает с ключом на ВМ, автодеплой из Actions не считать релизом.
 
 ## Код
 
