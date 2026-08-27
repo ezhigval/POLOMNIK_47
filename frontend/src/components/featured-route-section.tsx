@@ -6,11 +6,20 @@ type FeaturedRouteSectionProps = {
   content?: FeaturedRouteBlockContent;
 };
 
+function featuredCatalogHref(cmsHref?: string): string {
+  const href = cmsHref?.trim();
+  if (!href || href === "/search" || href.includes("destination=tikhvin")) {
+    return featuredRoute.ctaHref;
+  }
+  return href;
+}
+
 export function FeaturedRouteSection({ content }: FeaturedRouteSectionProps = {}) {
   const route = {
     ...featuredRoute,
     ...content,
     days: content?.days?.length ? content.days : featuredRoute.days,
+    ctaHref: featuredCatalogHref(content?.ctaHref),
   };
   return (
     <section
