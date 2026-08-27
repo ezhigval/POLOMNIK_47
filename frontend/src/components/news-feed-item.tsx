@@ -1,11 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { formatNewsDate, isNewsImageSrc, NEWS_AI_DISCLAIMER, type NewsArticle } from "@/lib/news";
+import { formatNewsDate, isNewsImageSrc, NEWS_AI_DISCLAIMER, newsPreviewImageSrc, type NewsArticle } from "@/lib/news";
 import { linkifyText } from "@/lib/linkify";
 import { NewsLikeButton } from "@/components/news-like-button";
 import { NewsComments } from "@/components/news-comments";
-import { NewsClickableImage } from "@/components/news-clickable-image";
 
 type NewsFeedItemProps = {
   article: NewsArticle;
@@ -14,10 +13,11 @@ type NewsFeedItemProps = {
 
 export function NewsFeedItem({ article, loggedIn }: NewsFeedItemProps) {
   const hasPhotoStrip = article.photoStrip.length > 0;
+  const previewImage = newsPreviewImageSrc(article);
   const paragraphs = article.paragraphs;
   const hasDisclaimer = paragraphs.at(-1)?.trim() === NEWS_AI_DISCLAIMER;
   const body = hasDisclaimer ? paragraphs.slice(0, -1) : paragraphs;
-  const previewParagraphs = body.slice(0, 3);
+  const previewParagraphs = body.filter((paragraph) => !isNewsImageSrc(paragraph)).slice(0, 3);
 
   return (
     <article className="overflow-hidden rounded-3xl border border-stone-200 bg-white shadow-sm">
@@ -40,27 +40,26 @@ export function NewsFeedItem({ article, loggedIn }: NewsFeedItemProps) {
           </h2>
         </header>
 
-        {hasPhotoStrip ? (
-          <div className="space-y-2">
-            {article.photoStrip.map((src) => (
-              <NewsClickableImage key={src} src={src} alt="" className="block h-auto w-full rounded-2xl" />
-            ))}
-          </div>
-        ) : article.image ? (
-          <NewsClickableImage src={article.image} alt={article.title} className="aspect-[16/9] w-full rounded-2xl object-cover" />
+        {previewImage ? (
+          <Link href={`/news/${article.slug}`} className="block overflow-hidden rounded-2xl bg-stone-100">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={previewImage}
+              alt={article.title}
+              className={
+                hasPhotoStrip ? "block h-auto w-full" : "aspect-[16/9] w-full object-cover"
+              }
+            />
+          </Link>
         ) : null}
 
         {!hasPhotoStrip && previewParagraphs.length > 0 ? (
           <div className="space-y-3 text-sm sm:text-base">
-            {previewParagraphs.map((paragraph) =>
-              isNewsImageSrc(paragraph) ? (
-                <NewsClickableImage key={paragraph} src={paragraph.trim()} alt="" className="mx-auto h-auto w-full rounded-2xl object-contain" />
-              ) : (
-                <p key={paragraph} className="leading-7 text-stone-700">
-                  {linkifyText(paragraph)}
-                </p>
-              ),
-            )}
+            {previewParagraphs.map((paragraph) => (
+              <p key={paragraph} className="leading-7 text-stone-700">
+                {linkifyText(paragraph)}
+              </p>
+            ))}
           </div>
         ) : null}
 

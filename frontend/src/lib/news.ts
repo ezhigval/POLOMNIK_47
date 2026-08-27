@@ -35,6 +35,18 @@ export function isPhotoStripBody(body: string): boolean {
   return photoStripSrcs(body).length > 0;
 }
 
+/** Cover for lists: first photo only. The rest belong on the article page. */
+export function newsPreviewImageSrc(article: Pick<NewsArticle, "image" | "photoStrip" | "paragraphs">): string {
+  if (article.photoStrip[0]) {
+    return article.photoStrip[0];
+  }
+  if (article.image) {
+    return article.image;
+  }
+  const inline = article.paragraphs.find((paragraph) => isNewsImageSrc(paragraph));
+  return inline?.trim() ?? "";
+}
+
 export const newsArticles: NewsArticle[] = [
   {
     slug: "tikhvin-path",

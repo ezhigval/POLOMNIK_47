@@ -53,6 +53,11 @@ export const accountNavLinks: NavLink[] = [
   { href: "/support/chat", label: "Чат поддержки" },
 ];
 
+/** Burger already has «Поддержка»; chat lives on that page, not as a second item. */
+export const burgerAccountNavLinks: NavLink[] = accountNavLinks.filter(
+  (link) => link.href !== "/support/chat",
+);
+
 export const oauthErrorMessages: Record<string, string> = {
   oauth_not_configured: "Вход через соцсеть пока не настроен. Используйте email или телефон.",
   oauth_cancelled: "Вход через соцсеть отменён. Попробуйте снова или войдите по паролю.",

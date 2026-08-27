@@ -6,7 +6,7 @@ import { useEffect, useId, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import { desktopMediaQuery } from "@/lib/breakpoints";
 import { contactPhone, contactPhoneDisplay } from "@/lib/contact";
-import { accountNavLinks, isMainNavLinkActive, mainNavLinks } from "@/lib/site-nav";
+import { burgerAccountNavLinks, isMainNavLinkActive, mainNavLinks } from "@/lib/site-nav";
 import type { User } from "@/lib/api/auth";
 
 type MobileNavProps = {
@@ -110,17 +110,8 @@ export function MobileNav({ user }: MobileNavProps) {
                     </Link>
                   );
                 })}
-                {!user ? (
-                  <Link
-                    href="/support/chat"
-                    onClick={close}
-                    className="rounded-xl px-4 py-3 text-base font-medium text-stone-800 hover:bg-stone-50"
-                  >
-                    Чат поддержки
-                  </Link>
-                ) : null}
                 {user ? (
-                  accountNavLinks.map((link) => {
+                  burgerAccountNavLinks.map((link) => {
                     const active =
                       link.href === "/account"
                         ? pathname === "/account"

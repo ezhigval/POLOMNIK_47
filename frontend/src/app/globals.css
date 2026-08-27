@@ -67,11 +67,11 @@ body {
   }
 
   .search-constructor {
-    @apply rounded-2xl border border-white/20 bg-white p-3 shadow-xl sm:p-4;
+    @apply w-full max-w-full overflow-x-hidden rounded-2xl border border-white/20 bg-white p-3 shadow-xl sm:p-4;
   }
 
   .search-constructor-grid {
-    @apply grid gap-3 sm:grid-cols-2 lg:grid-cols-4;
+    @apply grid w-full min-w-0 grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4;
   }
 
   .search-constructor-compact .search-constructor-grid {
@@ -79,7 +79,7 @@ body {
   }
 
   .search-field {
-    @apply flex min-w-0 flex-col gap-1;
+    @apply flex min-w-0 max-w-full flex-col gap-1;
   }
 
   .search-field-label {
@@ -87,7 +87,26 @@ body {
   }
 
   .search-field-input {
-    @apply w-full rounded-xl border border-stone-200/90 bg-white px-3 py-2.5 text-sm text-stone-900 transition placeholder:text-stone-400 focus:border-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-100;
+    @apply box-border w-full min-w-0 max-w-full rounded-xl border border-stone-200/90 bg-white px-2.5 py-2.5 text-sm text-stone-900 transition placeholder:text-stone-400 focus:border-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-100 sm:px-3;
+  }
+
+  .search-field-input[type="date"] {
+    display: block;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+
+  .search-field-input[type="date"]::-webkit-datetime-edit,
+  .search-field-input[type="date"]::-webkit-datetime-edit-fields-wrapper {
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .search-field-input[type="date"]::-webkit-calendar-picker-indicator {
+    display: block;
+    opacity: 1;
+    margin-inline-start: 0.25rem;
+    flex-shrink: 0;
   }
 
   .search-field-action {

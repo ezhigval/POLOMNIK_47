@@ -34,27 +34,31 @@ export function TripSearchConstructor({
   return (
     <form
       onSubmit={handleSubmit}
-      className={`search-constructor ${compact ? "search-constructor-compact" : ""} ${className}`}
+      className={`search-constructor min-w-0 ${compact ? "search-constructor-compact" : ""} ${className}`}
     >
       <div className="search-constructor-grid">
         <label className="search-field">
           <span className="search-field-label">Дата с</span>
-          <input
-            type="date"
-            className="search-field-input"
-            value={dateFrom}
-            onChange={(event) => setDateFrom(event.target.value)}
-          />
+          <span className="block min-w-0 max-w-full overflow-hidden rounded-xl">
+            <input
+              type="date"
+              className="search-field-input"
+              value={dateFrom}
+              onChange={(event) => setDateFrom(event.target.value)}
+            />
+          </span>
         </label>
 
         <label className="search-field">
           <span className="search-field-label">Дата по</span>
-          <input
-            type="date"
-            className="search-field-input"
-            value={dateTo}
-            onChange={(event) => setDateTo(event.target.value)}
-          />
+          <span className="block min-w-0 max-w-full overflow-hidden rounded-xl">
+            <input
+              type="date"
+              className="search-field-input"
+              value={dateTo}
+              onChange={(event) => setDateTo(event.target.value)}
+            />
+          </span>
         </label>
 
         <label className="search-field">
