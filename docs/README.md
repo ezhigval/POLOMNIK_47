@@ -21,6 +21,8 @@
 | [RELEASE.md](RELEASE.md) | Релиз и теги |
 | [DEPLOY.md](DEPLOY.md) | Сервер и HTTPS |
 | [TELEGRAM_SETUP.md](TELEGRAM_SETUP.md) | Бот и получатели |
+| [SECRETS.md](SECRETS.md) | Все секреты: откуда взять, куда класть (OAuth подробно) |
+| [MAIL_DNS.md](MAIL_DNS.md) | MX / SPF / DKIM для `info@`, затем SMTP |
 | [OAUTH_SETUP.md](OAUTH_SETUP.md) | Соцвход пошагово |
 | [SEO_ADS.md](SEO_ADS.md) | Выдача в поиске, Метрика, sitemap, реклама |
 | [SEO_WORDSTAT.md](SEO_WORDSTAT.md) | v4 этап 10: Wordstat, кластеры запросов, посадка на страницы |

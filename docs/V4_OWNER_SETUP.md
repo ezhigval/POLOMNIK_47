@@ -5,7 +5,7 @@ API: **https://api.tikhvin-palomnik.ru**
 План: [V4_PLAN.md](V4_PLAN.md). Секреты только в gitignored `.env.production` на ВМ. После правок env — `make deploy` (без `compose down -v`).
 
 v2-секреты: [V2_OWNER_SETUP.md](V2_OWNER_SETUP.md). v3-адаптеры: [V3_OWNER_SETUP.md](V3_OWNER_SETUP.md).  
-OAuth: [OAUTH_SETUP.md](OAUTH_SETUP.md) · Telegram: [TELEGRAM_SETUP.md](TELEGRAM_SETUP.md) · SEO: [SEO_ADS.md](SEO_ADS.md).
+Секреты (откуда взять): [SECRETS.md](SECRETS.md) · почта DNS: [MAIL_DNS.md](MAIL_DNS.md) · OAuth: [OAUTH_SETUP.md](OAUTH_SETUP.md) · Telegram: [TELEGRAM_SETUP.md](TELEGRAM_SETUP.md) · SEO: [SEO_ADS.md](SEO_ADS.md).
 
 Код не заменяет клики в кабинетах поисковиков и не выдумывает ИНН, цены и статусы оплаты.
 
@@ -61,10 +61,10 @@ Compose с v4 этапа 1 прокидывает `OPERATOR_*` в API и `NEXT_P
 
 | Имя | Документ |
 |-----|----------|
-| `YANDEX_OAUTH_CLIENT_ID` / `YANDEX_OAUTH_CLIENT_SECRET` | [OAUTH_SETUP.md](OAUTH_SETUP.md) |
+| `YANDEX_OAUTH_CLIENT_ID` / `YANDEX_OAUTH_CLIENT_SECRET` | [OAUTH_SETUP.md](OAUTH_SETUP.md) / [SECRETS.md](SECRETS.md). Пара из кабинета oauth.yandex.ru — **только** на ВМ, не в git |
 | `VK_OAUTH_CLIENT_ID` / `VK_OAUTH_CLIENT_SECRET` | то же |
 | `MAX_OAUTH_*` | то же; URL authorize/token/userinfo когда выдадут |
-| `MAIL_ADAPTER=smtp`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME`, `SMTP_PASSWORD`, `SMTP_FROM` | [V2_OWNER_SETUP.md](V2_OWNER_SETUP.md) |
+| `MAIL_ADAPTER=smtp`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME`, `SMTP_PASSWORD`, `SMTP_FROM` | [MAIL_DNS.md](MAIL_DNS.md) (после MX/SPF/DKIM). SMTP-пароль ≠ OAuth Client secret |
 | `PHONE_ADAPTER=smsru`, `SMSRU_API_ID` | callcheck, не SMS |
 | `NEXT_PUBLIC_GA_ID` | опционально |
 | `NEXT_PUBLIC_YANDEX_VERIFICATION` / `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` | сменить коды Вебмастера/GSC |
@@ -122,7 +122,7 @@ Cloudflare token воркера — только на ВМ / в кабинете
 - [ ] Google Search Console: то же
 - [ ] Карточка организации в Яндекс Бизнесе / Картах и 2ГИС
 - [ ] Ссылка с сайта епархии [tikhvin-eparhia.ru](https://www.tikhvin-eparhia.ru/)
-- [ ] MX / SPF / DKIM для `info@` (Яндекс 360 / DNS, не эта ВМ)
+- [ ] MX / SPF / DKIM для `info@`: [MAIL_DNS.md](MAIL_DNS.md) (Яндекс 360 / REG.RU, не эта ВМ)
 - [ ] Получатели Telegram написали боту `/start`
 - [ ] Листовки на проде уже **регулярные без цены**. Если нужен датированный выезд — дата и цена в админке (не выдумывать)
 - [ ] Вопрос: сумма заявки на регулярный тур сейчас **0** — какая внутренняя цена?
