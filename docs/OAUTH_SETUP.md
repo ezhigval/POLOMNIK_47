@@ -7,6 +7,8 @@ Callback’и — на **сайт** (Next.js), не на `api.tikhvin-palomnik.r
 
 Секреты кладите **только** в gitignored `.env.production` на сервере (или локальный `.env`). Не коммитьте. После заполнения — `make deploy` по вашей просьбе.
 
+Указатель «секрет → кабинет»: [SECRETS.md](SECRETS.md). Нужен уже существующий на проде `INTERNAL_API_SECRET` (один и тот же у frontend и api).
+
 Google в UI **скрыт** — приложение Google не нужно.
 
 ---
@@ -26,31 +28,31 @@ Google в UI **скрыт** — приложение Google не нужно.
 
 ## 1. Яндекс ID
 
-1. Откройте [https://oauth.yandex.ru/](https://oauth.yandex.ru/) → войдите → **Создать новое приложение** (или «Зарегистрировать новое»).
-2. Тип: веб-сервис / доступ к данным пользователя (логин, имя, email — по минимуму).
-3. **Callback URI** (точно):  
+Официально: [регистрация приложения для авторизации](https://yandex.ru/dev/id/doc/ru/register-auth).
+
+1. Откройте [https://oauth.yandex.ru/](https://oauth.yandex.ru/) тем аккаунтом, к которому не потеряете доступ.
+2. **Создать приложение** → **Для авторизации пользователей** (или сразу [https://oauth.yandex.ru/client/new/id/](https://oauth.yandex.ru/client/new/id/)).
+3. Название сервиса, контактная почта → платформа **Веб-сервисы**.
+4. **Redirect URI** (точно, иначе Яндекс вернёт `redirect_uri mismatch`):  
    `https://tikhvin-palomnik.ru/api/auth/social/yandex/callback`
-4. Сохраните приложение. Скопируйте **ClientID** и **Client secret**.
-5. В `.env.production`:
+5. Доступ: логин / имя / фамилия и **email**. Телефон и портрет не обязательны.
+6. Сохраните. **ClientID** → `YANDEX_OAUTH_CLIENT_ID`, **Client secret** → `YANDEX_OAUTH_CLIENT_SECRET` — только в `.env.production` на ВМ, не в git.
+7. Пока переменных нет на сервере — кнопка Яндекс: «Пока что недоступно…». После записи + `make deploy` кнопка должна открыть oauth.yandex.ru.
 
-```bash
-YANDEX_OAUTH_CLIENT_ID=...
-YANDEX_OAUTH_CLIENT_SECRET=...
-```
-
-6. Пока переменных нет — кнопка Яндекс в UI будет «Пока что недоступно…» (когда кнопка появится в релизе II.3).
+Это **не** SMTP и **не** пароль ящика `info@`. Пароль приложения для почты — [MAIL_DNS.md](MAIL_DNS.md).
 
 ---
 
 ## 2. VK ID
 
-1. Откройте [https://id.vk.com/about/business/go](https://id.vk.com/about/business/go) (или кабинет VK ID / «Мои приложения»).
-2. Создайте приложение типа **Веб-сайт** / VK ID для сайта.
-3. Укажите сайт: `https://tikhvin-palomnik.ru`
-4. **Redirect URL** (точно):  
+Код использует классический `oauth.vk.com` (не VK ID SDK).
+
+1. Откройте [https://id.vk.com/about/business/go](https://id.vk.com/about/business/go) → приложение **Web**, или [https://vk.com/apps?act=manage](https://vk.com/apps?act=manage) → **Веб-сайт**.
+2. Базовый домен: `tikhvin-palomnik.ru`.
+3. **Redirect URL** (точно):  
    `https://tikhvin-palomnik.ru/api/auth/social/vk/callback`
-5. Скопируйте **App ID** (client id) и **защищённый ключ** (secret).
-6. В `.env.production`:
+4. **App ID** → `VK_OAUTH_CLIENT_ID`, **защищённый ключ** (не сервисный, если показывают оба) → `VK_OAUTH_CLIENT_SECRET`. Если есть опция email — включите (`scope=email` в коде).
+5. В `.env.production`:
 
 ```bash
 VK_OAUTH_CLIENT_ID=...
@@ -85,10 +87,10 @@ Webhook уведомлений (`/api/v1/webhooks/telegram` на api.*) **не �
 
 ## 4. Max
 
-На момент записи в коде заложены placeholder-URL (консоль Max может менять названия полей).
+В коде **нет** URL authorize/token/userinfo по умолчанию: без пяти переменных кнопка останется «недоступно». Токен бота `MAX_BOT_TOKEN` с [business.max.ru](https://business.max.ru) — **другой** секрет (чат/публикации), не вход на сайт.
 
-1. Откройте кабинет разработчика Max (официальная консоль OAuth/Login для партнёров Max — тот URL, который даёт поддержка Max на момент регистрации приложения).
-2. Создайте приложение типа **веб / OAuth для сайта**.
+1. Консоль OAuth/Login Max — тот URL, который даёт Max партнёрам на момент регистрации.
+2. Приложение типа **веб / OAuth для сайта**, если кабинет это умеет.
 3. **Redirect URI** (точно, как в репо):  
    `https://tikhvin-palomnik.ru/api/auth/social/max/callback`
 4. Скопируйте Client ID / Secret.

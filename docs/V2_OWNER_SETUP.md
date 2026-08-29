@@ -68,7 +68,7 @@ SMSRU_API_ID=...
 
 ## 3. Почта (Яндекс 360 / SMTP)
 
-Сейчас MX у вас: **mail.tikhvin-palomnik.ru** — оставьте как решите с Яндекс 360 / reg.ru (MX, SPF, DKIM).
+Пошагово MX/SPF/DKIM и пароль приложения SMTP: [MAIL_DNS.md](MAIL_DNS.md). Сейчас в DNS висит битый MX `mail.tikhvin-palomnik.ru` (нет A) — его нужно **заменить** на `mx.yandex.net.`, не оставлять «как есть».
 
 1. Ящик исходящих, например `info@tikhvin-palomnik.ru`.
 2. В `.env.production`:
