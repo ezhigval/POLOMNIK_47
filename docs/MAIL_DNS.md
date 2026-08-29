@@ -1,6 +1,8 @@
 # Почта `info@tikhvin-palomnik.ru`: MX, SPF, DKIM
 
-Почту принимает **Яндекс 360**, не эта ВМ. DNS зоны — **REG.RU** (`ns1.reg.ru` / `ns2.reg.ru`). Записи **A** для `@`, `www` и `api` (сайт и API) **не трогать**.
+Два пути: **Яндекс 360** (этот файл) или **свой MX на ВМ** ([MAIL_SELFHOST.md](MAIL_SELFHOST.md)). На Yandex Cloud исходящий порт 25 закрыт — свой пересыльщик без тикета в поддержку или смархоста 587 не заработает.
+
+Ниже — вариант Яндекс 360. DNS зоны — **REG.RU**. Записи **A** для `@`, `www` и `api` **не трогать**.
 
 Официально у Яндекса для почты нужны три записи: [MX](https://yandex.ru/support/yandex-360/business/admin/ru/domains/dns/mx), [SPF](https://yandex.ru/support/yandex-360/business/admin/ru/domains/dns/spf), [DKIM](https://yandex.ru/support/yandex-360/business/admin/ru/domains/dns/dkim). Сводка: [Первоначальная настройка почты](https://yandex.ru/support/yandex-360/business/admin/ru/mail/start).
 
