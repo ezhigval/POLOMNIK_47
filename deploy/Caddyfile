@@ -11,7 +11,12 @@ www.{$SITE_DOMAIN} {
 	header {
 		Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
 	}
-	reverse_proxy frontend:3000
+	handle /api/v1/* {
+		reverse_proxy api:8080
+	}
+	handle {
+		reverse_proxy frontend:3000
+	}
 }
 
 {$API_DOMAIN} {
