@@ -21,6 +21,7 @@ export function isMainNavLinkActive(href: string, pathname: string): boolean {
 export const mainNavLinks: NavLink[] = [
   { href: "/", label: "Главная" },
   { href: "/search", label: "Туры" },
+  { href: "/virtual-tours", label: "3D-экскурсии" },
   { href: "/news", label: "Новости" },
   { href: "/reviews", label: "Отзывы" },
   { href: "/support", label: "Поддержка" },
