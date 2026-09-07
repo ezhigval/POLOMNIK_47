@@ -30,9 +30,6 @@ export function UserMenu({ user }: UserMenuProps) {
         <Link href="/account/login" className="btn-secondary px-4 py-2 text-sm">
           Войти
         </Link>
-        <Link href="/account/register" className="btn-primary px-4 py-2 text-sm">
-          Регистрация
-        </Link>
       </div>
     );
   }

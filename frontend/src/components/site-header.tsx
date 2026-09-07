@@ -31,7 +31,7 @@ export function SiteHeader({ user }: SiteHeaderProps) {
         >
           <MainNavLinks />
           <UserMenu user={user} />
-          <a href={`tel:${contactPhone}`} className="btn-primary ml-1 px-4 py-2 text-sm">
+          <a href={`tel:${contactPhone}`} className="btn-primary ml-1 shrink-0 whitespace-nowrap px-4 py-2 text-sm">
             {contactPhoneDisplay}
           </a>
         </nav>

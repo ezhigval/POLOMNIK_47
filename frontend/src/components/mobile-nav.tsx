@@ -139,13 +139,6 @@ export function MobileNav({ user }: MobileNavProps) {
                     >
                       Войти
                     </Link>
-                    <Link
-                      href="/account/register"
-                      onClick={close}
-                      className="rounded-xl px-4 py-3 text-base font-medium text-stone-800 hover:bg-stone-50"
-                    >
-                      Регистрация
-                    </Link>
                   </>
                 )}
               </div>

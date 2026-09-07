@@ -16,7 +16,7 @@ export function MainNavLinks() {
             key={link.href}
             href={link.href}
             aria-current={active ? "page" : undefined}
-            className={`nav-link ${active ? "bg-brand-50 font-medium text-brand-900" : ""}`}
+            className={`nav-link whitespace-nowrap ${active ? "bg-brand-50 font-medium text-brand-900" : ""}`}
           >
             {link.label}
           </Link>
