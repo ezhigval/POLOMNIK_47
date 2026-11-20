@@ -148,7 +148,26 @@ Worker:
 
 `ADMIN_TOKEN` скрипт читает из `.env.production`, в crontab его писать не нужно.
 
-## 6. CI / тесты перед деплоем
+## 6. Российский VPS
+
+Скрипт `deploy/vps/deploy.sh` переносит код на уже подготовленный VPS и запускает тот же Compose production overlay. Он не отправляет `.env.production`, uploads или `backups/`, не останавливает стек перед пересозданием и не удаляет Docker volumes. Deploy-пользователь должен уже иметь доступ к Docker; root SSH не требуется.
+
+Перед первым запуском проверьте fingerprint VPS у провайдера и внесите его в `~/.ssh/known_hosts`. Затем укажите проверенный SSH-target и ключ:
+
+```bash
+VPS_SSH_HOST='deploy@vps.example.ru' \
+VPS_DEPLOY_DIR='/opt/polomnik' \
+SSH_KEY="$HOME/.ssh/polomnik_vps" \
+make deploy-vps
+```
+
+На VPS заранее создайте каталог, поместите туда `.env.production` и проверьте `docker compose version`. Скрипт завершается ошибкой, если каталога или файла секретов нет.
+
+GitHub Actions содержит отдельный ручной workflow `Deploy to Russian VPS`. Он запускается только вручную из `main` и требует secrets `VPS_SSH_HOST`, `VPS_SSH_KEY`, `VPS_SSH_KNOWN_HOSTS` (проверенная строка из `known_hosts`) и `VPS_DEPLOY_DIR`. Production-секреты приложения остаются на VPS. Этот workflow не переключает DNS и не меняет действующий workflow Yandex Cloud.
+
+После переноса сначала проверьте новый сервер по его IP/локальной маршрутизации и сохранённым сертификатам. DNS переключайте только после функциональной проверки нового сервера и согласования короткого окна записи; старую ВМ сохраняйте для отката.
+
+## 7. CI / тесты перед деплоем
 
 ```bash
 make smoke-docker   # API smoke
@@ -156,11 +175,11 @@ make e2e-docker     # Playwright E2E
 make check-ops      # API ready + worker healthy + outbox failed=0
 ```
 
-## 7. Telegram
+## 8. Telegram
 
 Код готов. Подключать отдельно. См. `docs/TELEGRAM_SETUP.md`.
 
-## 8. Чеклист перед открытием
+## 9. Чеклист перед открытием
 
 - [ ] Реальные туры и фото в management
 - [ ] Контакты в env
