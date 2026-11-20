@@ -152,6 +152,8 @@ Worker:
 
 Скрипт `deploy/vps/deploy.sh` переносит код на уже подготовленный VPS и запускает тот же Compose production overlay. Он не отправляет `.env.production`, uploads или `backups/`, не останавливает стек перед пересозданием и не удаляет Docker volumes. Deploy-пользователь должен уже иметь доступ к Docker; root SSH не требуется.
 
+Файл `deploy/vps/compose.prod.yml` сохраняет PostgreSQL в отдельном volume `polomnik_postgres_vps_data`; повторные выкладки используют тот же volume. Файл `.env.production.live` тоже исключён из синхронизации.
+
 Перед первым запуском проверьте fingerprint VPS у провайдера и внесите его в `~/.ssh/known_hosts`. Затем укажите проверенный SSH-target и ключ:
 
 ```bash

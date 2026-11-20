@@ -1,0 +1,7 @@
+# Selectel VPS production overrides. Keep the database in its dedicated
+# persistent volume across code deployments.
+services: {}
+
+volumes:
+  postgres_data:
+    name: polomnik_postgres_vps_data

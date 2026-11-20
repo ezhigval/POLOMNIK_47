@@ -43,7 +43,7 @@ SSH_OPTS=(-o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes \
 printf -v RSYNC_SSH '%q ' ssh "${SSH_OPTS[@]}"
 printf -v REMOTE_DIR_Q '%q' "$VPS_DEPLOY_DIR"
 
-COMPOSE="docker compose --env-file .env.production -f docker-compose.yml -f docker-compose.prod.yml"
+COMPOSE="docker compose --env-file .env.production -f docker-compose.yml -f docker-compose.prod.yml -f deploy/vps/compose.prod.yml"
 
 echo "==> Checking the existing VPS deployment directory"
 ssh "${SSH_OPTS[@]}" "$VPS_SSH_HOST" \
@@ -58,6 +58,7 @@ rsync -az --delete-delay -e "$RSYNC_SSH" \
   --exclude .next \
   --exclude backups \
   --exclude .env.production \
+  --exclude .env.production.live \
   --exclude .env \
   --exclude frontend/.env.local \
   --exclude data/uploads \
