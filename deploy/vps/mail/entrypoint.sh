@@ -37,7 +37,7 @@ rm -f /etc/postfix/private/sasl_passwd
 chown root:postfix /etc/postfix/pgsql_virtual_aliases.cf /etc/postfix/private/sasl_passwd.db
 chmod 0640 /etc/postfix/pgsql_virtual_aliases.cf /etc/postfix/private/sasl_passwd.db
 
-cert_dir="$(find /caddy_data/certificates -type f -name 'mail.tikhvin-palomnik.ru.crt' -print -quit 2>/dev/null | sed 's#/mail.tikhvin-palomnik.ru.crt$##')"
+cert_dir="$(find /caddy_data/caddy/certificates -type f -name 'mail.tikhvin-palomnik.ru.crt' -print -quit 2>/dev/null | sed 's#/mail.tikhvin-palomnik.ru.crt$##')"
 if [ -n "$cert_dir" ] && [ -f "$cert_dir/mail.tikhvin-palomnik.ru.key" ]; then
   cp "$cert_dir/mail.tikhvin-palomnik.ru.crt" /etc/postfix/tls.crt
   cp "$cert_dir/mail.tikhvin-palomnik.ru.key" /etc/postfix/tls.key
