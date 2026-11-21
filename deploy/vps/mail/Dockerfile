@@ -4,7 +4,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN printf 'postfix postfix/main_mailer_type select Internet Site\npostfix postfix/mailname string tikhvin-palomnik.ru\n' | debconf-set-selections \
     && apt-get update \
     && apt-get install -y --no-install-recommends postfix postfix-pgsql libsasl2-modules ca-certificates ssl-cert \
-    && sed -E -i 's/^(smtp[[:space:]]+inet[[:space:]]+n[[:space:]]+-[[:space:]]+)y([[:space:]]+-[[:space:]]+-[[:space:]]+smtpd.*)$/\1n\2/' /etc/postfix/master.cf \
+    && sed -E -i 's/^([^[:space:]]+[[:space:]]+[^[:space:]]+[[:space:]]+[^[:space:]]+[[:space:]]+[^[:space:]]+[[:space:]]+)y([[:space:]]+)/\1n\2/' /etc/postfix/master.cf \
     && cp -a /var/spool/postfix /var/spool/postfix-default \
     && rm -rf /var/lib/apt/lists/*
 

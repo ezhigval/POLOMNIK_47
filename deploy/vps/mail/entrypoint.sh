@@ -12,6 +12,13 @@ set -eu
 if [ ! -d /var/spool/postfix/maildrop ]; then
   cp -a /var/spool/postfix-default/. /var/spool/postfix/
 fi
+for queue_dir in active bounce corrupt defer deferred flush hold incoming private saved trace; do
+  chown postfix:root "/var/spool/postfix/$queue_dir"
+  chmod 0700 "/var/spool/postfix/$queue_dir"
+done
+chown postfix:postdrop /var/spool/postfix/maildrop /var/spool/postfix/public
+chmod 0730 /var/spool/postfix/maildrop
+chmod 2710 /var/spool/postfix/public
 
 umask 077
 cat > /etc/postfix/pgsql_virtual_aliases.cf <<EOF
