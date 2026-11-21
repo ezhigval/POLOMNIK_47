@@ -7,6 +7,11 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 VPS_SSH_HOST="${VPS_SSH_HOST:-}"
 VPS_DEPLOY_DIR="${VPS_DEPLOY_DIR:-/opt/polomnik}"
 SSH_KEY="${SSH_KEY:-}"
+VPS_ENV_FILE="${VPS_ENV_FILE:-.env.production}"
+if [[ ! "$VPS_ENV_FILE" =~ ^\.env\.production(\.[a-zA-Z0-9_-]+)?$ ]]; then
+  echo "Invalid production environment filename." >&2
+  exit 2
+fi
 
 if [[ -z "$VPS_SSH_HOST" ]]; then
   echo "Set VPS_SSH_HOST to a verified user@host value." >&2
@@ -43,21 +48,21 @@ SSH_OPTS=(-o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes \
 printf -v RSYNC_SSH '%q ' ssh "${SSH_OPTS[@]}"
 printf -v REMOTE_DIR_Q '%q' "$VPS_DEPLOY_DIR"
 
-COMPOSE="docker compose --env-file .env.production -f docker-compose.yml -f docker-compose.prod.yml -f deploy/vps/compose.prod.yml"
+COMPOSE="docker compose --env-file ${VPS_ENV_FILE} -f docker-compose.yml -f docker-compose.prod.yml -f deploy/vps/compose.prod.yml"
 
 echo "==> Checking the existing VPS deployment directory"
 ssh "${SSH_OPTS[@]}" "$VPS_SSH_HOST" \
-  "test -d ${REMOTE_DIR_Q} && test -f ${REMOTE_DIR_Q}/.env.production && docker compose version >/dev/null"
+  "test -d ${REMOTE_DIR_Q} && test -s ${REMOTE_DIR_Q}/${VPS_ENV_FILE} && docker compose version >/dev/null"
 
 echo "==> Syncing application files (secrets and persistent data are excluded)"
-rsync -az --delete-delay -e "$RSYNC_SSH" \
+rsync -az -e "$RSYNC_SSH" \
   --exclude .git \
   --exclude .idea \
   --exclude .DS_Store \
   --exclude node_modules \
   --exclude .next \
   --exclude backups \
-  --exclude .env.production \
+  --exclude '.env*' \
   --exclude .env.production.live \
   --exclude .env.mail \
   --exclude .env \
@@ -68,6 +73,6 @@ rsync -az --delete-delay -e "$RSYNC_SSH" \
 
 echo "==> Building and starting the Compose production stack"
 ssh "${SSH_OPTS[@]}" "$VPS_SSH_HOST" \
-  "cd ${REMOTE_DIR_Q} && ${COMPOSE} build frontend api worker && ${COMPOSE} up -d && ${COMPOSE} ps"
+  "cd ${REMOTE_DIR_Q} && ${COMPOSE} build frontend api worker mail migrate && ${COMPOSE} up -d && ${COMPOSE} ps"
 
 echo "Deployment commands completed. Verify the target privately before changing DNS."
