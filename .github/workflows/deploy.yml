@@ -1,5 +1,5 @@
-# v4 stage 12: deploy to production after green CI on main (one at a time).
-# Secrets: DEPLOY_SSH_KEY (required), DEPLOY_SSH_HOST (optional user@host).
+# Deploy to the Selectel production VPS after green CI on main (one at a time).
+# Secret: DEPLOY_SSH_KEY (dedicated private key for the VPS deploy user).
 name: Deploy production
 
 on:
@@ -16,12 +16,14 @@ concurrency:
 jobs:
   deploy:
     if: >-
-      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') ||
       (
         github.event.workflow_run.conclusion == 'success' &&
         github.event.workflow_run.event == 'push' &&
         github.event.workflow_run.head_branch == 'main'
       )
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -33,7 +35,7 @@ jobs:
           DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
         run: |
           if [[ -z "${DEPLOY_SSH_KEY}" ]]; then
-            echo "DEPLOY_SSH_KEY secret is not set — skip deploy (configure in repo Settings → Secrets)."
+            echo "DEPLOY_SSH_KEY secret is not set."
             exit 1
           fi
 
@@ -45,20 +47,26 @@ jobs:
           printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
 
-      - name: Deploy via deploy.sh
-        env:
-          DEPLOY_CI: "1"
-          SSH_KEY: ~/.ssh/deploy_key
-          DEPLOY_REMOTE: ${{ secrets.DEPLOY_SSH_HOST || 'smailikin70@93.77.165.81' }}
+      - name: Install pinned VPS host key
         run: |
-          chmod +x deploy/yandex/deploy.sh
-          ./deploy/yandex/deploy.sh
+          mkdir -p ~/.ssh
+          cp deploy/vps/known_hosts ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+      - name: Deploy to Selectel VPS
+        env:
+          VPS_SSH_HOST: deploy@92.53.100.23
+          VPS_DEPLOY_DIR: /opt/polomnik
+          VPS_ENV_FILE: .env.production.test
+        run: |
+          chmod +x deploy/vps/deploy.sh
+          KNOWN_HOSTS="$HOME/.ssh/known_hosts" SSH_KEY="$HOME/.ssh/deploy_key" ./deploy/vps/deploy.sh
 
       - name: Wait for API ready
         run: |
           ok=0
           for _ in $(seq 1 36); do
-            if curl -sf --max-time 15 https://api.tikhvin-palomnik.ru/health/ready >/dev/null; then
+            if curl -sf --max-time 15 --resolve api.tikhvin-palomnik.ru:443:92.53.100.23 https://api.tikhvin-palomnik.ru/health/ready >/dev/null; then
               ok=1
               break
             fi
@@ -68,4 +76,4 @@ jobs:
             echo "health/ready did not return 200 in time"
             exit 1
           fi
-          curl -sf https://api.tikhvin-palomnik.ru/health/ready
+          curl -sf --resolve api.tikhvin-palomnik.ru:443:92.53.100.23 https://api.tikhvin-palomnik.ru/health/ready
