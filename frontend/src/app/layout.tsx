@@ -1,3 +1,5 @@
+import { logoSrc } from "@/lib/brand";
+import { getSiteLogo } from "@/lib/site-logo";
 import type { Metadata } from "next";
 import { Analytics } from "@/components/analytics";
 import { CookieBanner } from "@/components/cookie-banner";
@@ -12,7 +14,7 @@ export const viewport = {
   initialScale: 1,
 };
 
-export const metadata: Metadata = {
+const baseMetadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
   title: {
     default: `${siteConfig.name} — ${siteConfig.tagline}`,
@@ -41,6 +43,11 @@ export const metadata: Metadata = {
     google: siteConfig.verification.google,
   },
 };
+
+export async function generateMetadata(): Promise<Metadata> {
+  const logo = logoSrc(await getSiteLogo());
+  return { ...baseMetadata, icons: { icon: logo, apple: logo } };
+}
 
 export default function RootLayout({
   children,

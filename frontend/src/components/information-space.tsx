@@ -1,4 +1,7 @@
 import Link from "next/link";
+import { russianPhone } from "@/lib/ru-contact";
+import { OptimizedImage } from "@/components/optimized-image";
+import { portraitUrl } from "@/lib/portrait-url";
 import { Suspense, type ReactNode } from "react";
 import Image from "next/image";
 import { HomeNewsSection, HomeNewsSkeleton } from "@/components/home-news-section";
@@ -225,9 +228,9 @@ function HolyPlaces({ content }: { content: HolyPlacesBlockContent }) {
               {place.description ? <p className="mt-4 text-sm leading-7 text-stone-600">{place.description}</p> : null}
               {place.directions ? <p className="mt-4 text-sm leading-6 text-stone-700"><strong>Как добраться. </strong>{place.directions}</p> : null}
               <dl className="mt-5 space-y-3 border-t border-stone-100 pt-4 text-sm">
-                {place.address ? <div><dt className="font-medium text-stone-900">Адрес</dt><dd className="mt-0.5 text-stone-600">{place.address}</dd></div> : null}
+                {place.address ? <div><dt className="font-medium text-stone-900">Адрес</dt><dd className="mt-0.5 text-stone-600"><address className="not-italic">{place.address}</address></dd></div> : null}
                 {coordinates ? <div><dt className="font-medium text-stone-900">Координаты</dt><dd className="mt-0.5 text-stone-600">{coordinates}</dd></div> : null}
-                {place.phone ? <div><dt className="font-medium text-stone-900">Телефон</dt><dd className="mt-0.5"><ContentLink href={`tel:${place.phone}`} className="text-brand-800 underline underline-offset-2">{place.phone}</ContentLink></dd></div> : null}
+                {place.phone ? <div><dt className="font-medium text-stone-900">{place.phoneLabel || "Телефон"}</dt><dd className="mt-0.5"><ContentLink href={russianPhone(place.phone).href} className="text-brand-800 underline underline-offset-2">{russianPhone(place.phone).label}</ContentLink></dd></div> : null}
                 {place.email ? <div><dt className="font-medium text-stone-900">Почта</dt><dd className="mt-0.5"><ContentLink href={`mailto:${place.email}`} className="text-brand-800 underline underline-offset-2">{place.email}</ContentLink></dd></div> : null}
               </dl>
               <div className="mt-auto flex flex-wrap gap-2 pt-5">
@@ -282,14 +285,22 @@ function ServiceTeam({ content }: { content: ServiceTeamBlockContent }) {
         <div aria-hidden="true" className="absolute left-1/2 top-0 hidden h-6 w-px -translate-x-1/2 bg-brand-200 md:block" />
         <div className="grid gap-4 pt-0 md:grid-cols-2 md:pt-7 lg:grid-cols-3">
           {members.map((member, index) => (
-            <article key={`${member.name}-${index}`} className={`relative rounded-2xl border bg-white p-5 shadow-sm ${index === 0 ? "border-brand-300 md:col-span-2 md:mx-auto md:w-2/3 lg:col-span-3 lg:w-1/2" : "border-stone-200"}`}>
-
-              <h3 className="mt-2 font-display text-lg font-semibold text-stone-900">{member.name || "Имя не указано"}</h3>
-              {member.role ? <p className="mt-1 text-sm font-medium text-stone-600">{member.role}</p> : null}
-              {member.bio ? <p className="mt-3 text-sm leading-6 text-stone-600">{member.bio}</p> : null}
-              <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-sm">
-                {member.phone ? <ContentLink href={`tel:${member.phone}`} className="text-brand-800 underline underline-offset-2">{member.phone}</ContentLink> : null}
-                {member.email ? <ContentLink href={`mailto:${member.email}`} className="text-brand-800 underline underline-offset-2">{member.email}</ContentLink> : null}
+            <article key={`${member.name}-${index}`} className={`flex min-w-0 flex-col items-start gap-4 rounded-2xl border bg-white p-5 shadow-sm md:flex-row ${index === 0 ? "border-brand-300 md:col-span-2 md:mx-auto md:w-2/3 lg:col-span-3 lg:w-1/2" : "border-stone-200"}`}>
+              {portraitUrl(member.photo) ? (
+                <OptimizedImage src={portraitUrl(member.photo)} alt={member.name}
+                  width={112} height={144} sizes="(min-width: 768px) 80px, 112px"
+                  className="h-36 w-28 shrink-0 rounded-xl object-cover object-top ring-1 ring-stone-200 md:h-28 md:w-20" />
+              ) : null}
+              <div className="min-w-0 flex-1 [overflow-wrap:anywhere]">
+                <h3 className="font-display text-lg font-semibold leading-snug text-stone-900">{member.name || "Имя не указано"}</h3>
+                {member.role ? <p className="mt-1 text-sm font-medium text-stone-600">{member.role}</p> : null}
+                {member.bio ? <p className="mt-3 text-sm leading-6 text-stone-600">{member.bio}</p> : null}
+                {member.phone || member.email ? (
+                  <div className="mt-3 flex flex-col items-start gap-1.5 text-sm">
+                    {member.phone ? <ContentLink href={russianPhone(member.phone).href} className="text-brand-800 underline underline-offset-2">{russianPhone(member.phone).label}</ContentLink> : null}
+                    {member.email ? <ContentLink href={`mailto:${member.email}`} className="text-brand-800 underline underline-offset-2">{member.email}</ContentLink> : null}
+                  </div>
+                ) : null}
               </div>
             </article>
           ))}

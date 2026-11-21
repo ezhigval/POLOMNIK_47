@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { updateCmsBlockAction } from "@/app/management/actions";
+import { uploadPortraitAction, updateCmsBlockAction } from "@/app/management/actions";
 import type { CmsBlock, CmsBlockType } from "@/lib/api/cms";
 import { featuredRoute } from "@/lib/featured-route";
 import { FormError } from "@/components/form-error";
@@ -731,7 +731,7 @@ function HolyPlacesForm({ content, loading, error, onCancel, onSave }: BlockForm
   const [title, setTitle] = useState(stringValue(content, "title"));
   const [description, setDescription] = useState(stringValue(content, "description"));
   const [items, setItems] = useState(objectArray<Record<string, string>>(content, "items", [
-    "name", "region", "description", "directions", "address", "latitude", "longitude", "mapUrl", "phone", "email", "websiteUrl", "bookingHref", "bookingLabel",
+    "name", "region", "description", "directions", "address", "latitude", "longitude", "mapUrl", "phone", "phoneLabel", "email", "websiteUrl", "bookingHref", "bookingLabel",
   ]));
   return (
     <form className="space-y-3" onSubmit={(event) => { event.preventDefault(); onSave({ eyebrow, title, description, items }); }}>
@@ -741,9 +741,10 @@ function HolyPlacesForm({ content, loading, error, onCancel, onSave }: BlockForm
       <p className="text-xs leading-5 text-stone-500">Для карты укажите координаты или прямую ссылку. Кнопка записи может вести на поиск туров, например /search?route=tikhvin-path.</p>
       <ObjectListEditor label="Монастыри и святыни" rows={items} fields={[
         { key: "name", value: "Название" }, { key: "region", value: "Город или регион" },
-        { key: "description", value: "Что посмотреть" }, { key: "directions", value: "Как добраться" }, { key: "address", value: "Адрес" },
+        { key: "description", value: "Что посмотреть" }, { key: "directions", value: "Как добраться" }, { key: "address", value: "Адрес (индекс, регион, населённый пункт, улица, дом)" },
         { key: "latitude", value: "Широта" }, { key: "longitude", value: "Долгота" },
-        { key: "mapUrl", value: "Ссылка на карту (необязательно)" }, { key: "phone", value: "Телефон" },
+        { key: "mapUrl", value: "Ссылка на карту (необязательно)" }, { key: "phone", value: "Телефон с кодом +7" },
+        { key: "phoneLabel", value: "Чей телефон (например, свечная лавка)" },
         { key: "email", value: "Электронная почта" }, { key: "websiteUrl", value: "Сайт монастыря" },
         { key: "bookingHref", value: "Ссылка на заказ поездки" }, { key: "bookingLabel", value: "Подпись кнопки записи" },
       ]} onChange={setItems} />
@@ -772,18 +773,65 @@ function ServiceTeamForm({ content, loading, error, onCancel, onSave }: BlockFor
   const [eyebrow, setEyebrow] = useState(stringValue(content, "eyebrow"));
   const [title, setTitle] = useState(stringValue(content, "title"));
   const [description, setDescription] = useState(stringValue(content, "description"));
-  const [members, setMembers] = useState(objectArray<{ name: string; role: string; bio: string; phone: string; email: string }>(content, "members", ["name", "role", "bio", "phone", "email"]));
+  const fields = [
+    { key: "name", label: "Имя" }, { key: "role", label: "Должность" },
+    { key: "bio", label: "Описание" }, { key: "phone", label: "Телефон с кодом +7" },
+    { key: "email", label: "Электронная почта" }, { key: "photo", label: "Ссылка на портрет" },
+  ];
+  const [members, setMembers] = useState(() => objectArray<Record<string, string>>(
+    content, "members", fields.map(field => field.key),
+  ));
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState("");
+
+  function edit(index: number, field: string, value: string) {
+    setMembers(current => current.map((member, i) => i === index ? { ...member, [field]: value } : member));
+  }
+
+  async function upload(index: number, file: File) {
+    setUploading(true);
+    setUploadError("");
+    const data = new FormData();
+    data.set("file", file);
+    try {
+      const image = await uploadPortraitAction(data);
+      edit(index, "photo", image.url);
+    } catch (err) {
+      setUploadError(err instanceof Error ? err.message : "Не удалось загрузить портрет");
+    } finally {
+      setUploading(false);
+    }
+  }
+
   return (
-    <form className="space-y-3" onSubmit={(event) => { event.preventDefault(); onSave({ eyebrow, title, description, members }); }}>
+    <form className="space-y-3" onSubmit={(event) => {
+      event.preventDefault();
+      if (!uploading) onSave({ eyebrow, title, description, members });
+    }}>
       <Field label="Надзаголовок" value={eyebrow} onChange={setEyebrow} />
       <Field label="Заголовок" value={title} onChange={setTitle} />
       <Field label="Описание состава службы" value={description} onChange={setDescription} multiline />
-      <p className="text-xs text-stone-500">Первая карточка выделена вверху схемы.</p>
-      <ObjectListEditor label="Руководители и сотрудники" rows={members} fields={[
-        { key: "name", value: "Имя" }, { key: "role", value: "Должность" }, { key: "bio", value: "Обращение или описание" },
-        { key: "phone", value: "Телефон" }, { key: "email", value: "Электронная почта" },
-      ]} onChange={(rows) => setMembers(rows as { name: string; role: string; bio: string; phone: string; email: string }[])} />
-      <FormActions loading={loading} error={error} onCancel={onCancel} />
+      <fieldset disabled={uploading || loading} className="space-y-4">
+        {members.map((member, index) => (
+          <fieldset key={index} className="space-y-2 rounded-xl border bg-white p-4">
+            <legend className="px-1 font-medium">{member.name || "Новый сотрудник"}</legend>
+            {fields.map(field => <Field key={field.key} label={field.label} value={member[field.key] ?? ""}
+              onChange={value => edit(index, field.key, value)} multiline={field.key === "bio"} />)}
+            <label className="block text-sm">Загрузить портрет
+              <input type="file" accept="image/jpeg,image/png,image/webp" className="input-field" onChange={event => {
+                const file = event.target.files?.[0];
+                event.target.value = "";
+                if (file) void upload(index, file);
+              }} />
+            </label>
+            <button type="button" className="btn-danger" onClick={() => setMembers(list => list.filter((_, i) => i !== index))}>Удалить карточку</button>
+          </fieldset>
+        ))}
+        <button type="button" className="btn-secondary" onClick={() => setMembers(list => [...list, {}])}>Добавить сотрудника</button>
+      </fieldset>
+      {uploading && <p role="status">Загружаем портрет…</p>}
+      <FormError>{uploadError}</FormError>
+      <FormActions loading={loading || uploading} error={error} onCancel={onCancel} />
     </form>
   );
 }

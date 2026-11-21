@@ -112,6 +112,7 @@ export type HolyPlacesBlockContent = {
     mapUrl: string;
     phone: string;
     email: string;
+    phoneLabel?: string;
     websiteUrl: string;
     bookingHref: string;
     bookingLabel: string;
@@ -129,7 +130,7 @@ export type ServiceTeamBlockContent = {
   eyebrow?: string;
   title?: string;
   description?: string;
-  members?: { name: string; role: string; bio: string; phone: string; email: string }[];
+  members?: { photo?: string; name: string; role: string; bio: string; phone: string; email: string }[];
 };
 
 export type LegalDonationBlockContent = {

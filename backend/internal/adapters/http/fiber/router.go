@@ -162,6 +162,7 @@ func NewRouter(cfg config.Config, log *slog.Logger, services Services, health He
 
 	management := v1.Group("/management", adminAuth)
 	management.Get("/session", h.ManagementSession)
+	management.Post("/cms/uploads", require(domain.PermManageContent), appmiddleware.RateLimit(30, time.Minute), handlers.UploadImage(cfg))
 
 	management.Get("/tours", require(domain.PermManageTours), h.ManagementListTours)
 	management.Post("/tours", require(domain.PermManageTours), h.ManagementCreateTour)
@@ -207,6 +208,7 @@ func NewRouter(cfg config.Config, log *slog.Logger, services Services, health He
 	management.Get("/notification-settings", require(domain.PermManageRecipients), h.ManagementGetNotificationSettings)
 	management.Patch("/notification-settings", require(domain.PermManageRecipients), h.ManagementUpdateNotificationSettings)
 
+	management.Post("/site-settings/uploads", require(domain.PermManageSettingsSite), appmiddleware.RateLimit(30, time.Minute), handlers.UploadImage(cfg))
 	management.Get("/site-settings", require(domain.PermManageSettingsSite), h.ManagementGetSiteSettings)
 	management.Patch("/site-settings", require(domain.PermManageSettingsSite), h.ManagementUpdateSiteSettings)
 

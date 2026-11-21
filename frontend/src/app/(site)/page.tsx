@@ -5,6 +5,7 @@ import { CtaSection } from "@/components/cta-section";
 import { FaqSection } from "@/components/faq-section";
 import { FeaturedRouteSection } from "@/components/featured-route-section";
 import { HeroSection } from "@/components/hero-section";
+import styles from "@/components/home-spaces.module.css";
 import { HomeSpaceSwitcher } from "@/components/home-space-switcher";
 import { HomeNewsSection, HomeNewsSkeleton } from "@/components/home-news-section";
 import { HowItWorksSection } from "@/components/how-it-works";
@@ -46,16 +47,16 @@ export default async function HomePage({ searchParams }: {
   searchParams: Promise<{ mode?: string }>;
 }) {
   const [cms, query] = await Promise.all([getPublishedPage("home").catch(() => null), searchParams]);
-  const guide = query.mode === "guide";
+  const guide = query.mode !== "trips";
   const blocks = cms?.blocks ?? [];
   return (
-    <>
+    <div className={guide ? `${styles.home} ${styles.guide}` : styles.home}>
       <HomeSpaceSwitcher guide={guide} />
       <div className="home-space-enter" key={guide ? "guide" : "journeys"}>
         {guide ? <InformationSpace blocks={blocks} fallback={!cms} /> :
           <BookingSpace blocks={blocks.filter(block => !informationBlockTypes.has(block.type))} />}
       </div>
-    </>
+    </div>
   );
 }
 

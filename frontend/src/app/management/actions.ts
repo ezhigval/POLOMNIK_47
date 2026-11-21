@@ -97,6 +97,21 @@ export async function uploadTourImageAction(formData: FormData) {
   }
 }
 
+export async function uploadPortraitAction(data: FormData) {
+  const file = data.get("file");
+  if (!(file instanceof File) || file.size === 0) throw new Error("Выберите фотографию");
+  return uploadManagementImage(file, "cms");
+}
+
+export async function uploadSiteLogoAction(data: FormData) {
+  const file = data.get("file");
+  if (!(file instanceof File) || file.type !== "image/png" || !file.size || file.size > 900_000) {
+    throw new Error("Не удалось подготовить изображение");
+  }
+  const uploaded = await uploadManagementImage(file, "site-settings");
+  return `/uploads/${uploaded.path}`;
+}
+
 export async function updateTourAction(id: string, input: TourUpsertInput) {
   await updateManagementTour(id, input);
   revalidatePath("/");
@@ -289,6 +304,7 @@ export async function updateNotificationSettingsAction(
 export async function updateSiteSettingsAction(input: SiteSettings) {
   try {
     const settings = await updateManagementSiteSettings(input);
+    if (input.logo_path) revalidatePath("/", "layout");
     revalidatePath("/management/settings");
     return settings;
   } catch (error) {

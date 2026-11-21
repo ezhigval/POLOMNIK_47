@@ -1,3 +1,4 @@
+import { logoSrc } from "@/lib/brand";
 import { contactEmail, contactPhone } from "@/lib/contact";
 import { absoluteUrl, siteConfig } from "@/lib/site-config";
 import type { Tour } from "@/lib/api/tours";
@@ -14,7 +15,7 @@ export function JsonLd({ data }: { data: Record<string, unknown> }) {
   );
 }
 
-export function StructuredData() {
+export function StructuredData({ logo }: { logo: string }) {
   const organizationId = `${siteConfig.url}/#organization`;
   const websiteId = `${siteConfig.url}/#website`;
 
@@ -29,7 +30,7 @@ export function StructuredData() {
         alternateName: siteConfig.fullName,
         description: siteConfig.description,
         url: siteConfig.url,
-        logo: absoluteUrl("/opengraph-image"),
+        logo: absoluteUrl(logoSrc(logo)),
         image: absoluteUrl("/opengraph-image"),
         inLanguage: "ru-RU",
         areaServed: {

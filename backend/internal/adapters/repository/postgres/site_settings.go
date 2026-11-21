@@ -13,7 +13,7 @@ func (s *Store) GetSiteSettings(ctx context.Context) (domain.SiteSettings, error
 	row := s.db.QueryRowContext(ctx, `
 SELECT site_name, full_name, tagline, description, region, departure_city,
        parent_org_name, parent_org_url, contact_phone, contact_phone_display,
-       contact_email, mail_forward_to, updated_at
+       contact_email, mail_forward_to, updated_at, logo_path
 FROM site_settings
 WHERE id = $1
 `, domain.SiteSettingsID())
@@ -25,11 +25,11 @@ func (s *Store) UpsertSiteSettings(ctx context.Context, settings domain.SiteSett
 INSERT INTO site_settings (
     id, site_name, full_name, tagline, description, region, departure_city,
     parent_org_name, parent_org_url, contact_phone, contact_phone_display,
-    contact_email, mail_forward_to, updated_at
+    contact_email, mail_forward_to, updated_at, logo_path
 ) VALUES (
     $1, $2, $3, $4, $5, $6, $7,
     $8, $9, $10, $11,
-    $12, $13, $14
+    $12, $13, $14, $15
 )
 ON CONFLICT (id) DO UPDATE SET
     site_name = EXCLUDED.site_name,
@@ -44,10 +44,11 @@ ON CONFLICT (id) DO UPDATE SET
     contact_phone_display = EXCLUDED.contact_phone_display,
     contact_email = EXCLUDED.contact_email,
     mail_forward_to = EXCLUDED.mail_forward_to,
-    updated_at = EXCLUDED.updated_at
+    updated_at = EXCLUDED.updated_at,
+    logo_path = COALESCE(NULLIF(EXCLUDED.logo_path, ''), site_settings.logo_path)
 RETURNING site_name, full_name, tagline, description, region, departure_city,
           parent_org_name, parent_org_url, contact_phone, contact_phone_display,
-          contact_email, mail_forward_to, updated_at
+          contact_email, mail_forward_to, updated_at, logo_path
 `, domain.SiteSettingsID(),
 		settings.SiteName,
 		settings.FullName,
@@ -62,6 +63,7 @@ RETURNING site_name, full_name, tagline, description, region, departure_city,
 		settings.ContactEmail,
 		domain.FormatMailForwardList(settings.MailForwardTo),
 		settings.UpdatedAt,
+		settings.LogoPath,
 	)
 	return scanSiteSettings(row)
 }
@@ -83,6 +85,7 @@ func scanSiteSettings(row scanner) (domain.SiteSettings, error) {
 		&settings.ContactEmail,
 		&mailForwardRaw,
 		&settings.UpdatedAt,
+		&settings.LogoPath,
 	)
 	if errors.Is(err, sql.ErrNoRows) {
 		return domain.SiteSettings{}, domain.ErrNotFound

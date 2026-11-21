@@ -1,3 +1,4 @@
+import { BrandMark } from "@/components/brand-mark";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ManagementNav } from "@/components/management/management-nav";
@@ -26,8 +27,9 @@ export default async function ProtectedManagementLayout({ children }: { children
     <div className="min-h-full bg-stone-100">
       <header className="border-b border-stone-200 bg-white">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
-          <Link href="/management" className="max-w-[14rem] text-sm font-semibold leading-snug text-stone-900 hover:text-brand-800 sm:max-w-none">
-            {siteConfig.name} · Админка
+          <Link href="/management" className="flex items-center gap-2 max-w-[14rem] text-sm font-semibold leading-snug text-stone-900 hover:text-brand-800 sm:max-w-none">
+            <BrandMark className="size-12" />
+            <span>{siteConfig.name} · Админка</span>
           </Link>
           <div className="flex items-center gap-3">
             <ManagementNav fullAdmin={session.full_admin} permissions={session.permissions ?? []} />

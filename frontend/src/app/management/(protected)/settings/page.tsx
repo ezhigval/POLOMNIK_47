@@ -21,6 +21,7 @@ const permissionOptions = [
 ];
 
 const emptySite = {
+  logo_path: "",
   site_name: "",
   full_name: "",
   tagline: "",
