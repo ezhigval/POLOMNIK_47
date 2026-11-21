@@ -9,6 +9,10 @@ set -eu
 : "${SMTP_RELAY_USERNAME:?SMTP_RELAY_USERNAME is required}"
 : "${SMTP_RELAY_PASSWORD:?SMTP_RELAY_PASSWORD is required}"
 
+if [ ! -d /var/spool/postfix/maildrop ]; then
+  cp -a /var/spool/postfix-default/. /var/spool/postfix/
+fi
+
 umask 077
 cat > /etc/postfix/pgsql_virtual_aliases.cf <<EOF
 hosts = ${POSTGRES_HOST}:${POSTGRES_PORT}
