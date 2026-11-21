@@ -23,8 +23,8 @@ printf '[smtp.mail.selcloud.ru]:1126 %s:%s\n' \
   "$SMTP_RELAY_USERNAME" "$SMTP_RELAY_PASSWORD" > /etc/postfix/private/sasl_passwd
 postmap /etc/postfix/private/sasl_passwd
 rm -f /etc/postfix/private/sasl_passwd
-chown root:root /etc/postfix/pgsql_virtual_aliases.cf /etc/postfix/private/sasl_passwd.db
-chmod 0600 /etc/postfix/pgsql_virtual_aliases.cf /etc/postfix/private/sasl_passwd.db
+chown root:postfix /etc/postfix/pgsql_virtual_aliases.cf /etc/postfix/private/sasl_passwd.db
+chmod 0640 /etc/postfix/pgsql_virtual_aliases.cf /etc/postfix/private/sasl_passwd.db
 
 cert_dir="$(find /caddy_data/certificates -type f -name 'mail.tikhvin-palomnik.ru.crt' -print -quit 2>/dev/null | sed 's#/mail.tikhvin-palomnik.ru.crt$##')"
 if [ -n "$cert_dir" ] && [ -f "$cert_dir/mail.tikhvin-palomnik.ru.key" ]; then
