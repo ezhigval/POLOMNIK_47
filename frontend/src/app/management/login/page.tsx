@@ -1,3 +1,4 @@
+import { BrandMark } from "@/components/brand-mark";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import type { Metadata } from "next";
@@ -23,7 +24,8 @@ export default async function ManagementLoginPage() {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-stone-100 px-4 py-12">
-      <Link href="/" className="mb-8 text-sm text-stone-500 hover:text-brand-800">
+      <Link href="/" className="mb-6 flex flex-col items-center gap-3 text-sm text-stone-500 hover:text-brand-800">
+        <BrandMark className="size-20" />
         ← На сайт
       </Link>
       <AdminLoginForm />

@@ -173,10 +173,10 @@ export function PageEditor({ page, templates }: PageEditorProps) {
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
                     <p className="font-medium text-stone-900">
-                      #{index + 1} · {block.type}
+                      {templates.find((item) => item.type === block.type)?.label ?? block.type}
                     </p>
                     <p className="text-xs text-stone-500">
-                      {block.is_visible ? "Видимый" : "Скрыт"} · sort {block.sort_order}
+                      {block.is_visible ? "На сайте" : "Скрыт"} · Блок {index + 1}
                     </p>
                   </div>
                   <div className="flex flex-wrap gap-2">

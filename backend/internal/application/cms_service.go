@@ -236,6 +236,18 @@ func DefaultBlockContent(blockType string) json.RawMessage {
 		return json.RawMessage(`{"eyebrow":"","title":"Текст","body":""}`)
 	case domain.BlockTypePopularDestinations, domain.BlockTypeTestimonials, domain.BlockTypeFeaturedRoute:
 		return json.RawMessage(`{}`)
+	case domain.BlockTypeInformationHero:
+		return json.RawMessage(`{"eyebrow":"Паломническая служба Тихвинской епархии","title":"Дорога к святыням начинается с доброй встречи","subtitle":"Рассказываем о монастырях, святынях и самой службе. Помогаем подготовиться к паломничеству и выбрать подходящую поездку.","primaryCta":"Смотреть поездки","primaryHref":"/search","secondaryCta":"О службе","secondaryHref":"#service"}`)
+	case domain.BlockTypeHolyPlaces:
+		return json.RawMessage(`{"eyebrow":"Места паломничества","title":"Монастыри и святыни","description":"История, расположение и полезная информация для паломников.","items":[]}`)
+	case domain.BlockTypeServiceProfile:
+		return json.RawMessage(`{"eyebrow":"О службе","title":"Под покровом Божией Матери «Тихвинская»","paragraphs":["Паломническая служба Тихвинской епархии организует поездки к православным святыням и помогает паломникам подготовиться к дороге."],"links":[{"label":"Сайт Тихвинской епархии","href":"https://www.tikhvin-eparhia.ru/"},{"label":"Храм Покрова на Боровой","href":"https://church-pokrov.ru/"}]}`)
+	case domain.BlockTypeServiceTeam:
+		return json.RawMessage(`{"eyebrow":"Люди службы","title":"Кто сопровождает паломников","description":"Руководители и сотрудники службы.","members":[]}`)
+	case domain.BlockTypeLegalDonation:
+		return json.RawMessage(`{"eyebrow":"Официально","title":"Документы и реквизиты","legalName":"","legalAddress":"","inn":"","kpp":"","ogrn":"","donationRecipient":"","donationBankName":"","donationAccount":"","donationCorrespondentAccount":"","donationBik":"","donationPurpose":"","donationUrl":""}`)
+	case domain.BlockTypeLaborTrips:
+		return json.RawMessage(`{"eyebrow":"Трудовое послушание","title":"Поездки с добрым делом","description":"Информация о трудовых поездках паломнической службы.","items":[]}`)
 	default:
 		return json.RawMessage(`{}`)
 	}
@@ -283,6 +295,12 @@ func BlockTemplates() []map[string]any {
 		domain.BlockTypeFeaturedRoute,
 		domain.BlockTypePopularDestinations,
 		domain.BlockTypeTestimonials,
+		domain.BlockTypeInformationHero,
+		domain.BlockTypeHolyPlaces,
+		domain.BlockTypeServiceProfile,
+		domain.BlockTypeServiceTeam,
+		domain.BlockTypeLegalDonation,
+		domain.BlockTypeLaborTrips,
 	}
 	labels := map[string]string{
 		domain.BlockTypeHero:                "Шапка главной",
@@ -295,6 +313,12 @@ func BlockTemplates() []map[string]any {
 		domain.BlockTypeFeaturedRoute:       "Тихвинский путь (главный маршрут)",
 		domain.BlockTypePopularDestinations: "Популярные направления (виджет)",
 		domain.BlockTypeTestimonials:        "Отзывы (виджет)",
+		domain.BlockTypeInformationHero:     "Инфо-режим: приветственный баннер",
+		domain.BlockTypeHolyPlaces:          "Инфо-режим: монастыри и святыни",
+		domain.BlockTypeServiceProfile:      "Инфо-режим: о службе и полезные ссылки",
+		domain.BlockTypeServiceTeam:         "Инфо-режим: руководители и сотрудники",
+		domain.BlockTypeLegalDonation:       "Инфо-режим: юридические данные и пожертвования",
+		domain.BlockTypeLaborTrips:          "Инфо-режим: трудовые поездки",
 	}
 	out := make([]map[string]any, 0, len(types))
 	for _, t := range types {

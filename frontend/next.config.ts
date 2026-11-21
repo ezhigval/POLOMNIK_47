@@ -64,6 +64,7 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  devIndicators: false,
   output: "standalone",
   allowedDevOrigins: lanDevHosts(),
   images: {

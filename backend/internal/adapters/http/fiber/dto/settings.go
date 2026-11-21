@@ -88,6 +88,7 @@ func ParseNotificationEvents(req NotificationSettingsUpsertRequest) (map[domain.
 }
 
 type SiteSettingsResponse struct {
+	LogoPath            string `json:"logo_path"`
 	SiteName            string `json:"site_name"`
 	FullName            string `json:"full_name"`
 	Tagline             string `json:"tagline"`
@@ -103,6 +104,7 @@ type SiteSettingsResponse struct {
 }
 
 type SiteSettingsUpsertRequest struct {
+	LogoPath            string `json:"logo_path"`
 	SiteName            string `json:"site_name"`
 	FullName            string `json:"full_name"`
 	Tagline             string `json:"tagline"`
@@ -119,6 +121,7 @@ type SiteSettingsUpsertRequest struct {
 
 func ToSiteSettings(settings domain.SiteSettings) SiteSettingsResponse {
 	return SiteSettingsResponse{
+		LogoPath:            settings.LogoPath,
 		SiteName:            settings.SiteName,
 		FullName:            settings.FullName,
 		Tagline:             settings.Tagline,
@@ -140,6 +143,7 @@ func SiteSettingsFromRequest(req SiteSettingsUpsertRequest) (domain.SiteSettings
 		return domain.SiteSettings{}, err
 	}
 	return domain.SiteSettings{
+		LogoPath:            req.LogoPath,
 		SiteName:            req.SiteName,
 		FullName:            req.FullName,
 		Tagline:             req.Tagline,

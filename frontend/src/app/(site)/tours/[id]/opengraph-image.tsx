@@ -3,6 +3,7 @@ import { ApiError } from "@/lib/api/client";
 import { getCachedTour } from "@/lib/api/tour-page";
 import { formatDateRange, formatPrice } from "@/lib/format";
 import { tourShowsPrice } from "@/lib/api/tours";
+import { socialBrand } from "@/lib/social-brand";
 import { siteConfig } from "@/lib/site-config";
 
 export const size = { width: 1200, height: 630 };
@@ -40,6 +41,7 @@ export default async function TourOpenGraphImage({ params }: OgImageProps) {
     }
   }
 
+  const brand = await socialBrand();
   return new ImageResponse(
     (
       <div
@@ -56,6 +58,8 @@ export default async function TourOpenGraphImage({ params }: OgImageProps) {
       >
         <div
           style={{
+            display: "flex",
+            alignItems: "center",
             fontSize: 22,
             lineHeight: 1.25,
             opacity: 0.85,
@@ -63,6 +67,7 @@ export default async function TourOpenGraphImage({ params }: OgImageProps) {
             maxWidth: 980,
           }}
         >
+          <img src={brand.image} width={84} height={84} alt="" style={{ marginRight: 20, backgroundColor: "white", borderRadius: 8 }} />
           {siteConfig.name}
         </div>
         <div style={{ fontSize: 64, fontWeight: 600, lineHeight: 1.05, maxWidth: 980 }}>
@@ -72,6 +77,6 @@ export default async function TourOpenGraphImage({ params }: OgImageProps) {
         <div style={{ fontSize: 26, marginTop: 12, opacity: 0.85 }}>{meta}</div>
       </div>
     ),
-    { ...size },
+    { ...size, fonts: brand.fonts },
   );
 }

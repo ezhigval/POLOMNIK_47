@@ -15,7 +15,7 @@ export const siteConfig = {
     url: process.env.NEXT_PUBLIC_PARENT_ORG_URL ?? "https://www.tikhvin-eparhia.ru/",
   },
   contactPhone: process.env.NEXT_PUBLIC_CONTACT_PHONE ?? "+79669334321",
-  contactPhoneDisplay: process.env.NEXT_PUBLIC_CONTACT_PHONE_DISPLAY ?? "+7 966 933-43-21",
+  contactPhoneDisplay: process.env.NEXT_PUBLIC_CONTACT_PHONE_DISPLAY ?? process.env.NEXT_PUBLIC_CONTACT_PHONE ?? "+7 (966) 933-43-21",
   contactEmail: process.env.NEXT_PUBLIC_CONTACT_EMAIL ?? "info@tikhvin-palomnik.ru",
   verification: {
     yandex: process.env.NEXT_PUBLIC_YANDEX_VERIFICATION?.trim() || "e79d1ee72d61fee0",
