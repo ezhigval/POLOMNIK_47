@@ -49,11 +49,9 @@ backup-db:
 worker:
 	cd backend && go run ./cmd/worker
 
-deploy:
-	chmod +x deploy/yandex/deploy.sh
-	./deploy/yandex/deploy.sh
+deploy: deploy-vps
 
 deploy-prod: deploy
 
 deploy-vps:
-	./deploy/vps/deploy.sh
+	VPS_SSH_HOST="$${VPS_SSH_HOST:-deploy@92.53.100.23}" VPS_ENV_FILE="$${VPS_ENV_FILE:-.env.production.test}" KNOWN_HOSTS="$${KNOWN_HOSTS:-deploy/vps/known_hosts}" ./deploy/vps/deploy.sh
