@@ -13,17 +13,9 @@ API: **https://api.tikhvin-palomnik.ru**
 
 1. Ветка от `main`: правка, `docker compose up --build -d`, тесты `go test` / `npm run lint`.
 2. GitHub: https://github.com/ezhigval/POLOMNIK_47 — PR в `main`, мерж после проверки.
-3. Прод:
+3. После успешных проверок коммита в `main` GitHub Actions запускает **Deploy production** на Selectel. Для ручного запуска выберите этот процесс в Actions и ветку `main`.
 
-Пока GitHub Actions Deploy красный (`DEPLOY_SSH_KEY`):
-
-```bash
-make deploy
-```
-
-После исправления секрета: зелёный CI на push в `main` запускает [`.github/workflows/deploy.yml`](../.github/workflows/deploy.yml). Вручную: Actions → **Deploy production**. Нужен **приватный** OpenSSH-ключ; опционально **`DEPLOY_SSH_HOST`**. Миграции: [MIGRATIONS.md](MIGRATIONS.md). Не `compose down -v`.
-
-SSH: `ssh smailikin70@93.77.165.81`, каталог **`/opt/polomnik`**.
+Для ручного выпуска из проверенной ревизии укажите путь к ключу пользователя `deploy` в переменной `SSH_KEY` и выполните `make deploy`. Рабочий каталог на Selectel — `/opt/polomnik`. Файл конфигурации действующего сайта — `.env.production.test`. Скрипт сверяет опубликованную ревизию через `/release.txt`. Миграции описаны в [MIGRATIONS.md](MIGRATIONS.md).
 
 ## Теги
 

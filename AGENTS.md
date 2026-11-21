@@ -12,8 +12,8 @@ API: **https://api.tikhvin-palomnik.ru**
 
 ```text
 ветка cursor/<имя>-… → проверки → PR в main → мерж
-  → GitHub Actions Deploy (сейчас падает: SSH Permission denied)
-  → запасной путь: make deploy
+  → GitHub Actions Deploy на Selectel
+  → ручной выпуск: SSH_KEY=<путь к ключу> make deploy
 ```
 
 `main` = то, что должно быть на проде. В `main` напрямую не коммитить. Одно существенное изменение — свой PR (hotfix и фичи не смешивать). Не мержить черновики **#25** и **#27**.
@@ -22,7 +22,7 @@ API: **https://api.tikhvin-palomnik.ru**
 make deploy
 ```
 
-Не два `make deploy` параллельно. Не `compose down -v`. Не коммитить секреты. Не force-push в `main`. Goose на проде только `up`. Пока `DEPLOY_SSH_KEY` не совпадает с ключом на ВМ, автодеплой из Actions не считать релизом.
+Не два `make deploy` параллельно. Не `compose down -v`. Не коммитить секреты. Не force-push в `main`. Goose на проде только `up`. После выпуска сверить `/release.txt` с коммитом в `main` и проверить готовность API.
 
 ## Код
 
