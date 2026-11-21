@@ -1,4 +1,4 @@
-.PHONY: test test-backend test-frontend build smoke smoke-docker e2e-docker integration-smoke-docker docker-up docker-down docker-prod docker-integrations backup-db worker check-ops deploy deploy-prod
+.PHONY: test test-backend test-frontend build smoke smoke-docker e2e-docker integration-smoke-docker docker-up docker-down docker-prod docker-integrations backup-db worker check-ops deploy deploy-prod deploy-vps
 
 test: test-backend test-frontend
 
@@ -54,3 +54,6 @@ deploy:
 	./deploy/yandex/deploy.sh
 
 deploy-prod: deploy
+
+deploy-vps:
+	./deploy/vps/deploy.sh

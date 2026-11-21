@@ -26,3 +26,7 @@ www.{$SITE_DOMAIN} {
 	}
 	reverse_proxy api:8080
 }
+
+mail.{$SITE_DOMAIN} {
+	respond "Mail SMTP is available on port 25" 200
+}

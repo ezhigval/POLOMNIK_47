@@ -87,14 +87,15 @@ async function main() {
   });
   assert(login.response.status === 200, "login failed");
 
+  const futureDate = (days) => new Date(suffix + days * 86_400_000).toISOString().slice(0, 10);
   const tourPayload = {
     slug: `smoke-${suffix}`,
     title: "Smoke Test Tour",
     description: "Automated smoke test tour",
     price: 12000,
     currency: "RUB",
-    date_start: "2026-10-01",
-    date_end: "2026-10-05",
+    date_start: futureDate(30),
+    date_end: futureDate(34),
     slots_total: 10,
     slots_left: 10,
     location: "Moscow",
