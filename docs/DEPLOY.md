@@ -152,7 +152,9 @@ Worker:
 
 Скрипт `deploy/vps/deploy.sh` переносит код на уже подготовленный VPS и запускает тот же Compose production overlay. Он не отправляет `.env.production`, uploads или `backups/`, не останавливает стек перед пересозданием и не удаляет Docker volumes. Deploy-пользователь должен уже иметь доступ к Docker; root SSH не требуется.
 
-Файл `deploy/vps/compose.prod.yml` сохраняет PostgreSQL в отдельном volume `polomnik_postgres_vps_data`; повторные выкладки используют тот же volume. Файл `.env.production.live` тоже исключён из синхронизации.
+Файл `deploy/vps/compose.prod.yml` сохраняет PostgreSQL в отдельном volume `polomnik_postgres_vps_data`; повторные выкладки используют тот же volume. Файлы `.env.production.live` и `.env.mail` тоже исключены из синхронизации.
+
+Почтовый контейнер принимает только письма на `info@tikhvin-palomnik.ru`, получает актуальный список адресатов из `site_settings.mail_forward_to` и отправляет сообщения через SMTP-реле Selectel. На VPS подготовьте `.env.mail` с `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, `SMTP_RELAY_USERNAME` и `SMTP_RELAY_PASSWORD` из защищённых настроек сервера/Selectel; права файла — `600`. Порт TCP 25 требуется для приёма входящих писем. Не публикуйте порт базы данных.
 
 Перед первым запуском проверьте fingerprint VPS у провайдера и внесите его в `~/.ssh/known_hosts`. Затем укажите проверенный SSH-target и ключ:
 

@@ -59,6 +59,7 @@ rsync -az --delete-delay -e "$RSYNC_SSH" \
   --exclude backups \
   --exclude .env.production \
   --exclude .env.production.live \
+  --exclude .env.mail \
   --exclude .env \
   --exclude frontend/.env.local \
   --exclude data/uploads \

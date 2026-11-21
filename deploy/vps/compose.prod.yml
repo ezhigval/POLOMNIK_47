@@ -1,7 +1,24 @@
 # Selectel VPS production overrides. Keep the database in its dedicated
 # persistent volume across code deployments.
-services: {}
+services:
+  mail:
+    build:
+      context: ./deploy/vps/mail
+    env_file:
+      - path: .env.mail
+        required: false
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "25:25"
+    volumes:
+      - mail_queue:/var/spool/postfix
+      - caddy_data:/caddy_data:ro
+    restart: unless-stopped
 
 volumes:
   postgres_data:
     name: polomnik_postgres_vps_data
+  mail_queue:
+    name: polomnik_mail_queue
