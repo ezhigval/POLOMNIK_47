@@ -5,13 +5,16 @@ import { CtaSection } from "@/components/cta-section";
 import { FaqSection } from "@/components/faq-section";
 import { FeaturedRouteSection } from "@/components/featured-route-section";
 import { HeroSection } from "@/components/hero-section";
+import { HomeSpaceSwitcher } from "@/components/home-space-switcher";
 import { HomeNewsSection, HomeNewsSkeleton } from "@/components/home-news-section";
 import { HowItWorksSection } from "@/components/how-it-works";
+import { InformationSpace, informationBlockTypes } from "@/components/information-space";
 import { PopularDestinations, PopularDestinationsSkeleton } from "@/components/popular-destinations";
 import { ViewedToursSection } from "@/components/viewed-tours-section";
 import { TestimonialsSection } from "@/components/testimonials-section";
 import { WhyUsSection } from "@/components/why-us-section";
 import { getPublishedPage } from "@/lib/api/cms";
+import type { CmsBlock } from "@/lib/api/cms";
 import { siteConfig } from "@/lib/site-config";
 import type { Metadata } from "next";
 
@@ -39,48 +42,55 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default async function HomePage() {
-  const cmsPage = await getPublishedPage("home").catch(() => null);
-
-  if (cmsPage && cmsPage.blocks.length > 0) {
-    return (
-      <CmsPageRenderer
-        blocks={cmsPage.blocks}
-        afterHero={
-          <Suspense fallback={<HomeNewsSkeleton />}>
-            <HomeNewsSection />
-          </Suspense>
-        }
-      />
-    );
-  }
-
+export default async function HomePage({ searchParams }: {
+  searchParams: Promise<{ mode?: string }>;
+}) {
+  const [cms, query] = await Promise.all([getPublishedPage("home").catch(() => null), searchParams]);
+  const guide = query.mode === "guide";
+  const blocks = cms?.blocks ?? [];
   return (
     <>
-      <div className="mx-auto max-w-6xl px-4 py-6 sm:py-8">
-        <HeroSection />
+      <HomeSpaceSwitcher guide={guide} />
+      <div className="home-space-enter" key={guide ? "guide" : "journeys"}>
+        {guide ? <InformationSpace blocks={blocks} fallback={!cms} /> :
+          <BookingSpace blocks={blocks.filter(block => !informationBlockTypes.has(block.type))} />}
       </div>
+    </>
+  );
+}
 
-      <div className="mx-auto max-w-6xl space-y-20 px-4 py-8 sm:space-y-24 sm:py-12">
-        <FeaturedRouteSection />
-        <Suspense fallback={<HomeNewsSkeleton />}>
-          <HomeNewsSection />
-        </Suspense>
-        <Suspense fallback={<PopularDestinationsSkeleton />}>
-          <PopularDestinations />
-        </Suspense>
-        <ViewedToursSection />
-        <AboutSection />
-        <WhyUsSection />
-        <HowItWorksSection />
+function BookingSpace({ blocks }: { blocks: CmsBlock[] }) {
+  if (blocks.length) {
+    return <CmsPageRenderer blocks={blocks} afterHero={
+      <Suspense fallback={<HomeNewsSkeleton />}><HomeNewsSection /></Suspense>
+    } />;
+  }
+  return (
+    <>
+    <div className="mx-auto max-w-6xl px-4 py-6 sm:py-8">
+      <HeroSection />
+    </div>
 
-        <Suspense fallback={<ReviewsSkeleton />}>
-          <TestimonialsSection />
-        </Suspense>
+    <div className="mx-auto max-w-6xl space-y-20 px-4 py-8 sm:space-y-24 sm:py-12">
+      <FeaturedRouteSection />
+      <Suspense fallback={<HomeNewsSkeleton />}>
+        <HomeNewsSection />
+      </Suspense>
+      <Suspense fallback={<PopularDestinationsSkeleton />}>
+        <PopularDestinations />
+      </Suspense>
+      <ViewedToursSection />
+      <AboutSection />
+      <WhyUsSection />
+      <HowItWorksSection />
 
-        <FaqSection />
-        <CtaSection />
-      </div>
+      <Suspense fallback={<ReviewsSkeleton />}>
+        <TestimonialsSection />
+      </Suspense>
+
+      <FaqSection />
+      <CtaSection />
+    </div>
     </>
   );
 }

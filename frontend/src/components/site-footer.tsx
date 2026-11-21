@@ -89,6 +89,16 @@ export function SiteFooter() {
                 Сайт Тихвинской епархии ↗
               </a>
             </li>
+            <li>
+              <a
+                href="https://church-pokrov.ru/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline decoration-stone-600 underline-offset-2 transition hover:text-white hover:decoration-white"
+              >
+                Храм Покрова на Боровой ↗
+              </a>
+            </li>
           </ul>
           <p className="mt-4 text-xs text-stone-500">Пн–Пт, 10:00–19:00 (МСК)</p>
         </div>

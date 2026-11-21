@@ -10,7 +10,13 @@ export type CmsBlockType =
   | "rich_text"
   | "popular_destinations"
   | "testimonials"
-  | "featured_route";
+  | "featured_route"
+  | "information_hero"
+  | "holy_places"
+  | "service_profile"
+  | "service_team"
+  | "legal_donation"
+  | "labor_trips";
 
 export type HeroBlockContent = {
   eyebrow?: string;
@@ -84,6 +90,72 @@ export type FeaturedRouteBlockContent = {
   days?: { title: string; points: string[] }[];
 };
 
+export type InformationHeroBlockContent = Pick<HeroBlockContent, "eyebrow" | "title" | "subtitle"> & {
+  primaryCta?: string;
+  primaryHref?: string;
+  secondaryCta?: string;
+  secondaryHref?: string;
+};
+
+export type HolyPlacesBlockContent = {
+  eyebrow?: string;
+  title?: string;
+  description?: string;
+  items?: {
+    name: string;
+    region: string;
+    description: string;
+    address: string;
+    directions?: string;
+    latitude: string;
+    longitude: string;
+    mapUrl: string;
+    phone: string;
+    email: string;
+    websiteUrl: string;
+    bookingHref: string;
+    bookingLabel: string;
+  }[];
+};
+
+export type ServiceProfileBlockContent = {
+  eyebrow?: string;
+  title?: string;
+  paragraphs?: string[];
+  links?: { label: string; href: string }[];
+};
+
+export type ServiceTeamBlockContent = {
+  eyebrow?: string;
+  title?: string;
+  description?: string;
+  members?: { name: string; role: string; bio: string; phone: string; email: string }[];
+};
+
+export type LegalDonationBlockContent = {
+  eyebrow?: string;
+  title?: string;
+  legalName?: string;
+  legalAddress?: string;
+  inn?: string;
+  kpp?: string;
+  ogrn?: string;
+  donationRecipient?: string;
+  donationBankName?: string;
+  donationAccount?: string;
+  donationCorrespondentAccount?: string;
+  donationBik?: string;
+  donationPurpose?: string;
+  donationUrl?: string;
+};
+
+export type LaborTripsBlockContent = {
+  eyebrow?: string;
+  title?: string;
+  description?: string;
+  items?: { name: string; place: string; dates: string; description: string; bookingHref: string }[];
+};
+
 export type CmsBlockContent =
   | HeroBlockContent
   | AboutBlockContent
@@ -93,6 +165,12 @@ export type CmsBlockContent =
   | CtaBlockContent
   | RichTextBlockContent
   | FeaturedRouteBlockContent
+  | InformationHeroBlockContent
+  | HolyPlacesBlockContent
+  | ServiceProfileBlockContent
+  | ServiceTeamBlockContent
+  | LegalDonationBlockContent
+  | LaborTripsBlockContent
   | Record<string, never>;
 
 export type CmsBlock = {
