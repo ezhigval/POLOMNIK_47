@@ -11,8 +11,7 @@ set -eu
 
 umask 077
 cat > /etc/postfix/pgsql_virtual_aliases.cf <<EOF
-hosts = ${POSTGRES_HOST}
-port = ${POSTGRES_PORT}
+hosts = ${POSTGRES_HOST}:${POSTGRES_PORT}
 user = ${POSTGRES_USER}
 password = ${POSTGRES_PASSWORD}
 dbname = ${POSTGRES_DB}
