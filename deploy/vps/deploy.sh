@@ -54,6 +54,10 @@ echo "==> Checking the existing VPS deployment directory"
 ssh "${SSH_OPTS[@]}" "$VPS_SSH_HOST" \
   "test -d ${REMOTE_DIR_Q} && test -s ${REMOTE_DIR_Q}/${VPS_ENV_FILE} && docker compose version >/dev/null"
 
+# Only this directory contains application source exclusively. Remove retired modules
+# here so Next does not compile obsolete routes from the previous release.
+rsync -az --delete-after -e "$RSYNC_SSH" "$ROOT_DIR/frontend/src/" "$VPS_SSH_HOST:$VPS_DEPLOY_DIR/frontend/src/"
+
 echo "==> Syncing application files (secrets and persistent data are excluded)"
 rsync -az -e "$RSYNC_SSH" \
   --exclude .git \
@@ -71,8 +75,22 @@ rsync -az -e "$RSYNC_SSH" \
   --exclude backend/data/uploads \
   "$ROOT_DIR/" "${VPS_SSH_HOST}:${VPS_DEPLOY_DIR}/"
 
+revision="$(git -C "$ROOT_DIR" rev-parse HEAD)"
+if [[ ! "$revision" =~ ^[0-9a-f]{40}$ ]]; then exit 2; fi
+printf '%s\n' "$revision" | ssh "${SSH_OPTS[@]}" "$VPS_SSH_HOST" "cat > ${REMOTE_DIR_Q}/frontend/public/release.txt"
+
 echo "==> Building and starting the Compose production stack"
 ssh "${SSH_OPTS[@]}" "$VPS_SSH_HOST" \
   "cd ${REMOTE_DIR_Q} && ${COMPOSE} build frontend api worker mail migrate && ${COMPOSE} up -d && ${COMPOSE} ps"
 
-echo "Deployment commands completed. Verify the target privately before changing DNS."
+for attempt in {1..30}; do
+  deployed="$(curl -fsS --max-time 10 --resolve "tikhvin-palomnik.ru:443:$VPS_HOST" \
+    "https://tikhvin-palomnik.ru/release.txt?revision=$revision" || true)"
+  if [[ "$deployed" == "$revision" ]]; then
+    echo "Selectel serves $revision."
+    exit 0
+  fi
+  sleep 5
+done
+echo "The site did not serve the expected revision $revision." >&2
+exit 1
