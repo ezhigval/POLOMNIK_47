@@ -12,7 +12,7 @@ export function SiteFooter() {
       <div className="mx-auto grid max-w-6xl gap-10 px-4 py-12 sm:grid-cols-2 lg:grid-cols-5">
         <div className="lg:col-span-2">
           <div className="flex items-start gap-3">
-            <BrandMark className="size-10 bg-brand-700" />
+            <BrandMark className="size-16 p-1" />
             <div>
               <p className="text-sm font-semibold leading-snug text-white">{siteConfig.fullName}</p>
             </div>
@@ -87,6 +87,16 @@ export function SiteFooter() {
                 className="underline decoration-stone-600 underline-offset-2 transition hover:text-white hover:decoration-white"
               >
                 Сайт Тихвинской епархии ↗
+              </a>
+            </li>
+            <li>
+              <a
+                href="https://church-pokrov.ru/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline decoration-stone-600 underline-offset-2 transition hover:text-white hover:decoration-white"
+              >
+                Храм Покрова на Боровой ↗
               </a>
             </li>
           </ul>

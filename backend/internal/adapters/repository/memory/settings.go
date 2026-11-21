@@ -42,6 +42,9 @@ func (s *Store) UpsertSiteSettings(_ context.Context, settings domain.SiteSettin
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
+	if settings.LogoPath == "" && s.siteSettings != nil {
+		settings.LogoPath = s.siteSettings.LogoPath
+	}
 	copy := cloneSiteSettings(settings)
 	s.siteSettings = &copy
 	return cloneSiteSettings(settings), nil

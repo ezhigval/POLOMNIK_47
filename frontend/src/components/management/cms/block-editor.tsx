@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { updateCmsBlockAction } from "@/app/management/actions";
+import { uploadPortraitAction, updateCmsBlockAction } from "@/app/management/actions";
 import type { CmsBlock, CmsBlockType } from "@/lib/api/cms";
 import { featuredRoute } from "@/lib/featured-route";
 import { FormError } from "@/components/form-error";
@@ -222,6 +222,24 @@ function BlockContentForm({ type, content, loading, error, onCancel, onSave }: B
     return (
       <RichTextForm content={content} loading={loading} error={error} onCancel={onCancel} onSave={onSave} />
     );
+  }
+  if (type === "information_hero") {
+    return <InformationHeroForm content={content} loading={loading} error={error} onCancel={onCancel} onSave={onSave} />;
+  }
+  if (type === "holy_places") {
+    return <HolyPlacesForm content={content} loading={loading} error={error} onCancel={onCancel} onSave={onSave} />;
+  }
+  if (type === "service_profile") {
+    return <ServiceProfileForm content={content} loading={loading} error={error} onCancel={onCancel} onSave={onSave} />;
+  }
+  if (type === "service_team") {
+    return <ServiceTeamForm content={content} loading={loading} error={error} onCancel={onCancel} onSave={onSave} />;
+  }
+  if (type === "legal_donation") {
+    return <LegalDonationForm content={content} loading={loading} error={error} onCancel={onCancel} onSave={onSave} />;
+  }
+  if (type === "labor_trips") {
+    return <LaborTripsForm content={content} loading={loading} error={error} onCancel={onCancel} onSave={onSave} />;
   }
 
   return <p className="text-sm text-stone-500">Неизвестный тип блока.</p>;
@@ -684,6 +702,183 @@ function RichTextForm({ content, loading, error, onCancel, onSave }: BlockFormFi
   );
 }
 
+function InformationHeroForm({ content, loading, error, onCancel, onSave }: BlockFormFields) {
+  const [eyebrow, setEyebrow] = useState(stringValue(content, "eyebrow"));
+  const [title, setTitle] = useState(stringValue(content, "title"));
+  const [subtitle, setSubtitle] = useState(stringValue(content, "subtitle"));
+  const [primaryCta, setPrimaryCta] = useState(stringValue(content, "primaryCta"));
+  const [primaryHref, setPrimaryHref] = useState(stringValue(content, "primaryHref"));
+  const [secondaryCta, setSecondaryCta] = useState(stringValue(content, "secondaryCta"));
+  const [secondaryHref, setSecondaryHref] = useState(stringValue(content, "secondaryHref"));
+  return (
+    <form className="space-y-3" onSubmit={(event) => { event.preventDefault(); onSave({ eyebrow, title, subtitle, primaryCta, primaryHref, secondaryCta, secondaryHref }); }}>
+      <Field label="Надзаголовок" value={eyebrow} onChange={setEyebrow} />
+      <Field label="Заголовок" value={title} onChange={setTitle} />
+      <Field label="Текст баннера" value={subtitle} onChange={setSubtitle} multiline />
+      <div className="grid gap-3 sm:grid-cols-2">
+        <Field label="Основная кнопка" value={primaryCta} onChange={setPrimaryCta} />
+        <Field label="Ссылка основной кнопки" value={primaryHref} onChange={setPrimaryHref} />
+        <Field label="Вторая кнопка" value={secondaryCta} onChange={setSecondaryCta} />
+        <Field label="Ссылка второй кнопки" value={secondaryHref} onChange={setSecondaryHref} />
+      </div>
+      <FormActions loading={loading} error={error} onCancel={onCancel} />
+    </form>
+  );
+}
+
+function HolyPlacesForm({ content, loading, error, onCancel, onSave }: BlockFormFields) {
+  const [eyebrow, setEyebrow] = useState(stringValue(content, "eyebrow"));
+  const [title, setTitle] = useState(stringValue(content, "title"));
+  const [description, setDescription] = useState(stringValue(content, "description"));
+  const [items, setItems] = useState(objectArray<Record<string, string>>(content, "items", [
+    "name", "region", "description", "directions", "address", "latitude", "longitude", "mapUrl", "phone", "phoneLabel", "email", "websiteUrl", "bookingHref", "bookingLabel",
+  ]));
+  return (
+    <form className="space-y-3" onSubmit={(event) => { event.preventDefault(); onSave({ eyebrow, title, description, items }); }}>
+      <Field label="Надзаголовок" value={eyebrow} onChange={setEyebrow} />
+      <Field label="Заголовок" value={title} onChange={setTitle} />
+      <Field label="Вводный текст" value={description} onChange={setDescription} multiline />
+      <p className="text-xs leading-5 text-stone-500">Для карты укажите координаты или прямую ссылку. Кнопка записи может вести на поиск туров, например /search?route=tikhvin-path.</p>
+      <ObjectListEditor label="Монастыри и святыни" rows={items} fields={[
+        { key: "name", value: "Название" }, { key: "region", value: "Город или регион" },
+        { key: "description", value: "Что посмотреть" }, { key: "directions", value: "Как добраться" }, { key: "address", value: "Адрес (индекс, регион, населённый пункт, улица, дом)" },
+        { key: "latitude", value: "Широта" }, { key: "longitude", value: "Долгота" },
+        { key: "mapUrl", value: "Ссылка на карту (необязательно)" }, { key: "phone", value: "Телефон с кодом +7" },
+        { key: "phoneLabel", value: "Чей телефон (например, свечная лавка)" },
+        { key: "email", value: "Электронная почта" }, { key: "websiteUrl", value: "Сайт монастыря" },
+        { key: "bookingHref", value: "Ссылка на заказ поездки" }, { key: "bookingLabel", value: "Подпись кнопки записи" },
+      ]} onChange={setItems} />
+      <FormActions loading={loading} error={error} onCancel={onCancel} />
+    </form>
+  );
+}
+
+function ServiceProfileForm({ content, loading, error, onCancel, onSave }: BlockFormFields) {
+  const [eyebrow, setEyebrow] = useState(stringValue(content, "eyebrow"));
+  const [title, setTitle] = useState(stringValue(content, "title"));
+  const [paragraphs, setParagraphs] = useState(stringArray(content, "paragraphs"));
+  const [links, setLinks] = useState(objectArray<{ label: string; href: string }>(content, "links", ["label", "href"]));
+  return (
+    <form className="space-y-3" onSubmit={(event) => { event.preventDefault(); onSave({ eyebrow, title, paragraphs, links }); }}>
+      <Field label="Надзаголовок" value={eyebrow} onChange={setEyebrow} />
+      <Field label="Заголовок" value={title} onChange={setTitle} />
+      <StringListEditor label="Абзацы об организации" values={paragraphs} onChange={setParagraphs} />
+      <ObjectListEditor label="Связанные сайты" rows={links} fields={[{ key: "label", value: "Название" }, { key: "href", value: "Ссылка" }]} onChange={(rows) => setLinks(rows as { label: string; href: string }[])} />
+      <FormActions loading={loading} error={error} onCancel={onCancel} />
+    </form>
+  );
+}
+
+function ServiceTeamForm({ content, loading, error, onCancel, onSave }: BlockFormFields) {
+  const [eyebrow, setEyebrow] = useState(stringValue(content, "eyebrow"));
+  const [title, setTitle] = useState(stringValue(content, "title"));
+  const [description, setDescription] = useState(stringValue(content, "description"));
+  const fields = [
+    { key: "name", label: "Имя" }, { key: "role", label: "Должность" },
+    { key: "bio", label: "Описание" }, { key: "phone", label: "Телефон с кодом +7" },
+    { key: "email", label: "Электронная почта" }, { key: "photo", label: "Ссылка на портрет" },
+  ];
+  const [members, setMembers] = useState(() => objectArray<Record<string, string>>(
+    content, "members", fields.map(field => field.key),
+  ));
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState("");
+
+  function edit(index: number, field: string, value: string) {
+    setMembers(current => current.map((member, i) => i === index ? { ...member, [field]: value } : member));
+  }
+
+  async function upload(index: number, file: File) {
+    setUploading(true);
+    setUploadError("");
+    const data = new FormData();
+    data.set("file", file);
+    try {
+      const image = await uploadPortraitAction(data);
+      edit(index, "photo", image.url);
+    } catch (err) {
+      setUploadError(err instanceof Error ? err.message : "Не удалось загрузить портрет");
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  return (
+    <form className="space-y-3" onSubmit={(event) => {
+      event.preventDefault();
+      if (!uploading) onSave({ eyebrow, title, description, members });
+    }}>
+      <Field label="Надзаголовок" value={eyebrow} onChange={setEyebrow} />
+      <Field label="Заголовок" value={title} onChange={setTitle} />
+      <Field label="Описание состава службы" value={description} onChange={setDescription} multiline />
+      <fieldset disabled={uploading || loading} className="space-y-4">
+        {members.map((member, index) => (
+          <fieldset key={index} className="space-y-2 rounded-xl border bg-white p-4">
+            <legend className="px-1 font-medium">{member.name || "Новый сотрудник"}</legend>
+            {fields.map(field => <Field key={field.key} label={field.label} value={member[field.key] ?? ""}
+              onChange={value => edit(index, field.key, value)} multiline={field.key === "bio"} />)}
+            <label className="block text-sm">Загрузить портрет
+              <input type="file" accept="image/jpeg,image/png,image/webp" className="input-field" onChange={event => {
+                const file = event.target.files?.[0];
+                event.target.value = "";
+                if (file) void upload(index, file);
+              }} />
+            </label>
+            <button type="button" className="btn-danger" onClick={() => setMembers(list => list.filter((_, i) => i !== index))}>Удалить карточку</button>
+          </fieldset>
+        ))}
+        <button type="button" className="btn-secondary" onClick={() => setMembers(list => [...list, {}])}>Добавить сотрудника</button>
+      </fieldset>
+      {uploading && <p role="status">Загружаем портрет…</p>}
+      <FormError>{uploadError}</FormError>
+      <FormActions loading={loading || uploading} error={error} onCancel={onCancel} />
+    </form>
+  );
+}
+
+function LegalDonationForm({ content, loading, error, onCancel, onSave }: BlockFormFields) {
+  const [eyebrow, setEyebrow] = useState(stringValue(content, "eyebrow"));
+  const [title, setTitle] = useState(stringValue(content, "title"));
+  const keys = ["legalName", "legalAddress", "inn", "kpp", "ogrn", "donationRecipient", "donationBankName", "donationAccount", "donationCorrespondentAccount", "donationBik", "donationPurpose", "donationUrl"] as const;
+  const labels: Record<(typeof keys)[number], string> = {
+    legalName: "Полное юридическое наименование", legalAddress: "Юридический адрес", inn: "ИНН", kpp: "КПП", ogrn: "ОГРН",
+    donationRecipient: "Получатель пожертвования", donationBankName: "Банк получателя", donationAccount: "Расчётный счёт",
+    donationCorrespondentAccount: "Корреспондентский счёт", donationBik: "БИК", donationPurpose: "Назначение пожертвования",
+    donationUrl: "Ссылка на страницу пожертвований",
+  };
+  const [values, setValues] = useState<Record<(typeof keys)[number], string>>(
+    Object.fromEntries(keys.map((key) => [key, stringValue(content, key)])) as Record<(typeof keys)[number], string>,
+  );
+  return (
+    <form className="space-y-3" onSubmit={(event) => { event.preventDefault(); onSave({ eyebrow, title, ...values }); }}>
+      <p className="text-xs leading-5 text-stone-500">Заполняйте только по утверждённым документам. ИНН, КПП, ОГРН и банковские реквизиты не следует вводить по памяти.</p>
+      <Field label="Надзаголовок" value={eyebrow} onChange={setEyebrow} />
+      <Field label="Заголовок" value={title} onChange={setTitle} />
+      {keys.map((key) => <Field key={key} label={labels[key]} value={values[key]} onChange={(value) => setValues((current) => ({ ...current, [key]: value }))} multiline={key === "legalAddress" || key === "donationPurpose"} />)}
+      <FormActions loading={loading} error={error} onCancel={onCancel} />
+    </form>
+  );
+}
+
+function LaborTripsForm({ content, loading, error, onCancel, onSave }: BlockFormFields) {
+  const [eyebrow, setEyebrow] = useState(stringValue(content, "eyebrow"));
+  const [title, setTitle] = useState(stringValue(content, "title"));
+  const [description, setDescription] = useState(stringValue(content, "description"));
+  const [items, setItems] = useState(objectArray<{ name: string; place: string; dates: string; description: string; bookingHref: string }>(content, "items", ["name", "place", "dates", "description", "bookingHref"]));
+  return (
+    <form className="space-y-3" onSubmit={(event) => { event.preventDefault(); onSave({ eyebrow, title, description, items }); }}>
+      <Field label="Надзаголовок" value={eyebrow} onChange={setEyebrow} />
+      <Field label="Заголовок" value={title} onChange={setTitle} />
+      <Field label="Вводный текст" value={description} onChange={setDescription} multiline />
+      <ObjectListEditor label="Трудовые поездки" rows={items} fields={[
+        { key: "name", value: "Название поездки" }, { key: "place", value: "Место" }, { key: "dates", value: "Даты или период" },
+        { key: "description", value: "Описание и условия участия" }, { key: "bookingHref", value: "Ссылка на запись" },
+      ]} onChange={(rows) => setItems(rows as { name: string; place: string; dates: string; description: string; bookingHref: string }[])} />
+      <FormActions loading={loading} error={error} onCancel={onCancel} />
+    </form>
+  );
+}
+
 function blockTypeLabel(type: CmsBlockType) {
   switch (type) {
     case "hero":
@@ -706,6 +901,18 @@ function blockTypeLabel(type: CmsBlockType) {
       return "Отзывы";
     case "featured_route":
       return "Тихвинский путь";
+    case "information_hero":
+      return "Инфо-режим: приветственный баннер";
+    case "holy_places":
+      return "Инфо-режим: монастыри и святыни";
+    case "service_profile":
+      return "Инфо-режим: о службе и полезные ссылки";
+    case "service_team":
+      return "Инфо-режим: руководители и сотрудники";
+    case "legal_donation":
+      return "Инфо-режим: юридические данные и пожертвования";
+    case "labor_trips":
+      return "Инфо-режим: трудовые поездки";
     default:
       return type;
   }

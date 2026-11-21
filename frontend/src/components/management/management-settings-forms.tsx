@@ -9,6 +9,7 @@ import {
   deleteAdminRoleAction,
   assignAdminRoleUserAction,
 } from "@/app/management/actions";
+import { SiteLogoField } from "./site-logo-field";
 import { FormError } from "@/components/form-error";
 
 export type SettingsChannel = { id: string; configured: boolean; label: string };
@@ -26,6 +27,7 @@ export type SettingsEvent = {
   recipients: SettingsRecipient[];
 };
 export type SiteSettingsFormData = {
+  logo_path?: string;
   site_name: string;
   full_name: string;
   tagline: string;
@@ -96,6 +98,8 @@ export function ManagementSettingsForms({
   canManageRecipients,
   permissionOptions,
 }: Props) {
+  const [pendingLogo, setPendingLogo] = useState<string>();
+  const [logoBusy, setLogoBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -142,6 +146,7 @@ export function ManagementSettingsForms({
     const form = new FormData(event.currentTarget);
     try {
       await updateSiteSettingsAction({
+        logo_path: pendingLogo,
         site_name: String(form.get("site_name") ?? ""),
         full_name: String(form.get("full_name") ?? ""),
         tagline: String(form.get("tagline") ?? ""),
@@ -155,6 +160,7 @@ export function ManagementSettingsForms({
         contact_email: String(form.get("contact_email") ?? ""),
         mail_forward_to: String(form.get("mail_forward_to") ?? ""),
       });
+      setPendingLogo(undefined);
       setSaved("Настройки сайта сохранены.");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Не удалось сохранить настройки сайта");
@@ -220,6 +226,7 @@ export function ManagementSettingsForms({
             Публичные несекретные поля. Секреты (токены, ключи) только в env на сервере.
           </p>
         </div>
+        <SiteLogoField value={pendingLogo ?? site.logo_path ?? ""} onChange={setPendingLogo} onBusy={setLogoBusy} />
         <div className="grid gap-4 sm:grid-cols-2">
           {(
             [
@@ -255,7 +262,7 @@ export function ManagementSettingsForms({
             placeholder="smailikin70@yandex.ru"
           />
         </label>
-        <button type="submit" className="btn-primary" disabled={loading}>
+        <button type="submit" className="btn-primary" disabled={loading || logoBusy}>
           Сохранить сайт
         </button>
       </form>

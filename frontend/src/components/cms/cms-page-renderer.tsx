@@ -32,7 +32,7 @@ function asContent<T>(content: Record<string, unknown>): T {
 }
 
 export function CmsPageRenderer({ blocks, afterHero }: CmsPageRendererProps) {
-  const ordered = [...blocks].sort((a, b) => a.sort_order - b.sort_order);
+  const ordered = blocks.filter((block) => block.is_visible).sort((a, b) => a.sort_order - b.sort_order);
   const heroBlocks = ordered.filter((block) => block.type === "hero");
   const bodyBlocks = ordered.filter((block) => block.type !== "hero");
   const hasFeaturedRoute = ordered.some((block) => block.type === "featured_route" && block.is_visible);

@@ -102,5 +102,11 @@ func HomePageBlockSpecs() []homeBlockSpec {
 				"href":"/search"
 			}`),
 		},
+		{Type: domain.BlockTypeInformationHero, Content: DefaultBlockContent(domain.BlockTypeInformationHero)},
+		{Type: domain.BlockTypeHolyPlaces, Content: DefaultBlockContent(domain.BlockTypeHolyPlaces)},
+		{Type: domain.BlockTypeServiceProfile, Content: DefaultBlockContent(domain.BlockTypeServiceProfile)},
+		{Type: domain.BlockTypeServiceTeam, Content: DefaultBlockContent(domain.BlockTypeServiceTeam)},
+		{Type: domain.BlockTypeLegalDonation, Content: DefaultBlockContent(domain.BlockTypeLegalDonation)},
+		{Type: domain.BlockTypeLaborTrips, Content: DefaultBlockContent(domain.BlockTypeLaborTrips)},
 	}
 }

@@ -109,13 +109,13 @@ export async function createManagementTour(input: TourUpsertInput) {
   return body.data;
 }
 
-export async function uploadManagementImage(file: File) {
+export async function uploadManagementImage(file: File, scope: "tours" | "cms" | "site-settings" = "tours") {
   const auth = await managementAuthHeaders();
 
   const body = new FormData();
   body.append("file", file);
 
-  const payload = await requestJson<DataEnvelope<{ url: string; path: string }>>(apiUrl("/management/uploads"), {
+  const payload = await requestJson<DataEnvelope<{ url: string; path: string }>>(apiUrl(scope === "tours" ? "/management/uploads" : `/management/${scope}/uploads`), {
     method: "POST",
     cache: "no-store",
     headers: {
@@ -662,6 +662,7 @@ export type NotificationSettings = {
 };
 
 export type SiteSettings = {
+  logo_path?: string;
   site_name: string;
   full_name: string;
   tagline: string;

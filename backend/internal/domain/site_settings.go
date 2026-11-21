@@ -1,19 +1,24 @@
 package domain
 
 import (
+	"regexp"
 	"strings"
 	"time"
 	"unicode/utf8"
 )
 
 const (
-	siteSettingsRowID      int16 = 1
-	maxSiteFieldLen              = 500
-	maxSiteDescriptionLen        = 2000
-	maxMailForwardRecipients     = 20
+	siteSettingsRowID        int16 = 1
+	maxSiteFieldLen                = 500
+	maxSiteDescriptionLen          = 2000
+	maxMailForwardRecipients       = 20
 )
 
+// A custom mark is a PNG created by the site's image upload flow.
+var siteLogoPath = regexp.MustCompile(`^/uploads/[0-9]{4}/[0-9]{2}/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.png$`)
+
 type SiteSettings struct {
+	LogoPath            string
 	SiteName            string
 	FullName            string
 	Tagline             string
@@ -34,7 +39,11 @@ func SiteSettingsID() int16 {
 }
 
 func NewSiteSettings(input SiteSettings, now time.Time) (SiteSettings, error) {
+	if input.LogoPath != "" && input.LogoPath != "/images/service-logo.png" && !siteLogoPath.MatchString(input.LogoPath) {
+		return SiteSettings{}, ErrInvalidPhotoURL
+	}
 	settings := SiteSettings{
+		LogoPath:            input.LogoPath,
 		SiteName:            trimSiteField(input.SiteName, maxSiteFieldLen),
 		FullName:            trimSiteField(input.FullName, maxSiteFieldLen),
 		Tagline:             trimSiteField(input.Tagline, maxSiteFieldLen),
@@ -109,6 +118,9 @@ func ParseMailForwardList(raw string) ([]string, error) {
 
 func MergeSiteSettings(base, overlay SiteSettings) SiteSettings {
 	out := base
+	if overlay.LogoPath != "" {
+		out.LogoPath = overlay.LogoPath
+	}
 	if overlay.SiteName != "" {
 		out.SiteName = overlay.SiteName
 	}

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   COOKIE_CONSENT_EVENT,
   COOKIE_CONSENT_KEY,
@@ -11,6 +11,7 @@ import {
 } from "@/lib/cookie-consent";
 
 export function CookieBanner() {
+  const banner = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -40,12 +41,27 @@ export function CookieBanner() {
     return () => window.removeEventListener(COOKIE_CONSENT_EVENT, onOpen);
   }, []);
 
+  useEffect(() => {
+    const element = banner.current;
+    if (!element) return;
+    const root = document.documentElement;
+    const observer = new ResizeObserver(() => {
+      root.style.setProperty("--cookie-banner-height", element.offsetHeight + "px");
+    });
+    observer.observe(element);
+    return () => {
+      observer.disconnect();
+      root.style.removeProperty("--cookie-banner-height");
+    };
+  }, [visible]);
+
   if (!visible) {
     return null;
   }
 
   return (
     <div
+      ref={banner}
       role="dialog"
       aria-label="Настройки cookie"
       className="fixed inset-x-0 bottom-0 z-50 border-t border-stone-200 bg-white/95 p-4 shadow-lg backdrop-blur sm:p-5"

@@ -12,6 +12,28 @@
   --brand-950: #132c3e;
 }
 
+@keyframes home-space-enter {
+  from {
+    opacity: 0.25;
+    transform: translateY(0.6rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.home-space-enter {
+  animation: home-space-enter 260ms ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-space-enter {
+    animation: none;
+  }
+}
+
 @font-face {
   font-family: "Local Arial";
   src: url("/fonts/Arial.ttf") format("truetype");
