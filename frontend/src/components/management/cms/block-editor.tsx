@@ -236,22 +236,22 @@ function BlockContentForm({ type, content, loading, error, onCancel, onSave, onD
   }
   if (type === "about") {
     return (
-      <AboutForm content={content} loading={loading} error={error} onCancel={onCancel} onSave={onSave} />
+      <AboutForm content={content} loading={loading} error={error} onCancel={onCancel} onSave={onSave} onDraftChange={onDraftChange} />
     );
   }
   if (type === "why_us") {
     return (
-      <WhyUsForm content={content} loading={loading} error={error} onCancel={onCancel} onSave={onSave} />
+      <WhyUsForm content={content} loading={loading} error={error} onCancel={onCancel} onSave={onSave} onDraftChange={onDraftChange} />
     );
   }
   if (type === "how_it_works") {
     return (
-      <HowItWorksForm content={content} loading={loading} error={error} onCancel={onCancel} onSave={onSave} />
+      <HowItWorksForm content={content} loading={loading} error={error} onCancel={onCancel} onSave={onSave} onDraftChange={onDraftChange} />
     );
   }
   if (type === "faq") {
     return (
-      <FaqForm content={content} loading={loading} error={error} onCancel={onCancel} onSave={onSave} />
+      <FaqForm content={content} loading={loading} error={error} onCancel={onCancel} onSave={onSave} onDraftChange={onDraftChange} />
     );
   }
   if (type === "cta") {
@@ -552,7 +552,7 @@ function featuredDaysForEditor(content: Record<string, unknown>): { title: strin
   });
 }
 
-function AboutForm({ content, loading, error, onCancel, onSave }: BlockFormFields) {
+function AboutForm({ content, loading, error, onCancel, onSave, onDraftChange }: BlockFormFields) {
   const [eyebrow, setEyebrow] = useState(stringValue(content, "eyebrow"));
   const [title, setTitle] = useState(stringValue(content, "title"));
   const [paragraphs, setParagraphs] = useState(stringArray(content, "paragraphs"));
@@ -561,6 +561,10 @@ function AboutForm({ content, loading, error, onCancel, onSave }: BlockFormField
     objectArray<{ value: string; label: string }>(content, "stats", ["value", "label"]),
   );
   const [showContacts, setShowContacts] = useState(boolValue(content, "showContacts", true));
+  useEffect(() => {
+    onDraftChange?.({ eyebrow, title, paragraphs, highlights, showContacts, stats });
+  }, [eyebrow, title, paragraphs, highlights, showContacts, stats, onDraftChange]);
+
   return (
     <form
       className="space-y-3"
@@ -596,7 +600,7 @@ function AboutForm({ content, loading, error, onCancel, onSave }: BlockFormField
   );
 }
 
-function WhyUsForm({ content, loading, error, onCancel, onSave }: BlockFormFields) {
+function WhyUsForm({ content, loading, error, onCancel, onSave, onDraftChange }: BlockFormFields) {
   const [eyebrow, setEyebrow] = useState(stringValue(content, "eyebrow"));
   const [title, setTitle] = useState(stringValue(content, "title"));
   const [description, setDescription] = useState(stringValue(content, "description"));
@@ -607,6 +611,10 @@ function WhyUsForm({ content, loading, error, onCancel, onSave }: BlockFormField
       "icon",
     ]),
   );
+  useEffect(() => {
+    onDraftChange?.({ eyebrow, title, description, items });
+  }, [eyebrow, title, description, items, onDraftChange]);
+
   return (
     <form
       className="space-y-3"
@@ -633,7 +641,7 @@ function WhyUsForm({ content, loading, error, onCancel, onSave }: BlockFormField
   );
 }
 
-function HowItWorksForm({ content, loading, error, onCancel, onSave }: BlockFormFields) {
+function HowItWorksForm({ content, loading, error, onCancel, onSave, onDraftChange }: BlockFormFields) {
   const [eyebrow, setEyebrow] = useState(stringValue(content, "eyebrow"));
   const [title, setTitle] = useState(stringValue(content, "title"));
   const [description, setDescription] = useState(stringValue(content, "description"));
@@ -642,6 +650,10 @@ function HowItWorksForm({ content, loading, error, onCancel, onSave }: BlockForm
   const [steps, setSteps] = useState(
     objectArray<{ title: string; description: string }>(content, "steps", ["title", "description"]),
   );
+
+  useEffect(() => {
+    onDraftChange?.({ eyebrow, title, description, steps, ctaLabel, ctaHref });
+  }, [eyebrow, title, description, steps, ctaLabel, ctaHref, onDraftChange]);
 
   return (
     <form
@@ -670,13 +682,17 @@ function HowItWorksForm({ content, loading, error, onCancel, onSave }: BlockForm
   );
 }
 
-function FaqForm({ content, loading, error, onCancel, onSave }: BlockFormFields) {
+function FaqForm({ content, loading, error, onCancel, onSave, onDraftChange }: BlockFormFields) {
   const [eyebrow, setEyebrow] = useState(stringValue(content, "eyebrow"));
   const [title, setTitle] = useState(stringValue(content, "title"));
   const [description, setDescription] = useState(stringValue(content, "description"));
   const [items, setItems] = useState(
     objectArray<{ question: string; answer: string }>(content, "items", ["question", "answer"]),
   );
+
+  useEffect(() => {
+    onDraftChange?.({ eyebrow, title, description, items });
+  }, [eyebrow, title, description, items, onDraftChange]);
 
   return (
     <form
