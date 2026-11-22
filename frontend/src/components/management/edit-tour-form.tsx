@@ -77,7 +77,7 @@ export function EditTourForm({ tour }: EditTourFormProps) {
         Редактировать
       </button>
       <dialog ref={dialogRef} aria-labelledby={titleId}
-        onClose={() => { setOpen(false); setError(null); }}
+        onClose={() => { setOpen(false); setError(null); setIsRegular(Boolean(tour.is_regular)); }}
         onClick={(event) => { if (event.target === event.currentTarget && !loading) close(); }}
         className="fixed inset-0 m-auto max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-3xl overflow-y-auto rounded-2xl border border-stone-200 bg-white p-0 shadow-2xl backdrop:bg-stone-950/60">
         <header className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-stone-100 bg-white px-5 py-4">
@@ -179,7 +179,7 @@ export function EditTourForm({ tour }: EditTourFormProps) {
       <button type="submit" disabled={loading} className="btn-primary px-4 py-1.5 text-sm">
           {loading ? "Сохраняем..." : "Сохранить"}
         </button>
-        <button type="button" onClick={close} className="btn-secondary px-4 py-1.5 text-sm">
+        <button type="button" onClick={close} disabled={loading} className="btn-secondary px-4 py-1.5 text-sm">
           Отмена
         </button>
       </div>
