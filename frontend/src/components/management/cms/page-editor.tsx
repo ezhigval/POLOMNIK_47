@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useMemo, useState, useTransition } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import {
   createCmsBlockAction,
@@ -28,10 +28,35 @@ export function PageEditor({ page, templates }: PageEditorProps) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [metaDirty, setMetaDirty] = useState(false);
+  const dirtyBlockIds = useRef(new Set<string>());
   const [selectedType, setSelectedType] = useState(templates[0]?.type ?? "rich_text");
   const [homeSpace, setHomeSpace] = useState<HomeSpace>("guide");
   const isHome = page.slug === "home";
   const [isPending, startTransition] = useTransition();
+
+  const trackDirtyBlock = useCallback((blockId: string, dirty: boolean) => {
+    if (dirty) dirtyBlockIds.current.add(blockId);
+    else dirtyBlockIds.current.delete(blockId);
+  }, []);
+
+  useEffect(() => {
+    if (!metaDirty) return;
+    function warn(event: BeforeUnloadEvent) {
+      event.preventDefault();
+      event.returnValue = "";
+    }
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [metaDirty]);
+
+  function selectHomeSpace(value: HomeSpace) {
+    if (value === homeSpace) return;
+    if ((metaDirty || dirtyBlockIds.current.size > 0) &&
+      !window.confirm("Есть несохранённые изменения. Переключить пространство без сохранения?")) return;
+    setHomeSpace(value);
+    setError(null);
+  }
 
   const blocks = useMemo(
     () => [...(page.blocks ?? [])].sort((a, b) => a.sort_order - b.sort_order),
@@ -70,6 +95,7 @@ export function PageEditor({ page, templates }: PageEditorProps) {
         },
         page.slug,
       );
+      setMetaDirty(false);
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Не удалось сохранить страницу");
@@ -128,6 +154,7 @@ export function PageEditor({ page, templates }: PageEditorProps) {
     <div className="space-y-8">
       <form
         onSubmit={onSaveMeta}
+        onChangeCapture={() => setMetaDirty(true)}
         className="space-y-4 rounded-2xl border border-stone-200 bg-white p-5"
       >
         <div>
@@ -182,7 +209,7 @@ export function PageEditor({ page, templates }: PageEditorProps) {
               ] as const).map(({ value, label }) => (
                 <button key={value} type="button"
                   aria-pressed={homeSpace === value}
-                  onClick={() => { setHomeSpace(value); setError(null); }}
+                  onClick={() => selectHomeSpace(value)}
                   className={`min-h-11 rounded-xl px-3 py-2 text-sm font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-700 ${homeSpace === value
                     ? "bg-brand-800 text-white shadow-sm"
                     : "text-stone-700 hover:bg-white/80"}`}>
@@ -270,7 +297,7 @@ export function PageEditor({ page, templates }: PageEditorProps) {
                 </div>
 
                 <div className="mt-3">
-                  <BlockEditor block={block} pageId={page.id} slug={page.slug} />
+                  <BlockEditor block={block} pageId={page.id} slug={page.slug} onDirtyChange={trackDirtyBlock} />
                 </div>
               </li>
             ))}
