@@ -6,7 +6,7 @@ import {
   ManagementTableHead,
   ManagementTh,
 } from "@/components/management/management-panel";
-import { PublishLegalDocumentForm } from "@/components/management/publish-legal-document-form";
+import { ManagementCreateDialog } from "@/components/management/management-create-dialog";
 import { StatusBadge } from "@/components/management/status-badge";
 import { ManagementNoAccess } from "@/components/management/management-no-access";
 import { canAccessManagementPage } from "@/lib/management-page-access";
@@ -24,8 +24,8 @@ export default async function ManagementLegalPage() {
 
   return (
     <div className="space-y-8">
-      <div className="grid gap-8 lg:grid-cols-[1.2fr_1fr]">
-        <ManagementPanel title="Версии документов" description={`${documents.length} записей`}>
+      <div>
+        <ManagementPanel title="Версии документов" description={`${documents.length} записей`} action={<ManagementCreateDialog kind="legal" />}>
           <ManagementTable>
             <ManagementTableHead>
               <ManagementTh>Документ</ManagementTh>
@@ -67,7 +67,6 @@ export default async function ManagementLegalPage() {
           </ManagementTable>
         </ManagementPanel>
 
-        <PublishLegalDocumentForm />
       </div>
 
       <ManagementPanel title="Факты согласий" description={`Показаны последние ${consents.data.length}`}>
