@@ -50,7 +50,7 @@ export default async function HomePage({ searchParams }: {
   const guide = query.mode !== "trips";
   const blocks = cms?.blocks ?? [];
   return (
-    <div className={guide ? `${styles.home} ${styles.guide}` : styles.home}>
+    <div data-home-mode={guide ? "guide" : "trips"} className={guide ? `${styles.home} ${styles.guide}` : styles.home}>
       <HomeSpaceSwitcher guide={guide} />
       <div className="home-space-enter" key={guide ? "guide" : "journeys"}>
         {guide ? <InformationSpace blocks={blocks} fallback={!cms} /> :

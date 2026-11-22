@@ -34,6 +34,39 @@
   }
 }
 
+
+/* Match header controls to the active guide palette on the homepage only. */
+body:has(main > [data-home-mode="guide"]) .site-header {
+  --brand-50: #eff2e7;
+  --brand-100: #e1e8d6;
+  --brand-200: #c7d2b8;
+  --brand-700: #526c4d;
+  --brand-800: #395640;
+  --brand-900: #294434;
+  --brand-950: #192f24;
+}
+
+body:has(main > [data-home-mode="guide"]) .site-header .nav-link:hover {
+  background-color: var(--brand-50);
+  color: var(--brand-900);
+}
+
+body:has(main > [data-home-mode="guide"]) .site-header .btn-secondary {
+  border-color: var(--brand-200);
+  color: var(--brand-900);
+}
+
+body:has(main > [data-home-mode="guide"]) .site-header .btn-secondary:hover {
+  background-color: var(--brand-50);
+  border-color: var(--brand-700);
+}
+
+body:has(main > [data-home-mode="guide"]) .site-header button[aria-label="Открыть меню"],
+body:has(main > [data-home-mode="guide"]) .site-header button[aria-label="Закрыть меню"] {
+  border-color: var(--brand-200);
+  color: var(--brand-900);
+}
+
 @font-face {
   font-family: "Local Arial";
   src: url("/fonts/Arial.ttf") format("truetype");
