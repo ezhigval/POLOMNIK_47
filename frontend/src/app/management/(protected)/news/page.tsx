@@ -1,4 +1,4 @@
-import { CreateNewsForm } from "@/components/management/create-news-form";
+import { ManagementCreateDialog } from "@/components/management/management-create-dialog";
 import { ManagementNewsTable } from "@/components/management/management-news-table";
 import { ManagementPanel } from "@/components/management/management-panel";
 import { listManagementNews } from "@/lib/api/management";
@@ -13,15 +13,14 @@ export default async function ManagementNewsPage() {
   const articles = await listManagementNews();
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[1.2fr_1fr]">
+    <div>
       <ManagementPanel
         title="Новости"
         description={`${articles.length} статей. Звёздочка закрепляет на главной и в ленте (не больше трёх: одна главная и две рядом).`}
+        action={<ManagementCreateDialog kind="news" />}
       >
         <ManagementNewsTable articles={articles} />
       </ManagementPanel>
-
-      <CreateNewsForm />
     </div>
   );
 }
