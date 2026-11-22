@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { uploadPortraitAction, updateCmsBlockAction } from "@/app/management/actions";
 import type { CmsBlock, CmsBlockType } from "@/lib/api/cms";
@@ -11,6 +11,7 @@ type BlockEditorProps = {
   block: CmsBlock;
   pageId: string;
   slug: string;
+  onDirtyChange?: (blockId: string, dirty: boolean) => void;
 };
 
 type StringRow = { key: string; value: string };
@@ -47,15 +48,39 @@ function objectArray<T extends Record<string, string>>(
   });
 }
 
-export function BlockEditor({ block, pageId, slug }: BlockEditorProps) {
+export function BlockEditor({ block, pageId, slug, onDirtyChange }: BlockEditorProps) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
+  const [dirty, setDirty] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [isVisible, setIsVisible] = useState(block.is_visible);
   const [content, setContent] = useState<Record<string, unknown>>(block.content ?? {});
 
   const label = useMemo(() => blockTypeLabel(block.type), [block.type]);
+
+  useEffect(() => {
+    onDirtyChange?.(block.id, open && dirty);
+    return () => onDirtyChange?.(block.id, false);
+  }, [block.id, dirty, onDirtyChange, open]);
+
+  useEffect(() => {
+    if (!open || !dirty) return;
+    function warn(event: BeforeUnloadEvent) {
+      event.preventDefault();
+      event.returnValue = "";
+    }
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [dirty, open]);
+
+  function closeEditor() {
+    if (dirty && !window.confirm("Есть несохранённые изменения. Закрыть без сохранения?")) return;
+    setDirty(false);
+    setIsVisible(block.is_visible);
+    setContent(block.content ?? {});
+    setOpen(false);
+  }
 
   async function save(nextContent: Record<string, unknown>, nextVisible = isVisible) {
     setLoading(true);
@@ -69,6 +94,7 @@ export function BlockEditor({ block, pageId, slug }: BlockEditorProps) {
       );
       setContent(nextContent);
       setIsVisible(nextVisible);
+      setDirty(false);
       setOpen(false);
       router.refresh();
     } catch (err) {
@@ -118,10 +144,10 @@ export function BlockEditor({ block, pageId, slug }: BlockEditorProps) {
   }
 
   return (
-    <div className="mt-3 space-y-3 rounded-xl border border-stone-200 bg-stone-50 p-3">
+    <div onChangeCapture={() => setDirty(true)} className="mt-3 space-y-3 rounded-xl border border-stone-200 bg-stone-50 p-3">
       <div className="flex items-center justify-between gap-3">
         <p className="text-sm font-medium text-stone-900">{label}</p>
-        <button type="button" onClick={() => setOpen(false)} className="text-sm text-stone-500">
+        <button type="button" onClick={closeEditor} className="text-sm text-stone-500">
           Закрыть
         </button>
       </div>
@@ -141,7 +167,7 @@ export function BlockEditor({ block, pageId, slug }: BlockEditorProps) {
         content={content}
         loading={loading}
         error={error}
-        onCancel={() => setOpen(false)}
+        onCancel={closeEditor}
         onSave={(next) => save(next, isVisible)}
       />
     </div>
