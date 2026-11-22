@@ -9,8 +9,15 @@ import {
   updateCmsPageAction,
 } from "@/app/management/actions";
 import { BlockEditor } from "@/components/management/cms/block-editor";
-import type { CmsBlockTemplate, CmsPage } from "@/lib/api/cms";
+import type { CmsBlockTemplate, CmsBlockType, CmsPage } from "@/lib/api/cms";
 import { FormError } from "@/components/form-error";
+
+const guideBlockTypes = new Set<CmsBlockType>([
+  "information_hero", "holy_places", "service_profile", "service_team",
+  "legal_donation", "labor_trips",
+]);
+
+type HomeSpace = "guide" | "trips";
 
 type PageEditorProps = {
   page: CmsPage;
@@ -22,12 +29,30 @@ export function PageEditor({ page, templates }: PageEditorProps) {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [selectedType, setSelectedType] = useState(templates[0]?.type ?? "rich_text");
+  const [homeSpace, setHomeSpace] = useState<HomeSpace>("guide");
+  const isHome = page.slug === "home";
   const [isPending, startTransition] = useTransition();
 
   const blocks = useMemo(
     () => [...(page.blocks ?? [])].sort((a, b) => a.sort_order - b.sort_order),
     [page.blocks],
   );
+
+  const visibleBlocks = useMemo(
+    () => isHome
+      ? blocks.filter((block) => guideBlockTypes.has(block.type) === (homeSpace === "guide"))
+      : blocks,
+    [blocks, isHome, homeSpace],
+  );
+  const visibleTemplates = useMemo(
+    () => isHome
+      ? templates.filter((template) => guideBlockTypes.has(template.type) === (homeSpace === "guide"))
+      : templates,
+    [templates, isHome, homeSpace],
+  );
+  const activeType = visibleTemplates.some((template) => template.type === selectedType)
+    ? selectedType
+    : (visibleTemplates[0]?.type ?? "");
 
   async function onSaveMeta(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -55,12 +80,13 @@ export function PageEditor({ page, templates }: PageEditorProps) {
 
   async function onAddBlock() {
     setError(null);
-    const template = templates.find((item) => item.type === selectedType);
+    const template = visibleTemplates.find((item) => item.type === activeType);
+    if (!template) return;
     try {
       await createCmsBlockAction(
         page.id,
         {
-          type: selectedType,
+          type: template.type,
           content: template?.content ?? {},
           is_visible: true,
         },
@@ -74,12 +100,18 @@ export function PageEditor({ page, templates }: PageEditorProps) {
 
   function moveBlock(index: number, direction: -1 | 1) {
     const nextIndex = index + direction;
-    if (nextIndex < 0 || nextIndex >= blocks.length) return;
+    if (nextIndex < 0 || nextIndex >= visibleBlocks.length) return;
 
-    const next = [...blocks];
-    const [item] = next.splice(index, 1);
-    next.splice(nextIndex, 0, item);
-    const blockIds = next.map((block) => block.id);
+    const orderedIds = visibleBlocks.map((block) => block.id);
+    const [item] = orderedIds.splice(index, 1);
+    orderedIds.splice(nextIndex, 0, item);
+
+    // Preserve the relative positions of blocks belonging to the other home space.
+    const visibleIds = new Set(orderedIds);
+    let cursor = 0;
+    const blockIds = blocks.map((block) =>
+      visibleIds.has(block.id) ? orderedIds[cursor++] : block.id,
+    );
 
     startTransition(async () => {
       setError(null);
@@ -134,38 +166,68 @@ export function PageEditor({ page, templates }: PageEditorProps) {
       </form>
 
       <section className="space-y-4 rounded-2xl border border-stone-200 bg-white p-5">
+        {isHome ? (
+          <div className="space-y-3 border-b border-stone-100 pb-5">
+            <div>
+              <h2 className="text-lg font-semibold text-stone-900">Пространство главной</h2>
+              <p className="mt-1 text-sm text-stone-600">
+                Выберите пространство для настройки блоков. На сайте переключатель работает так же.
+              </p>
+            </div>
+            <div role="group" aria-label="Пространство главной страницы"
+              className="grid w-full grid-cols-2 gap-1 rounded-2xl bg-stone-100 p-1 sm:max-w-xl">
+              {([
+                { value: "guide", label: "Путеводитель" },
+                { value: "trips", label: "Подобрать поездку" },
+              ] as const).map(({ value, label }) => (
+                <button key={value} type="button"
+                  aria-pressed={homeSpace === value}
+                  onClick={() => { setHomeSpace(value); setError(null); }}
+                  className={`min-h-11 rounded-xl px-3 py-2 text-sm font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-700 ${homeSpace === value
+                    ? "bg-brand-800 text-white shadow-sm"
+                    : "text-stone-700 hover:bg-white/80"}`}>
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+        ) : null}
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <h2 className="text-lg font-semibold">Блоки</h2>
-            <p className="mt-1 text-sm text-stone-600">{blocks.length} на странице</p>
+            <p className="mt-1 text-sm text-stone-600">
+              {isHome ? `${visibleBlocks.length} в выбранном пространстве` : `${blocks.length} на странице`}
+            </p>
           </div>
 
           <div className="flex flex-wrap items-end gap-2">
             <label className="block text-sm">
               <span className="mb-1 block font-medium">Шаблон</span>
               <select
-                value={selectedType}
-                onChange={(event) => setSelectedType(event.target.value as typeof selectedType)}
+                value={activeType}
+                onChange={(event) => setSelectedType(event.target.value as CmsBlockType)}
                 className="input-field min-w-56"
               >
-                {templates.map((template) => (
+                {visibleTemplates.map((template) => (
                   <option key={template.type} value={template.type}>
                     {template.label}
                   </option>
                 ))}
               </select>
             </label>
-            <button type="button" onClick={onAddBlock} className="btn-primary">
+            <button type="button" onClick={onAddBlock} disabled={!activeType} className="btn-primary disabled:opacity-50">
               Добавить блок
             </button>
           </div>
         </div>
 
-        {blocks.length === 0 ? (
-          <p className="py-8 text-center text-sm text-stone-500">Блоков пока нет.</p>
+        {visibleBlocks.length === 0 ? (
+          <p className="py-8 text-center text-sm text-stone-500">
+            {isHome ? "В этом пространстве пока нет блоков." : "Блоков пока нет."}
+          </p>
         ) : (
           <ul className="space-y-4">
-            {blocks.map((block, index) => (
+            {visibleBlocks.map((block, index) => (
               <li
                 key={block.id}
                 className="rounded-xl border border-stone-200 bg-stone-50/70 p-4"
@@ -190,7 +252,7 @@ export function PageEditor({ page, templates }: PageEditorProps) {
                     </button>
                     <button
                       type="button"
-                      disabled={isPending || index === blocks.length - 1}
+                      disabled={isPending || index === visibleBlocks.length - 1}
                       onClick={() => moveBlock(index, 1)}
                       className="btn-secondary px-3 py-1.5 text-sm disabled:opacity-40"
                     >
