@@ -3,6 +3,7 @@
 import { FormEvent, useState } from "react";
 import { createSMMPostAction } from "@/app/management/actions";
 import { FormError } from "@/components/form-error";
+import { ManagementFormPreview } from "@/components/management/management-form-preview";
 
 const CHANNELS = [
   { id: "site_news", label: "site_news" },
@@ -71,6 +72,7 @@ export function CreateSMMForm({ onSuccess }: { onSuccess?: () => void } = {}) {
         ))}
       </fieldset>
       <FormError>{error}</FormError>
+      <ManagementFormPreview kind="smm" />
       <button type="submit" disabled={loading} className="btn-primary">
         {loading ? "Сохранение…" : "Сохранить в план"}
       </button>
