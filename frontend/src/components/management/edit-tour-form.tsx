@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useId, useRef, useState } from "react";
 import { updateTourAction } from "@/app/management/actions";
 import { TourImagesField } from "@/components/management/tour-images-field";
 import { TourRegularCheckbox } from "@/components/management/tour-regular-checkbox";
@@ -14,7 +14,16 @@ type EditTourFormProps = {
 };
 
 export function EditTourForm({ tour }: EditTourFormProps) {
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const titleId = useId();
   const [open, setOpen] = useState(false);
+  function close() {
+    dialogRef.current?.close();
+  }
+  function openDialog() {
+    dialogRef.current?.showModal();
+    setOpen(true);
+  }
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [isRegular, setIsRegular] = useState(Boolean(tour.is_regular));
@@ -52,7 +61,7 @@ export function EditTourForm({ tour }: EditTourFormProps) {
         overbooking_enabled: formData.get("overbooking_enabled") === "on",
         hot_discount_percent: isRegular ? 0 : Number(formData.get("hot_discount_percent") ?? 0),
       });
-      setOpen(false);
+      close();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Не удалось обновить тур");
     } finally {
@@ -60,20 +69,28 @@ export function EditTourForm({ tour }: EditTourFormProps) {
     }
   }
 
-  if (!open) {
-    return (
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        className="text-sm font-medium text-brand-800 hover:text-brand-900"
-      >
+  return (
+    <>
+      <button type="button" onClick={openDialog}
+        aria-haspopup="dialog"
+        className="text-sm font-medium text-brand-800 hover:text-brand-900">
         Редактировать
       </button>
-    );
-  }
-
-  return (
-    <form onSubmit={onSubmit} className="mt-3 space-y-3 rounded-xl border border-stone-200 bg-stone-50 p-3">
+      <dialog ref={dialogRef} aria-labelledby={titleId}
+        onClose={() => { setOpen(false); setError(null); }}
+        onClick={(event) => { if (event.target === event.currentTarget && !loading) close(); }}
+        className="fixed inset-0 m-auto max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-3xl overflow-y-auto rounded-2xl border border-stone-200 bg-white p-0 shadow-2xl backdrop:bg-stone-950/60">
+        <header className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-stone-100 bg-white px-5 py-4">
+          <div className="min-w-0">
+            <h2 id={titleId} className="text-lg font-semibold text-stone-900">Редактировать тур</h2>
+            <p className="truncate text-sm text-stone-500">{tour.title}</p>
+          </div>
+          <button type="button" onClick={close} disabled={loading}
+            aria-label="Закрыть редактор"
+            className="flex size-10 shrink-0 items-center justify-center rounded-full border border-stone-200 text-xl text-stone-700 hover:bg-stone-50 disabled:opacity-50">×</button>
+        </header>
+        {open ? (
+    <form onSubmit={onSubmit} className="space-y-4 p-4 sm:p-6">
       <div className="grid gap-3 md:grid-cols-2">
         <label className="block text-sm">
           <span className="mb-1 block font-medium">Slug</span>
@@ -162,10 +179,13 @@ export function EditTourForm({ tour }: EditTourFormProps) {
       <button type="submit" disabled={loading} className="btn-primary px-4 py-1.5 text-sm">
           {loading ? "Сохраняем..." : "Сохранить"}
         </button>
-        <button type="button" onClick={() => setOpen(false)} className="btn-secondary px-4 py-1.5 text-sm">
+        <button type="button" onClick={close} className="btn-secondary px-4 py-1.5 text-sm">
           Отмена
         </button>
       </div>
     </form>
+        ) : null}
+      </dialog>
+    </>
   );
 }
