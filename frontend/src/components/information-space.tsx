@@ -76,7 +76,7 @@ function ContentLink({
 export function InformationSpace({ blocks, fallback }: { blocks: CmsBlock[]; fallback: boolean }) {
   const ordered = blocks
     .filter((block) => block.is_visible && informationBlockTypes.has(block.type))
-    .sort((a, b) => a.sort_order - b.sort_order);
+    .sort((a, b) => Number(b.type === "information_hero") - Number(a.type === "information_hero") || a.sort_order - b.sort_order);
   const hasHero = ordered.some((block) => block.type === "information_hero");
 
   return (
@@ -84,8 +84,11 @@ export function InformationSpace({ blocks, fallback }: { blocks: CmsBlock[]; fal
       {ordered.map((block) => {
         if (block.type === "information_hero") {
           return (
-            <div key={block.id} className="mx-auto max-w-6xl px-4 py-6 sm:py-8">
-              <InformationHero content={asContent<InformationHeroBlockContent>(block.content)} />
+            <div key={block.id}>
+              <div className="mx-auto max-w-6xl px-4 py-6 sm:py-8">
+                <InformationHero content={asContent<InformationHeroBlockContent>(block.content)} />
+              </div>
+              {block.id === ordered[0]?.id ? <ServiceEvents /> : null}
             </div>
           );
         }
@@ -143,13 +146,18 @@ export function InformationSpace({ blocks, fallback }: { blocks: CmsBlock[]; fal
         </div>
       ) : null}
 
-      <div className="mx-auto max-w-6xl space-y-14 px-4 py-8 sm:space-y-16 sm:py-12">
-        <Suspense fallback={<HomeNewsSkeleton />}>
-          <HomeNewsSection />
-        </Suspense>
-
-      </div>
+      {!hasHero ? <ServiceEvents /> : null}
     </>
+  );
+}
+
+function ServiceEvents() {
+  return (
+    <div className="mx-auto max-w-6xl px-4 py-8 sm:py-10">
+      <Suspense fallback={<HomeNewsSkeleton />}>
+        <HomeNewsSection />
+      </Suspense>
+    </div>
   );
 }
 
