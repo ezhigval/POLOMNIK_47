@@ -146,8 +146,7 @@ export function InformationSpace({ blocks, fallback }: { blocks: CmsBlock[]; fal
         </div>
       ) : null}
 
-      {!hasHero && fallback ? <ServiceEvents /> : null}
-      {!hasHero && !fallback ? <ServiceEvents /> : null}
+      {!hasHero ? <ServiceEvents /> : null}
     </>
   );
 }
