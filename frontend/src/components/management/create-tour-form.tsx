@@ -7,7 +7,7 @@ import { TourRegularCheckbox } from "@/components/management/tour-regular-checkb
 import { parseImageUrls } from "@/lib/parse-image-urls";
 import { FormError } from "@/components/form-error";
 
-export function CreateTourForm() {
+export function CreateTourForm({ onSuccess }: { onSuccess?: () => void } = {}) {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [formKey, setFormKey] = useState(0);
@@ -50,6 +50,7 @@ export function CreateTourForm() {
       form.reset();
       setIsRegular(false);
       setFormKey((value) => value + 1);
+      onSuccess?.();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Не удалось создать тур");
     } finally {
