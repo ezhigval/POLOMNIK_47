@@ -6,6 +6,7 @@ import { TourImagesField } from "@/components/management/tour-images-field";
 import { TourRegularCheckbox } from "@/components/management/tour-regular-checkbox";
 import { parseImageUrls } from "@/lib/parse-image-urls";
 import { FormError } from "@/components/form-error";
+import { ManagementFormPreview } from "@/components/management/management-form-preview";
 
 export function CreateTourForm({ onSuccess }: { onSuccess?: () => void } = {}) {
   const [error, setError] = useState<string | null>(null);
@@ -138,6 +139,7 @@ export function CreateTourForm({ onSuccess }: { onSuccess?: () => void } = {}) {
 
       <FormError>{error}</FormError>
 
+      <ManagementFormPreview kind="tour" />
       <button type="submit" disabled={loading} className="btn-primary">
         {loading ? "Сохраняем..." : "Создать тур"}
       </button>

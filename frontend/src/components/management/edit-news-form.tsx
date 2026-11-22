@@ -5,6 +5,7 @@ import { updateNewsAction } from "@/app/management/actions";
 import { NewsImageField } from "@/components/management/news-image-field";
 import type { ManagementNewsArticle } from "@/lib/api/management";
 import { FormError } from "@/components/form-error";
+import { ManagementFormPreview } from "@/components/management/management-form-preview";
 
 type EditNewsFormProps = {
   article: ManagementNewsArticle;
@@ -101,7 +102,8 @@ export function EditNewsForm({ article }: EditNewsFormProps) {
       </label>
       <FormError>{error}</FormError>
       <div className="flex gap-2">
-        <button type="submit" disabled={loading} className="btn-primary">
+        <ManagementFormPreview kind="news" />
+      <button type="submit" disabled={loading} className="btn-primary">
           {loading ? "Сохраняем..." : "Сохранить"}
         </button>
         <button type="button" onClick={() => setOpen(false)} className="btn-secondary">

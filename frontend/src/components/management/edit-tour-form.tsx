@@ -7,6 +7,7 @@ import { TourRegularCheckbox } from "@/components/management/tour-regular-checkb
 import { parseImageUrls } from "@/lib/parse-image-urls";
 import type { ManagementTour } from "@/lib/api/management";
 import { FormError } from "@/components/form-error";
+import { ManagementFormPreview } from "@/components/management/management-form-preview";
 
 type EditTourFormProps = {
   tour: ManagementTour;
@@ -157,7 +158,8 @@ export function EditTourForm({ tour }: EditTourFormProps) {
       <FormError>{error}</FormError>
 
       <div className="flex gap-2">
-        <button type="submit" disabled={loading} className="btn-primary px-4 py-1.5 text-sm">
+        <ManagementFormPreview kind="tour" />
+      <button type="submit" disabled={loading} className="btn-primary px-4 py-1.5 text-sm">
           {loading ? "Сохраняем..." : "Сохранить"}
         </button>
         <button type="button" onClick={() => setOpen(false)} className="btn-secondary px-4 py-1.5 text-sm">

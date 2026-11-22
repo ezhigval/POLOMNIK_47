@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PageEditor } from "@/components/management/cms/page-editor";
+import { ManagementPagePreview } from "@/components/management/cms/page-preview";
 import { getManagementCmsPage, listManagementCmsTemplates } from "@/lib/api/management";
 import { ApiError } from "@/lib/api/client";
 import { ManagementNoAccess } from "@/components/management/management-no-access";
@@ -42,7 +43,9 @@ export default async function ManagementContentEditorPage({ params }: PageProps)
           </p>
           <h1 className="mt-1 text-2xl font-semibold text-stone-900">{page.title}</h1>
         </div>
-        {page.is_published ? (
+        <div className="flex flex-wrap items-center gap-2">
+          <ManagementPagePreview page={page} />
+          {page.is_published ? (
           <Link
             href={page.slug === "home" ? "/" : `/pages/${page.slug}`}
             className="btn-secondary text-sm"
@@ -50,7 +53,8 @@ export default async function ManagementContentEditorPage({ params }: PageProps)
           >
             Открыть на сайте
           </Link>
-        ) : null}
+          ) : null}
+        </div>
       </div>
 
       <PageEditor page={page} templates={templates} />
