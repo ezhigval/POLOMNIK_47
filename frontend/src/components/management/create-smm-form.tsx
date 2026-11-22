@@ -11,7 +11,7 @@ const CHANNELS = [
   { id: "max_feed", label: "max_feed" },
 ];
 
-export function CreateSMMForm() {
+export function CreateSMMForm({ onSuccess }: { onSuccess?: () => void } = {}) {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [formKey, setFormKey] = useState(0);
@@ -33,6 +33,7 @@ export function CreateSMMForm() {
         channels,
       });
       setFormKey((value) => value + 1);
+      onSuccess?.();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Не удалось сохранить материал");
     } finally {
