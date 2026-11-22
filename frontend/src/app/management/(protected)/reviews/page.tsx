@@ -1,4 +1,4 @@
-import { CreateReviewForm } from "@/components/management/create-review-form";
+import { ManagementCreateDialog } from "@/components/management/management-create-dialog";
 import { ManagementPanel } from "@/components/management/management-panel";
 import { ReplyReviewForm } from "@/components/management/reply-review-form";
 import { StatusBadge } from "@/components/management/status-badge";
@@ -24,7 +24,14 @@ export default async function ManagementReviewsPage() {
   const tourNames = buildTourTitleMap(tours);
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[1.2fr_1fr]">
+    <div className="space-y-4">
+      <ManagementPanel
+        title="Отзывы"
+        description={`${reviews.length} отзывов`}
+        action={<ManagementCreateDialog kind="reviews" tours={tours} />}
+      >
+        <span className="sr-only">Список отзывов службы</span>
+      </ManagementPanel>
       <section className="space-y-4">
         {reviews.length === 0 ? (
           <ManagementPanel>
@@ -77,7 +84,6 @@ export default async function ManagementReviewsPage() {
         )}
       </section>
 
-      <CreateReviewForm tours={tours} />
     </div>
   );
 }
