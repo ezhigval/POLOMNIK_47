@@ -7,9 +7,10 @@ import { FormError } from "@/components/form-error";
 
 type CreateReviewFormProps = {
   tours: ManagementTour[];
+  onSuccess?: () => void;
 };
 
-export function CreateReviewForm({ tours }: CreateReviewFormProps) {
+export function CreateReviewForm({ tours, onSuccess }: CreateReviewFormProps) {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -30,6 +31,7 @@ export function CreateReviewForm({ tours }: CreateReviewFormProps) {
         allow_distribution: formData.get("allow_distribution") === "on",
       });
       event.currentTarget.reset();
+      onSuccess?.();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Не удалось создать отзыв");
     } finally {

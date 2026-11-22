@@ -6,7 +6,7 @@ import {
   ManagementTh,
 } from "@/components/management/management-panel";
 import { StatusBadge } from "@/components/management/status-badge";
-import { CreateSMMForm } from "@/components/management/create-smm-form";
+import { ManagementCreateDialog } from "@/components/management/management-create-dialog";
 import { deleteSMMPostAction, publishSMMPostAction } from "@/app/management/actions";
 import { listManagementSMM } from "@/lib/api/management";
 import { ManagementNoAccess } from "@/components/management/management-no-access";
@@ -20,10 +20,11 @@ export default async function ManagementSMMPage() {
   const posts = await listManagementSMM();
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[1.2fr_1fr]">
+    <div>
       <ManagementPanel
         title="Контент-план"
         description="Материал, слот и список publisher. Падение одного канала не откатывает остальные. На проде PublisherPort по умолчанию noop."
+        action={<ManagementCreateDialog kind="smm" />}
       >
         <ManagementTable>
           <ManagementTableHead>
@@ -79,7 +80,6 @@ export default async function ManagementSMMPage() {
           </tbody>
         </ManagementTable>
       </ManagementPanel>
-      <CreateSMMForm />
     </div>
   );
 }

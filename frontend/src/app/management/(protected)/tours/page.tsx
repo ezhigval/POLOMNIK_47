@@ -1,4 +1,4 @@
-import { CreateTourForm } from "@/components/management/create-tour-form";
+import { ManagementCreateDialog } from "@/components/management/management-create-dialog";
 import { EditTourForm } from "@/components/management/edit-tour-form";
 import {
   ManagementEmptyRow,
@@ -23,8 +23,8 @@ export default async function ManagementToursPage() {
   const tours = await listManagementTours();
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[1.2fr_1fr]">
-      <ManagementPanel title="Туры" description={`${tours.length} в каталоге`}>
+    <div>
+      <ManagementPanel title="Туры" description={`${tours.length} в каталоге`} action={<ManagementCreateDialog kind="tours" />}>
         <ManagementTable>
           <ManagementTableHead>
             <ManagementTh>Название</ManagementTh>
@@ -86,8 +86,6 @@ export default async function ManagementToursPage() {
           </tbody>
         </ManagementTable>
       </ManagementPanel>
-
-      <CreateTourForm />
     </div>
   );
 }

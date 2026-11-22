@@ -3,15 +3,21 @@ type ManagementPanelProps = {
   description?: string;
   children: React.ReactNode;
   className?: string;
+  action?: React.ReactNode;
 };
 
-export function ManagementPanel({ title, description, children, className = "" }: ManagementPanelProps) {
+export function ManagementPanel({ title, description, children, className = "", action }: ManagementPanelProps) {
   return (
     <section className={`rounded-2xl border border-stone-200 bg-white ${className}`}>
       {title ? (
         <div className="border-b border-stone-100 px-5 py-4">
-          <h2 className="text-base font-semibold text-stone-900">{title}</h2>
-          {description ? <p className="mt-1 text-sm text-stone-600">{description}</p> : null}
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <h2 className="text-base font-semibold text-stone-900">{title}</h2>
+              {description ? <p className="mt-1 text-sm text-stone-600">{description}</p> : null}
+            </div>
+            {action}
+          </div>
         </div>
       ) : null}
       {children}

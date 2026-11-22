@@ -5,7 +5,7 @@ import { createNewsAction } from "@/app/management/actions";
 import { NewsImageField } from "@/components/management/news-image-field";
 import { FormError } from "@/components/form-error";
 
-export function CreateNewsForm() {
+export function CreateNewsForm({ onSuccess }: { onSuccess?: () => void } = {}) {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [formKey, setFormKey] = useState(0);
@@ -30,6 +30,7 @@ export function CreateNewsForm() {
         sort_order: Number(formData.get("sort_order") ?? 0),
       });
       setFormKey((value) => value + 1);
+      onSuccess?.();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Не удалось создать статью");
     } finally {
