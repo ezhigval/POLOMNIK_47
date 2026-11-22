@@ -2,6 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import { FormError } from "@/components/form-error";
+import { ManagementFormPreview } from "@/components/management/management-form-preview";
 import { publishLegalDocumentAction } from "@/app/management/actions";
 
 const DOC_TYPES = [
@@ -81,6 +82,7 @@ export function PublishLegalDocumentForm({ onSuccess }: { onSuccess?: () => void
       <FormError>{error}</FormError>
       {ok ? <p className="text-sm text-emerald-700">Версия опубликована.</p> : null}
 
+      <ManagementFormPreview kind="legal" />
       <button type="submit" disabled={loading} className="btn-primary">
         {loading ? "Публикуем…" : "Опубликовать"}
       </button>
