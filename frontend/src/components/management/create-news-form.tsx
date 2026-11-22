@@ -4,6 +4,7 @@ import { FormEvent, useState } from "react";
 import { createNewsAction } from "@/app/management/actions";
 import { NewsImageField } from "@/components/management/news-image-field";
 import { FormError } from "@/components/form-error";
+import { ManagementFormPreview } from "@/components/management/management-form-preview";
 
 export function CreateNewsForm({ onSuccess }: { onSuccess?: () => void } = {}) {
   const [error, setError] = useState<string | null>(null);
@@ -95,6 +96,7 @@ export function CreateNewsForm({ onSuccess }: { onSuccess?: () => void } = {}) {
 
       <FormError>{error}</FormError>
 
+      <ManagementFormPreview kind="news" />
       <button type="submit" disabled={loading} className="btn-primary">
         {loading ? "Сохраняем..." : "Создать статью"}
       </button>
