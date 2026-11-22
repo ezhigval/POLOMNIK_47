@@ -13,7 +13,7 @@ type SiteHeaderProps = {
 
 export function SiteHeader({ user }: SiteHeaderProps) {
   return (
-    <header className="sticky top-0 z-50 border-b border-stone-200/80 bg-white/90 backdrop-blur-md">
+    <header className="site-header sticky top-0 z-50 border-b border-stone-200/80 bg-white/90 backdrop-blur-md">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:py-4">
         <Link href="/" className="group flex items-center gap-3" aria-label={siteConfig.fullName}>
           <BrandMark />
