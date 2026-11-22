@@ -7,7 +7,6 @@ import { FeaturedRouteSection } from "@/components/featured-route-section";
 import { HeroSection } from "@/components/hero-section";
 import styles from "@/components/home-spaces.module.css";
 import { HomeSpaceSwitcher } from "@/components/home-space-switcher";
-import { HomeNewsSection, HomeNewsSkeleton } from "@/components/home-news-section";
 import { HowItWorksSection } from "@/components/how-it-works";
 import { InformationSpace, informationBlockTypes } from "@/components/information-space";
 import { PopularDestinations, PopularDestinationsSkeleton } from "@/components/popular-destinations";
@@ -62,9 +61,7 @@ export default async function HomePage({ searchParams }: {
 
 function BookingSpace({ blocks }: { blocks: CmsBlock[] }) {
   if (blocks.length) {
-    return <CmsPageRenderer blocks={blocks} afterHero={
-      <Suspense fallback={<HomeNewsSkeleton />}><HomeNewsSection /></Suspense>
-    } />;
+    return <CmsPageRenderer blocks={blocks} />;
   }
   return (
     <>
@@ -74,9 +71,6 @@ function BookingSpace({ blocks }: { blocks: CmsBlock[] }) {
 
     <div className="mx-auto max-w-6xl space-y-20 px-4 py-8 sm:space-y-24 sm:py-12">
       <FeaturedRouteSection />
-      <Suspense fallback={<HomeNewsSkeleton />}>
-        <HomeNewsSection />
-      </Suspense>
       <Suspense fallback={<PopularDestinationsSkeleton />}>
         <PopularDestinations />
       </Suspense>
