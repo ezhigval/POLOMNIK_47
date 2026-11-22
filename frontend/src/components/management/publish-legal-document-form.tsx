@@ -14,7 +14,7 @@ const DOC_TYPES = [
   { value: "offer", label: "Публичная оферта" },
 ];
 
-export function PublishLegalDocumentForm() {
+export function PublishLegalDocumentForm({ onSuccess }: { onSuccess?: () => void } = {}) {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [ok, setOk] = useState(false);
@@ -34,6 +34,7 @@ export function PublishLegalDocumentForm() {
       });
       setOk(true);
       event.currentTarget.reset();
+      onSuccess?.();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Не удалось опубликовать");
     } finally {
