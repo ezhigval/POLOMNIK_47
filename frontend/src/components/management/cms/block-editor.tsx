@@ -6,6 +6,7 @@ import { uploadPortraitAction, updateCmsBlockAction } from "@/app/management/act
 import type { CmsBlock, CmsBlockType } from "@/lib/api/cms";
 import { featuredRoute } from "@/lib/featured-route";
 import { FormError } from "@/components/form-error";
+import { BlockDraftPreview, livePreviewTypes } from "@/components/management/cms/block-draft-preview";
 
 type BlockEditorProps = {
   block: CmsBlock;
@@ -56,6 +57,7 @@ export function BlockEditor({ block, pageId, slug, onDirtyChange }: BlockEditorP
   const [loading, setLoading] = useState(false);
   const [isVisible, setIsVisible] = useState(block.is_visible);
   const [content, setContent] = useState<Record<string, unknown>>(block.content ?? {});
+  const [draftContent, setDraftContent] = useState<Record<string, unknown>>(block.content ?? {});
 
   const label = useMemo(() => blockTypeLabel(block.type), [block.type]);
 
@@ -79,6 +81,7 @@ export function BlockEditor({ block, pageId, slug, onDirtyChange }: BlockEditorP
     setDirty(false);
     setIsVisible(block.is_visible);
     setContent(block.content ?? {});
+    setDraftContent(block.content ?? {});
     setOpen(false);
   }
 
@@ -93,6 +96,7 @@ export function BlockEditor({ block, pageId, slug, onDirtyChange }: BlockEditorP
         slug,
       );
       setContent(nextContent);
+      setDraftContent(nextContent);
       setIsVisible(nextVisible);
       setDirty(false);
       setOpen(false);
@@ -162,14 +166,24 @@ export function BlockEditor({ block, pageId, slug, onDirtyChange }: BlockEditorP
         Видимый
       </label>
 
-      <BlockContentForm
-        type={block.type}
-        content={content}
-        loading={loading}
-        error={error}
-        onCancel={closeEditor}
-        onSave={(next) => save(next, isVisible)}
-      />
+      <div className={livePreviewTypes.has(block.type) ? "grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]" : ""}>
+        <div className="min-w-0">
+          <BlockContentForm
+            type={block.type}
+            content={content}
+            loading={loading}
+            error={error}
+            onCancel={closeEditor}
+            onSave={(next) => save(next, isVisible)}
+            onDraftChange={setDraftContent}
+          />
+        </div>
+        {livePreviewTypes.has(block.type) ? (
+          <div className="min-w-0 xl:sticky xl:top-4">
+            <BlockDraftPreview type={block.type} content={draftContent} visible={isVisible} />
+          </div>
+        ) : null}
+      </div>
     </div>
   );
 }
@@ -180,13 +194,14 @@ type BlockFormFields = {
   error: string | null;
   onCancel: () => void;
   onSave: (content: Record<string, unknown>) => void;
+  onDraftChange?: (content: Record<string, unknown>) => void;
 };
 
 type BlockContentFormProps = BlockFormFields & {
   type: CmsBlockType;
 };
 
-function BlockContentForm({ type, content, loading, error, onCancel, onSave }: BlockContentFormProps) {
+function BlockContentForm({ type, content, loading, error, onCancel, onSave, onDraftChange }: BlockContentFormProps) {
   if (type === "popular_destinations" || type === "testimonials") {
     return (
       <div className="space-y-3">
@@ -216,7 +231,7 @@ function BlockContentForm({ type, content, loading, error, onCancel, onSave }: B
 
   if (type === "hero") {
     return (
-      <HeroForm content={content} loading={loading} error={error} onCancel={onCancel} onSave={onSave} />
+      <HeroForm content={content} loading={loading} error={error} onCancel={onCancel} onSave={onSave} onDraftChange={onDraftChange} />
     );
   }
   if (type === "about") {
@@ -241,16 +256,16 @@ function BlockContentForm({ type, content, loading, error, onCancel, onSave }: B
   }
   if (type === "cta") {
     return (
-      <CtaForm content={content} loading={loading} error={error} onCancel={onCancel} onSave={onSave} />
+      <CtaForm content={content} loading={loading} error={error} onCancel={onCancel} onSave={onSave} onDraftChange={onDraftChange} />
     );
   }
   if (type === "rich_text") {
     return (
-      <RichTextForm content={content} loading={loading} error={error} onCancel={onCancel} onSave={onSave} />
+      <RichTextForm content={content} loading={loading} error={error} onCancel={onCancel} onSave={onSave} onDraftChange={onDraftChange} />
     );
   }
   if (type === "information_hero") {
-    return <InformationHeroForm content={content} loading={loading} error={error} onCancel={onCancel} onSave={onSave} />;
+    return <InformationHeroForm content={content} loading={loading} error={error} onCancel={onCancel} onSave={onSave} onDraftChange={onDraftChange} />;
   }
   if (type === "holy_places") {
     return <HolyPlacesForm content={content} loading={loading} error={error} onCancel={onCancel} onSave={onSave} />;
@@ -428,10 +443,14 @@ function ObjectListEditor({
   );
 }
 
-function HeroForm({ content, loading, error, onCancel, onSave }: BlockFormFields) {
+function HeroForm({ content, loading, error, onCancel, onSave, onDraftChange }: BlockFormFields) {
   const [eyebrow, setEyebrow] = useState(stringValue(content, "eyebrow"));
   const [title, setTitle] = useState(stringValue(content, "title"));
   const [subtitle, setSubtitle] = useState(stringValue(content, "subtitle"));
+
+  useEffect(() => {
+    onDraftChange?.({ eyebrow, title, subtitle });
+  }, [eyebrow, title, subtitle, onDraftChange]);
 
   return (
     <form
@@ -684,11 +703,15 @@ function FaqForm({ content, loading, error, onCancel, onSave }: BlockFormFields)
   );
 }
 
-function CtaForm({ content, loading, error, onCancel, onSave }: BlockFormFields) {
+function CtaForm({ content, loading, error, onCancel, onSave, onDraftChange }: BlockFormFields) {
   const [title, setTitle] = useState(stringValue(content, "title"));
   const [subtitle, setSubtitle] = useState(stringValue(content, "subtitle"));
   const [button, setButton] = useState(stringValue(content, "button"));
   const [href, setHref] = useState(stringValue(content, "href"));
+
+  useEffect(() => {
+    onDraftChange?.({ title, subtitle, button, href });
+  }, [title, subtitle, button, href, onDraftChange]);
 
   return (
     <form
@@ -707,10 +730,14 @@ function CtaForm({ content, loading, error, onCancel, onSave }: BlockFormFields)
   );
 }
 
-function RichTextForm({ content, loading, error, onCancel, onSave }: BlockFormFields) {
+function RichTextForm({ content, loading, error, onCancel, onSave, onDraftChange }: BlockFormFields) {
   const [eyebrow, setEyebrow] = useState(stringValue(content, "eyebrow"));
   const [title, setTitle] = useState(stringValue(content, "title"));
   const [body, setBody] = useState(stringValue(content, "body"));
+
+  useEffect(() => {
+    onDraftChange?.({ eyebrow, title, body });
+  }, [eyebrow, title, body, onDraftChange]);
 
   return (
     <form
@@ -728,7 +755,7 @@ function RichTextForm({ content, loading, error, onCancel, onSave }: BlockFormFi
   );
 }
 
-function InformationHeroForm({ content, loading, error, onCancel, onSave }: BlockFormFields) {
+function InformationHeroForm({ content, loading, error, onCancel, onSave, onDraftChange }: BlockFormFields) {
   const [eyebrow, setEyebrow] = useState(stringValue(content, "eyebrow"));
   const [title, setTitle] = useState(stringValue(content, "title"));
   const [subtitle, setSubtitle] = useState(stringValue(content, "subtitle"));
@@ -736,6 +763,10 @@ function InformationHeroForm({ content, loading, error, onCancel, onSave }: Bloc
   const [primaryHref, setPrimaryHref] = useState(stringValue(content, "primaryHref"));
   const [secondaryCta, setSecondaryCta] = useState(stringValue(content, "secondaryCta"));
   const [secondaryHref, setSecondaryHref] = useState(stringValue(content, "secondaryHref"));
+  useEffect(() => {
+    onDraftChange?.({ eyebrow, title, subtitle, primaryCta, primaryHref, secondaryCta, secondaryHref });
+  }, [eyebrow, title, subtitle, primaryCta, primaryHref, secondaryCta, secondaryHref, onDraftChange]);
+
   return (
     <form className="space-y-3" onSubmit={(event) => { event.preventDefault(); onSave({ eyebrow, title, subtitle, primaryCta, primaryHref, secondaryCta, secondaryHref }); }}>
       <Field label="Надзаголовок" value={eyebrow} onChange={setEyebrow} />
