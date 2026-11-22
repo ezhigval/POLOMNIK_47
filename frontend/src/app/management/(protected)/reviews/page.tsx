@@ -30,9 +30,7 @@ export default async function ManagementReviewsPage() {
         description={`${reviews.length} отзывов`}
         action={<ManagementCreateDialog kind="reviews" tours={tours} />}
       >
-        <span className="sr-only">Список отзывов службы</span>
-      </ManagementPanel>
-      <section className="space-y-4">
+        <div className="space-y-4 p-4">
         {reviews.length === 0 ? (
           <ManagementPanel>
             <div className="px-5 py-12 text-center text-stone-500">Отзывов пока нет.</div>
@@ -82,8 +80,8 @@ export default async function ManagementReviewsPage() {
             </article>
           ))
         )}
-      </section>
-
+        </div>
+      </ManagementPanel>
     </div>
   );
 }
