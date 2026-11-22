@@ -5,9 +5,15 @@ import type { CmsBlockType } from "@/lib/api/cms";
 import { CtaSection } from "@/components/cta-section";
 import { HeroSection } from "@/components/hero-section";
 import { SectionHeading } from "@/components/section-heading";
+import { AboutSection } from "@/components/about-section";
+import { WhyUsSection } from "@/components/why-us-section";
+import { HowItWorksSection } from "@/components/how-it-works";
+import { FaqSection } from "@/components/faq-section";
+import type { AboutBlockContent, WhyUsBlockContent, HowItWorksBlockContent, FaqBlockContent } from "@/lib/api/cms";
 
 export const livePreviewTypes = new Set<CmsBlockType>([
   "hero", "information_hero", "cta", "rich_text",
+  "about", "why_us", "how_it_works", "faq",
 ]);
 
 function text(content: Record<string, unknown>, key: string): string {
@@ -90,6 +96,18 @@ export function BlockDraftPreview({
             button: text(content, "button"),
             href: text(content, "href") || "/search",
           }} />
+        ) : null}
+        {type === "about" ? (
+          <AboutSection content={content as unknown as AboutBlockContent} />
+        ) : null}
+        {type === "why_us" ? (
+          <WhyUsSection content={content as unknown as WhyUsBlockContent} />
+        ) : null}
+        {type === "how_it_works" ? (
+          <HowItWorksSection content={content as unknown as HowItWorksBlockContent} />
+        ) : null}
+        {type === "faq" ? (
+          <FaqSection content={content as unknown as FaqBlockContent} />
         ) : null}
         {type === "rich_text" ? (
           <section className="space-y-4 p-3 sm:p-5">
