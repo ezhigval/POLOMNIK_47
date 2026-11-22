@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useRef, useState } from "react";
+import { useId, useRef, useState, type MouseEvent } from "react";
 
 type PreviewKind = "news" | "tour" | "review" | "smm" | "legal";
 type Snapshot = Record<string, string>;
@@ -91,7 +91,7 @@ export function ManagementFormPreview({ kind }: { kind: PreviewKind }) {
   const titleId = useId();
   const [snapshot, setSnapshot] = useState<Snapshot>({});
 
-  function show(event: React.MouseEvent<HTMLButtonElement>) {
+  function show(event: MouseEvent<HTMLButtonElement>) {
     const form = event.currentTarget.closest("form");
     if (!form) return;
     const formData = new FormData(form);
