@@ -3,6 +3,7 @@ package smtpmail
 import (
 	"context"
 	"fmt"
+	"mime"
 	"net/smtp"
 	"strings"
 	"time"
@@ -82,7 +83,7 @@ func buildMIME(from string, message ports.MailMessage) string {
 	b.WriteString("\r\nTo: ")
 	b.WriteString(strings.Join(message.To, ", "))
 	b.WriteString("\r\nSubject: ")
-	b.WriteString(message.Subject)
+	b.WriteString(mime.QEncoding.Encode("utf-8", message.Subject))
 	b.WriteString("\r\nMIME-Version: 1.0\r\n")
 	if strings.TrimSpace(message.HTML) != "" {
 		b.WriteString("Content-Type: text/html; charset=UTF-8\r\n\r\n")

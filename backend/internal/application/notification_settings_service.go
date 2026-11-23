@@ -42,6 +42,7 @@ type NotificationSettingsService struct {
 	chats      ports.TelegramChatMapRepository
 	telegramOn bool
 	maxOn      bool
+	emailOn    bool
 }
 
 func NewNotificationSettingsService(
@@ -50,6 +51,7 @@ func NewNotificationSettingsService(
 	chats ports.TelegramChatMapRepository,
 	telegramConfigured bool,
 	maxConfigured bool,
+	emailConfigured ...bool,
 ) *NotificationSettingsService {
 	return &NotificationSettingsService{
 		routing:    routing,
@@ -57,6 +59,7 @@ func NewNotificationSettingsService(
 		chats:      chats,
 		telegramOn: telegramConfigured,
 		maxOn:      maxConfigured,
+		emailOn:    len(emailConfigured) > 0 && emailConfigured[0],
 	}
 }
 
@@ -167,6 +170,7 @@ func (s *NotificationSettingsService) channelViews() []NotificationChannelView {
 	return []NotificationChannelView{
 		{ID: domain.NotificationChannelTelegram, Configured: s.telegramOn, Label: channelLabel(domain.NotificationChannelTelegram)},
 		{ID: domain.NotificationChannelMax, Configured: s.maxOn, Label: channelLabel(domain.NotificationChannelMax)},
+		{ID: domain.NotificationChannelEmail, Configured: s.emailOn, Label: channelLabel(domain.NotificationChannelEmail)},
 	}
 }
 
@@ -176,6 +180,8 @@ func (s *NotificationSettingsService) channelConfigured(channel domain.Notificat
 		return s.telegramOn
 	case domain.NotificationChannelMax:
 		return s.maxOn
+	case domain.NotificationChannelEmail:
+		return s.emailOn
 	default:
 		return false
 	}
@@ -194,6 +200,11 @@ func (s *NotificationSettingsService) recipientStatus(
 			return "подключён", true
 		}
 		return "ждёт /start", false
+	case domain.NotificationChannelEmail:
+		if !s.emailOn {
+			return "SMTP не настроен", false
+		}
+		return "готов", true
 	case domain.NotificationChannelMax:
 		if !s.maxOn {
 			return "канал не подключён", false
@@ -232,6 +243,8 @@ func channelLabel(channel domain.NotificationChannel) string {
 		return "Telegram"
 	case domain.NotificationChannelMax:
 		return "Max"
+	case domain.NotificationChannelEmail:
+		return "Email"
 	default:
 		return strings.ToUpper(string(channel))
 	}

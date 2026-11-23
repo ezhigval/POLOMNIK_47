@@ -2,6 +2,7 @@ package notification
 
 import (
 	maxnotify "palomnik/internal/adapters/notification/max"
+	"palomnik/internal/adapters/mail"
 	"palomnik/internal/adapters/notification/noop"
 	"palomnik/internal/adapters/notification/recording"
 	"palomnik/internal/adapters/notification/telegram"
@@ -30,6 +31,7 @@ func Dispatcher(cfg config.Config, deps Deps) *application.NotificationDispatche
 		maxnotify.New(cfg),
 		cfg.TelegramChatID,
 		cfg.ManagementBaseURL,
+		mail.New(cfg),
 	)
 }
 
@@ -48,5 +50,5 @@ func New(cfg config.Config, outbox ports.OutboxRepository, deps Deps) ports.Noti
 }
 
 func Enabled(cfg config.Config) bool {
-	return cfg.NotificationAdapter == "telegram"
+	return cfg.NotificationAdapter == "telegram" || mail.New(cfg).Configured()
 }

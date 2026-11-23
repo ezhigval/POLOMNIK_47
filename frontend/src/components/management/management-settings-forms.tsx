@@ -115,6 +115,7 @@ export function ManagementSettingsForms({
         : [
             { id: "telegram", configured: true, label: "Telegram" },
             { id: "max", configured: false, label: "Max" },
+            { id: "email", configured: false, label: "Email" },
           ],
     [channels],
   );
@@ -275,6 +276,7 @@ export function ManagementSettingsForms({
           <p className="mt-1 text-sm text-stone-600">
             Блоки канал + адрес. Telegram: username без @, человек должен один раз написать боту /start.
             Max: телефон в международном формате; без ключа в env канал остаётся не настроен.
+            Email: почтовый адрес; требуется настроенный SMTP на сервере.
           </p>
           <ul className="mt-2 flex flex-wrap gap-3 text-xs text-stone-500">
             {channelOptions.map((ch) => (
@@ -314,7 +316,8 @@ export function ManagementSettingsForms({
                     className="input-field"
                     value={item.address}
                     onChange={(e) => updateDraft(meta.kind, index, { address: e.target.value })}
-                    placeholder={item.channel === "max" ? "+79001234567" : "username"}
+                    type={item.channel === "email" ? "email" : "text"}
+                    placeholder={item.channel === "email" ? "manager@example.ru" : item.channel === "max" ? "+79001234567" : "username"}
                   />
                   <button type="button" className="text-sm text-stone-500" onClick={() => removeDraft(meta.kind, index)}>
                     Удалить

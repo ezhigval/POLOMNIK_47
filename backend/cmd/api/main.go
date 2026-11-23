@@ -96,6 +96,7 @@ func run() int {
 		telegramDeps.Chats,
 		cfg.NotificationAdapter == "telegram" && cfg.TelegramBotToken != "",
 		cfg.MaxBotToken != "",
+		mail.New(cfg).Configured(),
 	)
 	siteDefaults := domain.SiteSettings{}
 	siteSettings := application.NewSiteSettingsService(siteSettingsRepo, siteDefaults)
