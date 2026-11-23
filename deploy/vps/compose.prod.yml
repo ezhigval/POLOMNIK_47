@@ -1,6 +1,24 @@
 # Selectel VPS production overrides. Keep the database in its dedicated
 # persistent volume across code deployments.
 services:
+  api:
+    env_file:
+      - path: .env.mail
+        required: false
+    environment:
+      MAIL_ADAPTER: smtp
+      SMTP_HOST: smtp.mail.selcloud.ru
+      SMTP_PORT: '1126'
+      SMTP_FROM: info@tikhvin-palomnik.ru
+  worker:
+    env_file:
+      - path: .env.mail
+        required: false
+    environment:
+      MAIL_ADAPTER: smtp
+      SMTP_HOST: smtp.mail.selcloud.ru
+      SMTP_PORT: '1126'
+      SMTP_FROM: info@tikhvin-palomnik.ru
   mail:
     build:
       context: ./deploy/vps/mail
