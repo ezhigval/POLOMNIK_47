@@ -173,8 +173,8 @@ func Load() Config {
 		MailAdapter:              envString("MAIL_ADAPTER", "noop"),
 		SMTPHost:                 os.Getenv("SMTP_HOST"),
 		SMTPPort:                 envString("SMTP_PORT", "587"),
-		SMTPUsername:             os.Getenv("SMTP_USERNAME"),
-		SMTPPassword:             os.Getenv("SMTP_PASSWORD"),
+		SMTPUsername:             firstNonEmptyEnv("SMTP_USERNAME", "SMTP_RELAY_USERNAME"),
+		SMTPPassword:             firstNonEmptyEnv("SMTP_PASSWORD", "SMTP_RELAY_PASSWORD"),
 		SMTPFrom:                 os.Getenv("SMTP_FROM"),
 		SMTPTimeout:              envDuration("SMTP_TIMEOUT", 15*time.Second),
 		MailForwardToFallback:    os.Getenv("MAIL_FORWARD_TO"),
@@ -308,4 +308,11 @@ func envInt(key string, fallback int) int {
 	}
 
 	return parsed
+}
+
+func firstNonEmptyEnv(keys ...string) string {
+ for _, key := range keys {
+  if v := strings.TrimSpace(os.Getenv(key)); v != "" { return v }
+ }
+ return ""
 }
