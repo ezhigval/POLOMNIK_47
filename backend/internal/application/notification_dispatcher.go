@@ -20,6 +20,7 @@ type NotificationDispatcher struct {
 	chats    ports.TelegramChatMapRepository
 	telegram ports.TelegramBotSender
 	max      ports.MaxMessageSender
+	mailer   ports.Mailer
 	fallback string
 	mgmtBase string
 	settings *NotificationSettingsService
@@ -33,16 +34,22 @@ func NewNotificationDispatcher(
 	max ports.MaxMessageSender,
 	fallbackChatID string,
 	mgmtBaseURL string,
+	mailers ...ports.Mailer,
 ) *NotificationDispatcher {
+	var email ports.Mailer
+	if len(mailers) > 0 {
+		email = mailers[0]
+	}
 	return &NotificationDispatcher{
 		routing:  routing,
 		legacy:   legacy,
 		chats:    chats,
 		telegram: telegram,
 		max:      max,
+		mailer:   email,
 		fallback: strings.TrimSpace(fallbackChatID),
 		mgmtBase: strings.TrimRight(strings.TrimSpace(mgmtBaseURL), "/"),
-		settings: NewNotificationSettingsService(routing, legacy, chats, telegram != nil, max != nil && max.Configured()),
+		settings: NewNotificationSettingsService(routing, legacy, chats, telegram != nil, max != nil && max.Configured(), email != nil && email.Configured()),
 	}
 }
 
@@ -110,6 +117,17 @@ func (d *NotificationDispatcher) dispatch(ctx context.Context, kind domain.Notif
 				continue
 			}
 			sent++
+		case domain.NotificationChannelEmail:
+			if d.mailer == nil || !d.mailer.Configured() {
+				continue
+			}
+			if err := d.mailer.Send(ctx, ports.MailMessage{
+				To: []string{recipient.Address}, Subject: emailNotificationSubject(kind), HTML: text,
+			}); err != nil {
+				sendErr = errors.Join(sendErr, err)
+				continue
+			}
+			sent++
 		case domain.NotificationChannelMax:
 			if d.max == nil || !d.max.Configured() {
 				continue
@@ -135,6 +153,21 @@ func (d *NotificationDispatcher) dispatch(ctx context.Context, kind domain.Notif
 		return nil
 	}
 	return sendErr
+}
+
+func emailNotificationSubject(kind domain.NotificationEventKind) string {
+	switch kind {
+	case domain.NotificationEventBookingCreated:
+		return "Новая заявка"
+	case domain.NotificationEventBookingStatusChanged:
+		return "Изменение статуса заявки"
+	case domain.NotificationEventSupportMessage:
+		return "Новое сообщение в поддержку"
+	case domain.NotificationEventTourHidden:
+		return "Тур скрыт"
+	default:
+		return "Уведомление паломнической службы"
+	}
 }
 
 func (d *NotificationDispatcher) sendTelegramFallback(ctx context.Context, text string) error {
