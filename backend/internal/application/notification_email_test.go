@@ -3,6 +3,7 @@ package application
 import (
 	"context"
 	"errors"
+	"net/textproto"
 	"strings"
 	"testing"
 	"time"
@@ -84,4 +85,45 @@ func TestNotificationDispatcherUnconfiguredEmailIsNotMarkedSent(t *testing.T) {
 		t.Fatalf("existing contract skips unconfigured recipients: %v", err)
 	}
 	if len(mail.sent) != 0 { t.Fatal("unconfigured mailer must not be called") }
+}
+
+type maxSenderRecorder struct{ delivered int }
+func (m *maxSenderRecorder) Configured() bool { return true }
+func (m *maxSenderRecorder) SendMessage(context.Context, string, string) error {
+	m.delivered++
+	return nil
+}
+
+func TestPartialSMTPFailureDoesNotRetrySuccessfulMessenger(t *testing.T) {
+	routing, err := domain.NewNotificationRouting(map[domain.NotificationEventKind][]domain.NotificationRecipient{
+		domain.NotificationEventBookingCreated: {
+			{Channel: domain.NotificationChannelMax, Address: "+79991112233"},
+			{Channel: domain.NotificationChannelEmail, Address: "blocked@example.ru"},
+		},
+	}, time.Time{})
+	if err != nil { t.Fatal(err) }
+	messenger := &maxSenderRecorder{}
+	mailer := &emailRecorder{configured: true, err: errors.New("SMTP unavailable")}
+	dispatcher := NewNotificationDispatcher(&emailRouteRepo{routing: routing}, nil, nil, nil, messenger, "", "", mailer)
+	if err := dispatcher.dispatch(context.Background(), domain.NotificationEventBookingCreated, "booking"); err != nil {
+		t.Fatalf("partial delivery should not retry all channels: %v", err)
+	}
+	if messenger.delivered != 1 || len(mailer.sent) != 1 {
+		t.Fatalf("expected one delivery attempt per channel, messenger=%d email=%d", messenger.delivered, len(mailer.sent))
+	}
+}
+
+func TestPermanentSMTPBounceCannotBeRetried(t *testing.T) {
+	routing, err := domain.NewNotificationRouting(map[domain.NotificationEventKind][]domain.NotificationRecipient{
+		domain.NotificationEventBookingCreated: {
+			{Channel: domain.NotificationChannelEmail, Address: "blocked@example.ru"},
+		},
+	}, time.Time{})
+	if err != nil { t.Fatal(err) }
+	mailer := &emailRecorder{configured: true, err: &textproto.Error{Code: 550, Msg: "bounced check filter"}}
+	dispatcher := NewNotificationDispatcher(&emailRouteRepo{routing: routing}, nil, nil, nil, nil, "", "", mailer)
+	err = dispatcher.dispatch(context.Background(), domain.NotificationEventBookingCreated, "booking")
+	if !errors.Is(err, ports.ErrNotificationPermanent) {
+		t.Fatalf("550 must be permanent: %v", err)
+	}
 }
