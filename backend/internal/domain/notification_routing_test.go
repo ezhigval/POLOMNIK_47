@@ -70,3 +70,15 @@ func TestNewNotificationRoutingDedupes(t *testing.T) {
 		t.Fatal("missing events must stay empty")
 	}
 }
+
+func TestEmailNotificationRecipientValidation(t *testing.T) {
+	recipient, err := NewNotificationRecipient("email", " Manager@Example.ru ")
+	if err != nil || recipient.Channel != NotificationChannelEmail || recipient.Address != "manager@example.ru" {
+		t.Fatalf("email recipient: %+v, %v", recipient, err)
+	}
+	for _, value := range []string{"invalid", "Name <manager@example.ru>", "bad\nX: y@example.ru"} {
+		if _, err := NewNotificationRecipient("email", value); err != ErrInvalidNotificationAddress {
+			t.Fatalf("expected invalid email %q, got %v", value, err)
+		}
+	}
+}
