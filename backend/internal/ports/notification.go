@@ -9,6 +9,9 @@ import (
 
 var ErrNotificationNotConfigured = errors.New("notification adapter not configured")
 
+// ErrNotificationPermanent marks a recipient failure which must not be retried.
+var ErrNotificationPermanent = errors.New("notification permanently rejected")
+
 type TelegramBotSender interface {
 	SendMessage(ctx context.Context, chatID string, text string) error
 }

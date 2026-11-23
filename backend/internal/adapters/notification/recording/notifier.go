@@ -111,5 +111,5 @@ func (n Notifier) recordTyped(
 }
 
 func shouldSkipNotificationError(err error) bool {
-	return err == nil || errors.Is(err, ports.ErrNotificationNotConfigured)
+	return err == nil || errors.Is(err, ports.ErrNotificationNotConfigured) || errors.Is(err, ports.ErrNotificationPermanent)
 }
