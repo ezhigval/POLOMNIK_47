@@ -46,7 +46,7 @@ func New(cfg config.Config) *Mailer {
 }
 
 func (m *Mailer) Configured() bool {
-	return m != nil && m.host != "" && m.from != ""
+	return m != nil && m.host != "" && m.from != "" && m.username != "" && m.password != ""
 }
 
 func (m *Mailer) Send(ctx context.Context, message ports.MailMessage) error {
