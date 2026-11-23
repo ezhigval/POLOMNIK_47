@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
+	"net/textproto"
 	"strings"
 
 	"github.com/google/uuid"
@@ -101,6 +103,7 @@ func (d *NotificationDispatcher) dispatch(ctx context.Context, kind domain.Notif
 	}
 
 	var sendErr error
+	var permanentErr error
 	sent := 0
 	for _, recipient := range recipients {
 		switch recipient.Channel {
@@ -124,7 +127,12 @@ func (d *NotificationDispatcher) dispatch(ctx context.Context, kind domain.Notif
 			if err := d.mailer.Send(ctx, ports.MailMessage{
 				To: []string{recipient.Address}, Subject: emailNotificationSubject(kind), HTML: text,
 			}); err != nil {
-				sendErr = errors.Join(sendErr, err)
+				var smtpErr *textproto.Error
+				if errors.As(err, &smtpErr) && smtpErr.Code >= 500 && smtpErr.Code < 600 {
+					permanentErr = errors.Join(permanentErr, err)
+				} else {
+					sendErr = errors.Join(sendErr, err)
+				}
 				continue
 			}
 			sent++
@@ -145,14 +153,24 @@ func (d *NotificationDispatcher) dispatch(ctx context.Context, kind domain.Notif
 		}
 	}
 
-	if sent == 0 {
-		if sendErr != nil {
-			return sendErr
+	// A previously successful channel must never be replayed because another
+	// channel failed. Report the failure in logs but do not enqueue the entire
+	// multi-channel event again.
+	if sent > 0 {
+		if sendErr != nil || permanentErr != nil {
+			slog.Warn("notification delivered partially; no full-event retry",
+				"event", kind, "transient_error", sendErr, "permanent_error", permanentErr)
 		}
-		// All recipients skipped (unbound / channel off) — not a hard failure.
 		return nil
 	}
-	return sendErr
+	if sendErr != nil {
+		return sendErr
+	}
+	if permanentErr != nil {
+		return fmt.Errorf("%w: %v", ports.ErrNotificationPermanent, permanentErr)
+	}
+	// All recipients skipped (unbound / channel off).
+	return nil
 }
 
 func emailNotificationSubject(kind domain.NotificationEventKind) string {
