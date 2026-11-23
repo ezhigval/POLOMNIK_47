@@ -193,3 +193,7 @@ make check-ops      # API ready + worker healthy + outbox failed=0
 - [ ] HTTPS работает (Caddy + DNS)
 - [ ] Бэкап cron настроен
 - [ ] Telegram (если нужен) проверен тестовой заявкой
+
+## SMTP-уведомления на VPS Selectel
+
+В `deploy/vps/compose.prod.yml` API и worker получают закрытый серверный `.env.mail` (не хранится в git) и используют уже действующий Selectel SMTP relay: `smtp.mail.selcloud.ru:1126`, отправитель `info@tikhvin-palomnik.ru`. Конфиг Go берёт `SMTP_USERNAME`/`SMTP_PASSWORD` либо `SMTP_RELAY_USERNAME`/`SMTP_RELAY_PASSWORD`. Канал Email считается настроенным только при наличии учётных данных. Изменения вступают в силу после пересоздания контейнеров через CI Deploy. При отсутствии `.env.mail` канал остаётся выключенным. Подтвердить фактическую доставку нужно тестовой заявкой. Не коммитить SMTP-секреты и не выводить их в логи.

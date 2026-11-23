@@ -88,3 +88,20 @@ func TestEffectiveTelegramLoginFallsBackToBotToken(t *testing.T) {
 		t.Fatalf("username fallback: %q", cfg.EffectiveTelegramLoginBotUsername())
 	}
 }
+
+func TestLoadSMTPUsesExistingSelectelRelayCredentials(t *testing.T) {
+	t.Setenv("SMTP_USERNAME", "")
+	t.Setenv("SMTP_PASSWORD", "")
+	t.Setenv("SMTP_RELAY_USERNAME", "selectel-relay-user")
+	t.Setenv("SMTP_RELAY_PASSWORD", "selectel-relay-password")
+	cfg := Load()
+	if cfg.SMTPUsername != "selectel-relay-user" || cfg.SMTPPassword != "selectel-relay-password" {
+		t.Fatal("SMTP must use relay credentials when standalone SMTP credentials are missing")
+	}
+	t.Setenv("SMTP_USERNAME", "explicit-user")
+	t.Setenv("SMTP_PASSWORD", "explicit-password")
+	cfg = Load()
+	if cfg.SMTPUsername != "explicit-user" || cfg.SMTPPassword != "explicit-password" {
+		t.Fatal("explicit SMTP credentials must take priority")
+	}
+}
