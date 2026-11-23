@@ -3,6 +3,7 @@ package application
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 
 	"github.com/google/uuid"
@@ -66,7 +67,7 @@ func (w *OutboxWorker) ProcessBatch(ctx context.Context, limit int) (int, error)
 func (w *OutboxWorker) ProcessOne(ctx context.Context, event domain.OutboxEvent) error {
 	if isNotificationEvent(event.EventType) {
 		callErr := w.dispatchNotification(ctx, event)
-		if callErr == nil {
+		if callErr == nil || errors.Is(callErr, ports.ErrNotificationPermanent) {
 			return w.outbox.MarkProcessed(ctx, event.ID)
 		}
 		return w.outbox.RecordAttempt(ctx, event.ID, callErr.Error(), w.maxAttempts)
