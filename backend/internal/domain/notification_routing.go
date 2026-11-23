@@ -2,6 +2,7 @@ package domain
 
 import (
 	"strings"
+	"net/mail"
 	"time"
 	"unicode"
 )
@@ -26,6 +27,7 @@ type NotificationChannel string
 const (
 	NotificationChannelTelegram NotificationChannel = "telegram"
 	NotificationChannelMax      NotificationChannel = "max"
+	NotificationChannelEmail    NotificationChannel = "email"
 )
 
 type NotificationRecipient struct {
@@ -62,7 +64,7 @@ func ValidNotificationEventKind(kind NotificationEventKind) bool {
 
 func ValidNotificationChannel(channel NotificationChannel) bool {
 	switch channel {
-	case NotificationChannelTelegram, NotificationChannelMax:
+	case NotificationChannelTelegram, NotificationChannelMax, NotificationChannelEmail:
 		return true
 	default:
 		return false
@@ -101,9 +103,23 @@ func NormalizeNotificationAddress(channel NotificationChannel, raw string) (stri
 		return NormalizeTelegramUsername(raw)
 	case NotificationChannelMax:
 		return NormalizeMaxAddress(raw)
+	case NotificationChannelEmail:
+		return NormalizeEmailNotificationAddress(raw)
 	default:
 		return "", ErrInvalidNotificationChannel
 	}
+}
+
+func NormalizeEmailNotificationAddress(raw string) (string, error) {
+	value := strings.TrimSpace(raw)
+	if value == "" || len(value) > 254 || strings.ContainsAny(value, "\r\n") {
+		return "", ErrInvalidNotificationAddress
+	}
+	address, err := mail.ParseAddress(value)
+	if err != nil || address.Address != value || !strings.Contains(value, "@") {
+		return "", ErrInvalidNotificationAddress
+	}
+	return strings.ToLower(value), nil
 }
 
 func NormalizeMaxAddress(raw string) (string, error) {
