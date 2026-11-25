@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useCallback, useState } from "react";
+import { AuthExpandable } from "@/components/auth/auth-expandable";
 import { PhoneCallVerify } from "@/components/auth/phone-call-verify";
 import { SocialAuthButtons } from "@/components/auth/social-auth-buttons";
 import { FormError } from "@/components/form-error";
@@ -79,8 +80,8 @@ export function LoginForm({ returnUrl = "/account/trips" }: LoginFormProps) {
   }
 
   return (
-    <div className="space-y-6">
-      <form onSubmit={onSubmit} className="relative space-y-4 rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
+    <div className="space-y-4 rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
+      <form onSubmit={onSubmit} className="relative space-y-4">
         <HoneypotField />
         <div>
           <h2 className="font-display text-xl font-semibold text-stone-900">Телефон или email</h2>
@@ -108,22 +109,21 @@ export function LoginForm({ returnUrl = "/account/trips" }: LoginFormProps) {
         <button type="submit" disabled={loading} className="btn-primary w-full">
           {loading ? "Входим…" : "Войти"}
         </button>
-
-        <p className="text-center text-sm text-stone-600">
-          Нет аккаунта?{" "}
-          <Link href={registerHref} className="font-medium text-brand-800 hover:underline">
-            Зарегистрироваться
-          </Link>
-        </p>
       </form>
 
-      <div className="space-y-3 rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
-        <div>
-          <h2 className="font-display text-xl font-semibold text-stone-900">Вход по звонку</h2>
-          <p className="mt-1 text-sm text-stone-600">
-            Подтверждение — звонком с вашего номера на номер сервиса (не SMS).
-          </p>
-        </div>
+      <SocialAuthButtons />
+
+      <p className="text-center text-sm text-stone-600">
+        Нет аккаунта?{" "}
+        <Link href={registerHref} className="font-medium text-brand-800 hover:underline">
+          Зарегистрироваться
+        </Link>
+      </p>
+
+      <AuthExpandable
+        title="Вход по звонку"
+        hint="Подтверждение звонком с вашего номера, не SMS"
+      >
         <label className="block text-sm">
           <span className="form-label">Телефон аккаунта</span>
           <input
@@ -145,11 +145,7 @@ export function LoginForm({ returnUrl = "/account/trips" }: LoginFormProps) {
         {!callAvailable ? null : (
           <p className="text-xs text-stone-500">Аккаунт с этим телефоном должен уже существовать.</p>
         )}
-      </div>
-
-      <div className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
-        <SocialAuthButtons />
-      </div>
+      </AuthExpandable>
     </div>
   );
 }

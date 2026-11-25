@@ -26,6 +26,58 @@ function uniqueCredentials() {
   };
 }
 
+async function expectBelow(above: { y: number; height: number }, below: { y: number }) {
+  expect(below.y).toBeGreaterThan(above.y + above.height / 2);
+}
+
+test("login keeps phone call collapsed and social buttons under submit", async ({ page }) => {
+  await page.goto("/account/login");
+  await dismissCookieBanner(page);
+
+  const submit = page.getByRole("button", { name: "Войти" });
+  const social = page.getByText("Или войти через");
+  const callBlock = page.locator("details").filter({ hasText: "Вход по звонку" });
+
+  await expect(submit).toBeVisible();
+  await expect(social).toBeVisible();
+  await expect(callBlock).toBeVisible();
+  await expect(callBlock).not.toHaveAttribute("open");
+  await expect(page.getByLabel("Телефон аккаунта")).toBeHidden();
+
+  const submitBox = await submit.boundingBox();
+  const socialBox = await social.boundingBox();
+  expect(submitBox).toBeTruthy();
+  expect(socialBox).toBeTruthy();
+  await expectBelow(submitBox!, socialBox!);
+
+  await callBlock.locator("summary").click();
+  await expect(callBlock).toHaveAttribute("open", "");
+  await expect(page.getByLabel("Телефон аккаунта")).toBeVisible();
+});
+
+test("register keeps phone call collapsed and social buttons under submit", async ({ page }) => {
+  await page.goto("/account/register");
+  await dismissCookieBanner(page);
+
+  const submit = page.getByRole("button", { name: "Создать аккаунт" });
+  const social = page.getByText("Или войти через");
+  const callBlock = page.locator("details").filter({ hasText: "Подтверждение телефона звонком" });
+
+  await expect(submit).toBeVisible();
+  await expect(social).toBeVisible();
+  await expect(callBlock).toBeVisible();
+  await expect(callBlock).not.toHaveAttribute("open");
+
+  const submitBox = await submit.boundingBox();
+  const socialBox = await social.boundingBox();
+  expect(submitBox).toBeTruthy();
+  expect(socialBox).toBeTruthy();
+  await expectBelow(submitBox!, socialBox!);
+
+  await callBlock.locator("summary").click();
+  await expect(callBlock).toHaveAttribute("open", "");
+});
+
 test("user can register and see empty trips page", async ({ page }) => {
   const user = uniqueCredentials();
 

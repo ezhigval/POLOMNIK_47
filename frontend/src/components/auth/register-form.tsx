@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useCallback, useState } from "react";
+import { AuthExpandable } from "@/components/auth/auth-expandable";
 import { PhoneCallVerify } from "@/components/auth/phone-call-verify";
 import { FormError } from "@/components/form-error";
 import { safeReturnUrl } from "@/lib/site-nav";
@@ -24,6 +25,7 @@ export function RegisterForm({ returnUrl = "/account/trips" }: RegisterFormProps
   const [consentTerms, setConsentTerms] = useState(false);
   const [consentMarketing, setConsentMarketing] = useState(false);
   const [phoneCallAvailable, setPhoneCallAvailable] = useState(false);
+  const [phoneBlockOpen, setPhoneBlockOpen] = useState(false);
   const destination = safeReturnUrl(returnUrl);
   const loginHref =
     destination === "/account/trips"
@@ -49,6 +51,7 @@ export function RegisterForm({ returnUrl = "/account/trips" }: RegisterFormProps
 
     if (phoneCallAvailable && !phoneCheckId) {
       setLoading(false);
+      setPhoneBlockOpen(true);
       setError("Сначала подтвердите телефон звонком с вашего номера");
       return;
     }
@@ -82,73 +85,83 @@ export function RegisterForm({ returnUrl = "/account/trips" }: RegisterFormProps
   }
 
   return (
-    <div className="space-y-6">
-    <form onSubmit={onSubmit} className="relative space-y-4 rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
-      <HoneypotField />
-      <div>
-        <h2 className="font-display text-xl font-semibold text-stone-900">Данные аккаунта</h2>
-        <p className="mt-1 text-sm text-stone-600">После регистрации откроется личный кабинет.</p>
-      </div>
+    <div className="space-y-4 rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
+      <form onSubmit={onSubmit} className="relative space-y-4">
+        <HoneypotField />
+        <div>
+          <h2 className="font-display text-xl font-semibold text-stone-900">Данные аккаунта</h2>
+          <p className="mt-1 text-sm text-stone-600">После регистрации откроется личный кабинет.</p>
+        </div>
 
-      <label className="block text-sm">
-        <span className="form-label">Имя и фамилия</span>
-        <input required name="name" className="input-field" autoComplete="name" />
-      </label>
+        <label className="block text-sm">
+          <span className="form-label">Имя и фамилия</span>
+          <input required name="name" className="input-field" autoComplete="name" />
+        </label>
 
-      <label className="block text-sm">
-        <span className="form-label">Телефон</span>
-        <input
-          required
-          name="phone"
-          type="tel"
-          className="input-field"
-          autoComplete="tel"
-          value={phone}
-          onChange={(event) => {
-            setPhone(event.target.value);
-            setPhoneCheckId(null);
-          }}
+        <label className="block text-sm">
+          <span className="form-label">Телефон</span>
+          <input
+            required
+            name="phone"
+            type="tel"
+            className="input-field"
+            autoComplete="tel"
+            value={phone}
+            onChange={(event) => {
+              setPhone(event.target.value);
+              setPhoneCheckId(null);
+            }}
+          />
+        </label>
+
+        <AuthExpandable
+          title="Подтверждение телефона звонком"
+          hint="Не SMS: звонок с вашего номера на номер сервиса"
+          open={phoneBlockOpen}
+          onOpenChange={setPhoneBlockOpen}
+        >
+          <PhoneCallVerify
+            phone={phone}
+            onConfirmed={onPhoneConfirmed}
+            onAvailable={onPhoneAvailable}
+            onUnavailable={onPhoneUnavailable}
+          />
+        </AuthExpandable>
+
+        <label className="block text-sm">
+          <span className="form-label">Email</span>
+          <input name="email" type="email" className="input-field" autoComplete="email" />
+        </label>
+
+        <label className="block text-sm">
+          <span className="form-label">Пароль</span>
+          <input required type="password" name="password" className="input-field" minLength={8} />
+        </label>
+
+        <FormError>{error}</FormError>
+
+        <PersonalDataConsentCheckbox
+          checked={consentPersonalData}
+          onChange={setConsentPersonalData}
+          disabled={loading}
         />
-      </label>
+        <TermsConsentCheckbox checked={consentTerms} onChange={setConsentTerms} disabled={loading} />
+        <MarketingConsentCheckbox
+          checked={consentMarketing}
+          onChange={setConsentMarketing}
+          disabled={loading}
+        />
 
-      <PhoneCallVerify
-        phone={phone}
-        onConfirmed={onPhoneConfirmed}
-        onAvailable={onPhoneAvailable}
-        onUnavailable={onPhoneUnavailable}
-      />
+        <button
+          type="submit"
+          disabled={loading || !consentPersonalData || !consentTerms}
+          className="btn-primary w-full"
+        >
+          {loading ? "Создаём…" : "Создать аккаунт"}
+        </button>
+      </form>
 
-      <label className="block text-sm">
-        <span className="form-label">Email</span>
-        <input name="email" type="email" className="input-field" autoComplete="email" />
-      </label>
-
-      <label className="block text-sm">
-        <span className="form-label">Пароль</span>
-        <input required type="password" name="password" className="input-field" minLength={8} />
-      </label>
-
-      <FormError>{error}</FormError>
-
-      <PersonalDataConsentCheckbox
-        checked={consentPersonalData}
-        onChange={setConsentPersonalData}
-        disabled={loading}
-      />
-      <TermsConsentCheckbox checked={consentTerms} onChange={setConsentTerms} disabled={loading} />
-      <MarketingConsentCheckbox
-        checked={consentMarketing}
-        onChange={setConsentMarketing}
-        disabled={loading}
-      />
-
-      <button
-        type="submit"
-        disabled={loading || (phoneCallAvailable && !phoneCheckId) || !consentPersonalData || !consentTerms}
-        className="btn-primary w-full"
-      >
-        {loading ? "Создаём…" : "Создать аккаунт"}
-      </button>
+      <SocialAuthButtons />
 
       <p className="text-center text-sm text-stone-600">
         Уже есть аккаунт?{" "}
@@ -156,11 +169,6 @@ export function RegisterForm({ returnUrl = "/account/trips" }: RegisterFormProps
           Войти
         </Link>
       </p>
-    </form>
-
-      <div className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
-        <SocialAuthButtons />
-      </div>
     </div>
   );
 }
