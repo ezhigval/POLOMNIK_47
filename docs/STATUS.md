@@ -80,7 +80,7 @@ Goose на проде: **00032**. Тег freeze v3: **`v3.0.0`**. Тега **`v4
 | Max как канал уведомлений | stub, даже с токеном не шлёт | не смешивать с MessengerPort |
 | SMTP (сброс пароля, письма) | без SMTP «пока недоступно» | `MAIL_ADAPTER=smtp` + ящик |
 | sms.ru callcheck | без ключа «пока недоступно» | `PHONE_ADAPTER=smsru` |
-| OAuth Яндекс/VK/Max/Telegram | кнопки есть, без env недоступны | [OAUTH_SETUP.md](OAUTH_SETUP.md) |
+| OAuth Яндекс/VK/Max/Telegram | кнопки есть, без env недоступны | [SECRETS.md](SECRETS.md), [OAUTH_SETUP.md](OAUTH_SETUP.md). Яндекс: вписать пару на ВМ, не в git |
 | SmartCaptcha на заявке/регистрации | выкл | ключи Яндекса |
 | SMM `/management/smm` | черновики в БД, в эфир не уходят | `PUBLISHER_ADAPTER` live |
 | Offsite backup | noop | S3 |
@@ -95,7 +95,7 @@ Goose на проде: **00032**. Тег freeze v3: **`v3.0.0`**. Тега **`v4
 - Яндекс.Вебмастер и Google Search Console: «Проверить», отправить `https://tikhvin-palomnik.ru/sitemap.xml`.
 - Wordstat: частоты в [SEO_WORDSTAT.md](SEO_WORDSTAT.md) **ещё не сняты** (кластеры есть, цифр нет).
 - Карточка в Яндекс Бизнесе / 2ГИС; ссылка с [tikhvin-eparhia.ru](https://www.tikhvin-eparhia.ru/).
-- MX / SPF / DKIM для `info@`.
+- MX / SPF / DKIM для `info@`: [MAIL_DNS.md](MAIL_DNS.md).
 - Получатели Telegram написали боту `/start`.
 - Внутренняя цена регулярного тура (на витрине цены нет, заявка с суммой **0**).
 - Даты/цены, если регулярные листовки должны стать датированными выездами.
