@@ -4,7 +4,7 @@
 
 | Файл | Зачем |
 |------|--------|
-| [STATUS.md](STATUS.md) | Что на проде **сейчас** (v4 9–19 + пробелы) |
+| [STATUS.md](STATUS.md) | Актуализация изменений на 2026-11-25, отдельно отмеченные непроверенные факты production и архив от 2026-08-27 |
 | [V4_PLAN.md](V4_PLAN.md) | Этапы v4: 1, 9–19 сделаны; 2–8 открыты |
 | [V4_OWNER_SETUP.md](V4_OWNER_SETUP.md) | Чеклист владельца: env, SSH автодеплоя, кабинеты |
 | [V2_OWNER_SETUP.md](V2_OWNER_SETUP.md) | Чеклист v2: OAuth, почта, sms.ru, Метрика |
@@ -19,7 +19,7 @@
 | [API.md](API.md) | HTTP API |
 | [DATA_MODEL.md](DATA_MODEL.md) | Модель данных |
 | [RELEASE.md](RELEASE.md) | Релиз и теги |
-| [DEPLOY.md](DEPLOY.md) | Сервер и HTTPS |
+| [DEPLOY.md](DEPLOY.md) | Текущий Selectel CI/CD и отдельно помеченный архив Yandex Cloud |
 | [TELEGRAM_SETUP.md](TELEGRAM_SETUP.md) | Бот и получатели |
 | [OAUTH_SETUP.md](OAUTH_SETUP.md) | Соцвход пошагово |
 | [SEO_ADS.md](SEO_ADS.md) | Выдача в поиске, Метрика, sitemap, реклама |

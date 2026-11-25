@@ -27,7 +27,7 @@ API: **https://api.tikhvin-palomnik.ru**
 - [x] https://tikhvin-palomnik.ru — HTTPS 200 (сверка 2026-08-27, после #46)
 - [x] `/robots.txt` и `sitemap.xml`
 - [x] `https://api.tikhvin-palomnik.ru/health/ready`
-- [ ] Автодеплой Actions — чинить `DEPLOY_SSH_KEY`
+- [ ] Проверить последний запуск Actions на `main` и соответствие `/release.txt` текущему SHA (старый пункт про `DEPLOY_SSH_KEY` от 2026-08-27 устарел)
 - [ ] Секреты из [V4_OWNER_SETUP.md](V4_OWNER_SETUP.md) — по мере готовности кабинетов
 
 ## Cron на ВМ

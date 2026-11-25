@@ -13,7 +13,7 @@ API: **https://api.tikhvin-palomnik.ru**
 
 Полный канон: **[AGENTS.md](AGENTS.md)**. Кратко:
 
-1. Правки в **отдельной ветке** и PR в `main`. Деплой: GitHub Actions после CI (сейчас SSH-ключ неверный) или `make deploy`.
+1. Правки в **отдельной ветке** и PR в `main`. Деплой: GitHub Actions после успешного CI, резервный путь — `SSH_KEY=<путь> make deploy`. Актуальные настройки: [docs/RELEASE.md](docs/RELEASE.md).
 2. Не выдумывать бизнес-логику. Неясное поведение — вопрос владельцу.
 3. Backend — гексагональная архитектура. Логика не в HTTP-handlers и не во frontend.
 4. Секреты (`.env.production`, ключи, токены) не коммитить и не светить в чат.
@@ -70,16 +70,14 @@ make check-ops               # ready + worker + outbox
 ## Релиз и деплой
 
 ```text
-ветка → PR → main → make deploy  (пока Actions Deploy красный)
+ветка → PR → CI → merge в main → CI(main) → GitHub Actions Deploy production → проверка /health/ready
 ```
 
-```bash
-make deploy
-```
+Production размещён на **Selectel**, Ubuntu 24.04, Docker Compose + Caddy. Фактический target в `.github/workflows/deploy.yml`: `deploy@92.53.100.23`, рабочий каталог `/opt/polomnik`, файл конфигурации `.env.production.test`. SSH-ключ хранится только в GitHub Actions secrets как `DEPLOY_SSH_KEY`; значения секретов в репозитории не публикуются. Cloudflare-компоненты Telegram не следует отключать при изменениях инфраструктуры.
 
-ВМ: Ubuntu 24.04, пользователь `smailikin70`, IP `93.77.165.81`. Каталог на сервере **`/opt/polomnik`** (скрипт ищет compose, если нет `/opt/palomnik`). SSH: `ssh smailikin70@93.77.165.81`. Env `.env.production` только на ВМ, не в git.
+Ручной резервный вариант: `SSH_KEY=<путь-к-приватному-ключу> make deploy`. Нельзя запускать два деплоя одновременно или выполнять `docker compose down -v`. После публикации сверять `/release.txt` с `main`.
 
-DNS на REG.RU для зоны **tikhvin-palomnik.ru**: `@` / `www` / `api` → A `93.77.165.81`. Подробности: [docs/DEPLOY.md](docs/DEPLOY.md), [docs/RELEASE.md](docs/RELEASE.md).
+См. [docs/RELEASE.md](docs/RELEASE.md), [docs/DEPLOY.md](docs/DEPLOY.md), [AGENTS.md](AGENTS.md).
 
 ## Документация
 
@@ -99,4 +97,6 @@ DNS на REG.RU для зоны **tikhvin-palomnik.ru**: `@` / `www` / `api` →
 
 ## Статус
 
-Сверка **2026-08-27**: код v4 этапов 9–19 на https://tikhvin-palomnik.ru (goose **00032**). Тег freeze v3: `v3.0.0`. Live: Telegram. Bitrix/1С/оплата/ИИ — `noop`. Что осталось у владельца — [docs/STATUS.md](docs/STATUS.md).
+По изменениям в GitHub на **2026-11-25**: PR #54–64 охватывают режимы главной страницы, разделение пространств CMS, формы в модальных окнах и предпросмотр неопубликованных правок. PR #65–68 (merged) добавили email-получателей, SMTP через Selectel и обработку постоянной SMTP-ошибки, чтобы не отправлять повторно Telegram-уведомления по тому же событию. Проверка фактического состояния production и независимых backup/restore — отдельные операционные задачи, не подменяемые фактом merge.
+
+Текущий перечень подтверждённых изменений и непроверенных задач: [docs/STATUS.md](docs/STATUS.md). Старое состояние от 2026-08-27 не является актуальным.

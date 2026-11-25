@@ -1,4 +1,21 @@
-# Deploy
+# Deploy: действующий Selectel и архивные инструкции
+
+Дата актуализации: **2026-11-25**. Источник параметров — [workflow](../.github/workflows/deploy.yml) и [RELEASE.md](RELEASE.md). Ниже исходное описание Yandex Cloud сохранено **только как архив**: его нельзя выполнять для нынешнего production.
+
+## Текущий порядок выпуска
+
+1. Отдельная ветка, PR, успешные проверки CI, merge в `main`.
+2. Успешный CI для push в `main` инициирует GitHub Actions **Deploy production** (`workflow_run`); доступен также `workflow_dispatch` из `main`.
+3. GitHub Actions использует секрет `DEPLOY_SSH_KEY`, закреплённый host key `deploy/vps/known_hosts`, адрес `deploy@92.53.100.23`, каталог `/opt/polomnik`, файл `.env.production.test`; скрипт `deploy/vps/deploy.sh`.
+4. Workflow проверяет `https://api.tikhvin-palomnik.ru/health/ready` через `--resolve` на IP Selectel. После этого отдельно сверить опубликованный `/release.txt` с SHA `main`.
+5. Резервный ручной путь: `SSH_KEY=<путь> make deploy`, только при подтверждённом доступе и отсутствии параллельного деплоя. **Не выполнять** `docker compose down -v`, не раскрывать секреты, не менять DNS и Cloudflare Telegram tunnel без отдельного плана.
+
+### Непроверенные эксплуатационные детали
+
+Живые контейнеры, резервные копии, восстановление данных, TLS/DNS и текущий статус workflow требуют отдельного live-аудита с безопасным доступом. Наличие корректного workflow не является доказательством последнего успешного деплоя.
+
+## Архив: прежнее развёртывание на Yandex Cloud (не использовать для production)
+
 
 Прод-запуск **без live Bitrix/1C** — backend остаётся source of truth, интеграции `noop`.
 
